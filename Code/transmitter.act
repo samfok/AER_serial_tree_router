@@ -1,0 +1,49 @@
+// This file contains PRS for the transmitter circuits
+import "lib/globals.act";
+import "channel.act";
+
+namespace transmitter {
+
+export
+defproc EVT (globals g; port p, r, c) {
+    bool u, _pi;
+    prs {
+        ~g.sReset & ~_pi & ~r.i -> r.o+
+        g.pReset | _pi          -> r.o-
+
+        g.pReset | r.i & r.o -> u-
+        ~g.sReset & ~r.i      -> u+
+
+        u => p.o-
+        u => c.o-
+
+        p.i => _pi-
+    }
+}
+
+export
+defproc INT (globals g; port v, e, c) {
+}
+
+
+export
+defproc ARB (globals g; port l1, l2) {
+}
+
+export
+defproc LTH (globals gl; port l, g; bool rk) {
+}
+
+export
+defproc ADY (globals g; port y, v, d) {
+}
+
+export
+defproc ADX (globals g; port x, v, c) {
+}
+
+export
+defproc SEQ (globals g; port s, x, y, t, d) {
+}
+
+} // namespace transmitter

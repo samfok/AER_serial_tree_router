@@ -1,0 +1,20 @@
+import "lib/globals.act";
+import "test.act";
+
+globals g;
+
+active_handshaker a(g,);
+passive_handshaker p(g,);
+
+a.p.i = p.p.o;
+a.p.o = p.p.i;
+
+bool pReset, sReset;
+prs {
+    sReset => g.sReset+
+    pReset => g.pReset+
+    sReset => g._sReset-
+    pReset => g._pReset-
+    sReset -> g.Vdd+
+    sReset -> g.GND-
+}

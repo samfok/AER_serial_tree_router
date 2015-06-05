@@ -1,0 +1,279 @@
+////////////////////////////////////////////////////////////////////////////////
+// My channel definitions
+////////////////////////////////////////////////////////////////////////////////
+
+// dataless channel
+// simple two wire channel
+export defchan chan2 <: chan(bool) (bool l0, l1) {
+    send {}
+    recv {}
+}
+
+// simple port
+export defchan port <: chan(bool) (bool i, o) {
+    send {}
+    recv {}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Standard Code Words
+//
+// We only support 1ofN representations
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////
+// Templated Code Words
+////////////////////////////////////////
+
+//Codeword: c1of<N>
+export template<pint N>
+deftype c1of <: int<1> (bool n[N]) {
+    set { }
+    get { }
+}
+
+//Codeword: _c1of<N>
+export template<pint N>
+deftype _c1of <: int<1> (bool n[N]) {
+    set { }
+    get { }
+}
+
+////////////////////////////////////////
+// Specific Code Words
+////////////////////////////////////////
+
+//Codeword: c1of1
+export deftype c1of1 <: int<1> (bool n[1],d) {
+    n[0] = d;
+    set { }
+    get { }
+}
+
+//Codeword: c1of2
+export deftype c1of2 <: int<1> (bool n[2],t,f) {
+    n[0] = f;
+    n[1] = t;
+    set { }
+    get { }
+}
+
+//Codeword: c1of4
+export deftype c1of4 <: int<2> (bool n[4],d[4]) {
+    n[0] = d[0];
+    n[1] = d[1];
+    n[2] = d[2];
+    n[3] = d[3];
+    set { }
+    get { }
+}
+
+export deftype dualrail <: int<1> (bool n[2],t,f) {
+    n[0] = f;
+    n[1] = t;
+    set { }
+    get { }
+}
+
+export deftype _dualrail <: int<1> (bool n[2],t,f) {
+    n[0] = f;
+    n[1] = t;
+    set { }
+    get { }
+}
+
+//Codeword: LEDR
+export deftype cledr <: int<1> (bool n[2],d,r) {
+    n[0] = d; //Data
+    n[1] = r; //Repeat
+    set { }
+    get { }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Standard Channels
+//
+// We only support Mx1ofN representations in e, ev, a, and av flavors
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////
+// e variants
+////////////////////////////////////////////////////////////
+
+////////////////////////////////////////
+// Templated e-type channels
+////////////////////////////////////////
+
+//Channel: eMx1ofN<M,N>
+export template <pint M,N>
+defchan eMx1ofN <: chan(int<M>) (c1of<N> m[M]; bool e) {
+    send { }
+    recv { }
+}
+
+//Channel: evMx1ofN<M,N>
+export template <pint M,N>
+defchan  evMx1ofN <: chan(int<M>) (c1of<N> m[M]; bool e,v) {
+    send { }
+    recv { }
+}
+
+//Channel: e1of<N>
+export template <pint N>
+defchan e1of <: chan(int<1>) (c1of<N> m; bool e) {
+    send { }
+    recv { }
+}
+
+//Channel: ev1of<N>
+export template <pint N>
+defchan ev1of <: chan(int<1>) (c1of<N> m; bool e,v) {
+    send { }
+    recv { }
+}
+
+////////////////////////////////////////
+// Specfic e-type channels
+////////////////////////////////////////
+
+//Channel: e1of1
+export defchan e1of1 <: chan(int<1>) (c1of1 m; bool d,e) {
+    m.n[0] = d;
+    send { }
+    recv { }
+}
+
+//Channel: e1of2
+export defchan  e1of2 <: chan(int<1>) (c1of2 m; bool d[2],n[2],t,f,e) {
+    m.n = n;
+    m.n = d;
+    m.n[0] = f;
+    m.n[1] = t;
+    send { }
+    recv { }
+}
+
+//Channel: e1of4
+export defchan e1of4 <: chan(int<2>) (c1of4 m; bool d[4],n[4],e) {
+    m.n = d;
+    m.n = n;
+    send { }
+    recv { }
+}
+
+
+////////////////////////////////////////////////////////////
+// a variants
+////////////////////////////////////////////////////////////
+
+////////////////////////////////////////
+// Templated a-type channels
+////////////////////////////////////////
+
+//Channel: aMx1ofN<M,N>
+export template <pint M,N>
+defchan aMx1ofN <: chan(int<M>) (c1of<N> m[M]; bool a) {
+    send { }
+    recv { }
+}
+
+//Channel: avMx1ofN<M,N>
+export template <pint M,N>
+defchan  avMx1ofN <: chan(int<M>) (c1of<N> m[M]; bool a,v) {
+    send { }
+    recv { }
+}
+
+//Channel: a1of<N>
+export template <pint N>
+defchan a1of <: chan(int<1>) (c1of<N> m; bool a) {
+    send { }
+    recv { }
+}
+
+//Channel: av1of<N>
+export template <pint N>
+defchan av1of <: chan(int<1>) (c1of<N> m; bool a,v) {
+    send { }
+    recv { }
+}
+
+////////////////////////////////////////
+// Specific a-type channels
+////////////////////////////////////////
+
+//Channel: a1of1
+export defchan a1of1 <: chan(int<1>) (c1of1 m; bool d,a) {
+    m.n[0] = d;
+    send { }
+    recv { }
+}
+
+//Channel: a1of2
+export defchan  a1of2 <: chan(int<1>) (c1of2 m; bool t,f,a) {
+    m.n[0] = f;
+    m.n[1] = t;
+    send { }
+    recv { }
+}
+
+////////////////////////////////////////
+// 2-Phase Channels
+////////////////////////////////////////
+
+//Channel eledr
+export defchan eledr <: chan(int<1>) (cledr m; bool d,r,e) {
+    m.n[0] = d;
+    m.n[1] = r;
+    send { }
+    recv { }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Ternary Channels
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////
+// Templated Ternary Channels
+////////////////////////////////////////
+
+//Channel eMxtof1
+//Tenary "Dual-Rails" with Full Rail Acknowledge
+export template <pint M>
+defchan eMxtof1 <: chan(int<M>) (bool d[M],e) {
+    send { }
+    recv { }
+}
+
+//Channel Mxtof1
+//Ternary "Dual-Rails" with Full Rail Acknowledge
+export template <pint M>
+defchan Mxtof1 <: chan(int<M>) (bool d[M]) {
+    send { }
+    recv { }
+}
+
+////////////////////////////////////////
+// Specific Ternary Channels
+////////////////////////////////////////
+
+//Channel: etof1
+//Ternary "Dual-Rail" with Full Rail Acknowledge
+export defchan etof1 <: chan(int<1>) (bool d,e) {
+    send { }
+    recv { }
+}
+
+//Channel tof1
+//Ternary "Dual-Rail"
+export defchan tof1 <: chan(int<1>) (bool d) {
+    send { }
+    recv { }
+}
+
+//Channel tof2
+//Ternary "1of4"
+export defchan tof2 <: chan(int<2>) (bool d[2]) {
+    send { }
+    recv { }
+}

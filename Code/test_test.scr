@@ -1,0 +1,5 @@
+source reset.scr
+random
+watch a.p.i
+watch a.p.o
+cycle

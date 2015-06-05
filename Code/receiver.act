@@ -1,0 +1,7 @@
+// This file contains PRS for the receiver circuits
+
+include "lib/globals.act"
+include "channel.act"
+
+namespace receiver {
+}

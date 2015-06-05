@@ -1,0 +1,10 @@
+mode reset
+set sReset 1
+cycle
+set pReset 1
+cycle
+set pReset 0
+cycle
+set sReset 0
+status U
+mode run
