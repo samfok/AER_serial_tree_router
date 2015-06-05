@@ -1,0 +1,381 @@
+\documentclass[aer.tex]{subfiles}
+\begin{document}
+
+\section{Transmitter}
+The transmitter detects spike events and transmits
+them out of the core (e.g. to a router or a receiver) in serialized AER
+packets. Neurons are arranged in a 2D grid of rows (y address) and columns 
+(x address). 
+When a neuron spikes, it (and any other neuron in the same row) raises a 
+request to the arbiter at the end of the rows. 
+The row arbiter selects a row of neurons to transmit. The 
+y address is then transmitted. Any neuron that spiked in the 
+selected row then send their column addresses to the column latch and arbiter.
+Their column addresses are latched to allow the neurons to reset while the 
+column arbiter sequences the transmission of their x addresses. Once all of the
+x addresses have been transmitted, the tail bit is transmitted to signal the 
+end of the packet.
+
+\subsection{Transmitter Decomposition}
+Here we will start from a high level description of the transmitter and then decompose
+the description into a set of concurrent, parallel processes. 
+The highest level description of the address-event transmitter $AEXT$ is
+
+\begin{csp}
+AEXT(n)\equiv*[[\langle\|\,j:1..n:#{P`j}->A!enc(j)\pll\,P`j\rangle]]
+\end{csp}
+where 
+
+\begin{tabular}[]{rl}
+$n$ & is the number of neurons \\
+$P_j$ & is the port communicating with the $j$th neuron \\
+$A$ & is the output port \\
+$enc(\cdot)$ & is a function returning the address of a neuron \\
+\end{tabular} \\
+
+In words, when the $j$th neuron spikes, output its address and reset the neuron. 
+We rely on the "$\vert$" arbitration operator to handle multiple neurons spiking simultaneously.
+We first expand $AEXT$ into rows and columns.
+
+\begin{csp}
+AEXT(x,y)\equiv*[[\langle\|\,l:1..y:\langle|k:1..x:#{P`{l\cdot\,k}}\rangle->A`1!enc(l)
+               ,[\langle\|\,k:1..x:#{P`{l\cdot\,k}}->A`2!enc(k),P`{l\cdot\,k}\rangle]\rangle]]
+\end{csp}
+where 
+
+\begin{tabular}[]{rl}
+$x$ & is the number of columns \\
+$y$ & is the number of rows \\
+$P_{l\cdot k}$ & is the port communicating with the $l\cdot\,k$ neuron, and $\l\cdot k=xl+k$  \\
+$A_1$ & is the row address output port \\
+$A_2$ & is the column address output port \\
+\end{tabular} \\
+
+In words, for every row, wait for any neuron in that row to spike.
+When a neuron spikes within a row, transmit the row address. In parallel,
+also transmit the spiked neurons' column addresses while resetting the spiked neurons.
+
+We still rely on the arbitration operator to handle neurons in multiple rows spiking concurrently, 
+so our next step is to decompose $AEXT$ into separate processes for 
+arbitration ($ARB$) and concurrent transmition ($ARY$). The arbitration process is given by
+
+\begin{csp}
+ARB(m)\equiv*[[\langle\|j:1..m:#{L`j}->L`j;L`j\rangle]]
+\end{csp}
+where $m$ is the number of processes to arbitrate and $L_j$ is port communicating with the $j$th process.
+The first $L_j$ communication informs the $j$th process it may proceed, 
+and the second $L_j$ communication confirms when the $j$th process has finished 
+before the arbiter moves on to the next process. 
+With the arbiter defined, we define the concurrent transmition process
+
+\begin{csp}
+ARY(y,x)\equiv*[[\langle,l:1..y:\langle|k:1..x:#{P`{l\cdot\,k}}\rangle->R`l;A`1!enc(l)
+             ,[\langle,k:1..x:#{P`{l\cdot\,k}}->C`k;A`2!enc(k),P`{l\cdot\,k};C`k\rangle];R`l\rangle]]
+\end{csp}
+where
+
+\begin{tabular}[]{rl}
+$R_l$ & is the port communicating with the row arbiter \\
+$C_k$ & is the port communicating with the column arbiter \\
+\end{tabular} \\
+
+From $AEXT$ to $ARY$, we replace arbitration "$\vert$" with concurrancy "$,$" and
+introduce communications with the row and column arbiters.
+As $ARB$ has two communications with each client: one to grant permission and one to check for 
+completion, $ARY$ has two communications with the each arbiter: one to request permission and
+one to indicate completion.
+
+Next, we split out the address encoding function of $ARY$ into its own process.
+
+\begin{csp}
+ENC(m)\equiv*[[\langle[]j:1..m:#{L`j}->A!enc(j),L`j\rangle]]
+\end{csp}
+
+where $L$ communicates with $ARY$. We can use selection, which assumes mutual exclusion, 
+in the encoding process because the arbiters ensure that we only attempt to encode one address at time.
+Introducing a row and column address encoder, we rewrite $ARY$ as
+
+\begin{csp}
+ARY(y,x)\equiv*[[\langle,l:1..y:\langle|k:1..x:#{P`{l\cdot\,k}}\rangle->R`l;A`l
+             ,[\langle,k:1..x:#{P`{l\cdot\,k}}->C`k;D`k,P`{l\cdot\,k};C`k\rangle];R`l\rangle]]
+\end{csp}
+
+where the $A_l$ port communicates with the row address encoder
+and the $D_k$ port communicates with the column address encoder.
+
+Next, we decompose $ARY$ into concurrent row and column processes.
+
+\begin{csp}
+ROW(x)\equiv*[[\langle|k:1..x:#{P`k}\rangle->R;
+            A,[\langle,k:1..x:#{P`k}->C`k,P`k\rangle];R]]
+COL(y)\equiv*[[\langle[]l:1..y:#{R`l}->C;D,R`l;C\rangle]]
+\end{csp}
+
+where
+
+\begin{tabular}[c]{rl}
+$P_k$ & communicates with the $k$th neuron in a row \\
+$R$ & communicates the the row arbiter \\
+$A$ & communicates with the row address encoder \\
+$C_k$ & communicates with the $k$th column process \\
+$R_l$ & communicates with the $l$th row process \\
+$C$ & communicates with the column arbiter \\
+$D$ & communicates with the column address encoder \\
+\end{tabular}
+
+In words, we have decomposed $ARY$ into $y$ $ROW$ processes and $x$ $COL$ processes. 
+When a neuron spikes, its $ROW$ process makes a request to the row arbiter.
+Once granted permission, $ROW$, in parallel, communicates with the row address encoder, 
+signals the $COL$ processes corresponding to spiked neurons in the row to proceed, 
+and sends reset signals to the spiked neurons.
+When the row addess encoder, $COL$ processes, and neuron resets have completed, 
+$ROW$ signals the row arbiter that it has finished.
+The $COL$ processes use selection between the $R_l$ ports in the column because the 
+row arbiter has ensured that only one $ROW$ process will signal the $COL$ process
+at a time. 
+
+Once signaled by a $ROW$ process, $COL$ makes a request to the column arbiter.
+After gaining permission, $COL$ communicates with the column address encoder while
+acknowledging the $ROW$ process. Finally, $COL$ signals the column arbiter that 
+it has finished.
+Eventually,
+
+\begin{csp}
+ROW(x)\equiv*[[\langle,k:1..x:#{P`k}->w.k+\rangle];R;
+           A,C!w,[\langle,k:1..x:w.k->P`k\rangle];R,w:=0]
+BUS(y,x)\equiv*[[\langle[]l:1..y:#{R`l}->C!(R`l?)\rangle]]
+\end{csp}
+
+\begin{csp}
+LTH(x)\equiv*[R?w;[\langle,k:1..x:w.k->C`k;D`k,w.k-;C`k\rangle];R]
+\end{csp}
+
+\begin{csp}
+MUX(b,x)\equiv*[S!(D?)\pll\,T!(R?);S;T!\phi\]\pll*[T!(C?)]
+\end{csp}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Event Generator (EVT)}
+EVT interfaces the neuron with the rest of the transmitter. 
+There is one EVT per neuron.
+EVT has the following ports:
+
+\begin{tabular}[]{rll}
+  \code{P} & (passive) & communicates with the neuron \\
+  \code{R} & (active) & communicates with row interface INT \\
+  \code{C} & (active) & communicates with the column latch LTH \\
+\end{tabular} \\ \\
+
+EVT's HSE is given by
+
+\begin{hse}
+*[[pi];ro+;[ri];co+,po+;
+ [~pi];ro-;[~ri];co-,po-]
+\end{hse}  
+
+In words,
+
+\begin{tabular}[]{rl}
+  \code{[pi]} & wait for the neuron to spike \\
+  \code{ro$\uparrow$;[ri]} & get permission from the arbiter interface / row arbiter to go ahead \\
+  \code{co$\uparrow$,po$\uparrow$} & send the column signal and the neuron reset signal \\
+  \code{[$\neg$pi]} & wait for the neuron to reset \\
+  \code{ro$\downarrow$;[$\neg$ri]} & indicate that the row arbiter can select the next row. \\
+  \code{co$\downarrow$, po$\downarrow$} & reset the column request and neuron reset signals \\
+\end{tabular} \\ \\
+
+Note that the \code{[$\neg$ri]} wait also indicates that the sequencer is done with this row 
+(and acknowledges \code{co$\uparrow$}). EVT's PRS is given by 
+
+\begin{prs2}
+ pi&~ri->ro+
+~pi->ro-
+
+ ri&ro->co+,po+
+~ri->co-,po-
+\end{prs2}
+The \code{ro$\uparrow$} guard is strengthened with 
+\code{$\neg$ri} so that if the neuron spikes immediately after it has
+reset, \code{[$\neg$pi]}, 
+we do not try to raise \code{ro} while executing \code{ro$\downarrow$}. 
+The \code{co$\uparrow$,po$\uparrow$} guard is strengthened with \code{ro} because \code{ri} is a wire connecting all EVT instances in a row. We only want the neurons that have actually spiked
+to proceed with raising their column and neuron reset lines.
+
+\emph{The \code{co$\uparrow$} transition is not explicitely acknowledged. 
+I hope this is accounted for by \code{$\neg$ri}...Check this after implementing LTH.}
+
+To make the PRS CMOS-implementable, we invert the sense of \code{pi}, \code{co}, and \code{po}.
+
+\begin{prs2}
+ ~_pi & ~ri->ro+
+_pi->ro-
+
+ ri & ro->_co-, _po-
+~ri->_co+, _po+
+\end{prs2}
+
+In the initial state, \code{$\neg$po$\land\neg$ro$\land\neg$co} is true. With reset circuitry,
+
+\begin{prs2}
+~sReset & ~_pi & ~ri->ro+
+pReset | _pi->ro-
+
+_sReset & ri & ro->_co-, _po-
+~_pReset | ~ri->_co+, _po+
+\end{prs2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Interface (INT)}
+
+There are two sets of INTs in the transmitter:
+one for the rows and another for the columns.
+The row INTs communicate with 
+EVT, the row arbiter, and the y-address controller (ADY).
+The column INTs communicate with 
+the column address latch (LTH), the column arbiter, and the x-address controller (ADX).
+Each row (column) INT has the following ports:
+
+\begin{tabular}[]{rll}
+  \code{V} & (passive) & receives requests from EVT (LTH) \\
+  \code{C} & (active) & transmits request to the row (column) arbiter \\
+  \code{E} & (passive) & communicates with the y (x) address controller \\
+\end{tabular} \\ \\
+
+For row INTs, \code{vi} is the wired-or output of all EVT \code{ro} ports in the row. Likewise,
+\code{vo} is connected to all of the EVT \code{ri} ports in the row.
+
+INT's HSE is given by
+
+\begin{hse}
+*[[vi];co+;[ci&~ei];eo+,vo+;
+ [~vi&ei];co-;[~ci];eo-,vo-]
+\end{hse}
+
+In words,
+
+\begin{tabular}[]{rl}
+  \code{[vi]} & wait for a request from INT or LTH for the arbiter \\
+  \code{co$\uparrow$} & send request to arbiter \\
+  \code{[ci$\land\neg$ei]} & wait for arbiter to grant permission and address controller to finish previous transmission \\
+  \code{eo$\uparrow$, vo$\uparrow$} & \specialcell[t]{l}{
+    signal address latch to store address \\ 
+    signal EVT to transmit column information} \\
+  \code{[$\neg$vi$\land$ei]} & \specialcell[t]{l}{
+    wait for neuron to reset or LTH to clear \\
+    and address controller to have latched the address} \\
+  \code{co$\downarrow$;[$\neg$ci]} & release arbiter \\
+  \code{eo$\downarrow$, vo$\downarrow$} & reset signals to address latch and EVT/LTH \\
+\end{tabular} \\ \\
+
+INT's PRS is given by
+
+\begin{prs2}
+ vi->co+
+~vi&ei->co-
+
+ ci&~ei->eo+,vo+
+~ci->eo-,vo-
+\end{prs2}
+
+Questions about this circuit:
+\begin{itemize}
+\item what is the point of \code{eo}? It's not guarding anything nor is it sent
+anywhere. 
+\begin{itemize}
+\item Indeed \code{eo} is the same wire as \code{vo}, but \code{eo} is used to communicate with the address encoder
+\end{itemize}
+\end{itemize}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Arbiter (ARB)}
+
+ARB sequences requests from rows or columns. Since these requests could
+arrive concurrently, the arbiter needs to be able to arbitrate between 
+concurrent requests. For $N$ request lines, the arbiter is composed of $N-1$ 
+arbiter circuits arranged in a binary tree. The arbiter has ports:
+\begin{itemize}
+\item \code{L1} (passive) request from left 1 child
+\item \code{R} (active) request to parent 
+\item \code{A1} (state) arbitration line
+\item \code{R1} ?
+\item \code{L2} (passive) request from left 2 child
+\item \code{R} (active) request to parent 
+\item \code{A2} (state) arbitration line
+\item \code{R2} ?
+\end{itemize}
+
+\begin{hse}
+*[[l1i&~ri];a1o+;r1o+;[ri&a1i];l1o+;
+  [~l1i];a1o-;r1o-;[~a1i];l1o-]
+
+*[[l2i&~ri];a2o+;r2o+;[ri&a2i];l2o+;
+  [~l2i];a2o-;r2o-;[~a2i];l2o-]
+\end{hse}
+I will consider the prs for the arbiter later
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Latch (LTH)}
+
+LTH is responsible for storing the column address of a neuron. 
+\begin{itemize}
+\item \code{R} (passive) communication line with sequencer
+\item \code{Rk} (passive) column request from EVT
+\item \code{G} (active) request line to column interface (to the arbiter)
+\end{itemize}
+
+\begin{hse}
+*[[ri&rk];go+;ro+;[~ri&gi];go-;[~gi];ro-]
+\end{hse}
+
+\begin{prs2}
+ ri&rk->go+
+~ri&gi->go-
+
+ gi|go->ro+
+~gi&~go->ro-
+\end{prs2}
+
+Note how we made the guard for \code{ro} combinational by using \code{gi} in
+the pullup.
+
+Questions:
+\begin{itemize}
+\item What is the open dot feeding into \code{rk}?
+\item What prevents \code{rk} go low before \code{go} completes? 
+How does sequencer enforce this?
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Y Address Encoder (ADY)}
+
+ADY is responsible for controlling the storage of y-addresses.
+
+\begin{itemize}
+\item \code{D}
+\item \code{Y}
+\item \code{V}
+\end{itemize}
+
+\begin{hse}
+*[[yi];yo+;[vy];do+;[~yi];yo-;[~vy&~di];do-]
+\end{hse}
+
+\begin{prs}
+\end{prs}
+
+\section{Test structures}
+Here we describe some processes used to test the transmitter processes
+
+\subsection{EVT}
+For testing evt, I used a dummy LTH\_INT process that takes the place of the LTH and INT blocks.
+LTH\_INT's HSE is given by
+
+\begin{hse}
+*[[vi&~rk];vo+;[~vi&rk];vo-]
+\end{hse}
+
+The LTH\_INT's PRS is given by 
+
+\begin{prs}
+vi&~rk -> vo+
+~vi&rk -> vo-
+\end{prs}
+
+\end{document}

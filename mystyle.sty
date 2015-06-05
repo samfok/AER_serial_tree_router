@@ -1,0 +1,11 @@
+\ProvidesPackage{mystyle}
+
+\usepackage{fixltx2e} % to fix underscore handling
+\usepackage{prs}
+\usepackage[letterpaper, margin=1in]{geometry}
+\usepackage{subfiles}
+
+\newcommand{\code}[1]{\texttt{#1}}
+
+\newcommand{\specialcell}[3][c]{
+  \begin{tabular}[#1]{@{}#2@{}}#3\end{tabular}}
