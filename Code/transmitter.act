@@ -12,7 +12,7 @@ defproc EVT (globals g; port p, r, c) {
         g.pReset | _pi          -> r.o-
 
         g.pReset | r.i & r.o -> u-
-        ~g.sReset & ~r.i      -> u+
+        ~g.sReset & ~r.i     -> u+
 
         u => p.o-
         u => c.o-

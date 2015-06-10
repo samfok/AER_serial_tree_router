@@ -138,21 +138,79 @@ Once signaled by a $ROW$ process, $COL$ makes a request to the column arbiter.
 After gaining permission, $COL$ communicates with the column address encoder while
 acknowledging the $ROW$ process. Finally, $COL$ signals the column arbiter that 
 it has finished.
-Eventually,
+
+Our final step is to read out the activated columns in a row in parallel
+and transmit the row and column addresses sequentially.
+To read out columns in parallel, we modify $ROW$ and convert $COL$ into $LTH$ and $BUS$.
+To sequence the address transmitions, we create $SEQ$.
+
+$ROW$ is modified as
 
 \begin{csp}
 ROW(x)\equiv*[[\langle,k:1..x:#{P`k}->w.k+\rangle];R;
            A,C!w,[\langle,k:1..x:w.k->P`k\rangle];R,w:=0]
-BUS(y,x)\equiv*[[\langle[]l:1..y:#{R`l}->C!(R`l?)\rangle]]
 \end{csp}
 
+where
+
+\begin{tabular}[c]{rl}
+$w$ & is an $x$-bit integer indicating which neurons spiked \\
+$C$ & interfaces with $BUS$ (see below) \\
+\end{tabular}
+
+Note how $w$ is cleared at the end of the process as well. 
+$BUS$ and $LTH$ are defined as
+
 \begin{csp}
+BUS(y,x)\equiv*[[\langle[]l:1..y:#{R`l}->C!(R`l?)\rangle]]
 LTH(x)\equiv*[R?w;[\langle,k:1..x:w.k->C`k;D`k,w.k-;C`k\rangle];R]
 \end{csp}
 
+where for $BUS$,
+
+\begin{tabular}[c]{rl}
+$R_l$ & interfaces with an instance of $ROW$ \\
+$C$ & interfaces with $SEQ$ (see below) \\
+\end{tabular}
+
+and for $LTH$
+
+\begin{tabular}[c]{rl}
+$R_l$ & interfaces with an instance of $ROW$ \\
+$C$ & interfaces with $SEQ$ (see below) \\
+$D$ & interfaces with an instance of $ENC$ \\
+\end{tabular}
+
+$BUS$ simply communicates data between $ROW$ and $SEQ$. 
+$LTH$ reads in data from $SEQ$ and sends the column addresses to be encoded.
+The second $R$ communication indicates that all column addresses have been encoded.
+
+$SEQ$ sequences the events
+
 \begin{csp}
-MUX(b,x)\equiv*[S!(D?)\pll\,T!(R?);S;T!\phi\]\pll*[T!(C?)]
+SEQ(b,x)\equiv*[S!(D?)\pll\,T!(R?);S;T!\phi\]\pll*[T!(C?)]
 \end{csp}
+
+where 
+
+\begin{tabular}[c]{rl}
+$D$ & reads in data from $BUS$ \\
+$S$ & interfaces with $LTH$ \\
+$R$ & interfaces with the row $ENC$ \\
+$C$ & interfaces with the column $ENC$ \\
+$T$ & is the transmitter output port \\
+$\phi$ & is a reserved keyword for a tailword \\
+\end{tabular}
+
+The second $S$ communication corresponds to $LTH$'s second $R$ communication and
+indiciates that the latch is empty and that the transmitter may move on to the next row.
+There is a timing assumption that row data arrives at $T$ before column data.
+This assumption is valid because the row data has fewer processes to traverse
+than column data before reaching $T$.
+
+Now that we have decomposed the transmitter, we will proceed to HSE and PRS
+for the decomposed components.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Event Generator (EVT)}
 EVT interfaces the neuron with the rest of the transmitter. 
@@ -203,24 +261,38 @@ to proceed with raising their column and neuron reset lines.
 \emph{The \code{co$\uparrow$} transition is not explicitely acknowledged. 
 I hope this is accounted for by \code{$\neg$ri}...Check this after implementing LTH.}
 
+Next, we explicitly represent the isochronic fork between
+\code{co} and \code{ro} using a local variable \code{u}.
 To make the PRS CMOS-implementable, we invert the sense of \code{pi}, \code{co}, and \code{po}.
 
 \begin{prs2}
- ~_pi & ~ri->ro+
-_pi->ro-
+ ~_pi & ~ri -> ro+
+_pi         -> ro-
 
- ri & ro->_co-, _po-
-~ri->_co+, _po+
+u  -> _co-
+~u -> _co+
+
+ ri & ro -> u-
+~ri      -> u+
+
+u  -> _po-
+~u -> _po+
 \end{prs2}
 
-In the initial state, \code{$\neg$po$\land\neg$ro$\land\neg$co} is true. With reset circuitry,
+Initially, \code{$\neg$po$\land\neg$ro$\land\neg$co} is true. With reset circuitry,
 
 \begin{prs2}
-~sReset & ~_pi & ~ri->ro+
-pReset | _pi->ro-
+~sReset & ~_pi & ~ri -> ro+
+pReset | _pi -> ro-
 
-_sReset & ri & ro->_co-, _po-
-~_pReset | ~ri->_co+, _po+
+u  -> _co-
+~u -> _co+
+
+_sReset & ri & ro -> u-
+~_pReset | ~ri -> u+
+
+u  -> _po-
+~u -> _po+
 \end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -237,7 +309,7 @@ Each row (column) INT has the following ports:
 \begin{tabular}[]{rll}
   \code{V} & (passive) & receives requests from EVT (LTH) \\
   \code{C} & (active) & transmits request to the row (column) arbiter \\
-  \code{E} & (passive) & communicates with the y (x) address controller \\
+  \code{E} & (active) & communicates with the row (column) address controller \\
 \end{tabular} \\ \\
 
 For row INTs, \code{vi} is the wired-or output of all EVT \code{ro} ports in the row. Likewise,
@@ -266,24 +338,61 @@ In words,
   \code{eo$\downarrow$, vo$\downarrow$} & reset signals to address latch and EVT/LTH \\
 \end{tabular} \\ \\
 
+Note how INT signals the address encoder first after gaining permission from the arbiter
+and second after the arbiter has been released instead of before the arbiter has been released.
+This is safe because INT waits until \code{ei} clears before the first \code{E} communication. 
+That is, \code{E} follows a lazy-active protocol.
 INT's PRS is given by
 
 \begin{prs2}
- vi->co+
-~vi&ei->co-
+ vi      -> co+
+~vi & ei -> co-
 
- ci&~ei->eo+,vo+
-~ci->eo-,vo-
+ ci & ~ei -> eo+, vo+
+~ci       -> eo-, vo-
 \end{prs2}
 
-Questions about this circuit:
-\begin{itemize}
-\item what is the point of \code{eo}? It's not guarding anything nor is it sent
-anywhere. 
-\begin{itemize}
-\item Indeed \code{eo} is the same wire as \code{vo}, but \code{eo} is used to communicate with the address encoder
-\end{itemize}
-\end{itemize}
+Next, we represent the isochronic fork between \code{eo} and \code{vo}
+using local variable \code{y}. 
+To make the PRS CMOS-implementable, we introduce local variable \code{x} and
+invert the sense of \code{vi} and \code{ei}.
+
+\begin{prs2}
+vi         -> x-
+~vi & ~_ei -> x+
+
+ci & _ei -> y-
+~ci      -> y+
+
+y  -> eo-
+~y -> eo+
+
+~x -> co+
+x  -> co-
+
+y  -> vo-
+~y -> vo+
+\end{prs2}
+
+Initially, \code{$\neg$co$\land\neg$vo$\land\neg$eo} is true. With reset circuitry,
+
+\begin{prs2}
+_sReset & vi          -> x-
+~_pReset | ~vi & ~_ei -> x+
+
+_sReset & ci & _ei -> y-
+~_pReset | ~ci     -> y+
+
+y -> eo-
+~y -> eo+
+
+~x -> co+
+x -> co-
+
+y -> vo-
+~y -> vo+
+\end{prs2}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Arbiter (ARB)}
 
