@@ -396,20 +396,19 @@ y -> vo-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Arbiter (ARB)}
 
-ARB sequences requests from rows or columns. Since these requests could
-arrive concurrently, the arbiter needs to be able to arbitrate between 
+ARB sequences requests from rows or columns by arbitrating between 
 concurrent requests. For $N$ request lines, the arbiter is composed of $N-1$ 
 arbiter circuits arranged in a binary tree. The arbiter has ports:
-\begin{itemize}
-\item \code{L1} (passive) request from left 1 child
-\item \code{R} (active) request to parent 
-\item \code{A1} (state) arbitration line
-\item \code{R1} ?
-\item \code{L2} (passive) request from left 2 child
-\item \code{R} (active) request to parent 
-\item \code{A2} (state) arbitration line
-\item \code{R2} ?
-\end{itemize}
+
+\begin{tabular}[]{rll}
+  \code{R} & (active) & transmits request to parent \\
+  \code{L1} & (passive) & receives requests from left child 1 \\
+  \code{A1} & (local) & ? \\
+  \code{R1} & (local) & ? \\
+  \code{L2} & (passive) & receives requests from left child 2 \\
+  \code{A2} & (local) & ? \\
+  \code{R2} & (local) & ? \\
+\end{tabular} \\ \\
 
 \begin{hse}
 *[[l1i&~ri];a1o+;r1o+;[ri&a1i];l1o+;
@@ -418,6 +417,7 @@ arbiter circuits arranged in a binary tree. The arbiter has ports:
 *[[l2i&~ri];a2o+;r2o+;[ri&a2i];l2o+;
   [~l2i];a2o-;r2o-;[~a2i];l2o-]
 \end{hse}
+
 I will consider the prs for the arbiter later
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Latch (LTH)}
