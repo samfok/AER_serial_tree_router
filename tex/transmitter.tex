@@ -403,11 +403,11 @@ arbiter circuits arranged in a binary tree. The arbiter has ports:
 \begin{tabular}[]{rll}
   \code{R} & (active) & transmits request to parent \\
   \code{L1} & (passive) & receives requests from left child 1 \\
-  \code{A1} & (local) & ? \\
-  \code{R1} & (local) & ? \\
+  \code{A1} & (local) & request 1 to internal arbitration circuit \\
+  \code{R1} & (local) & or'ed with \code{R2} to produce \code{R} \\
   \code{L2} & (passive) & receives requests from left child 2 \\
-  \code{A2} & (local) & ? \\
-  \code{R2} & (local) & ? \\
+  \code{A2} & (local) & request 2 to internal arbitration circuit \\
+  \code{R2} & (local) & or'ed with \code{R2} to produce \code{R} \\
 \end{tabular} \\ \\
 
 \begin{hse}
@@ -423,15 +423,32 @@ I will consider the prs for the arbiter later
 \subsection{Latch (LTH)}
 
 LTH is responsible for storing the column address of a neuron. 
-\begin{itemize}
-\item \code{R} (passive) communication line with sequencer
-\item \code{Rk} (passive) column request from EVT
-\item \code{G} (active) request line to column interface (to the arbiter)
-\end{itemize}
+LTH has the following ports:
+
+\begin{tabular}[]{rll}
+  \code{R} & (passive) & communication line with sequencer \\
+  \code{Rk} & (passive) & column request from EVT \\
+  \code{G} & (active) & request line to column interface (to the column arbiter) \\
+\end{tabular} \\ \\
+
+\code{Rk} is fed by the wired-or of all requests from EVTs in a column.
+The HSE for LTH is given by:
 
 \begin{hse}
 *[[ri&rk];go+;ro+;[~ri&gi];go-;[~gi];ro-]
 \end{hse}
+
+In words,
+
+\begin{tabular}[]{rl}
+  \code{[ri$\land$rk]} & wait for column data and the go-ahead from the SEQ \\
+  \code{go$\uparrow$} & raise request to column INT \\
+  \code{ro$\uparrow$} & signal SEQ that the latch has data \\
+  \code{[$\neg$ri$\land$gi]} & wait for SEQ and INT to indicate that address has transmitted \\
+  \code{go$\downarrow$} & release INT request \\
+  \code{[$\neg$gi]} & wait for INT to release ARB \\
+  \code{ro$\downarrow$} & indicate to SEQ that LTH is empty? \\
+\end{tabular} \\ \\
 
 \begin{prs2}
  ri&rk->go+
@@ -452,23 +469,135 @@ How does sequencer enforce this?
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Y Address Encoder (ADY)}
+\subsection{Y Address Controller (ADY)}
 
-ADY is responsible for controlling the storage of y-addresses.
+ADY captures the row address and has the following ports:
 
-\begin{itemize}
-\item \code{D}
-\item \code{Y}
-\item \code{V}
-\end{itemize}
+\begin{tabular}[]{rll}
+  \code{di} & (input) & indicates that column data present \\
+  \code{do} & (output) & indicates that row address latched \\
+  \code{Y} & (passive) & SEQ's control signal \\
+  \code{vy} & (input) & indicates validity of row address latch \\
+\end{tabular} \\ \\
+
+ADY's HSE is given by
 
 \begin{hse}
 *[[yi];yo+;[vy];do+;[~yi];yo-;[~vy&~di];do-]
 \end{hse}
 
+In words,
+
+\begin{tabular}[]{rl}
+  \code{[yi]} & wait for the go-ahead from the SEQ \\
+  \code{yo$\uparrow$} & open row address latch to save and output row address \\
+  \code{[vy]} & wait for row address latch data to become valid \\
+  \code{do$\uparrow$} & signal INT and SEQ that row address has been latched \\
+  \code{[$\neg$yi]} & wait for SEQ to complete row address transmission \\
+  \code{yo$\downarrow$} & clear row address latch \\
+  \code{[$\neg$vy$\land\neg$di]} & wait for row address latch to become neutral and column data to clear \\
+  \code{do$\downarrow$} & signal INT and SEQ that row data has cleared \\
+\end{tabular} \\ \\
+
+PRS is given by
+
 \begin{prs}
 \end{prs}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{X Address Controller (ADX)}
+
+ADX captures the column address and has the following ports:
+
+\begin{tabular}[]{rll}
+  \code{X} & (passive) & SEQ control signal \\
+  \code{C} & (output) & communicate data validity to INT \\
+  \code{V} & (internal) & indicates that data is valid \\
+\end{tabular} \\ \\
+
+ADX's HSE is given by
+
+\begin{hse}
+*[[xi];xo+;[vx];co+;[~xi];xo-;[~vx];co-]
+\end{hse}
+
+In words,
+
+\begin{tabular}[]{rl}
+  \code{[xi]} & wait for the go-ahead from the SEQ \\
+  \code{xo$\uparrow$} & open column address latch to save and output column address \\
+  \code{[vx]} & wait for column address latch data to become valid \\
+  \code{co$\uparrow$} & signal INT that column address has been latched \\
+  \code{[$\neg$xi]} & wait for SEQ to complete column address transmission \\
+  \code{xo$\downarrow$} & clear column address latch \\
+  \code{[$\neg$vx]} & wait for column address latch to become neutral \\
+  \code{co$\downarrow$} & signal INT that column data has cleared \\
+\end{tabular} \\ \\
+
+PRS is given by
+
+\begin{prs}
+\end{prs}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Sequencer (SEQ)}
+
+\begin{tabular}[]{rll}
+  \code{S} & (active) & (\code{si} and \code{sod}) communicates with LTH \\
+  \code{so} & (internal) & state variable. High (low) means transmitting row (column or tail bit). \\
+  \code{Y} & (output) & controls ADY \\
+  \code{X} & (output) & controls ADX \\
+  \code{T} & (active) & \code{to} signals the tailbit generator. \code{ti} is the ack from the attached receiver (or router) \\
+\end{tabular} \\ \\
+
+SEQ's HSE is given by
+
+\begin{hse}
+*[[~ti&si&so];yo+;[ti];so-;yo-;
+  [~ti&~si&~so];to+;so+;[ti];to-]
+\pll
+*[[~ti&si&~so];xo+;[ti];xo-]
+\end{hse}
+
+SEQ contains two processes running in parallel. 
+The top process is responsible for transmitting the row address and tail bit.
+The bottom process is responsible for transmitting the column addresses.
+
+In words, the top process works as follows
+
+\begin{tabular}[]{rl}
+  \code{[$\neg$ti$\land$si$\land$so]} & wait for the receiver to be ready, LTH to have data, and \code{so} to be high \\
+  \code{yo$\uparrow$} & signal ADY to transmit the row address \\
+  \code{[ti]} & wait for the receiver to acknowledge receipt of the row address \\
+  \code{so$\downarrow$} & switch \code{so} to low state \\
+  \code{yo$\downarrow$} & release ADY \\
+  \code{[$\neg$ti$\land\neg$si$\land\neg$so]} & wait for the receiver to be ready, LTH to be clear, and \code{so} to be low \\
+  \code{to$\uparrow$} & signal tail bit generator to transmit the tail bit \\
+  \code{so$\uparrow$} & return \code{so} to high state \\
+  \code{[ti]} & wait for the receiver to acknowledge receipt of the tail bit \\
+  \code{to$\downarrow$} & release tail bit generator \\
+\end{tabular} \\ \\
+
+In words, the bottom process works as follows
+
+\begin{tabular}[]{rl}
+  \code{[$\neg$ti$\land$si$\land\neg$so]} & wait for the receiver to be ready, LTH to have data, and \code{so} to be low \\
+  \code{xo$\uparrow$} & signal ADX to transmit the column address \\
+  \code{[ti]} & wait for the receiver to acknowledge receipt of the column address \\
+  \code{xo$\downarrow$} & release ADX \\
+\end{tabular} \\ \\
+
+Putting the top and bottom processes together, first, the top process has transmits the row address.
+SEQ then switches to the bottom process, which transmits column addresses until LTH is empty. SEQ
+then switches back to the top process which transmits the tail bit and returns SEQ to its initial state. 
+
+PRS is given by
+
+\begin{prs}
+\end{prs}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Test structures}
 Here we describe some processes used to test the transmitter processes
 
