@@ -1,11 +1,9 @@
 source reset.scr
 random
-# watchall
-watch e.p.i
-watch e.p.o
-watch e.r.i
-watch e.r.o
-# watch e.c.i
-watch e.c.o
-set_principal e.c.o
+# watch e.p.i
+# watch e.p.o
+# watch e.r.i
+# watch e.r.o
+# watch e.c.o
+# set_principal e.c.o
 break-on-warn

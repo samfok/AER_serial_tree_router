@@ -1,0 +1,7 @@
+source reset.scr
+random
+# watch a.l1.i
+# watch a.l1.o
+# watch a.l2.i
+# watch a.l2.o
+break-on-warn

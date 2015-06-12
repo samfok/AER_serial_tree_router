@@ -6,7 +6,7 @@ import "test.act";
 defproc dummy_LTH_INT(globals g; port v; bool rk) {
     prs {
         ~g.sReset & v.i & ~rk -> v.o+
-        g.pReset | ~v.i & rk -> v.o-
+        g.pReset | ~v.i & rk  -> v.o-
     }
 }
 
@@ -15,19 +15,11 @@ active_handshaker neuron(g,);
 dummy_LTH_INT lth_int(g,,);
 EVT e(g,,,);
 
-// passive_handshaker row_int(g,);
-// passive_handshaker col_lth(g,);
-
 e.p.i = neuron.p.o;
 e.p.o = neuron.p.i;
 e.r.o = lth_int.v.i;
 e.r.i = lth_int.v.o;
 e.c.o = lth_int.rk;
-
-// e.r.o = row_int.p.i;
-// e.r.i = row_int.p.o;
-// e.c.o = col_lth.p.i;
-// e.c.i = col_lth.p.o;
 
 bool pReset, sReset;
 prs {

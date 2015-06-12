@@ -53,9 +53,10 @@ $A_2$ & is the column address output port \\
 
 In words, for every row, wait for any neuron in that row to spike.
 When a neuron spikes within a row, transmit the row address. In parallel,
-also transmit the spiked neurons' column addresses while resetting the spiked neurons.
+arbitrate between the spiked neurons in the row 
+and transmit one neuron's column addresses while resetting it.
 
-We still rely on the arbitration operator to handle neurons in multiple rows spiking concurrently, 
+We still rely on the arbitration operator, 
 so our next step is to decompose $AEXT$ into separate processes for 
 arbitration ($ARB$) and concurrent transmition ($ARY$). The arbitration process is given by
 
@@ -176,9 +177,9 @@ $C$ & interfaces with $SEQ$ (see below) \\
 and for $LTH$
 
 \begin{tabular}[c]{rl}
-$R_l$ & interfaces with an instance of $ROW$ \\
-$C$ & interfaces with $SEQ$ (see below) \\
-$D$ & interfaces with an instance of $ENC$ \\
+$R$ & interfaces with $SEQ$ \\
+$C_k$ & interfaces with an the column $ARB$ \\
+$D_k$ & interfaces with an instance of $ENC$ \\
 \end{tabular}
 
 $BUS$ simply communicates data between $ROW$ and $SEQ$. 
@@ -188,14 +189,14 @@ The second $R$ communication indicates that all column addresses have been encod
 $SEQ$ sequences the events
 
 \begin{csp}
-SEQ(b,x)\equiv*[S!(D?)\pll\,T!(R?);S;T!\phi\]\pll*[T!(C?)]
+SEQ(b,x)\equiv*[S!(D?),T!(R?);S;T!\phi\]\pll*[T!(C?)]
 \end{csp}
 
 where 
 
 \begin{tabular}[c]{rl}
 $D$ & reads in data from $BUS$ \\
-$S$ & interfaces with $LTH$ \\
+$S$ & communicates with $LTH$ \\
 $R$ & interfaces with the row $ENC$ \\
 $C$ & interfaces with the column $ENC$ \\
 $T$ & is the transmitter output port \\
@@ -398,7 +399,31 @@ y -> vo-
 
 ARB sequences requests from rows or columns by arbitrating between 
 concurrent requests. For $N$ request lines, the arbiter is composed of $N-1$ 
-arbiter circuits arranged in a binary tree. The arbiter has ports:
+2-way arbiter circuits arranged in a binary tree. The 2-way arbiter process
+is given by
+
+\begin{csp}
+ARB2\equiv*[[#{L`1}->R;L`1;L`1;R
+          \|#{L`2}->R;L`2;L`2;R]]
+\end{csp}
+
+where
+
+\begin{tabular}[c]{rl}
+$L_1$ & communicates with the first child \\
+$L_2$ & communicates with the second child \\
+$R$ & communicates with the parent arbiter \\
+\end{tabular}
+
+The arbitration operator can be broken out into its own process
+
+\begin{csp}
+ARB2\equiv\! *[[#{L`1}->A`1;R;L`1;L`1;R;A`1]]
+       \pll*[[#{L`2}->A`2;R;L`2;L`2;R;A`2]]
+       \pll*[[#{A`1}->A`1;A`1\|#{A`2}->A`2;A2]]
+\end{csp}
+
+The 2-way arbiter has ports:
 
 \begin{tabular}[]{rll}
   \code{R} & (active) & transmits request to parent \\
