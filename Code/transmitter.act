@@ -27,30 +27,30 @@ defproc INT (globals g; port v, e, c) {
 
 
 export
-defproc ARB (globals g; port l1, l2) {
-    bool _u,_v;
+defproc ARB (globals g; port l1, l2, r) {
+    bool _a1i,_a2i;
 
     //Force Arbiter Behavior
     spec {
         mk_exclhi(l1.o, l2.o)
-        mk_excllo(_u,_v)
+        mk_excllo(_a1i,_a2i)
     }
 
     //Cross-Coupled NANDs
     prs<g.Vdd,g.GND> {
-        //_u NAND
-        l1.i & _v   -> _u-
-        ~l1.i | ~_v -> _u+
-        //_v NAND
-        l2.i &  _u  -> _v-
-        ~l2.i | ~_u -> _v+
+        //_a1i NAND
+        l1.i & _a2i   -> _a1i-
+        ~l1.i | ~_a2i -> _a1i+
+        //_a2i NAND
+        l2.i &  _a1i  -> _a2i-
+        ~l2.i | ~_a1i -> _a2i+
     }
 
     //Filter
     prs<g.Vdd,g.GND> {
         //Inverters
-        _u => l1.o-
-        _v => l2.o-
+        _a1i => l1.o-
+        _a2i => l2.o-
     }
     
 }

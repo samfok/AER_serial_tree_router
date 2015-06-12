@@ -5,7 +5,7 @@ import "test.act";
 
 globals g;
 active_handshaker c1(g,), c2(g,);
-ARB a(g,,);
+ARB a(g,,,);
 
 c1.p.o = a.l1.i;
 c1.p.i = a.l1.o;
