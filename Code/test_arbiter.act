@@ -11,6 +11,7 @@ c1.p.o = a.l1.i;
 c1.p.i = a.l1.o;
 c2.p.o = a.l2.i;
 c2.p.i = a.l2.o;
+a.r.i = a.r.o;
 
 bool pReset, sReset;
 prs {
