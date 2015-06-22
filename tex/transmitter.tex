@@ -326,17 +326,17 @@ INT's HSE is given by
 In words,
 
 \begin{tabular}[]{rl}
-  \code{[vi]} & wait for a request from INT or LTH for the arbiter \\
+  \code{[vi]} & wait for a request from EVT (LTH) for the arbiter \\
   \code{co$\uparrow$} & send request to arbiter \\
   \code{[ci$\land\neg$ei]} & wait for arbiter to grant permission and address controller to finish previous transmission \\
   \code{eo$\uparrow$, vo$\uparrow$} & \specialcell[t]{l}{
-    signal address latch to store address \\ 
-    signal EVT to transmit column information} \\
+  signal EVT to transmit column information (LTH to transmit column addresses) \\
+  signal address latch to store address } \\
   \code{[$\neg$vi$\land$ei]} & \specialcell[t]{l}{
-    wait for neuron to reset or LTH to clear \\
-    and address controller to have latched the address} \\
+    wait for EVT to reset neuron (LTH to send column address) \\
+    and ADY (ADX) to have latched the address} \\
   \code{co$\downarrow$;[$\neg$ci]} & release arbiter \\
-  \code{eo$\downarrow$, vo$\downarrow$} & reset signals to address latch and EVT/LTH \\
+  \code{eo$\downarrow$, vo$\downarrow$} & return EVT and ADY (LTH and ADX) signals to initial value \\
 \end{tabular} \\ \\
 
 Note how INT signals the address encoder first after gaining permission from the arbiter
@@ -397,13 +397,14 @@ y -> vo-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Arbiter (ARB)}
 
-ARB sequences requests from rows or columns by arbitrating between 
-concurrent requests. For $N$ request lines, the arbiter is composed of $N-1$ 
-2-way arbiter circuits arranged in a binary tree. The 2-way arbiter process
-is given by
+The arbiter cell ARB sequences requests from rows or columns by arbitrating between concurrent requests. 
+Each ARB instance handles requests from two children and sends requests to its parent. 
+To arbitrate between $N$ children, we use $N-1$ ARB cells arranged in a binary tree.
+ARB is designed to be greedy but fair.
+ARB's CHP is derived from
 
 \begin{csp}
-ARB2\equiv*[[#{L`1}->R;L`1;L`1;R
+ARB\equiv*[[#{L`1}->R;L`1;L`1;R
           \|#{L`2}->R;L`2;L`2;R]]
 \end{csp}
 
@@ -418,9 +419,9 @@ $R$ & communicates with the parent arbiter \\
 The arbitration operator can be broken out into its own process
 
 \begin{csp}
-ARB2\equiv\! *[[#{L`1}->A`1;R;L`1;L`1;R;A`1]]
-       \pll*[[#{L`2}->A`2;R;L`2;L`2;R;A`2]]
-       \pll*[[#{A`1}->A`1;A`1\|#{A`2}->A`2;A2]]
+ARB\equiv\! *[[#{L`1}->A`1;R;L`1;L`1;R;A`1]]
+      \pll*[[#{L`2}->A`2;R;L`2;L`2;R;A`2]]
+      \pll*[[#{A`1}->A`1;A`1\|#{A`2}->A`2;A2]]
 \end{csp}
 
 The 2-way arbiter has ports:
@@ -435,6 +436,8 @@ The 2-way arbiter has ports:
   \code{R2} & (local) & or'ed with \code{R2} to produce \code{R} \\
 \end{tabular} \\ \\
 
+The existing HSE for the arbiter cell is given by
+
 \begin{hse}
 *[[l1i&~ri];a1o+;r1o+;[ri&a1i];l1o+;
   [~l1i];a1o-;r1o-;[~a1i];l1o-]
@@ -443,7 +446,84 @@ The 2-way arbiter has ports:
   [~l2i];a2o-;r2o-;[~a2i];l2o-]
 \end{hse}
 
-I will consider the prs for the arbiter later
+In words, for the process communicating with the first child,
+
+\begin{tabular}[]{rl}
+  \code{[l1i$\land$~ri]} & wait for a child's request and to not already have the parent's go-ahead \\
+  \code{a1o$\uparrow$} & request permission from the arbiter circuit \\
+  \code{r1o$\uparrow$} & request permission from the parent \\
+  \code{[ri$\land$a1i]} & wait for permission from the parent and arbiter circuit \\
+  \code{l1o$\uparrow$} & signal child to go-ahead \\
+  \code{[$\neg$l1i]} & wait for child to finish \\
+  \code{a1o$\downarrow$} & withdraw request from the arbiter circuit \\
+  \code{r1o$\downarrow$} & withdraw request from the parent \\
+  \code{[$\neg$a1i]} & wait for arbiter circuit to withdraw go-ahead permission \\
+  \code{l1o$\downarrow$} & reset child go-ahead signal \\
+\end{tabular} \\ \\
+
+The process communicating with the second child has the equivalent semantics.
+The initial \code{$\neg$ri} guard ensures fairness of the arbiter cell.
+The existing PRS is given by
+
+\begin{prs2}
+l1i & _ri -> _a1o-
+~l1i -> _a1o+
+
+a1o & _a2i -> _a1i-
+~a1o | ~_a2i -> _a1i+
+
+~_a1i & ~_ri & _a2i -> l1o+
+_a1i | _ri -> l1o-
+\end{prs2}
+
+\begin{prs2}
+l2i & _ri -> _a2o-
+~l2i -> _a2o+
+
+a2o & _a1i -> _a2i-
+~a2o | ~_a1i -> _a2i+
+
+~_a2i & ~_ri & _a1i -> l2o+
+_a2i | _ri -> l2o-
+\end{prs2}
+
+Note that the existing PRS does not respect the existing HSE. 
+Correct operation of the arbiter cell assumes that the reset of the filter 
+from the arbiter circuit arrives before the reset from the parent cell acknowledge.
+We will fix these issues in the next section.
+
+\subsection{A Better Arbiter}
+
+We will elimiate the timing assumption and derive CHP and HSE for a greedy but fair arbiter cell here.
+
+\begin{csp}
+ARB2\equiv
+  *[[#{L1}->C1+;L1+;L1-\star\,C1-]] \pll
+  *[[#{L2}->C2+;L2+;L2-\star\,C2-]] \pll
+  *[[#{C1}->A1+,R1+;C1+;C1-\star(A1-,R1-)]] \pll
+  *[[#{C2}->A2+,R2+;C2+;C2-\star(A2-,R2-)]] \pll
+  *[[#{A1}->A1;A1\|#{A2}->A2;A2]]\pll
+  *[[#{R1}|#{R2}->R+;
+    [#{R1}->R1+;R1-[]~#{R1}->skip],
+    [#{R2}->R2+;R2-[]~#{R2}->skip];
+    R-]]
+\end{csp}
+
+or without some of the guard statements:
+
+\begin{csp}
+ARB2\equiv
+  *[L1\star\,C1+;L1-\star\,C1-] \pll
+  *[L2\star\,C2+;L2-\star\,C2-] \pll
+  *[C1\star(A1+,R1+);C1-\star(A1-,R1-)] \pll
+  *[C2\star(A2+,R2+);C2-\star(A2-,R2-)] \pll
+  *[[#{A1}->A1+;A1+\|#{A2}->A2+;A2+]]\pll
+  *[[#{R1}|#{R2}];R+;
+    [#{R1}->R1+;R1-[]~#{R1}->skip],
+    [#{R2}->R2+;R2-[]~#{R2}->skip];
+    R-]
+\end{csp}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Latch (LTH)}
 
@@ -621,7 +701,78 @@ PRS is given by
 \begin{prs}
 \end{prs}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Synchronizer}
 
+When we cannot assume the stability of a signal $x$, we use the synchronizer to generate
+a stable representation of $x$.
+
+\begin{csp}
+SYNC\equiv*[[#{Re}&#X->R;Re;R
+          \|#{Re}&~#X->R;Re;R]]
+\end{csp}
+
+where
+
+\begin{tabular}[c]{rl}
+$Re$ & is the read-enable signal \\
+$X$ & is the input signal \\
+$R$ & is a stabilized representation of $X$ \\
+\end{tabular}
+
+In words, when $Re$ is activated, the synchronizer samples $X$ and outputs a stable representation of $X$.
+However, as we'll see, this is not implementable because of the negated probe on $X$. 
+An HSE of $SYNC$ is
+
+\begin{hse}
+sync\equiv*[[re&x->r.0+;[~re];r.0-
+        \|re&~x->r.1+;[~re];r.1-]]
+\end{hse}
+
+$sync$ is not implementable because $x$ may change at any time.
+each branch of the arbitration statement must do two things:
+prevent the other branch from proceeding and raise the output. In the case that a branch
+has blocked the other but before it has raised its output, the circuit could deadlock if $x$ changes value.
+To fix this situation, we introduce stabilized intermediate variables $a.0$ and $a.1$ to
+stabilize the selection of one of the two gaurds.
+
+\begin{hse}
+sync\equiv*[[re&x->a.0+;[a.0];r.0+;[~re];a.0-;[~a.0];r.0-
+        \|re&~x->a.1+;[a.1];r.1+;[~re];a.1-;[~a.1];r.1-]]
+\end{hse}
+
+Next, we further decompose $sync$ into concurrent stabilization (aka integration) and arbitration processes.
+
+\begin{hse}
+sync\equiv*[[re&~x];a.0+;[~re];a.0-]]
+     \pll*[[re&x];a.1+;[~re];a.1-]]
+     \pll*[[a.0->r.0+;[~a.0&~a.1];r.0-
+        \|a.1->r.1+;[~a.0&a.1];r.1-]]
+\end{hse}
+
+Arbitration now occurs between $a.0$ and $a.1$, which are stable signals as opposed to unstable $x$.
+Unlike typical arbiter circuits, $sync$ will not execute both branches of its arbitration statement
+if both $a.0$ and $a.1$ are true. Rather, $sync$ will only execute one of the branches before 
+$a.0$ and $a.1$ are reset. The three processes are implemented by the PRS
+
+\begin{prs2}
+x->_x-
+~x->_x+
+
+~_re&~x->a.0+
+_re->a.0-
+
+~_re&~_x->a.1+
+_re->a.1-
+
+_r.1&a.0->_r.0-
+~_r.1|(~a.0&~a.1)->_r.0+
+_r.0&a.1->_r.1-
+~r.0|(~a.0&~a.1)->_r.1+
+\end{prs2}
+
+A standard filter circuit composed of inverters with cross-coupled pMOS gates 
+then filters the output signals to resolve metastability and output $r.0$ and $r.1$.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Test structures}
 Here we describe some processes used to test the transmitter processes
@@ -640,5 +791,50 @@ The LTH\_INT's PRS is given by
 vi&~rk -> vo+
 ~vi&rk -> vo-
 \end{prs}
+
+\section{Building blocks}
+Here we describe some of the basic building blocks
+
+\subsection{Arbiter}
+
+The basic arbiter has two inputs $x1$ and $x2$ and two outputs $a1$ and $a2$.
+$a1$ and $a2$ indicate which of the inputs the arbiter has selected.
+To select an input, the arbiter uses the PRS
+
+\begin{prs2}
+x1&~a2->a1+
+~x1|a2->a1-
+
+x2&~a1->a2+
+~x2|a1->a2-
+\end{prs2}
+
+When $x1\land\neg\,x2$, the circuit is stable at $a1\land\neg\,a2$.
+When $\neg\,x1\land\,x2$, the circuit is stable at $\neg\,a1\land\,a2$.
+To see the arbitration mechanism, consider the logic when $x1\land\,x2$ is true:
+
+\begin{prs2}
+~a2->a1+
+a2->a1-
+
+~a1->a2+
+a1->a2-
+\end{prs2}
+
+which describes two cross-coupled inverters. 
+This circuit is bistable at either $a1\land\neg\,a2$ or $\neg\,a1\land\,a2$. 
+Intermediate states are unstable and will be resolved, in expectation, in finite time.
+
+To be CMOS-implementable, we invert the senses of $a1$ and $a2$ to produce
+
+\begin{prs2}
+x1&_a2->_a1-
+~x1|~_a2->_a1+
+
+x2&_a1->_a2-
+~x2|~_a1->_a2+
+\end{prs2}
+
+which describes two cross-coupled NAND gates.
 
 \end{document}
