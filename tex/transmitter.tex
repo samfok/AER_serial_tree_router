@@ -488,41 +488,66 @@ _a2i | _ri -> l2o-
 \end{prs2}
 
 Note that the existing PRS does not respect the existing HSE. 
+Namely, the \code{[$\neg$a1i]} guard is not respected.
 Correct operation of the arbiter cell assumes that the reset of the filter 
 from the arbiter circuit arrives before the reset from the parent cell acknowledge.
 We will fix these issues in the next section.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{A Better Arbiter}
+\label{subsec:arb2}
 
-We will elimiate the timing assumption and derive CHP and HSE for a greedy but fair arbiter cell here.
+We eliminate the timing assumption and derive CHP and HSE for a greedy but fair arbiter cell here.
+At the highest level, the arbiter cell is specified by
+
+\begin{csp}
+ARB(n)\equiv*[[\langle\|i:1..n:#{Li}->Li;Li\rangle]]
+\end{csp}
+
+The arbiter cell is composed of $N-1$ \code{ARB2} cells composed in a binary tree.
+The derivation for \code{ARB2} is in section~\ref{subsec:arb2_derivation}.
 
 \begin{csp}
 ARB2\equiv
-  *[[#{L1}->C1+;L1+;L1-\star\,C1-]] \pll
-  *[[#{L2}->C2+;L2+;L2-\star\,C2-]] \pll
-  *[[#{C1}->A1+,R1+;C1+;C1-\star(A1-,R1-)]] \pll
-  *[[#{C2}->A2+,R2+;C2+;C2-\star(A2-,R2-)]] \pll
-  *[[#{A1}->A1;A1\|#{A2}->A2;A2]]\pll
-  *[[#{R1}|#{R2}->R+;
-    [#{R1}->R1+;R1-[]~#{R1}->skip],
-    [#{R2}->R2+;R2-[]~#{R2}->skip];
-    R-]]
+  *[[#{L1}|#{L2}->R;S1;S1;S2;S2;R]]
+
+  *[L1\star(A1c,S1);L1\star(A1c,S1)]
+  *[S1\star\!A1s;S1\star\!A1s]
+  *[[#{A1c}->A1c;A1c\|#{A1s}->A1s;A1s]]
+  
+  *[L2\star(A2c,S2);L2\star(A2c,S2)]
+  *[S2\star\!A2s;S2\star\!A2s]
+  *[[#{A2c}->A2c;A2c\|#{A2s}->A2s;A2s]]
+\equiv
+  CTRL 
+ 
+  CH1_GATE
+  CH1_BYPASS
+  CH1_ARB
+ 
+  CH2_GATE
+  CH2_BYPASS
+  CH2_ARB 
 \end{csp}
 
-or without some of the guard statements:
+\noindent The HSE for \code{CTRL}:
 
-\begin{csp}
-ARB2\equiv
-  *[L1\star\,C1+;L1-\star\,C1-] \pll
-  *[L2\star\,C2+;L2-\star\,C2-] \pll
-  *[C1\star(A1+,R1+);C1-\star(A1-,R1-)] \pll
-  *[C2\star(A2+,R2+);C2-\star(A2-,R2-)] \pll
-  *[[#{A1}->A1+;A1+\|#{A2}->A2+;A2+]]\pll
-  *[[#{R1}|#{R2}];R+;
-    [#{R1}->R1+;R1-[]~#{R1}->skip],
-    [#{R2}->R2+;R2-[]~#{R2}->skip];
-    R-]
-\end{csp}
+\begin{hse}
+  *[[l1|l2];ro+;[ri];
+    s1o+;[s1i];x+;s1o-;[~s1i];y+,
+    s2o+;[s2i];x-;s2o-;[~s2i];
+    ro-;[~ri];y-]
+\end{hse}
+
+\noindent The HSE for \code{CH1\_GATE}, \code{CH1\_BYPASS}, and \code{CH1\_ARB}, respectively:
+
+\begin{hse}
+  *[[l1o];a1lo+;[s1o];s1i+;[a1li];l1i+;
+    [~l1o];a1lo-;[~s1o];s1i-;[~a1li];l1i-]
+  *[[s1o];a1so+;[a1si];s1i+;
+    [~s1o];a1so-;[~a1si];s1i-]
+  *[[a1so];a1si+;[~a1so];a1si-]
+\end{hse}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Latch (LTH)}
@@ -702,8 +727,74 @@ PRS is given by
 \end{prs}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Synchronizer}
+\section{Test structures}
+Here we describe some processes used to test the transmitter processes
 
+\subsection{EVT}
+For testing evt, I used a dummy LTH\_INT process that takes the place of the LTH and INT blocks.
+LTH\_INT's HSE is given by
+
+\begin{hse}
+*[[vi&~rk];vo+;[~vi&rk];vo-]
+\end{hse}
+
+The LTH\_INT's PRS is given by 
+
+\begin{prs}
+vi&~rk -> vo+
+~vi&rk -> vo-
+\end{prs}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Building blocks}
+Here we describe some of the basic building blocks
+
+\subsection{Arbiter}
+\label{subsec:arb}
+
+The basic arbiter has two inputs $x1$ and $x2$ and two outputs $a1$ and $a2$.
+$a1$ and $a2$ indicate which of the inputs the arbiter has selected.
+To select an input, the arbiter uses the PRS
+
+\begin{prs2}
+x1&~a2->a1+
+~x1|a2->a1-
+
+x2&~a1->a2+
+~x2|a1->a2-
+\end{prs2}
+
+When $x1\land\neg\,x2$, the circuit is stable at $a1\land\neg\,a2$.
+When $\neg\,x1\land\,x2$, the circuit is stable at $\neg\,a1\land\,a2$.
+To see the arbitration mechanism, consider the logic when $x1\land\,x2$ is true:
+
+\begin{prs2}
+~a2->a1+
+a2->a1-
+
+~a1->a2+
+a1->a2-
+\end{prs2}
+
+which describes two cross-coupled inverters. 
+This circuit is bistable at either $a1\land\neg\,a2$ or $\neg\,a1\land\,a2$. 
+Intermediate states are unstable and will be resolved, in expectation, in finite time.
+
+To be CMOS-implementable, we invert the senses of $a1$ and $a2$ to produce
+
+\begin{prs2}
+x1&_a2->_a1-
+~x1|~_a2->_a1+
+
+x2&_a1->_a2-
+~x2|~_a1->_a2+
+\end{prs2}
+
+which describes two cross-coupled NAND gates.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Synchronizer}
+\label{subsec:sync}
 When we cannot assume the stability of a signal $x$, we use the synchronizer to generate
 a stable representation of $x$.
 
@@ -773,68 +864,441 @@ _r.0&a.1->_r.1-
 
 A standard filter circuit composed of inverters with cross-coupled pMOS gates 
 then filters the output signals to resolve metastability and output $r.0$ and $r.1$.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Test structures}
-Here we describe some processes used to test the transmitter processes
 
-\subsection{EVT}
-For testing evt, I used a dummy LTH\_INT process that takes the place of the LTH and INT blocks.
-LTH\_INT's HSE is given by
+\section{Transmitter Derivations}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{A Better Arbiter}
+\label{subsec:arb2_derivation}
+
+This derivation supports section~\ref{subsec:arb2}.
+
+\begin{csp}
+ARB(n)\equiv*[[\langle\|i:1..n:#{Li}->Li;Li\rangle]]
+\end{csp}
+
+We decompose this n-child arbiter cell into a binary tree of two-child/one-parent arbiters cells.
+The top level arbiter's parent connection will simply connected back to itself and self-acknowledge.
+The two-child/one-parent arbiter cell is given by
+
+\begin{csp}
+ARB2\equiv*
+  *[[#{L1}->R;L1;L1;R
+    \|#{L2}->R;L2;L2;R]]
+\end{csp}
+
+\noindent We split out the arbitration and parent communications into a separate process.
+
+\begin{csp}
+ARB2\equiv*
+  *[[#{L1}->C1;L1;L1;C1]] \pll
+  *[[#{L2}->C2;L2;L2;C2]] \pll
+  
+  *[[#{C1}->R;C1;C1;R\|#{C2}->R;C2;C2;R]]
+\end{csp}
+
+Based on~\cite{precise_exceptions} (section 3.3 Evaluating a Probe),
+we decompose the arbitration and parent communication process into
+one control process and two child arbitration processes.
+
+\begin{csp}
+ARB2\equiv*
+  *[[#{L1}->C1;L1;L1;C1]] \pll
+  *[[#{L2}->C2;L2;L2;C2]] \pll
+
+  *[[#{C1}|#{C2}->R;S1;S1;S2;S2;R]] \pll
+
+  *[[#{C1}->S1;C1;C1;S1]
+    \|#{S1}->S1;S1]] \pll
+  
+  *[[#{C2}->S2;C2;C2;S2
+    \|#{S2}->S2;S2]] \pll
+\end{csp}
+
+The control process communicates with the parent and the child arbitration processes.
+Next, we split out the arbitrations into their own processes.
+
+\begin{csp}
+ARB2\equiv*
+  *[[#{L1}->C1;L1;L1;C1]] \pll
+  *[[#{L2}->C2;L2;L2;C2]] \pll
+
+  *[[#{C1}|#{C2}->R;S1;S1;S2;S2;R]] \pll
+
+  *[[#{C1}->A1c;S1;C1;C1;S1;A1c)]] \pll
+  *[[#{S1}->A1s;S1;S1;A1s]] \pll
+  *[[#{A1c}->A1c;A1c\|#{A1s}->A1s;A1s]] \pll
+  
+  *[[#{C2}->A2c;S2;C2;C2;S2;A2c]] \pll
+  *[[#{S2}->A2s;S2;S2;A2s]] \pll
+  *[[#{A2c}->A2c;A2c\|#{A2s}->A2s;A2s]]
+\end{csp}
+
+\noindent Next, we make some of the up and down phases of the child arbitration processes explicit and pipeline.
+
+\begin{csp}
+ARB2\equiv*
+  *[[#{L1}->C1;L1;L1;C1]] \pll
+  *[[#{L2}->C2;L2;L2;C2]] \pll
+
+  *[[#{C1}|#{C2}->R;S1;S1;S2;S2;R]] \pll
+
+  *[[#{C1}->A1c+,S1+;C1+;C1-\star(A1c-,S1-)]] \pll
+  *[[#{S1}->A1s+,S1+;S1-\star\!A1s-]] \pll
+  *[[#{A1c}->A1c;A1c\|#{A1s}->A1s;A1s]] \pll
+  
+  *[#{C2}->A2c+,S2+;C2;C2-\star(A2c-,S2-)] \pll
+  *[#{S2}->A2s+;S2+;S2-\star\!A2s-] \pll
+  *[[#{A2c}->A2c;A2c\|#{A2s}->A2s;A2s]]
+\end{csp}
+
+\noindent or equivalently we can fold some of the guards into the communications.
+
+\begin{csp}
+ARB2\equiv
+  *[L1\star\!C1;L1\star\!C1] \pll
+  *[L2\star\!C2;L2\star\!C2] \pll
+
+  *[[#{C1}|#{C2}->R;S1;S1;S2;S2;R]] \pll
+
+  *[C1+\star(A1c+,S1+);C1-\star(A1c-,S1-)] \pll
+  *[S1+\star\!A1s+;S1\star\!A1s-] \pll
+  *[[#{A1c}->A1c;A1c\|#{A1s}->A1s;A1s]] \pll
+  
+  *[C2+\star(A2c+,S2+);C2-\star(A2c-,S2-)] \pll
+  *[S2+\star\!A2s;S2\star\!A2s] \pll
+  *[[#{A2c}->A2c;A2c\|#{A2s}->A2s;A2s]]
+\end{csp}
+
+Note that the communications that used to be gaurds must be implemented with passive channels.
+Namely, $S1$ and $S2$ must be passive in the child arbtration processes.
+We see that every communication is present twice in each process
+and that the up and down phases of each communication are symmetric. 
+Therefore, we can cleanup the notation by removing the explicit up and down phase indications.
+
+\begin{csp}
+ARB2\equiv
+  *[L1\star\!C1;L1\star\!C1]
+  *[L2\star\!C2;L2\star\!C2]
+
+  *[[#{C1}|#{C2}->R;S1;S1;S2;S2;R]]
+
+  *[C1\star(A1c,S1);C1\star(A1c,S1)]
+  *[S1\star\!A1s;S1\star\!A1s]
+  *[[#{A1c}->A1c;A1c\|#{A1s}->A1s;A1s]]
+  
+  *[C2\star(A2c,S2);C2\star(A2c,S2)]
+  *[S2\star\!A2s;S2\star\!A2s]
+  *[[#{A2c}->A2c;A2c\|#{A2s}->A2s;A2s]]
+\equiv
+  CH1
+  CH2
+ 
+  CTRL 
+ 
+  CH1_GATE
+  CH1_BYPASS
+  CH1_ARB
+ 
+  CH2_GATE
+  CH2_BYPASS
+  CH2_ARB 
+\end{csp}
+
+where each line is a concurrent process,
+and the names correspond to the process on their respective line. 
+Our next step is to convert the CHP into HSE. 
+We show the HSE for child 1's processes. 
+Simply replace all 1s with 2s to get the HSE for the child 2's processes.
+
+\noindent The HSE for \code{CH1}:
 
 \begin{hse}
-*[[vi&~rk];vo+;[~vi&rk];vo-]
+  *[[l1i];c1o+;[c1i];l1o+;
+    [~l1i];c1o-;[~c1i];l1o-]
 \end{hse}
 
-The LTH\_INT's PRS is given by 
+\noindent The HSE for \code{CTRL}:
+
+\begin{hse}
+  *[[c1o|c2o];
+    ro+;[ri];
+    s1o+;[s1i];s1o-[~s1i];
+    s2o+;[s2i];s2o-;[~s2i];
+    ro-;[~ri]]
+\end{hse}
+
+We cannot distinguish between three states of the HSE: 
+between \code{[ri]} and \code{s1o$\uparrow$},
+between \code{[$\neg$s1i]} and \code{s2o$\uparrow$}, and 
+between \code{[$\neg$s2i]} and \code{ro$\downarrow$}, 
+so we introduce state variables \code{x} and \code{y},
+
+\begin{hse}
+  *[[c1|c2];ro+;[ri];
+    s1o+;[s1i];x+;s1o-;[~s1i];y+,
+    s2o+;[s2i];x-;s2o-;[~s2i];
+    ro-;[~ri];y-]
+\end{hse}
+
+\noindent The HSE for \code{CH1\_GATE}, \code{CH1\_BYPASS}, and \code{CH1\_ARB}, respectively:
+
+\begin{hse}
+  *[[c1o];a1co+;[s1o];s1i+;[a1ci];c1i+;
+    [~c1o];a1co-;[~s1o];s1i-;[~a1ci];c1i-]
+  *[[s1o];a1so+;[a1si];s1i+;
+    [~s1o];a1so-;[~a1si];s1i-]
+  *[[a1so];a1si+;[~a1so];a1si-]
+\end{hse}
+
+Now we move on to the PRS to implement the HSE. 
+As previously, we only show PRS for child 1's processes. 
+
+\noindent The PRS for \code{CH1}:
+
+\begin{prs2}
+l1i -> c1o+
+~l1i -> c1o-
+
+c1i -> l1o+
+~c1i -> l1o-
+\end{prs2}
+
+These are just wires, which means that we can fold \code{CH1} and \code{CH2} into the other processes
+and clean up our specification to be
+
+\begin{csp}
+ARB2\equiv
+  *[[#{L1}|#{L2}->R;S1;S1;S2;S2;R]]
+
+  *[L1\star(A1c,S1);L1\star(A1c,S1)]
+  *[S1\star\!A1s;S1\star\!A1s]
+  *[[#{A1c}->A1c;A1c\|#{A1s}->A1s;A1s]]
+  
+  *[L2\star(A2c,S2);L2\star(A2c,S2)]
+  *[S2\star\!A2s;S2\star\!A2s]
+  *[[#{A2c}->A2c;A2c\|#{A2s}->A2s;A2s]]
+\end{csp}
+
+Definitions will now replace the \code{C} ports with the \code{L} ports. 
+The PRS for \code{CTRL}:
 
 \begin{prs}
-vi&~rk -> vo+
-~vi&rk -> vo-
+l1i | l2i -> ro+
+~x & y & ~s2i -> ro-
+
+~x & ri -> s1o+
+s1i -> s1o-
+
+x & ~s1i -> s2o+
+s2i -> s2o-
+
+s1i -> x+
+s2i -> x-
+
+x & ~s1i -> y+
+~x & ~ri -> y-
 \end{prs}
 
-\section{Building blocks}
-Here we describe some of the basic building blocks
-
-\subsection{Arbiter}
-
-The basic arbiter has two inputs $x1$ and $x2$ and two outputs $a1$ and $a2$.
-$a1$ and $a2$ indicate which of the inputs the arbiter has selected.
-To select an input, the arbiter uses the PRS
+\noindent The PRS for \code{CH1\_GATE}:
 
 \begin{prs2}
-x1&~a2->a1+
-~x1|a2->a1-
+l1o -> a1co+
+~l1o -> a1co-
 
-x2&~a1->a2+
-~x2|a1->a2-
+a1co & s1o -> s1i+
+~a1co & ~s1o -> s1i-
+
+a1ci -> l1i+
+~a1ci -> l1i-
 \end{prs2}
 
-When $x1\land\neg\,x2$, the circuit is stable at $a1\land\neg\,a2$.
-When $\neg\,x1\land\,x2$, the circuit is stable at $\neg\,a1\land\,a2$.
-To see the arbitration mechanism, consider the logic when $x1\land\,x2$ is true:
+\noindent The PRS for \code{CH1\_BYPASS}:
 
 \begin{prs2}
-~a2->a1+
-a2->a1-
+s1o -> a1so+
+~s1o -> a1so-
 
-~a1->a2+
-a1->a2-
+a1si -> s1i+
+~a1si -> s1i-
 \end{prs2}
 
-which describes two cross-coupled inverters. 
-This circuit is bistable at either $a1\land\neg\,a2$ or $\neg\,a1\land\,a2$. 
-Intermediate states are unstable and will be resolved, in expectation, in finite time.
-
-To be CMOS-implementable, we invert the senses of $a1$ and $a2$ to produce
+\noindent The PRS for \code{CH1\_ARB}:
 
 \begin{prs2}
-x1&_a2->_a1-
-~x1|~_a2->_a1+
+a1so & _a1ci -> _a1si-
+~a1so | ~_a1ci -> _a1si+
 
-x2&_a1->_a2-
-~x2|~_a1->_a2+
+a1co & _a1si -> _a1ci-
+~a1co | ~_a1si -> _a1ci+
 \end{prs2}
 
-which describes two cross-coupled NAND gates.
+\noindent This is just a standard arbiter (see section~\ref{subsec:arb})
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Scratch}
+
+Here is scratch space and some failed designs
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{A Better Arbiter}
+
+Starting with
+
+\begin{csp}
+ARB2\equiv*
+  *[[#{L1}->R;L1;L1;R
+    \|#{L2}->R;L2;L2;R]]
+\end{csp}
+
+we split out the arbitration into a separate process.
+
+\begin{csp}
+ARB2\equiv
+*[[#{L1}->A1;R;L1;L1;R;A1]] \pll
+*[[#{L2}->A2;R;L2;L2;R;A2]] \pll
+*[[#{A1}->A1;A1\|#{A2}->A2;A2]]
+\end{csp}
+
+This arbiter is not greedy and returns the token to the parent after servicing a child.
+To make it greedy yet fair, we split out communication with the parent arbiter cell into a separate process.
+
+\begin{csp}
+ARB2\equiv
+  *[[#{L1}->A1;R1;L1;L1;A1;R1)]] \pll
+  *[[#{L2}->A2;R2;L2;L2;A2;R2)]] \pll
+  *[[#{A1}->A1;A1\|#{A2}->A2;A2]]\pll
+  *[[#{R1}|#{R2}->R;
+    [#{R1}->R1;R1\|~#{R1}->skip],
+    [#{R2}->R2;R2\|~#{R2}->skip];
+    R]]
+\end{csp}
+
+The parent communication process implements a greedy algorithm because once it acquires the token from the parent,
+it will not return the token until both children have been serviced (if both have requested). 
+The algorithm is fair because each child will only be serviced at most once for posession of the token.
+The parent communication process can signal children processes in parallel because aribtration is handled by the arbitration process.
+We use synchronizers (see section~\ref{subsec:sync}) enabled by the parent request to ensure that selection guards are mutually exclusive.
+
+
+\begin{csp}
+ARB2\equiv
+  *[[#{L1}->A1;R1;L1;L1;A1;R1)]] \pll
+  *[[#{L2}->A2;R2;L2;L2;A2;R2)]] \pll
+  *[[#{A1}->A1;A1\|#{A2}->A2;A2]]\pll
+  *[[#{R1}|#{R2}->R;
+    [#{R1'}->R1;R1[]~#{R1'}->skip],
+    [#{R2'}->R2;R2[]~#{R2'}->skip];
+    R]]
+\end{csp}
+where probes on $R1$ and $R2$ have been replaced with probes on $R1'$ and $R2'$, respectively. 
+These are synchronized versions of their respective signals.
+
+Next, we make the 2-phase portions of each 4-phase communication explicit so we can pipeline them.
+Since each communication is paired, it's straightforward to assign the first and second as the first and second
+2-phase communications of a 4-phase protocol. 
+
+\begin{csp}
+ARB2\equiv
+  *[[#{L1}->A1+;R1+;L1+;L1-;A1-;R1-]] \pll
+  *[[#{L2}->A2+;R2+;L2+;L2-;A2-;R2-]] \pll
+  *[[#{A1}->A1+;A1-\|#{A2}->A2+;A2-]]\pll
+  *[[#{R1}|#{R2}->R+;
+    [#{R1'}->R1+;R1-[]~#{R1'}->skip],
+    [#{R2'}->R2+;R2-[]~#{R2'}->skip];
+    R-]]
+\end{csp}
+
+We pipeline the arbitration and parent requests for speed.
+
+\begin{csp}
+ARB2\equiv
+  *[[#{L1}->A1+,R1+;L1+;L1-\star(A1-,R1-)]] \pll
+  *[[#{L2}->A2+,R2+;L2+;L2-\star(A2-,R2-)]] \pll
+  *[[#{A1}->A1+;A1-\|#{A2}->A2+;A2-]]\pll
+  *[[#{R1}|#{R2}->R+;
+    [#{R1'}->R1+;R1-[]~#{R1'}->skip],
+    [#{R2'}->R2+;R2-[]~#{R2'}->skip];
+    R-]]
+\end{csp}
+
+or alternatively expressed with fewer guards as
+
+\begin{csp}
+ARB2\equiv
+  *[L1+\star(A1+,R1+);L1-\star(A1-,R1-)] \pll
+  *[L2+\star(A2+,R2+);L2-\star(A2-,R2-)] \pll
+  *[[#{A1}->A1+;A1-\|#{A2}->A2+;A2-]]\pll
+  *[[#{R1}|#{R2}];R+;
+    [#{R1'}->R1+;R1-[]~#{R1'}->skip],
+    [#{R2'}->R2+;R2-[]~#{R2'}->skip];
+    R-]
+\end{csp}
+
+The HSE is given by
+
+\begin{hse}
+*[[l1i];a1o+,r1o+;[a1i&r1i];l1o+;
+  [~l1i];a1o-,r1o-;[~a1i&~r1i];l1o-]
+*[[l2i];a2o+,r2o+;[a2i&r2i];l2o+;
+  [~l2i];a2o-,r2o-;[~a2i&~r2i];l2o-]
+  
+*[[a1o];a1i+;[~a1o];a1i-
+ \|[a2o];a2i+;[~a2o];a2i-]
+ 
+*[[r1o|r2o];ro+;[ri];
+  [[r1o'];r1i+;[~r1o];r1i-[][_r1o']],
+  [[r2o'];r2i+;[~r2o];r2i-[][_r2o']];
+  ro-;[~ri]]
+\end{hse}
+
+The arbiter and synchronizer processes are standardized (see sections~\ref{subsec:arb} and~\ref{subsec:sync}), 
+so we will omit their PRS here. First we develop the PRS for the children communication processes
+
+\begin{prs2}
+l1i->a1o+,r1o+
+~l1i->a1o-,r1o-
+
+a1i&r1i->l1o+
+~a1i&~r1i->l1o-
+
+l2i->a2o+,r2o+
+~l2i->a2o-,r2o-
+
+a2i&r2i->l2o+
+~a2i&~r2i->l2o-
+\end{prs2}
+
+To make these CMOS implementable, we invert the senses of the $L1$ and $L2$ ports.
+
+\begin{prs2}
+~_l1i -> a1o+, r1o+
+_l1i -> a1o-, r1o-
+
+a1i & r1i -> _l1o-
+~a1i & ~r1i -> _l1o+
+
+~_l2i -> a2o+, r2o+
+_l2i -> a2o-, r2o-
+
+a2i & r2i -> _l2o-
+~a2i & ~r2i -> _l2o+
+\end{prs2}
+
+Next we develop the PRS for the parent communication process
+
+\begin{prs2}
+~ri & (r1o | r2o) -> ro+
+~r1o & ~r2o -> ro-
+
+~ri & r1o' -> r1i+
+
+~ri & r2o' -> r2i+
+
+\end{prs2}
+
+This is where things became really complicated and we abandoned this design.
+
+
 
 \end{document}
