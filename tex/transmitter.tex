@@ -777,8 +777,9 @@ a1->a2-
 \end{prs2}
 
 which describes two cross-coupled inverters. 
-This circuit is bistable at either $a1\land\neg\,a2$ or $\neg\,a1\land\,a2$. 
-Intermediate states are unstable and will be resolved, in expectation, in finite time.
+When $x1\land\!x2$, circuit is bistable at either $a1\land\neg\,a2$ or $\neg\,a1\land\,a2$. 
+Intermediate states are unstable. We cannot bound the time it takes to resolve the metastability
+because the resolution time follows an exponential distribution. 
 
 To be CMOS-implementable, we invert the senses of $a1$ and $a2$ to produce
 
@@ -791,6 +792,18 @@ x2&_a1->_a2-
 \end{prs2}
 
 which describes two cross-coupled NAND gates.
+
+We don't want to pass on the cross-coupled NAND gates' outputs while they're in a metastable state,
+so we create a filter circuit that passes on the outputs only when they've separated by at least 
+the threshold voltage of a PMOS transistor.
+
+\begin{prs2}
+~_a1 & _a2 -> a1+
+_a1 -> a1-
+
+~_a2 & _a1 -> a2+
+_a2 -> a2-
+\end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Synchronizer}
