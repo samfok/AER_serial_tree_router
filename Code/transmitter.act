@@ -26,13 +26,39 @@ defproc INT (globals g; port v, e, c) {
 }
 
 
+export 
+defproc ARB2 (globals g; port a1, a2) {
+    // The basic 2-input arbiter
+    bool _a1o,_a2o;
+
+    spec {
+        mk_excllo(_a1o, _a2o)
+    }
+
+    //Cross-Coupled NANDs
+    prs<g.Vdd,g.GND> {
+        a1.i & _a2o   => _a1o- //_a1i NAND
+        a2.i & _a1o   => _a2o- //_a2i NAND
+    }
+
+    //Filter
+    prs<g.Vdd,g.GND> {
+        ~_a1o & _a2o  -> a1.o+
+        _a1o          -> a1.o-
+
+        ~_a2o & _a1o -> a2.o+
+        _a2o         -> a2.o-
+    }
+}
+
 export
-defproc ARB (globals g; port l1, l2, r) {
+defproc ARB_stat (globals g; port l1, l2, r) {
+    // ARB_stat is the arbiter using synchronizers
     bool _a1i,_a2i,_a1o,_a2o,a1o,a2o,_ri;
 
     //Force Arbiter Behavior
     spec {
-        mk_exclhi(l1.o, l2.o)
+        // mk_exclhi(l1.o, l2.o)
         mk_excllo(_a1i,_a2i)
     }
 
@@ -56,20 +82,66 @@ defproc ARB (globals g; port l1, l2, r) {
     //Cross-Coupled NANDs
     prs<g.Vdd,g.GND> {
         //_a1i NAND
-        a1o & _a2i   -> _a1i-
-        ~a1o | ~_a2i -> _a1i+
+        a1o & _a2i   => _a1i-
         //_a2i NAND
-        a2o &  _a1i  -> _a2i-
-        ~a2o | ~_a1i -> _a2i+
+        a2o &  _a1i  => _a2i-
     }
 
     //Filter
     prs<g.Vdd,g.GND> {
-        //Inverters
-        _a1i => l1.o-
-        _a2i => l2.o-
+        _a1i & _ri   -> l1.o-
+        ~_a1i & ~_ri -> l1.o+ // requires staticizer
+        _a2i & _ri   -> l2.o-
+        ~_a2i & ~_ri -> l2.o+
     }
-    
+}
+
+export
+defproc ARB_ng (globals g; port l1, l2, r) {
+    // ARB_ng is the arbiter implemented on neurogrid and earlier chips.
+    // Its filter circuit is not QDI. 
+    // Specifically, assumes that a1i (a2i) changes before ri in l1o- (l2o-)
+    // guards.
+    bool _a1i,_a2i,_a1o,_a2o,a1o,a2o,_ri;
+
+    //Force Arbiter Behavior
+    spec {
+        // mk_exclhi(l1.o, l2.o)
+        mk_excllo(_a1i,_a2i)
+    }
+
+    //Implement fair and greedy algorithm
+    prs<g.Vdd,g.GND> {
+        //asymmetric c-elements
+        l1.i & _ri -> _a1o-
+        ~l1.i      -> _a1o+
+        l2.i & _ri -> _a2o-
+        ~l2.i      -> _a2o+
+
+        // staticizers
+        _a1o => a1o-
+        _a2o => a2o-
+
+        // parent lines
+        a1o | a2o => r.o+
+        r.i => _ri-
+    }
+
+    //Cross-Coupled NANDs
+    prs<g.Vdd,g.GND> {
+        //_a1i NAND
+        a1o & _a2i   => _a1i-
+        //_a2i NAND
+        a2o &  _a1i  => _a2i-
+    }
+
+    //Filter
+    prs<g.Vdd,g.GND> {
+        _a1i | _ri   -> l1.o-
+        ~_a1i & ~_ri -> l1.o+
+        _a2i | _ri   -> l2.o-
+        ~_a2i & ~_ri -> l2.o+
+    }
 }
 
 export
