@@ -916,22 +916,18 @@ ARB2\equiv*
 \end{csp}
 
 The control process communicates with the parent and the child arbitration processes.
-Next, we split out the arbitrations into their own processes.
+Since the child processes are identical, we will omit the second child's processes.
+Just don't forget about its existence.
+Next, we split out the arbitrations into their own processes. 
 
 \begin{csp}
 ARB2\equiv*
   *[[#{L1}->C1;L1;L1;C1]] \pll
-  *[[#{L2}->C2;L2;L2;C2]] \pll
-
   *[[#{C1}|#{C2}->R;S1;S1;S2;S2;R]] \pll
 
   *[[#{C1}->A1c;S1;C1;C1;S1;A1c)]] \pll
   *[[#{S1}->A1s;S1;S1;A1s]] \pll
   *[[#{A1c}->A1c;A1c\|#{A1s}->A1s;A1s]] \pll
-  
-  *[[#{C2}->A2c;S2;C2;C2;S2;A2c]] \pll
-  *[[#{S2}->A2s;S2;S2;A2s]] \pll
-  *[[#{A2c}->A2c;A2c\|#{A2s}->A2s;A2s]]
 \end{csp}
 
 \noindent Next, we make some of the up and down phases of the child arbitration processes explicit and pipeline.
@@ -939,17 +935,11 @@ ARB2\equiv*
 \begin{csp}
 ARB2\equiv*
   *[[#{L1}->C1;L1;L1;C1]] \pll
-  *[[#{L2}->C2;L2;L2;C2]] \pll
-
   *[[#{C1}|#{C2}->R;S1;S1;S2;S2;R]] \pll
 
   *[[#{C1}->A1c+,S1+;C1+;C1-\star(A1c-,S1-)]] \pll
   *[[#{S1}->A1s+,S1+;S1-\star\!A1s-]] \pll
   *[[#{A1c}->A1c;A1c\|#{A1s}->A1s;A1s]] \pll
-  
-  *[#{C2}->A2c+,S2+;C2;C2-\star(A2c-,S2-)] \pll
-  *[#{S2}->A2s+;S2+;S2-\star\!A2s-] \pll
-  *[[#{A2c}->A2c;A2c\|#{A2s}->A2s;A2s]]
 \end{csp}
 
 \noindent or equivalently we can fold some of the guards into the communications.
@@ -957,21 +947,17 @@ ARB2\equiv*
 \begin{csp}
 ARB2\equiv
   *[L1\star\!C1;L1\star\!C1] \pll
-  *[L2\star\!C2;L2\star\!C2] \pll
-
   *[[#{C1}|#{C2}->R;S1;S1;S2;S2;R]] \pll
 
   *[C1+\star(A1c+,S1+);C1-\star(A1c-,S1-)] \pll
   *[S1+\star\!A1s+;S1\star\!A1s-] \pll
   *[[#{A1c}->A1c;A1c\|#{A1s}->A1s;A1s]] \pll
-  
-  *[C2+\star(A2c+,S2+);C2-\star(A2c-,S2-)] \pll
-  *[S2+\star\!A2s;S2\star\!A2s] \pll
-  *[[#{A2c}->A2c;A2c\|#{A2s}->A2s;A2s]]
 \end{csp}
 
-Note that the communications that used to be gaurds must be implemented with passive channels.
-Namely, $S1$ and $S2$ must be passive in the child arbtration processes.
+Note that the ports used as gaurds must be implemented with passive channels and that
+the $\star$ operator also requires that one of the channels be passive. 
+These restrictions imply that $S1$ and $S2$ must be active (passive) in the control (child arbtration) processes.
+
 We see that every communication is present twice in each process
 and that the up and down phases of each communication are symmetric. 
 Therefore, we can cleanup the notation by removing the explicit up and down phase indications.
@@ -979,82 +965,37 @@ Therefore, we can cleanup the notation by removing the explicit up and down phas
 \begin{csp}
 ARB2\equiv
   *[L1\star\!C1;L1\star\!C1]
-  *[L2\star\!C2;L2\star\!C2]
-
   *[[#{C1}|#{C2}->R;S1;S1;S2;S2;R]]
 
   *[C1\star(A1c,S1);C1\star(A1c,S1)]
   *[S1\star\!A1s;S1\star\!A1s]
   *[[#{A1c}->A1c;A1c\|#{A1s}->A1s;A1s]]
-  
-  *[C2\star(A2c,S2);C2\star(A2c,S2)]
-  *[S2\star\!A2s;S2\star\!A2s]
-  *[[#{A2c}->A2c;A2c\|#{A2s}->A2s;A2s]]
 \equiv
   CH1
-  CH2
- 
   CTRL 
  
   CH1_GATE
-  CH1_BYPASS
+  CH1_SKIP
   CH1_ARB
- 
-  CH2_GATE
-  CH2_BYPASS
-  CH2_ARB 
 \end{csp}
 
-where each line is a concurrent process,
+\noindent where each line is a concurrent process,
 and the names correspond to the process on their respective line. 
-Our next step is to convert the CHP into HSE. 
-We show the HSE for child 1's processes. 
-Simply replace all 1s with 2s to get the HSE for the child 2's processes.
 
-\noindent The HSE for \code{CH1}:
+Our next step is to convert the CHP into HSE and PRS.
+However, as we go through the HSE and PRS we will make changes
+to the design to improve the implementation.
+We show the HSE and PRS for child 1's processes only. 
+Simply replace all 1s with 2s to get the HSE and PRS for the child 2's processes.
+
+\noindent The HSE for \code{CH1} is given by
 
 \begin{hse}
   *[[l1i];c1o+;[c1i];l1o+;
     [~l1i];c1o-;[~c1i];l1o-]
 \end{hse}
 
-\noindent The HSE for \code{CTRL}:
-
-\begin{hse}
-  *[[c1o|c2o];
-    ro+;[ri];
-    s1o+;[s1i];s1o-[~s1i];
-    s2o+;[s2i];s2o-;[~s2i];
-    ro-;[~ri]]
-\end{hse}
-
-We cannot distinguish between three states of the HSE: 
-between \code{[ri]} and \code{s1o$\uparrow$},
-between \code{[$\neg$s1i]} and \code{s2o$\uparrow$}, and 
-between \code{[$\neg$s2i]} and \code{ro$\downarrow$}, 
-so we introduce state variables \code{x} and \code{y},
-
-\begin{hse}
-  *[[c1|c2];ro+;[ri];
-    s1o+;[s1i];x+;s1o-;[~s1i];y+,
-    s2o+;[s2i];x-;s2o-;[~s2i];
-    ro-;[~ri];y-]
-\end{hse}
-
-\noindent The HSE for \code{CH1\_GATE}, \code{CH1\_BYPASS}, and \code{CH1\_ARB}, respectively:
-
-\begin{hse}
-  *[[c1o];a1co+;[s1o];s1i+;[a1ci];c1i+;
-    [~c1o];a1co-;[~s1o];s1i-;[~a1ci];c1i-]
-  *[[s1o];a1so+;[a1si];s1i+;
-    [~s1o];a1so-;[~a1si];s1i-]
-  *[[a1so];a1si+;[~a1so];a1si-]
-\end{hse}
-
-Now we move on to the PRS to implement the HSE. 
-As previously, we only show PRS for child 1's processes. 
-
-\noindent The PRS for \code{CH1}:
+\noindent This corresponds to the PRS 
 
 \begin{prs2}
 l1i -> c1o+
@@ -1064,8 +1005,8 @@ c1i -> l1o+
 ~c1i -> l1o-
 \end{prs2}
 
-These are just wires, which means that we can fold \code{CH1} and \code{CH2} into the other processes
-and clean up our specification to be
+\noindent These are just wires, so we can fold \code{CH1} into the other processes
+and express our specification using \code{L1} directly instead of \code{C1}:
 
 \begin{csp}
 ARB2\equiv
@@ -1074,53 +1015,166 @@ ARB2\equiv
   *[L1\star(A1c,S1);L1\star(A1c,S1)]
   *[S1\star\!A1s;S1\star\!A1s]
   *[[#{A1c}->A1c;A1c\|#{A1s}->A1s;A1s]]
-  
-  *[L2\star(A2c,S2);L2\star(A2c,S2)]
-  *[S2\star\!A2s;S2\star\!A2s]
-  *[[#{A2c}->A2c;A2c\|#{A2s}->A2s;A2s]]
 \end{csp}
 
-Definitions will now replace the \code{C} ports with the \code{L} ports. 
-The PRS for \code{CTRL}:
+\noindent The HSE for \code{CTRL}, \code{CH1\_GATE}, \code{CH1\_SKIP}, and \code{CH1\_ARB}, respectively:
 
-\begin{prs}
+\begin{hse}
+  *[[l1i|l2i];ro+;[ri];
+    s1o+;[s1i];s1o-[~s1i];
+    s2o+;[s2i];s2o-;[~s2i];
+    ro-;[~ri]]
+    
+  *[[l1i];a1lo+;[s1o];s1i+;[a1li];l1o+;
+    [~l1i];a1lo-;[~s1o];s1i-;[~a1li];l1o-]
+  *[[s1o];a1so+;[a1si];s1i+;
+    [~s1o];a1so-;[~a1si];s1i-]
+  *[[a1lo];a1li+;[~a1lo];a1li-
+   \|[a1so];a1si+;[~a1so];a1si-]
+\end{hse}
+
+\noindent This design is problematic because 
+we will not be able to distinguish between three states of the $CTRL$ HSE: 
+between \code{[ri]} and \code{s1o$\uparrow$},
+between \code{[$\neg$s1i]} and \code{s2o$\uparrow$}, and 
+between \code{[$\neg$s2i]} and \code{ro$\downarrow$}. 
+One approach would be to introduce state variables \code{x} and \code{y}:
+
+\begin{hse}
+  *[[l1i|l2i];ro+;[ri];
+    s1o+;[s1i];x+;s1o-;[~s1i];y+,
+    s2o+;[s2i];x-;s2o-;[~s2i];
+    ro-;[~ri];y-]
+\end{hse}
+
+\noindent However, state variables lead to very messy PRS implementations, and
+it's impossible to reshuffle this HSE. 
+First, the $CTRL$ process must have permission from the parent before allowing the children to go ahead.
+This condition is only satisfied after \code{[ri]}.
+Second, the $CTRL$ process must know that its children have completed before releasing the parent.
+This condition is only satisfied after \code{[$\neg$s2i]} because the $S$ port is active.
+
+Since the active/passive constraints on port $S$ are causing us pain, let's revist the CHP.
+Removing guard statements and $\star$ operators can return the CHP to being agnostic to the 
+active/passive implementation of the ports. 
+If we remove the $\star$ operator from the $SKIP$ processes, (omitting the CHP for \code{CH2})
+
+\begin{csp}
+  *[[#{L1}|#{L2}->R;S1;S1;S2;S2;R]]
+
+  *[L1\star(A1c,S1);L1\star(A1c,S1)]
+  *[S1;A1s;S1;A1s]
+  *[[#{A1c}->A1c;A1c\|#{A1s}->A1s;A1s]]
+\end{csp}
+
+\noindent and then make the \code{S} ports passive (active) in $CTRL$ ($GATE$ and $SKIP$), the HSE becomes
+
+\begin{hse}
+  *[[l1i|l2i];ro+;[ri];
+    [s1o];s1i+;[~s1o];s1i-;
+    [s2o];s2i+;[~s2o];s2i-;
+    ro-;[~ri]]
+    
+  *[[l1i];a1lo+,s1o+;[a1li&s1i];l1o+;
+    [~l1i];a1lo-,s1o-;[~a1li&~s1i];l1o-]
+  *[s1o+;[s1i];a1so+;[a1si];
+    s1o-;[~s1i];a1so-;[~a1si]]
+  *[[a1lo];a1li+;[~a1lo];a1li-
+   \|[a1so];a1si+;[~a1so];a1si-]
+\end{hse}
+
+\noindent This could deadlock in the case that a child request is present (\code{l1i} is high),
+and the skip process manages to grab the arbiter first because the \code{s1o} input to $CTRL$ 
+is the wired-or of $GATE$ and $SKIP$. Therefore, $SKIP$ must release the arbiter and \code{S}
+port concurrently.
+
+\noindent CHP:
+
+\begin{csp}
+  *[[#{L1}|#{L2}->R;S1;S1;S2;S2;R]]
+
+  *[L1\star(A1c,S1);L1\star(A1c,S1)]
+  *[S1;A1s;S1,A1s]
+  *[[#{A1c}->A1c;A1c\|#{A1s}->A1s;A1s]]
+\end{csp}
+
+\noindent HSE:
+
+\begin{hse}
+  *[[l1i|l2i];ro+;[ri];
+    [s1o];s1i+;[~s1o];s1i-;
+    [s2o];s2i+;[~s2o];s2i-;
+    ro-;[~ri]]
+    
+  *[[l1i];a1lo+,s1o+;[a1li&s1i];l1o+;
+    [~l1i];a1lo-,s1o-;[~a1li&~s1i];l1o-]
+  *[s1o+;[s1i];a1so+;[a1si];
+    s1o-,a1so-;[~s1i&~a1si]]
+  *[[a1lo];a1li+;[~a1lo];a1li-
+   \|[a1so];a1si+;[~a1so];a1si-]
+\end{hse}
+
+\noindent Note that now the $GATE$ process will never actually be skipped because
+the $SKIP$ process cannot finish until \code{s1i} goes low. Since \code{s1o} is
+a wired or, \code{s1i} will not go low until both \code{s1o} lines go low.
+
+At this point, we can reshuffle $CTRL$ to break its symmetry by moving
+the \code{s1i$\downarrow$} and \code{s2i$\downarrow$} to after the
+downphase of the $R$ communication.
+
+\begin{hse}
+  *[[l1i|l2i];ro+;[ri];
+    [s1o];s1i+;[~s1o];
+    [s2o];s2i+;[~s2o];
+    ro-;[~ri];s1i-,s2i-]
+    
+  *[[l1i];a1lo+,s1o+;[a1li&s1i];l1o+;
+    [~l1i];a1lo-,s1o-;[~a1li&~s1i];l1o-]
+  *[s1o+;[s1i];a1so+;[a1si];
+    s1o-,a1so-;[~s1i&~a1si]]
+  *[[a1lo];a1li+;[~a1lo];a1li-
+   \|[a1so];a1si+;[~a1so];a1si-]
+\end{hse}
+
+\noindent This corresponds to the CHP
+
+\begin{csp}
+  *[[#{L1}|#{L2}->R;S1;S1\star(S2;S2\star\!R)]]
+
+  *[L1\star(A1c,S1);L1\star(A1c,S1)]
+  *[S1;A1s;S1,A1s]
+  *[[#{A1c}->A1c;A1c\|#{A1s}->A1s;A1s]]
+\end{csp}
+
+\noindent The PRS for \code{CTRL}:
+
+\begin{prs2}
+ri & s1o -> s1i+
+~ri -> s1i-
+
+s1i & ~s1o & s2o -> s2i+
+~ri -> s2i-
+
 l1i | l2i -> ro+
-~x & y & ~s2i -> ro-
-
-~x & ri -> s1o+
-s1i -> s1o-
-
-x & ~s1i -> s2o+
-s2i -> s2o-
-
-s1i -> x+
-s2i -> x-
-
-x & ~s1i -> y+
-~x & ~ri -> y-
-\end{prs}
+s2i & ~s2o -> ro-
+\end{prs2}
 
 \noindent The PRS for \code{CH1\_GATE}:
 
 \begin{prs2}
-l1o -> a1co+
-~l1o -> a1co-
+l1i -> a1lo+, s1o+
+~l1i -> a1lo-, s1o-
 
-a1co & s1o -> s1i+
-~a1co & ~s1o -> s1i-
-
-a1ci -> l1i+
-~a1ci -> l1i-
+a1li & s1i -> l1o+
+~a1li & ~s1o -> l1o-
 \end{prs2}
 
 \noindent The PRS for \code{CH1\_BYPASS}:
 
 \begin{prs2}
-s1o -> a1so+
-~s1o -> a1so-
-
-a1si -> s1i+
-~a1si -> s1i-
+~s1i&~a1si -> s1o+
+s1i -> a1so+
+a1si -> s1o-, a1so-
 \end{prs2}
 
 \noindent The PRS for \code{CH1\_ARB}:
@@ -1133,7 +1187,7 @@ a1co & _a1si -> _a1ci-
 ~a1co | ~_a1si -> _a1ci+
 \end{prs2}
 
-\noindent This is just a standard arbiter (see section~\ref{subsec:arb})
+\noindent which is just a standard arbiter (see section~\ref{subsec:arb})
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Scratch}
