@@ -1025,9 +1025,9 @@ and express our specification using \code{L1} directly instead of \code{C1}:
 ARB2\equiv
   *[[#{L1}|#{L2}->R;S1;S1;S2;S2;R]]
 
-  *[L1\star(A1c,S1);L1\star(A1c,S1)]
+  *[L1\star(A1l,S1);L1\star(A1l,S1)]
   *[S1\star\!A1s;S1\star\!A1s]
-  *[[#{A1c}->A1c;A1c\|#{A1s}->A1s;A1s]]
+  *[[#{A1l}->A1l;A1l\|#{A1s}->A1s;A1s]]
 \end{csp}
 
 \noindent The HSE for \code{CTRL}, \code{CH1\_GATE}, \code{CH1\_SKIP}, and \code{CH1\_ARB}, respectively:
@@ -1075,9 +1075,9 @@ If we remove the $\star$ operator from the $SKIP$ processes, (omitting the CHP f
 \begin{csp}
   *[[#{L1}|#{L2}->R;S1;S1;S2;S2;R]]
 
-  *[L1\star(A1c,S1);L1\star(A1c,S1)]
+  *[L1\star(A1l,S1);L1\star(A1l,S1)]
   *[S1;A1s;S1;A1s]
-  *[[#{A1c}->A1c;A1c\|#{A1s}->A1s;A1s]]
+  *[[#{A1l}->A1l;A1l\|#{A1s}->A1s;A1s]]
 \end{csp}
 
 \noindent and then make the \code{S} ports passive (active) in $CTRL$ ($GATE$ and $SKIP$), the HSE becomes
@@ -1106,9 +1106,9 @@ port concurrently.
 \begin{csp}
   *[[#{L1}|#{L2}->R;S1;S1;S2;S2;R]]
 
-  *[L1\star(A1c,S1);L1\star(A1c,S1)]
+  *[L1\star(A1l,S1);L1\star(A1l,S1)]
   *[S1;A1s;S1,A1s]
-  *[[#{A1c}->A1c;A1c\|#{A1s}->A1s;A1s]]
+  *[[#{A1l}->A1l;A1l\|#{A1s}->A1s;A1s]]
 \end{csp}
 
 \noindent HSE:
@@ -1154,9 +1154,9 @@ downphase of the $R$ communication.
 \begin{csp}
   *[[#{L1}|#{L2}->R;S1;S1\star(S2;S2\star\!R)]]
 
-  *[L1\star(A1c,S1);L1\star(A1c,S1)]
+  *[L1\star(A1l,S1);L1\star(A1l,S1)]
   *[S1;A1s;S1,A1s]
-  *[[#{A1c}->A1c;A1c\|#{A1s}->A1s;A1s]]
+  *[[#{A1l}->A1l;A1l\|#{A1s}->A1s;A1s]]
 \end{csp}
 
 \noindent The PRS for \code{CTRL}:
@@ -1193,14 +1193,21 @@ a1si -> s1o-, a1so-
 \noindent The PRS for \code{CH1\_ARB}:
 
 \begin{prs2}
-a1so & _a1ci -> _a1si-
-~a1so | ~_a1ci -> _a1si+
+a1lo & _a1si -> _a1li-
+~a1lo | ~_a1si -> _a1li+
 
-a1co & _a1si -> _a1ci-
-~a1co | ~_a1si -> _a1ci+
+~_a1li & _a1si -> a1li+
+_a1li -> a1li-
+
+a1so & _a1li -> _a1si-
+~a1so | ~_a1li -> _a1si+
+
+~_a1si & _a1li -> a1si+
+_a1si -> a1si-
 \end{prs2}
 
-\noindent which is just a standard arbiter (see section~\ref{subsec:arb})
+\noindent which is just a standard 2-input arbiter (see section~\ref{subsec:arb})
+with inputs \code{a1lo} and \code{a
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Scratch}
