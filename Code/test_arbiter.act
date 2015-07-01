@@ -22,3 +22,6 @@ prs {
     sReset -> g.Vdd+
     sReset -> g.GND-
 }
+
+// c2.p.i = g.GND;
+// g.GND = a.l2.i;

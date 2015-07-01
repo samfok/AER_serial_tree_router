@@ -26,7 +26,48 @@ defproc INT (globals g; port v, e, c) {
 }
 
 
-export 
+namespace arbiter {
+export
+defproc CTRL_TEST (globals g; port s1, s2, p) {
+    bool u;
+    prs<g.Vdd,g.GND> {
+        ~s1.o & ~s2.o -> p.o+
+        ~s2.i & s2.o -> p.o-
+
+        p.i & s1.i -> s1.o+
+        ~s1.i & s1.o & s2.i -> s2.o+
+        ~p.i => u-
+
+        ~u -> s1.o-
+        ~u -> s2.o-
+    }
+}
+
+defproc CTRL (globals g; bool c1i, c2i; port s1, s2, p) {
+    bool u;
+    prs<g.Vdd,g.GND> {
+        c1i | c2i -> p.o+
+        ~s2.i & s2.o -> p.o-
+
+        p.i & s1.i -> s1.o+
+        ~s1.i & s1.o & s2.i -> s2.o+
+        ~p.i => u-
+
+        ~u -> s1.o-
+        ~u -> s2.o-
+    }
+}
+
+defproc C_S (globals g; port s, sb, sg) {
+}
+
+defproc C_GATE (globals g; port c, s, a) {
+}
+
+defproc C_BYPASS (globals g; port s, a) {
+}
+
+export
 defproc ARB2 (globals g; port a1, a2) {
     // The basic 2-input arbiter
     bool _a1o,_a2o;
@@ -49,6 +90,73 @@ defproc ARB2 (globals g; port a1, a2) {
         ~_a2o & _a1o -> a2.o+
         _a2o         -> a2.o-
     }
+}
+
+} // end namespace arbiter
+
+export
+defproc ARB (globals g; port l1, l2, r) {
+    // bool a1li, a1lo;
+    // bool a2li, a2lo;
+    // bool s1i, s1o;
+    // bool s2i, s2o;
+    // bool u1;
+
+    // arbiter::ARB2 A1, A2;
+
+    // // CTRL
+    // prs<g.Vdd,g.GND> {
+    //     l1.i | l2.i -> r.o+
+    //     s2i & ~s2o  -> r.o-
+
+    //     r.i & s1o -> s1i+
+    //     ~r.i      -> s1i-
+
+    //     s1i & ~s1o & s2o -> s2i+
+    //     ~r.i             -> s2i-
+    // }
+
+    // // CH1_GATE
+    // prs<g.Vdd,g.GND> {
+    //     l1.i => u1+
+
+    //     u1 => a1lo+
+    //     u1 => s1o+
+
+    //     a1li & s1i   -> l1.o+
+    //     ~a1li & ~s1o -> l1.o-
+    // }
+
+    // // CH1_BYPASS
+    // prs<g.Vdd,g.GND> {
+    //     ~s1i & ~a1si -> s1o+
+    //     s1i          -> a1so+
+    //     a1si         => v1+
+
+    //     v1 => s1o-
+    //     v1 => a1so-
+    // }
+
+    // // CH2_GATE
+    // prs<g.Vdd,g.GND> {
+    //     l2.i => u2+
+
+    //     u2 => a2lo+
+    //     u2 => s2o+
+
+    //     a2li & s2i   -> l2.o+
+    //     ~a2li & ~s2o -> l2.o-
+    // }
+
+    // // CH2_BYPASS
+    // prs<g.Vdd,g.GND> {
+    //     ~s2i & ~a2si -> s2o+
+    //     s2i          -> a2so+
+    //     a2si         => v2+
+
+    //     v2 => s2o-
+    //     v2 => a2so-
+    // }
 }
 
 export

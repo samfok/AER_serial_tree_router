@@ -5,6 +5,11 @@ watchall
 # watch a.l1.o
 # watch a.l2.i
 # watch a.l2.o
+# watch a._ri
 # watch a.r.i
+# watch a._a1o
+# watch a.a1o
+# watch a._a2o
+# watch a.a2o
 # # watch a.r.o
 break-on-warn
