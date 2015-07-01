@@ -1,0 +1,67 @@
+// This file contains PRS for the arbiter circuits
+import "lib/globals.act";
+import "channel.act";
+
+namespace arbiter {
+
+export
+defproc CTRL_TEST (globals g; port s1, s2, p) {
+    // test version of CTRL sequencing circuit
+    // does not use children as start signal
+    // assumes both children are always requesting
+    prs<g.Vdd,g.GND> {
+        g._sReset & ~s1.o & ~s2.o -> p.o+
+        g.pReset | ~s2.i & s2.o -> p.o-
+
+        p.i & s1.i -> s1.o+
+        p.i & ~s1.i & s1.o & s2.i -> s2.o+
+        ~p.i -> s1.o-
+        ~p.i -> s2.o-
+    }
+}
+
+defproc CTRL (globals g; bool c1i, c2i; port s1, s2, p) {
+    bool u;
+    prs<g.Vdd,g.GND> {
+        c1i | c2i -> p.o+
+        ~s2.i & s2.o -> p.o-
+
+        p.i & s1.i -> s1.o+
+        ~s1.i & s1.o & s2.i -> s2.o+
+        ~p.i => u-
+
+        ~u -> s1.o-
+        ~u -> s2.o-
+    }
+}
+
+defproc C_S (globals g; port s, sb, sg) {
+}
+
+export
+defproc ARB2 (globals g; port a1, a2) {
+    // The basic 2-input arbiter
+    bool _a1o,_a2o;
+
+    spec {
+        mk_excllo(_a1o, _a2o)
+    }
+
+    //Cross-Coupled NANDs
+    prs<g.Vdd,g.GND> {
+        a1.i & _a2o   => _a1o- //_a1i NAND
+        a2.i & _a1o   => _a2o- //_a2i NAND
+    }
+
+    //Filter
+    prs<g.Vdd,g.GND> {
+        ~_a1o & _a2o  -> a1.o+
+        _a1o          -> a1.o-
+
+        ~_a2o & _a1o -> a2.o+
+        _a2o         -> a2.o-
+    }
+}
+
+} // end namespace arbiter
+

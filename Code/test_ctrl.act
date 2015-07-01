@@ -1,7 +1,7 @@
 // Tests the CTRL circuit
 import "lib/globals.act";
-import "transmitter.act";
-open transmitter::arbiter;
+import "arbiter.act";
+open arbiter;
 import "test.act";
 
 globals g;
