@@ -1,0 +1,28 @@
+// Tests the CTRL circuit
+import "lib/globals.act";
+import "transmitter.act";
+open transmitter::arbiter;
+import "test.act";
+
+globals g;
+active_handshaker s1(g,), s2(g,);
+passive_handshaker p(g,);
+CTRL_TEST ctrl(g,,,);
+
+ctrl.p.o = p.p.i;
+ctrl.p.i = p.p.o;
+ctrl.s1.i = s1.p.o;
+ctrl.s1.o = s1.p.i;
+ctrl.s2.i = s2.p.o;
+ctrl.s2.o = s2.p.i;
+
+bool pReset, sReset;
+prs {
+    sReset => g.sReset+
+    pReset => g.pReset+
+    sReset => g._sReset-
+    pReset => g._pReset-
+    sReset -> g.Vdd+
+    sReset -> g.GND-
+}
+

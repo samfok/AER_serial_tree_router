@@ -29,17 +29,17 @@ defproc INT (globals g; port v, e, c) {
 namespace arbiter {
 export
 defproc CTRL_TEST (globals g; port s1, s2, p) {
-    bool u;
+    // test version of CTRL sequencing circuit
+    // does not use children as start signal
+    // assumes both children are always requesting
     prs<g.Vdd,g.GND> {
-        ~s1.o & ~s2.o -> p.o+
-        ~s2.i & s2.o -> p.o-
+        g._sReset & ~s1.o & ~s2.o -> p.o+
+        g.pReset | ~s2.i & s2.o -> p.o-
 
         p.i & s1.i -> s1.o+
-        ~s1.i & s1.o & s2.i -> s2.o+
-        ~p.i => u-
-
-        ~u -> s1.o-
-        ~u -> s2.o-
+        p.i & ~s1.i & s1.o & s2.i -> s2.o+
+        ~p.i -> s1.o-
+        ~p.i -> s2.o-
     }
 }
 
