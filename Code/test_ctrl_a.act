@@ -1,12 +1,11 @@
 // Tests the CTRL circuit
 import "lib/globals.act";
 import "arbiter.act";
-open arbiter;
+open arbiter_a;
 import "test.act";
 
 globals g;
-active_handshaker s1(g,), s2(g,);
-passive_handshaker p(g,);
+passive_handshaker s1(g,), s2(g,), p(g,);
 CTRL_TEST ctrl(g,,,);
 
 ctrl.p.o = p.p.i;
@@ -25,4 +24,5 @@ prs {
     sReset -> g.Vdd+
     sReset -> g.GND-
 }
+
 
