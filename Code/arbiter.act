@@ -74,6 +74,22 @@ namespace arbiter_a {
             ~p.i & ~x -> y-
         }
     }
+
+    export
+    defproc C_S (globals g; port s1, s2) {
+        bool x;
+        prs<g.Vdd,g.GND> {
+            g._sReset & x -> s1.o+
+            g.pReset | ~s2.i & ~x -> s1.o-
+
+            g._sReset & s1.i & x -> s2.o+
+            g.pReset | ~x -> s2.o-
+
+            ~s1.i & ~s2.i -> x+
+            s1.i & s2.i -> x-
+        }
+    }
+
 } // end namespace arbiter_a
 
 namespace arbiter_p {

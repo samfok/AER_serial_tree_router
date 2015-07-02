@@ -4,16 +4,19 @@
 \begin{document}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{arbiter: $CTRL$ with passive $S$}
+\section{arbiter $CTRL$ with passive $S$ ports}
 
-\noindent CHP:
+\subsection{CHP}
 
 \begin{csp}
 CTRL\approx
   *[[#{C1}|#{C2}->P;S1;S1\star(S2;S2\star\!P)]
+  
+C_S\equiv
+  *[S1;S2;S2;S1]
 \end{csp}
 
-\noindent HSE:
+\subsection{HSE}
 
 \begin{hse}
 CTRL\equiv
@@ -23,7 +26,19 @@ CTRL\equiv
     po-;[~pi];s1o-;s2o-]
 \end{hse}
 
-\noindent PRS:
+\begin{hse}
+C_S\equiv
+  *[s1o+;[s1i];s2o+;[s2i];s2i-;[~s2i];s1o-;[~s1i]]
+\end{hse}
+
+needs a state variable
+
+\begin{hse}
+C_S\equiv
+  *[x+;s1o+;[s1i];s2o+;[s2i];x-;s2o-;[~s2i];s1o-;[~s1i]]
+\end{hse}
+
+\subsection{PRS}
 
 $CTRL\equiv$
 \begin{prs2}
@@ -37,10 +52,28 @@ pi & s1i -> s1o+
 ~pi & ~s1o -> s2o-
 \end{prs2}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{arbiter: $CTRL$ with active $S$}
+$C\_S\equiv$
+\begin{prs2}
+x -> s1o+
+~s2i & ~x -> s1o-
 
-\noindent HSE:
+s1i & x -> s2o+
+~x -> s2o-
+
+~s1i & ~s2i -> x+
+s1i & s2i -> x-
+\end{prs2}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{arbiter $CTRL$ with active $S$ ports}
+
+\subsection{CHP} 
+
+\begin{csp}
+CTRL\equiv
+  *[[#{C1}|#{C2}->P;S1;S1;S2;S2;P]
+\end{csp}
+
+\subsection{HSE}
 
 \begin{hse}
 CTRL\equiv
@@ -61,7 +94,7 @@ CTRL\equiv
 \end{hse}
 
 
-\noindent PRS:
+\subsection{PRS}
 
 \begin{prs2}
 c1i | c2i -> po+
@@ -79,6 +112,7 @@ s2i & y -> x-
 s1i & x -> y+
 ~pi & ~x -> y-
 \end{prs2}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{post arbiter}
 
