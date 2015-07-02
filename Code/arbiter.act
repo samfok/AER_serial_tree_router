@@ -41,8 +41,8 @@ namespace arbiter_a {
             g._sReset & ~s1.i & x & ~y -> s1.o+
             g.pReset | x & y -> s1.o-
 
-            g._sReset & ~s1.i & ~s2.i & y -> s2.o+
-            g.pReset | ~x -> s2.o-
+            g._sReset & ~s1.i & ~s2.i & x & y -> s2.o+
+            g.pReset | s2.i & ~x -> s2.o-
 
             g._sReset & p.i & ~y -> x+
             g.pReset | s2.i & y -> x-
@@ -61,8 +61,8 @@ namespace arbiter_a {
             ~s1.i & x & ~y -> s1.o+
             x & y -> s1.o-
 
-            ~s1.i & ~s2.i & y -> s2.o+
-            ~x -> s2.o-
+            ~s1.i & ~s2.i & x & y -> s2.o+
+            s2.i & ~x -> s2.o-
 
             p.i & ~y -> x+
             s2.i & y -> x-
