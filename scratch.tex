@@ -54,14 +54,20 @@ pi & s1i -> s1o+
 
 $C\_S\equiv$
 \begin{prs2}
-x -> s1o+
-~s2i & ~x -> s1o-
+x -> _s1o-
+~s2i & ~x -> _s1o+
 
-s1i & x -> s2o+
-~x -> s2o-
+s1i & x -> _s2o-
+~x -> _s2o+
 
 ~s1i & ~s2i -> x+
 s1i & s2i -> x-
+
+~_s1o -> s1o+
+_s1o -> s1o-
+
+~_s2o -> s2o+
+_s2o -> s2o-
 \end{prs2}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{arbiter $CTRL$ with active $S$ ports}
