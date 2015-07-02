@@ -4,7 +4,14 @@
 \begin{document}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{arbiter - passive control}
+\section{arbiter: $CTRL$ with passive $S$}
+
+\noindent CHP:
+
+\begin{csp}
+CTRL\approx
+  *[[#{C1}|#{C2}->P;S1;S1\star(S2;S2\star\!P)]
+\end{csp}
 
 \noindent HSE:
 
@@ -13,7 +20,7 @@ CTRL\equiv
   *[[c1i|c2i];po+;[pi];
     [s1i];s1o+;[~s1i];
     [s2i];s2o+;[~s2i];
-    po-;[~pi];s1o-,s2o-]
+    po-;[~pi];s1o-;s2o-]
 \end{hse}
 
 \noindent PRS:
@@ -24,12 +31,14 @@ c1i | c2i -> po+
 ~s2i & s2o -> po-
 
 pi & s1i -> s1o+
-pi & ~s1i & s1o & s2i -> s2o+
-~pi -> s1o-, s2o-
+~pi -> s1o-
+
+~s1i & s1o & s2i -> s2o+
+~pi & ~s1o -> s2o-
 \end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{arbiter - active control}
+\section{arbiter: $CTRL$ with active $S$}
 
 \noindent HSE:
 

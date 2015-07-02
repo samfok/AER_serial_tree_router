@@ -26,6 +26,9 @@ defproc ARB2 (globals g; port a1, a2) {
     }
 }
 
+defproc C_ARB (globals g; port s, c) {
+}
+
 namespace arbiter_a {
     // contains the arbiter with active S ports
     export
@@ -85,9 +88,10 @@ namespace arbiter_p {
             g.pReset | ~s2.i & s2.o -> p.o-
     
             p.i & s1.i -> s1.o+
-            p.i & ~s1.i & s1.o & s2.i -> s2.o+
             ~p.i -> s1.o-
-            ~p.i -> s2.o-
+
+            ~s1.i & s1.o & s2.i -> s2.o+
+            ~p.i & ~s1.o -> s2.o-
         }
     }
     
@@ -97,9 +101,10 @@ namespace arbiter_p {
             ~s2.i & s2.o -> p.o-
     
             p.i & s1.i -> s1.o+
-            p.i & ~s1.i & s1.o & s2.i -> s2.o+
             ~p.i -> s1.o-
-            ~p.i -> s2.o-
+
+            ~s1.i & s1.o & s2.i -> s2.o+
+            ~p.i & ~s1.o -> s2.o-
         }
     }
     
