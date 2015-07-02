@@ -33,15 +33,43 @@ namespace arbiter_a {
         // test version of CTRL sequencing circuit
         // does not use children as start signal
         // assumes both children are always requesting
+        bool x, y;
         prs<g.Vdd,g.GND> {
+            g._sReset & ~x & ~y -> p.o+
+            g.pReset | ~s2.i & ~x & y -> p.o-
+
+            g._sReset & ~s1.i & x & ~y -> s1.o+
+            g.pReset | x & y -> s1.o-
+
+            g._sReset & ~s1.i & ~s2.i & y -> s2.o+
+            g.pReset | ~x -> s2.o-
+
+            g._sReset & p.i & ~y -> x+
+            g.pReset | s2.i & y -> x-
+
+            s1.i & x -> y+
+            ~p.i & ~x -> y-
         }
     }
     
     defproc CTRL (globals g; bool c1i, c2i; port s1, s2, p) {
-        bool u;
+        bool x, y;
         prs<g.Vdd,g.GND> {
+            c1i | c2i -> p.o+
+            ~s2.i & ~x & y -> p.o-
+
+            ~s1.i & x & ~y -> s1.o+
+            x & y -> s1.o-
+
+            ~s1.i & ~s2.i & y -> s2.o+
+            ~x -> s2.o-
+
+            p.i & ~y -> x+
+            s2.i & y -> x-
+
+            s1.i & x -> y+
+            ~p.i & ~x -> y-
         }
-    }
     }
 } // end namespace arbiter_a
 
@@ -64,17 +92,14 @@ namespace arbiter_p {
     }
     
     defproc CTRL (globals g; bool c1i, c2i; port s1, s2, p) {
-        bool u;
         prs<g.Vdd,g.GND> {
             c1i | c2i -> p.o+
             ~s2.i & s2.o -> p.o-
     
             p.i & s1.i -> s1.o+
-            ~s1.i & s1.o & s2.i -> s2.o+
-            ~p.i => u-
-    
-            ~u -> s1.o-
-            ~u -> s2.o-
+            p.i & ~s1.i & s1.o & s2.i -> s2.o+
+            ~p.i -> s1.o-
+            ~p.i -> s2.o-
         }
     }
     
