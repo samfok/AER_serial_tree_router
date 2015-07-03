@@ -121,16 +121,16 @@ c1i | c2i -> po+
 ~s2i & ~x & y -> po-
 
 x & ~y -> s1o+
-y -> s1o-
+~x | y -> s1o-
 
 ~s1i & x & y -> s2o+
-s2i & ~x -> s2o-
+~x -> s2o-
 
 pi & ~y -> x+
 s2i & y -> x-
 
-s1i & x -> y+
-~pi & ~x -> y-
+s1i -> y+
+~pi -> y-
 \end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -145,15 +145,7 @@ s1i & x -> y+
 
 \subsection{HSE}
 
-\begin{hse}
-*[[ci->t+;[~ci];t-
-  \|si->f+;[~si];f-]]
-\pll
-*[[t->[si];so+;[~si];co+;so-;[~t];co-
-  []f->so+;[~f];so-]]
-\end{hse}
-
-better as?
+Equivalent to Rajit's circuit:
 
 \begin{hse}
 *[[ci->[si];so+;[~si];co+;so-;[~ci];co-
@@ -163,24 +155,14 @@ better as?
 but we need to wait for child to finish letting $CTRL$ proceed to next child.
 
 \begin{hse}
-*[[ci->[si];so+,co+;[~si&~ci];so-;co-
+*[[ci->[si];so+,co+;[~si&~ci];so-,co-
   \|si->so+;[~si];so-]]
 \end{hse}
 
-let's $CTRL$ reset and return before neuron vs.
-
-\begin{hse}
-*[[ci->[si];so+,co+;[~si&~ci];co-;so-
-  \|si->so+;[~si];so-]]
-\end{hse}
-
-let's the neuron reset and return before $CTRL$
-
-This differs from Rajit's probe evaluation circuit because 
+This differs from Rajit's probe evaluation circuit.
 \subsection{PRS}
 
 \begin{prs2}
-
 \end{prs2}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Rajit's probe evaluation circuit}

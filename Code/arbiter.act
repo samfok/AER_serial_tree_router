@@ -45,40 +45,40 @@ namespace arbiter_a {
         // assumes both children are always requesting
         bool x, y;
         prs<g.Vdd,g.GND> {
-            g._sReset & ~x & ~y -> p.o+
+            g._sReset & ~y -> p.o+
             g.pReset | ~s2.i & ~x & y -> p.o-
 
             g._sReset & x & ~y -> s1.o+
-            g.pReset | y -> s1.o-
+            g.pReset | ~x | y -> s1.o-
 
             g._sReset & ~s1.i & x & y -> s2.o+
-            g.pReset | s2.i & ~x -> s2.o-
+            g.pReset | ~x -> s2.o-
 
             g._sReset & p.i & ~y -> x+
             g.pReset | s2.i & y -> x-
 
-            s1.i & x -> y+
-            ~p.i & ~x -> y-
+            s1.i -> y+
+            ~p.i -> y-
         }
     }
     
     defproc CTRL (globals g; bool c1i, c2i; port s1, s2, p) {
         bool x, y;
         prs<g.Vdd,g.GND> {
-            c1i | c2i -> p.o+
+            (c1i | c2i) & ~y -> p.o+
             ~s2.i & ~x & y -> p.o-
 
             x & ~y -> s1.o+
-            y -> s1.o-
+            ~x | y -> s1.o-
 
             ~s1.i & x & y -> s2.o+
-            s2.i & ~x -> s2.o-
+            ~x -> s2.o-
 
             p.i & ~y -> x+
             s2.i & y -> x-
 
-            s1.i & x -> y+
-            ~p.i & ~x -> y-
+            s1.i -> y+
+            ~p.i -> y-
         }
     }
 } // end namespace arbiter_a
