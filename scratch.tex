@@ -155,14 +155,35 @@ Equivalent to Rajit's circuit:
 but we need to wait for child to finish letting $CTRL$ proceed to next child.
 
 \begin{hse}
-*[[ci->[si];so+,co+;[~si&~ci];so-,co-
+*[[ci->[si];so+;[~si];co+;[~ci];so-,co-
   \|si->so+;[~si];so-]]
 \end{hse}
 
-This differs from Rajit's probe evaluation circuit.
+This is different from Rajit's probe evaluation circuit.
+with arbitration broken out:
+
+\begin{hse}
+*[[ci->\hat{ci}+;[~ci];\hat{ci}-
+  \|si->\hat{si}+;[~si];\hat{si}-]]
+\pll
+*[[\hat{ci}->[si];so+;[~si];co+;[~\hat{ci}];so-,co-
+  []\hat{si}->so+;[~\hat{si}];so-]]
+\end{hse}
+
+
 \subsection{PRS}
 
+Assuming that $\hat{si}$ and $\hat{ci}$ are the outputs of a standard arbiter
+
 \begin{prs2}
+\hat{ci} & si -> so+
+~\hat{ci} -> so-
+
+\hat{ci} & ~si -> co+
+~\hat{ci} -> co-
+
+\hat{si} -> so+
+~\hat{si} -> so-
 \end{prs2}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Rajit's probe evaluation circuit}
