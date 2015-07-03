@@ -28,14 +28,16 @@ CTRL\equiv
 
 \begin{hse}
 C_S\equiv
-  *[s1o+;[s1i];s2o+;[s2i];s2i-;[~s2i];s1o-;[~s1i]]
+  *[s1o+;[s1i];s2o+;[s2i];
+    s2o-;[~s2i];s1o-;[~s1i]]
 \end{hse}
 
 needs a state variable
 
 \begin{hse}
 C_S\equiv
-  *[x+;s1o+;[s1i];s2o+;[s2i];x-;s2o-;[~s2i];s1o-;[~s1i]]
+  *[x+;s1o+;[s1i];s2o+;[s2i];
+    x-;s2o-;[~s2i];s1o-;[~s1i]]
 \end{hse}
 
 \subsection{PRS}
@@ -52,22 +54,34 @@ pi & s1i -> s1o+
 ~pi & ~s1o -> s2o-
 \end{prs2}
 
-$C\_S\equiv$
+with active high inputs and outputs, $C\_S\equiv$
 \begin{prs2}
-x -> _s1o-
+s2i | x -> _s1o-
 ~s2i & ~x -> _s1o+
 
 s1i & x -> _s2o-
-~x -> _s2o+
+~s1i | ~x -> _s2o+
 
 ~s1i & ~s2i -> x+
-s1i & s2i -> x-
+s2i -> x-
 
 ~_s1o -> s1o+
 _s1o -> s1o-
 
 ~_s2o -> s2o+
 _s2o -> s2o-
+\end{prs2}
+
+with active low inputs and active high outputs, $C\_S\equiv$
+\begin{prs2}
+~_s2i | ~_x -> s1o+
+_s2i & _x -> s1o-
+
+~_s1i & ~_x -> s2o+
+_s1i | _x -> s2o-
+
+_s1i & _s2i -> _x-
+~_s2i -> _x+
 \end{prs2}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{arbiter $CTRL$ with active $S$ ports}
@@ -119,6 +133,130 @@ s1i & x -> y+
 ~pi & ~x -> y-
 \end{prs2}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Child arbitration circuit}
+
+\subsection{CHP}
+
+\begin{csp}
+*[[#C->S;S\star\!C\star\!C
+  \|#S->S;S]]
+\end{csp}
+
+\subsection{HSE}
+
+\begin{hse}
+*[[ci->t+;[~ci];t-
+  \|si->f+;[~si];f-]]
+\pll
+*[[t->[si];so+;[~si];co+;so-;[~t];co-
+  []f->so+;[~f];so-]]
+\end{hse}
+
+better as?
+
+\begin{hse}
+*[[ci->[si];so+;[~si];co+;so-;[~ci];co-
+  \|si->so+;[~si];so-]]
+\end{hse}
+
+but we need to wait for child to finish letting $CTRL$ proceed to next child.
+
+\begin{hse}
+*[[ci->[si];so+,co+;[~si&~ci];so-;co-
+  \|si->so+;[~si];so-]]
+\end{hse}
+
+let's $CTRL$ reset and return before neuron vs.
+
+\begin{hse}
+*[[ci->[si];so+,co+;[~si&~ci];co-;so-
+  \|si->so+;[~si];so-]]
+\end{hse}
+
+let's the neuron reset and return before $CTRL$
+
+This differs from Rajit's probe evaluation circuit because 
+\subsection{PRS}
+
+\begin{prs2}
+
+\end{prs2}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Rajit's probe evaluation circuit}
+
+\subsection{CHP}
+
+\begin{csp}
+*[[#X&#E->E!\mathrm{true},X
+  \|~#X&#E->E!\mathrm{false}]]
+\end{csp}
+
+implemented by
+
+\begin{csp}
+*[[#X->[E];E!\mathrm{true},X
+  \|#E->E!\mathrm{false}]]
+\end{csp}
+
+
+\subsection{HSE}
+
+\begin{hse}
+*[[Xi->t+;[~Xi];t-
+  \|Ei->f+;[~Ei];f-]]
+\pll
+*[[t->[Ei];Eto+;[~Ei];Xo+;Eto-;[~t];Xo-
+  []f->Efo+;[~f];Efo-]]
+\end{hse}
+
+\subsection{PRS}
+
+\begin{prs2}
+t & _Xo & Ei -> _Eto-
+~_Xo -> _Eto+
+
+_Xo & t -> Efo-
+~f -> Efo+
+
+~_t & ~_Eto & ~Ei -> Xo+
+_t & _Eto -> Xo-
+
+Xo -> _Xo-
+~Xo -> _Xo+
+
+t -> _t-
+~t -> _t+
+\end{prs2}
+
+% \subsection{HSE}
+
+% \begin{hse}
+% *[[Xi->u+;[~Xi];u-
+%   \|Ei->v+;[~Ei];v-]]
+% \pll
+% *[[u->[Ei];Eto+;[~Ei];Xo-;Eto-;[~u];Xo-
+%   []v->Efo+;[~v];Efo-]]
+% \end{hse}
+
+% \subsection{PRS}
+
+% \begin{prs2}
+% u & _Xo & Ei -> _Eto-
+% ~_Xo -> _Eto+
+
+% _Xo & v -> Efo-
+% ~v -> Efo+
+
+% ~_u & ~_Eto & ~Ei -> Xo+
+% _u & _Eto -> Xo-
+
+% Xo -> _Xo-
+% ~Xo -> _Xo+
+
+% u -> _u-
+% ~u -> _u+
+% \end{prs2}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{post arbiter}
 

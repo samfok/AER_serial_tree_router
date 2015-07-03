@@ -27,6 +27,13 @@ defproc ARB2 (globals g; port a1, a2) {
 }
 
 defproc C_ARB (globals g; port s, c) {
+    bool t, f, _t;
+    ARB2 arb(g,,);
+    arb.a1.i = s.i;
+    arb.a2.i = c.i;
+
+    prs<g.Vdd,g.GND> {
+    }
 }
 
 namespace arbiter_a {
@@ -74,25 +81,6 @@ namespace arbiter_a {
             ~p.i & ~x -> y-
         }
     }
-
-    export
-    defproc C_S (globals g; port s1, s2) {
-        bool x, _s1o, _s2o;
-        prs<g.Vdd,g.GND> {
-            g._sReset & x -> _s1o-
-            g.pReset | ~s2.i & ~x -> _s1o+
-
-            g._sReset & s1.i & x -> _s2o-
-            g.pReset | ~x -> _s2o+
-
-            ~s1.i & ~s2.i -> x+
-            s1.i & s2.i -> x-
-
-            _s1o => s1.o-
-            _s2o => s2.o-
-        }
-    }
-
 } // end namespace arbiter_a
 
 namespace arbiter_p {
@@ -127,7 +115,22 @@ namespace arbiter_p {
         }
     }
     
-    defproc C_S (globals g; port s, sb, sg) {
+    export
+    defproc C_S (globals g; port s1, s2) {
+        bool x, _s1o, _s2o;
+        prs<g.Vdd,g.GND> {
+            g._sReset & (s2.i | x) -> _s1o-
+            g.pReset | ~s2.i & ~x -> _s1o+
+
+            g._sReset & s1.i & x -> _s2o-
+            g.pReset | ~s1.i | ~x -> _s2o+
+
+            ~s1.i & ~s2.i -> x+
+            s2.i -> x-
+
+            _s1o => s1.o-
+            _s2o => s2.o-
+        }
     }
 } // end namespace arbiter_p
 
