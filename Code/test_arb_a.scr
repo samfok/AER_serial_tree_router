@@ -1,0 +1,3 @@
+source reset.scr
+random
+break-on-warn

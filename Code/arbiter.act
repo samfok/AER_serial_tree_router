@@ -27,12 +27,25 @@ defproc ARB2 (globals g; port a1, a2) {
 }
 
 defproc C_ARB (globals g; port s, c) {
-    bool t, f, _t;
+    bool ci_hat, si_hat, u;
     ARB2 arb(g,,);
-    arb.a1.i = s.i;
-    arb.a2.i = c.i;
+    arb.a1.i = c.i;
+    arb.a2.i = s.i;
+    arb.a1.o = ci_hat;
+    arb.a2.o = si_hat;
 
     prs<g.Vdd,g.GND> {
+        ci_hat & s.i -> s.o+
+        ~ci_hat => u-
+
+        ci_hat & ~s.i -> c.o+
+        ~ci_hat => u-
+
+        ~u -> s.o-
+        ~u -> c.o-
+
+        si_hat -> s.o+
+        ~si_hat -> s.o-
     }
 }
 
@@ -62,20 +75,21 @@ namespace arbiter_a {
         }
     }
     
+    export
     defproc CTRL (globals g; bool c1i, c2i; port s1, s2, p) {
         bool x, y;
         prs<g.Vdd,g.GND> {
-            (c1i | c2i) & ~y -> p.o+
-            ~s2.i & ~x & y -> p.o-
+            g._sReset & (c1i | c2i) & ~y -> p.o+
+            g.pReset | ~s2.i & ~x & y -> p.o-
 
-            x & ~y -> s1.o+
-            ~x | y -> s1.o-
+            g._sReset & x & ~y -> s1.o+
+            g.pReset | ~x | y -> s1.o-
 
-            ~s1.i & x & y -> s2.o+
-            ~x -> s2.o-
+            g._sReset & ~s1.i & x & y -> s2.o+
+            g.pReset | ~x -> s2.o-
 
-            p.i & ~y -> x+
-            s2.i & y -> x-
+            g._sReset & p.i & ~y -> x+
+            g.pReset | s2.i & y -> x-
 
             s1.i -> y+
             ~p.i -> y-
@@ -92,7 +106,6 @@ namespace arbiter_p {
         // assumes both children are always requesting
         prs<g.Vdd,g.GND> {
             g._sReset & ~s2.o -> p.o+
-            // g._sReset & ~s1.o & ~s2.o -> p.o+
             g.pReset | ~s2.i & s2.o -> p.o-
     
             p.i & s1.i -> s1.o+
@@ -103,10 +116,11 @@ namespace arbiter_p {
         }
     }
     
+    export
     defproc CTRL (globals g; bool c1i, c2i; port s1, s2, p) {
         prs<g.Vdd,g.GND> {
-            (c1i | c2i) & ~s2.o -> p.o+
-            ~s2.i & s2.o -> p.o-
+            g._sReset & (c1i | c2i) & ~s2.o -> p.o+
+            g.pReset | ~s2.i & s2.o -> p.o-
     
             p.i & s1.i -> s1.o+
             ~p.i -> s1.o-

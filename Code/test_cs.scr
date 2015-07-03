@@ -1,0 +1,14 @@
+source reset.scr
+random
+# watchall
+# watch cs.x
+# watch cs.s1.i
+# watch cs.s1.o
+# watch cs.s2.i
+# watch cs.s2.o
+# set_principal cs.s1.i
+# set_principal cs.s1.o
+# set_principal cs.s2.i
+# set_principal cs.s2.o
+break-on-warn
+
