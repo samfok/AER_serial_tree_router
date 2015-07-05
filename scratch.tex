@@ -145,35 +145,45 @@ s1i -> y+
 
 \subsection{HSE}
 
-Equivalent to Rajit's circuit:
+Using the sequencing in Rajit's probe evaluation circuit,
 
 \begin{hse}
 *[[ci->[si];so+;[~si];co+;so-;[~ci];co-
   \|si->so+;[~si];so-]]
 \end{hse}
 
-but we need to wait for child to finish letting $CTRL$ proceed to next child.
+However, we need to wait for child to finish (\code{[$\neg$ci]}) before letting $CTRL$ proceed to next child.
+This yields
 
 \begin{hse}
-*[[ci->[si];so+;[~si];co+;[~ci];so-,co-
+*[[ci->[si];so+;[~si];co+;[~ci];so-;co-
   \|si->so+;[~si];so-]]
 \end{hse}
 
-This is different from Rajit's probe evaluation circuit.
-with arbitration broken out:
+With arbitration broken out,
 
 \begin{hse}
 *[[ci->\hat{ci}+;[~ci];\hat{ci}-
-  \|si->\hat{si}+;[~si];\hat{si}-]]
-\pll
-*[[\hat{ci}->[si];so+;[~si];co+;[~\hat{ci}];so-,co-
+  \|si->\hat{si}+;[~si];\hat{si}-]]\pll
+*[[\hat{ci}->[si];so+;[~si];co+;[~\hat{ci}];so-;co-
   []\hat{si}->so+;[~\hat{si}];so-]]
+\end{hse}
+
+$so$ is shared between both branches of selection statement.
+Making this explicit with a third concurrent process yields
+
+\begin{hse}
+*[[ci->\hat{ci}+;[~ci];\hat{ci}-
+  \|si->\hat{si}+;[~si];\hat{si}-]]\pll
+*[[\hat{ci}->[si];cso+;[~si];co+;[~\hat{ci}];cso-;co-
+  []\hat{si}->sso+;[~\hat{si}];sso-]]\pll
+*[[cso|sso];so+;[~cso&~sso];so-]
 \end{hse}
 
 
 \subsection{PRS}
 
-Assuming that $\hat{si}$ and $\hat{ci}$ are the outputs of a standard arbiter
+$s_i$ and $c_i$ are inputs to a standard 2-input arbiter, which outputs $\hat{s_i}$ and $\hat{c_i}$.
 
 \begin{prs2}
 \hat{ci} & si & ~sso -> cso+
@@ -188,6 +198,7 @@ si | ~cso -> co-
 cso | sso -> so+
 ~cso & ~sso -> so-
 \end{prs2}
+\pagebreak
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Rajit's probe evaluation circuit}
 
@@ -234,35 +245,7 @@ Xo -> _Xo-
 t -> _t-
 ~t -> _t+
 \end{prs2}
-
-% \subsection{HSE}
-
-% \begin{hse}
-% *[[Xi->u+;[~Xi];u-
-%   \|Ei->v+;[~Ei];v-]]
-% \pll
-% *[[u->[Ei];Eto+;[~Ei];Xo-;Eto-;[~u];Xo-
-%   []v->Efo+;[~v];Efo-]]
-% \end{hse}
-
-% \subsection{PRS}
-
-% \begin{prs2}
-% u & _Xo & Ei -> _Eto-
-% ~_Xo -> _Eto+
-
-% _Xo & v -> Efo-
-% ~v -> Efo+
-
-% ~_u & ~_Eto & ~Ei -> Xo+
-% _u & _Eto -> Xo-
-
-% Xo -> _Xo-
-% ~Xo -> _Xo+
-
-% u -> _u-
-% ~u -> _u+
-% \end{prs2}
+\pagebreak
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{post arbiter}
 
