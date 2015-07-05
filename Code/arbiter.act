@@ -27,7 +27,7 @@ defproc ARB2 (globals g; port a1, a2) {
 }
 
 defproc C_ARB (globals g; port s, c) {
-    bool ci_hat, si_hat, u;
+    bool ci_hat, si_hat, u, cso, sso;
     ARB2 arb(g,,);
     arb.a1.i = c.i;
     arb.a2.i = s.i;
@@ -35,17 +35,16 @@ defproc C_ARB (globals g; port s, c) {
     arb.a2.o = si_hat;
 
     prs<g.Vdd,g.GND> {
-        ci_hat & s.i -> s.o+
-        ~ci_hat => u-
+        ci_hat & s.i & ~sso -> cso+
+        ~ci_hat -> cso-
 
-        ci_hat & ~s.i -> c.o+
-        ~ci_hat => u-
+        cso & ~s.i -> c.o+
+        ~cso | s.i -> c.o-
 
-        ~u -> s.o-
-        ~u -> c.o-
+        si_hat & ~c.o -> sso+
+        ~si_hat | c.o -> sso-
 
-        si_hat -> s.o+
-        ~si_hat -> s.o-
+        cso | sso => s.o+
     }
 }
 
@@ -131,20 +130,20 @@ namespace arbiter_p {
     }
     
     export
-    defproc C_S (globals g; port s1, s2) {
-        bool x, _s1o, _s2o;
+    defproc C_S (globals g; port c, a) {
+        bool x, _co, _ao;
         prs<g.Vdd,g.GND> {
-            g._sReset & (s2.i | x) -> _s1o-
-            g.pReset | ~s2.i & ~x -> _s1o+
+            g._sReset & (a.i | x) -> _co-
+            g.pReset | ~a.i & ~x -> _co+
 
-            g._sReset & s1.i & x -> _s2o-
-            g.pReset | ~s1.i | ~x -> _s2o+
+            g._sReset & c.i & x -> _ao-
+            g.pReset | ~c.i | ~x -> _ao+
 
-            ~s1.i & ~s2.i -> x+
-            s2.i -> x-
+            ~c.i & ~a.i -> x+
+            a.i -> x-
 
-            _s1o => s1.o-
-            _s2o => s2.o-
+            _co => c.o-
+            _ao => a.o-
         }
     }
 } // end namespace arbiter_p

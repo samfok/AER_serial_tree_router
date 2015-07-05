@@ -8,10 +8,10 @@ globals g;
 passive_handshaker p1(g,), p2(g,);
 C_S cs(g,,);
 
-cs.s1.o = p1.p.i;
-cs.s1.i = p1.p.o;
-cs.s2.o = p2.p.i;
-cs.s2.i = p2.p.o;
+cs.c.o = p1.p.i;
+cs.c.i = p1.p.o;
+cs.a.o = p2.p.i;
+cs.a.i = p2.p.o;
 
 bool pReset, sReset;
 prs {

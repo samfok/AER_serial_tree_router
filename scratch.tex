@@ -13,7 +13,7 @@ CTRL\approx
   *[[#{C1}|#{C2}->P;S1;S1\star(S2;S2\star\!P)]
   
 C_S\equiv
-  *[S1;S2;S2;S1]
+  *[C;A;A;C]
 \end{csp}
 
 \subsection{HSE}
@@ -28,16 +28,16 @@ CTRL\equiv
 
 \begin{hse}
 C_S\equiv
-  *[s1o+;[s1i];s2o+;[s2i];
-    s2o-;[~s2i];s1o-;[~s1i]]
+  *[co+;[ci];ao+;[ai];
+    ao-;[~ai];co-;[~ci]]
 \end{hse}
 
 needs a state variable
 
 \begin{hse}
 C_S\equiv
-  *[x+;s1o+;[s1i];s2o+;[s2i];
-    x-;s2o-;[~s2i];s1o-;[~s1i]]
+  *[x+;co+;[ci];ao+;[ai];
+    x-;ao-;[~ai];co-;[~ci]]
 \end{hse}
 
 \subsection{PRS}
@@ -56,32 +56,32 @@ pi & s1i -> s1o+
 
 with active high inputs and outputs, $C\_S\equiv$
 \begin{prs2}
-s2i | x -> _s1o-
-~s2i & ~x -> _s1o+
+ai | x -> _co-
+~ai & ~x -> _co+
 
-s1i & x -> _s2o-
-~s1i | ~x -> _s2o+
+ci & x -> _ao-
+~ci | ~x -> _ao+
 
-~s1i & ~s2i -> x+
-s2i -> x-
+~ci & ~ai -> x+
+ai -> x-
 
-~_s1o -> s1o+
-_s1o -> s1o-
+~_co -> co+
+_co -> co-
 
-~_s2o -> s2o+
-_s2o -> s2o-
+~_ao -> ao+
+_ao -> ao-
 \end{prs2}
 
 with active low inputs and active high outputs, $C\_S\equiv$
 \begin{prs2}
-~_s2i | ~_x -> s1o+
-_s2i & _x -> s1o-
+~_ai | ~_x -> co+
+_ai & _x -> co-
 
-~_s1i & ~_x -> s2o+
-_s1i | _x -> s2o-
+~_ci & ~_x -> ao+
+_ci | _x -> ao-
 
-_s1i & _s2i -> _x-
-~_s2i -> _x+
+_ci & _ai -> _x-
+~_ai -> _x+
 \end{prs2}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{arbiter $CTRL$ with active $S$ ports}
@@ -176,14 +176,17 @@ with arbitration broken out:
 Assuming that $\hat{si}$ and $\hat{ci}$ are the outputs of a standard arbiter
 
 \begin{prs2}
-\hat{ci} & si -> so+
-~\hat{ci} -> so-
+\hat{ci} & si & ~sso -> cso+
+~\hat{ci} -> cso-
 
-\hat{ci} & ~si -> co+
-~\hat{ci} -> co-
+~si & cso -> co+
+si | ~cso -> co-
 
-\hat{si} -> so+
-~\hat{si} -> so-
+\hat{si} & ~co -> sso+
+~\hat{si} | co -> sso-
+
+cso | sso -> so+
+~cso & ~sso -> so-
 \end{prs2}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Rajit's probe evaluation circuit}
