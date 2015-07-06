@@ -2,12 +2,7 @@ import "lib/globals.act";
 import "test.act";
 
 globals g;
-
-active_handshaker a(g,);
-passive_handshaker p(g,);
-
-a.p.i = p.p.o;
-a.p.o = p.p.i;
+TEST_TEST test(g);
 
 bool pReset, sReset;
 prs {

@@ -2,35 +2,35 @@ source reset.scr
 random
 # watchall
 
-# watch ctrl.c1i
-# watch ctrl.c2i
-# watch ctrl.p.i
-# watch ctrl.p.o
-# watch ctrl.s1.i
-# watch ctrl.s1.o
-# watch ctrl.s2.i
-# watch ctrl.s2.o
-# set_principal ctrl.c1i
-# set_principal ctrl.c2i
-# set_principal ctrl.p.i
-# set_principal ctrl.p.o
-# set_principal ctrl.s1.i
-# set_principal ctrl.s1.o
-# set_principal ctrl.s2.i
-# set_principal ctrl.s2.o
+# watch test.ctrl.c1i
+# watch test.ctrl.c2i
+# watch test.ctrl.p.i
+# watch test.ctrl.p.o
+# watch test.ctrl.s1.i
+# watch test.ctrl.s1.o
+# watch test.ctrl.s2.i
+# watch test.ctrl.s2.o
+# set_principal test.ctrl.c1i
+# set_principal test.ctrl.c2i
+# set_principal test.ctrl.p.i
+# set_principal test.ctrl.p.o
+# set_principal test.ctrl.s1.i
+# set_principal test.ctrl.s1.o
+# set_principal test.ctrl.s2.i
+# set_principal test.ctrl.s2.o
 # 
-# watch c1_arb.c.o
-# watch c1_arb.cso
-# watch c1_arb.sso
-# watch c1_arb.ci_hat
-# watch c1_arb.si_hat
-# set_principal c1_arb.c.o
+# watch test.c1_arb.c.o
+# watch test.c1_arb.cso
+# watch test.c1_arb.sso
+# watch test.c1_arb.ci_hat
+# watch test.c1_arb.si_hat
+# set_principal test.c1_arb.c.o
 # 
-# watch c2_arb.c.o
-# watch c2_arb.cso
-# watch c2_arb.sso
-# watch c2_arb.ci_hat
-# watch c2_arb.si_hat
-# set_principal c2_arb.c.o
+# watch test.c2_arb.c.o
+# watch test.c2_arb.cso
+# watch test.c2_arb.sso
+# watch test.c2_arb.ci_hat
+# watch test.c2_arb.si_hat
+# set_principal test.c2_arb.c.o
 
 break-on-warn

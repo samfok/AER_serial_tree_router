@@ -1,35 +1,9 @@
 // Tests the arbiter cell with passive S CTRL
 import "lib/globals.act";
 import "arbiter.act";
-open arbiter_p;
-import "test.act";
 
 globals g;
-passive_handshaker p(g,);
-active_handshaker c1(g,), c2(g,);
-CTRL ctrl(g,,,,,);
-C_S cs1(g,,), cs2(g,,);
-C_ARB c1_arb(g,,), c2_arb(g,,);
-
-ctrl.c1i = c1.p.o;
-ctrl.c2i = c2.p.o;
-
-ctrl.s1.i = cs1.c.o;
-ctrl.s1.o = cs1.c.i;
-ctrl.s2.i = cs2.c.o;
-ctrl.s2.o = cs2.c.i;
-
-cs1.a.i = c1_arb.s.o;
-cs1.a.o = c1_arb.s.i;
-cs2.a.i = c2_arb.s.o;
-cs2.a.o = c2_arb.s.i;
-
-ctrl.p.o = p.p.i;
-ctrl.p.i = p.p.o;
-c1_arb.c.i = c1.p.o;
-c2_arb.c.i = c2.p.o;
-c1_arb.c.o = c1.p.i;
-c2_arb.c.o = c2.p.i;
+arbiter::TEST_ARB_P test(g);
 
 bool pReset, sReset;
 prs {

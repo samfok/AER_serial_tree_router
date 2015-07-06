@@ -1,25 +1,8 @@
 import "lib/globals.act";
 import "transmitter.act";
-open transmitter;
-import "test.act";
-
-defproc dummy_LTH_INT(globals g; port v; bool rk) {
-    prs {
-        ~g.sReset & v.i & ~rk -> v.o+
-        g.pReset | ~v.i & rk  -> v.o-
-    }
-}
 
 globals g;
-active_handshaker neuron(g,);
-dummy_LTH_INT lth_int(g,,);
-EVT e(g,,,);
-
-e.p.i = neuron.p.o;
-e.p.o = neuron.p.i;
-e.r.o = lth_int.v.i;
-e.r.i = lth_int.v.o;
-e.c.o = lth_int.rk;
+transmitter::TEST_EVT test(g);
 
 bool pReset, sReset;
 prs {

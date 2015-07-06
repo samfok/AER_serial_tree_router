@@ -1,23 +1,33 @@
 // Defines processes used in testing
 import "lib/globals.act";
-import "channel.act";
 
 // a simple active handshaker
-defproc active_handshaker(globals g; port p) {
+export
+defproc active_handshaker(globals g; bool i, o) {
     prs {
-        ~g.sReset & ~p.i -> p.o+
-        g.pReset  | p.i  -> p.o-
+        ~g.sReset & ~i -> o+
+        g.pReset  | i  -> o-
     }
 }
 
 // a simple passive handshaker
-defproc passive_handshaker(globals g; port p) {
-    bool _po;
+export
+defproc passive_handshaker(globals g; bool i, o) {
+    bool _o;
     prs {
-        ~g.sReset & p.i  -> _po-
-        g.pReset  | ~p.i -> _po+
+        ~g.sReset & i  -> _o-
+        g.pReset  | ~i -> _o+
 
-        _po => p.o- 
+        _o => o- 
     }
 }
 
+export
+defproc TEST_TEST(globals g) {
+    // tests active and passive handshakers
+    active_handshaker a(g,,);
+    passive_handshaker p(g,,);
+    
+    a.i = p.o;
+    a.o = p.i;
+}

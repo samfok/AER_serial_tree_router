@@ -1,17 +1,9 @@
 // Tests the ARB2 circuit
 import "lib/globals.act";
-import "transmitter.act";
-open transmitter;
-import "test.act";
+import "arbiter.act";
 
 globals g;
-active_handshaker c1(g,), c2(g,);
-ARB2 a(g,,);
-
-c1.p.o = a.a1.i;
-c1.p.i = a.a1.o;
-c2.p.o = a.a2.i;
-c2.p.i = a.a2.o;
+arbiter::TEST_ARB2 test(g);
 
 bool pReset, sReset;
 prs {

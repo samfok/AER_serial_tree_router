@@ -1,17 +1,9 @@
 // Tests the C_S circuit for the CTRL with active S ports
 import "lib/globals.act";
 import "arbiter.act";
-open arbiter_p;
-import "test.act";
 
 globals g;
-passive_handshaker p1(g,), p2(g,);
-C_S cs(g,,);
-
-cs.c.o = p1.p.i;
-cs.c.i = p1.p.o;
-cs.a.o = p2.p.i;
-cs.a.i = p2.p.o;
+arbiter::ctrl_p::TEST_C_S test(g);
 
 bool pReset, sReset;
 prs {

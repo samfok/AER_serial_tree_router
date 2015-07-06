@@ -1,150 +1,257 @@
 // This file contains PRS for the arbiter circuits
 import "lib/globals.act";
 import "channel.act";
+import "test.act";
 
-defproc ARB2 (globals g; port a1, a2) {
-    // The basic 2-input arbiter
-    bool _a1o,_a2o;
-
-    spec {
-        mk_excllo(_a1o, _a2o)
-    }
-
-    //Cross-Coupled NANDs
-    prs<g.Vdd,g.GND> {
-        a1.i & _a2o   => _a1o- //_a1i NAND
-        a2.i & _a1o   => _a2o- //_a2i NAND
-    }
-
-    //Filter
-    prs<g.Vdd,g.GND> {
-        ~_a1o & _a2o  -> a1.o+
-        _a1o          -> a1.o-
-
-        ~_a2o & _a1o -> a2.o+
-        _a2o         -> a2.o-
-    }
-}
-
-defproc C_ARB (globals g; port s, c) {
-    bool ci_hat, si_hat, u, cso, sso;
-    ARB2 arb(g,,);
-    arb.a1.i = c.i;
-    arb.a2.i = s.i;
-    arb.a1.o = ci_hat;
-    arb.a2.o = si_hat;
-
-    prs<g.Vdd,g.GND> {
-        ci_hat & s.i & ~sso -> cso+
-        ~ci_hat -> cso-
-
-        cso & ~s.i -> c.o+
-        ~cso | s.i -> c.o-
-
-        si_hat & ~c.o -> sso+
-        ~si_hat | c.o -> sso-
-
-        cso | sso => s.o+
-    }
-}
-
-namespace arbiter_a {
-    // contains the arbiter with active S ports
-    export
-    defproc CTRL_TEST (globals g; port s1, s2, p) {
-        // test version of CTRL sequencing circuit
-        // does not use children as start signal
-        // assumes both children are always requesting
-        bool x, y;
+namespace arbiter {
+    defproc ARB2 (globals g; port a1, a2) {
+        // The basic 2-input arbiter
+        bool _a1o,_a2o;
+    
+        spec {
+            mk_excllo(_a1o, _a2o)
+        }
+    
+        //Cross-Coupled NANDs
         prs<g.Vdd,g.GND> {
-            g._sReset & ~y -> p.o+
-            g.pReset | ~s2.i & ~x & y -> p.o-
-
-            g._sReset & x & ~y -> s1.o+
-            g.pReset | ~x | y -> s1.o-
-
-            g._sReset & ~s1.i & x & y -> s2.o+
-            g.pReset | ~x -> s2.o-
-
-            g._sReset & p.i & ~y -> x+
-            g.pReset | s2.i & y -> x-
-
-            s1.i -> y+
-            ~p.i -> y-
+            a1.i & _a2o   => _a1o- //_a1i NAND
+            a2.i & _a1o   => _a2o- //_a2i NAND
+        }
+    
+        //Filter
+        prs<g.Vdd,g.GND> {
+            ~_a1o & _a2o  -> a1.o+
+            _a1o          -> a1.o-
+    
+            ~_a2o & _a1o -> a2.o+
+            _a2o         -> a2.o-
         }
     }
     
-    export
-    defproc CTRL (globals g; bool c1i, c2i; port s1, s2, p) {
-        bool x, y;
-        prs<g.Vdd,g.GND> {
-            g._sReset & (c1i | c2i) & ~y -> p.o+
-            g.pReset | ~s2.i & ~x & y -> p.o-
-
-            g._sReset & x & ~y -> s1.o+
-            g.pReset | ~x | y -> s1.o-
-
-            g._sReset & ~s1.i & x & y -> s2.o+
-            g.pReset | ~x -> s2.o-
-
-            g._sReset & p.i & ~y -> x+
-            g.pReset | s2.i & y -> x-
-
-            s1.i -> y+
-            ~p.i -> y-
-        }
-    }
-} // end namespace arbiter_a
-
-namespace arbiter_p {
-    // contains the arbiter with passive S ports
-    export
-    defproc CTRL_TEST (globals g; port s1, s2, p) {
-        // test version of CTRL sequencing circuit
-        // does not use children as start signal
-        // assumes both children are always requesting
-        prs<g.Vdd,g.GND> {
-            g._sReset & ~s2.o -> p.o+
-            g.pReset | ~s2.i & s2.o -> p.o-
+    defproc C_ARB (globals g; port s, c) {
+        bool ci_hat, si_hat, u, cso, sso;
+        ARB2 arb(g,,);
+        arb.a1.i = c.i;
+        arb.a2.i = s.i;
+        arb.a1.o = ci_hat;
+        arb.a2.o = si_hat;
     
-            p.i & s1.i -> s1.o+
-            ~p.i -> s1.o-
-
-            ~s1.i & s1.o & s2.i -> s2.o+
-            ~s1.o -> s2.o-
+        prs<g.Vdd,g.GND> {
+            ci_hat & s.i & ~sso -> cso+
+            ~ci_hat -> cso-
+    
+            cso & ~s.i -> c.o+
+            ~cso | s.i -> c.o-
+    
+            si_hat & ~c.o -> sso+
+            ~si_hat | c.o -> sso-
+    
+            cso | sso => s.o+
         }
     }
     
-    export
-    defproc CTRL (globals g; bool c1i, c2i; port s1, s2, p) {
-        prs<g.Vdd,g.GND> {
-            g._sReset & (c1i | c2i) & ~s2.o -> p.o+
-            g.pReset | ~s2.i & s2.o -> p.o-
+    namespace ctrl_a {
+        // contains the arbiter with active S ports
+        defproc CTRL_TEST (globals g; port s1, s2, p) {
+            // test version of CTRL sequencing circuit
+            // does not use children as start signal
+            // assumes both children are always requesting
+            bool x, y;
+            prs<g.Vdd,g.GND> {
+                g._sReset & ~y -> p.o+
+                g.pReset | ~s2.i & ~x & y -> p.o-
     
-            p.i & s1.i -> s1.o+
-            ~p.i -> s1.o-
-
-            ~s1.i & s1.o & s2.i -> s2.o+
-            ~s1.o -> s2.o-
-        }
-    }
+                g._sReset & x & ~y -> s1.o+
+                g.pReset | ~x | y -> s1.o-
     
-    export
-    defproc C_S (globals g; port c, a) {
-        bool x, _co, _ao;
-        prs<g.Vdd,g.GND> {
-            g._sReset & (a.i | x) -> _co-
-            g.pReset | ~a.i & ~x -> _co+
-
-            g._sReset & c.i & x -> _ao-
-            g.pReset | ~c.i | ~x -> _ao+
-
-            ~c.i & ~a.i -> x+
-            a.i -> x-
-
-            _co => c.o-
-            _ao => a.o-
+                g._sReset & ~s1.i & x & y -> s2.o+
+                g.pReset | ~x -> s2.o-
+    
+                g._sReset & p.i & ~y -> x+
+                g.pReset | s2.i & y -> x-
+    
+                s1.i -> y+
+                ~p.i -> y-
+            }
         }
-    }
-} // end namespace arbiter_p
+        
+        export
+        defproc CTRL (globals g; bool c1i, c2i; port s1, s2, p) {
+            bool x, y;
+            prs<g.Vdd,g.GND> {
+                g._sReset & (c1i | c2i) & ~y -> p.o+
+                g.pReset | ~s2.i & ~x & y -> p.o-
+    
+                g._sReset & x & ~y -> s1.o+
+                g.pReset | ~x | y -> s1.o-
+    
+                g._sReset & ~s1.i & x & y -> s2.o+
+                g.pReset | ~x -> s2.o-
+    
+                g._sReset & p.i & ~y -> x+
+                g.pReset | s2.i & y -> x-
+    
+                s1.i -> y+
+                ~p.i -> y-
+            }
+        }
+    
+        export
+        defproc TEST_CTRL (globals g) {
+            // tests CTRL_TEST
+            passive_handshaker s1(g,,), s2(g,,), p(g,,);
+            CTRL_TEST ctrl(g,,,);
+            
+            ctrl.p.o = p.i;
+            ctrl.p.i = p.o;
+            ctrl.s1.i = s1.o;
+            ctrl.s1.o = s1.i;
+            ctrl.s2.i = s2.o;
+            ctrl.s2.o = s2.i;
+            
+        }
+    } // end namespace ctrl_a
+    
+    namespace ctrl_p {
+        // contains the arbiter with passive S ports
+        defproc CTRL_TEST (globals g; port s1, s2, p) {
+            // test version of CTRL sequencing circuit
+            // does not use children as start signal
+            // assumes both children are always requesting
+            prs<g.Vdd,g.GND> {
+                g._sReset & ~s2.o -> p.o+
+                g.pReset | ~s2.i & s2.o -> p.o-
+        
+                p.i & s1.i -> s1.o+
+                ~p.i -> s1.o-
+    
+                ~s1.i & s1.o & s2.i -> s2.o+
+                ~s1.o -> s2.o-
+            }
+        }
+        
+        export
+        defproc CTRL (globals g; bool c1i, c2i; port s1, s2, p) {
+            prs<g.Vdd,g.GND> {
+                g._sReset & (c1i | c2i) & ~s2.o -> p.o+
+                g.pReset | ~s2.i & s2.o -> p.o-
+        
+                p.i & s1.i -> s1.o+
+                ~p.i -> s1.o-
+    
+                ~s1.i & s1.o & s2.i -> s2.o+
+                ~s1.o -> s2.o-
+            }
+        }
+        
+        export
+        defproc C_S (globals g; port c, a) {
+            bool x, _co, _ao;
+            prs<g.Vdd,g.GND> {
+                g._sReset & (a.i | x) -> _co-
+                g.pReset | ~a.i & ~x -> _co+
+    
+                g._sReset & c.i & x -> _ao-
+                g.pReset | ~c.i | ~x -> _ao+
+    
+                ~c.i & ~a.i -> x+
+                a.i -> x-
+    
+                _co => c.o-
+                _ao => a.o-
+            }
+        }
 
+        export
+        defproc TEST_CTRL (globals g) {
+            // tests CTRL_TEST
+            active_handshaker s1(g,,), s2(g,,);
+            passive_handshaker p(g,,);
+            CTRL_TEST ctrl(g,,,);
+            
+            ctrl.p.o = p.i;
+            ctrl.p.i = p.o;
+            ctrl.s1.i = s1.o;
+            ctrl.s1.o = s1.i;
+            ctrl.s2.i = s2.o;
+            ctrl.s2.o = s2.i;
+        }
+
+        export
+        defproc TEST_C_S (globals g) {
+            // tests C_S
+            passive_handshaker p1(g,,), p2(g,,);
+            C_S cs(g,,);
+            
+            cs.c.o = p1.i;
+            cs.c.i = p1.o;
+            cs.a.o = p2.i;
+            cs.a.i = p2.o;
+        }
+    } // end namespace ctrl_p
+
+    export
+    defproc TEST_ARB2 (globals g) {
+        // tests ARB2
+        active_handshaker c1(g,,), c2(g,,);
+        ARB2 a(g,,);
+        
+        c1.o = a.a1.i;
+        c1.i = a.a1.o;
+        c2.o = a.a2.i;
+        c2.i = a.a2.o;
+    }
+
+    export 
+    defproc TEST_ARB_A (globals g) {
+        // tests arbiter with passive S CTRL
+        passive_handshaker p(g,,);
+        active_handshaker c1(g,,), c2(g,,);
+        ctrl_a::CTRL ctrl(g,,,,,);
+        C_ARB c1_arb(g,,), c2_arb(g,,);
+        
+        ctrl.c1i = c1.o;
+        ctrl.c2i = c2.o;
+        ctrl.s1.i = c1_arb.s.o;
+        ctrl.s1.o = c1_arb.s.i;
+        ctrl.s2.i = c2_arb.s.o;
+        ctrl.s2.o = c2_arb.s.i;
+        ctrl.p.o = p.i;
+        ctrl.p.i = p.o;
+        
+        c1_arb.c.i = c1.o;
+        c2_arb.c.i = c2.o;
+        c1_arb.c.o = c1.i;
+        c2_arb.c.o = c2.i;
+    }
+
+    export 
+    defproc TEST_ARB_P (globals g) {
+        // tests arbiter with active S CTRL
+        passive_handshaker p(g,,);
+        active_handshaker c1(g,,), c2(g,,);
+        ctrl_p::CTRL ctrl(g,,,,,);
+        ctrl_p::C_S cs1(g,,), cs2(g,,);
+        C_ARB c1_arb(g,,), c2_arb(g,,);
+        
+        ctrl.c1i = c1.o;
+        ctrl.c2i = c2.o;
+        
+        ctrl.s1.i = cs1.c.o;
+        ctrl.s1.o = cs1.c.i;
+        ctrl.s2.i = cs2.c.o;
+        ctrl.s2.o = cs2.c.i;
+        
+        cs1.a.i = c1_arb.s.o;
+        cs1.a.o = c1_arb.s.i;
+        cs2.a.i = c2_arb.s.o;
+        cs2.a.o = c2_arb.s.i;
+        
+        ctrl.p.o = p.i;
+        ctrl.p.i = p.o;
+        c1_arb.c.i = c1.o;
+        c2_arb.c.i = c2.o;
+        c1_arb.c.o = c1.i;
+        c2_arb.c.o = c2.i;
+    }
+} // end namespace arbiter
