@@ -1,0 +1,39 @@
+// Tests the multiple arbiter cells configured in a tree
+import "lib/globals.act";
+import "arbiter.act";
+import "test.act";
+
+globals g;
+passive_handshaker p(g,,);
+active_handshaker c1(g,,), c2(g,,), c3(g,,), c4(g,,);
+arbiter::ARB_A arb1(g,,,), arb2(g,,,), arb3(g,,,);
+
+arb1.c1.i = c1.o;
+arb1.c1.o = c1.i;
+arb1.c2.i = c2.o;
+arb1.c2.o = c2.i;
+
+arb2.c1.i = c3.o;
+arb2.c1.o = c3.i;
+arb2.c2.i = c4.o;
+arb2.c2.o = c4.i;
+
+arb1.p.i = arb3.c1.o;
+arb1.p.o = arb3.c1.i;
+arb2.p.i = arb3.c2.o;
+arb2.p.o = arb3.c2.i;
+
+arb3.p.i = p.o;
+arb3.p.o = p.i;
+
+bool pReset, sReset;
+prs {
+    sReset => g.sReset+
+    pReset => g.pReset+
+    sReset => g._sReset-
+    pReset => g._pReset-
+    sReset -> g.Vdd+
+    sReset -> g.GND-
+}
+
+
