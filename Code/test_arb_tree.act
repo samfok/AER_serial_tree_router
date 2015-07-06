@@ -3,28 +3,41 @@ import "lib/globals.act";
 import "arbiter.act";
 import "test.act";
 
+pint N=256;
+
 globals g;
 passive_handshaker p(g,,);
-active_handshaker c1(g,,), c2(g,,), c3(g,,), c4(g,,);
-arbiter::ARB_A arb1(g,,,), arb2(g,,,), arb3(g,,,);
+active_handshaker c[N];
+arbiter::ARB_A arb[N-1];
 
-arb1.c1.i = c1.o;
-arb1.c1.o = c1.i;
-arb1.c2.i = c2.o;
-arb1.c2.o = c2.i;
+(; i : N : c[i].g=g;) // connect globals to chidren
+(; i : N-1 : arb[i].g=g;) // connect globals to arbiters
 
-arb2.c1.i = c3.o;
-arb2.c1.o = c3.i;
-arb2.c2.i = c4.o;
-arb2.c2.o = c4.i;
+// connect arbiters in tree
+(; i : N-2 : 
+    [ (i%2) = 0 -> 
+        arb[i].p.o = arb[(N+i)/2].c1.i;
+        arb[i].p.i = arb[(N+i)/2].c1.o;
+    [] (i%2) = 1 ->
+        arb[i].p.o = arb[(N+i)/2].c2.i;
+        arb[i].p.i = arb[(N+i)/2].c2.o;
+    ]
+)
 
-arb1.p.i = arb3.c1.o;
-arb1.p.o = arb3.c1.i;
-arb2.p.i = arb3.c2.o;
-arb2.p.o = arb3.c2.i;
+// connect top of arbiter tree to parent
+arb[N-2].p.o = p.i;
+arb[N-2].p.i = p.o;
 
-arb3.p.i = p.o;
-arb3.p.o = p.i;
+// connect children to arbiter tree leaves
+(; i : N : 
+    [ (i%2) = 0 -> 
+       c[i].o = arb[i/2].c1.i;
+       c[i].i = arb[i/2].c1.o;
+    [] (i%2) = 1 ->
+       c[i].o = arb[i/2].c2.i;
+       c[i].i = arb[i/2].c2.o;
+    ]
+)
 
 bool pReset, sReset;
 prs {
@@ -35,5 +48,3 @@ prs {
     sReset -> g.Vdd+
     sReset -> g.GND-
 }
-
-
