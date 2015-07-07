@@ -3,39 +3,39 @@ import "lib/globals.act";
 import "arbiter.act";
 import "test.act";
 
-pint N=256;
+pint N=8;
 
 globals g;
 passive_handshaker p(g,,);
 active_handshaker c[N];
-arbiter::ARB_A arb[N-1];
+arbiter::H_ARB h_arb[N-1];
 
 (; i : N : c[i].g=g;) // connect globals to chidren
-(; i : N-1 : arb[i].g=g;) // connect globals to arbiters
+(; i : N-1 : h_arb[i].g=g;) // connect globals to arbiters
 
 // connect arbiters in tree
 (; i : N-2 : 
     [ (i%2) = 0 -> 
-        arb[i].p.o = arb[(N+i)/2].c1.i;
-        arb[i].p.i = arb[(N+i)/2].c1.o;
+        h_arb[i].p.o = h_arb[(N+i)/2].c1.i;
+        h_arb[i].p.i = h_arb[(N+i)/2].c1.o;
     [] (i%2) = 1 ->
-        arb[i].p.o = arb[(N+i)/2].c2.i;
-        arb[i].p.i = arb[(N+i)/2].c2.o;
+        h_arb[i].p.o = h_arb[(N+i)/2].c2.i;
+        h_arb[i].p.i = h_arb[(N+i)/2].c2.o;
     ]
 )
 
 // connect top of arbiter tree to parent
-arb[N-2].p.o = p.i;
-arb[N-2].p.i = p.o;
+h_arb[N-2].p.o = p.i;
+h_arb[N-2].p.i = p.o;
 
 // connect children to arbiter tree leaves
 (; i : N : 
     [ (i%2) = 0 -> 
-       c[i].o = arb[i/2].c1.i;
-       c[i].i = arb[i/2].c1.o;
+       c[i].o = h_arb[i/2].c1.i;
+       c[i].i = h_arb[i/2].c1.o;
     [] (i%2) = 1 ->
-       c[i].o = arb[i/2].c2.i;
-       c[i].i = arb[i/2].c2.o;
+       c[i].o = h_arb[i/2].c2.i;
+       c[i].i = h_arb[i/2].c2.o;
     ]
 )
 

@@ -1,9 +1,9 @@
-// Tests the CTRL circuit
+// Tests the arbiter cell with active S CTRL
 import "lib/globals.act";
 import "arbiter.act";
 
 globals g;
-arbiter::ctrl_a::TEST_CTRL test(g);
+arbiter::TEST_H_ARB test(g);
 
 bool pReset, sReset;
 prs {
@@ -14,3 +14,4 @@ prs {
     sReset -> g.Vdd+
     sReset -> g.GND-
 }
+

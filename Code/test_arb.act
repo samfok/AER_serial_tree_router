@@ -1,9 +1,9 @@
-// Tests the arbiter cell with active S CTRL
+// Tests the ARB2 circuit
 import "lib/globals.act";
 import "arbiter.act";
 
 globals g;
-arbiter::TEST_ARB_A test(g);
+arbiter::TEST_ARB test(g);
 
 bool pReset, sReset;
 prs {
@@ -14,4 +14,3 @@ prs {
     sReset -> g.Vdd+
     sReset -> g.GND-
 }
-
