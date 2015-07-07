@@ -120,6 +120,41 @@ namespace arbiter {
     }
 
     export
+    template <pint N>
+    defproc ARB_TREE (globals g; port c[N]) {
+        // arbiter tree servicing N children
+        H_ARB h_arb[N-1];
+
+        // connect globals to arbiters
+        (; i : N-1 : h_arb[i].g=g;) 
+        
+        // connect arbiters in tree
+        (; i : N-2 : 
+            [ (i%2) = 0 -> 
+                h_arb[i].p.o = h_arb[(N+i)/2].c1.i;
+                h_arb[i].p.i = h_arb[(N+i)/2].c1.o;
+            [] (i%2) = 1 ->
+                h_arb[i].p.o = h_arb[(N+i)/2].c2.i;
+                h_arb[i].p.i = h_arb[(N+i)/2].c2.o;
+            ]
+        )
+        
+        // connect top of arbiter tree back to itself
+        prs<g.Vdd,g.GND> {
+            h_arb[N-2].p.o => h_arb[N-2].p.i+
+        }
+
+        // connect children ports to arbiter tree leaves
+        (; i : N : 
+            [ (i%2) = 0 -> 
+               c[i] = h_arb[i/2].c1;
+            [] (i%2) = 1 ->
+               c[i] = h_arb[i/2].c2;
+            ]
+        )
+    }
+
+    export
     defproc TEST_ARB_CTRL_TEST (globals g) {
         // tests ARB_CTRL_TEST
         passive_handshaker s1(g,,), s2(g,,), p(g,,);
@@ -158,5 +193,22 @@ namespace arbiter {
         h_arb.c2.o = c2.i;
         h_arb.p.o = p.i;
         h_arb.p.i = p.o;
+    }
+
+    export
+    template<pint N>
+    defproc TEST_ARB_TREE (globals g) {
+        // tests ARB_TREE
+        ARB_TREE<N> arb_tree(g,);
+        active_handshaker c[N];
+
+        // connect globals to chidren
+        (; i : N : c[i].g=g;) 
+
+        // connect children to arbiter tree ports
+        (; i : N : 
+            c[i].o = arb_tree.c[i].i;
+            c[i].i = arb_tree.c[i].o;
+        )
     }
 } // end namespace arbiter
