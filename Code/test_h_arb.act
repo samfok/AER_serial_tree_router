@@ -3,7 +3,7 @@ import "lib/globals.act";
 import "arbiter.act";
 
 globals g;
-arbiter::TEST_H_ARB test(g);
+arbiter::test::TEST_H_ARB test(g);
 
 bool pReset, sReset;
 prs {
