@@ -186,16 +186,18 @@ namespace arbiter {
         export 
         defproc TEST_H_ARB (globals g) {
             // tests H_ARB
-            passive_handshaker p(g,,);
             active_handshaker c1(g,,), c2(g,,);
             H_ARB h_arb(g,,,);
             
+            // connect top of H_ARB back to itself
+            prs<g.Vdd,g.GND> {
+                h_arb.p.o => h_arb.p.i+
+            }
+
             h_arb.c1.i = c1.o;
             h_arb.c2.i = c2.o;
             h_arb.c1.o = c1.i;
             h_arb.c2.o = c2.i;
-            h_arb.p.o = p.i;
-            h_arb.p.i = p.o;
         }
 
         export

@@ -4,7 +4,6 @@ random
 
 # watch test.h_arb.ctrl.c1i
 # watch test.h_arb.ctrl.c2i
-# watch test.h_arb.ctrl.p.i
 # watch test.h_arb.ctrl.p.o
 # watch test.h_arb.ctrl.s1.i
 # watch test.h_arb.ctrl.s1.o
@@ -12,7 +11,6 @@ random
 # watch test.h_arb.ctrl.s2.o
 # set_principal test.h_arb.ctrl.c1i
 # set_principal test.h_arb.ctrl.c2i
-# set_principal test.h_arb.ctrl.p.i
 # set_principal test.h_arb.ctrl.p.o
 # set_principal test.h_arb.ctrl.s1.i
 # set_principal test.h_arb.ctrl.s1.o
@@ -20,15 +18,15 @@ random
 # set_principal test.h_arb.ctrl.s2.o
 # 
 # watch test.h_arb.c1_arb.c.o
-# # watch test.h_arb.c1_arb.cso
-# # watch test.h_arb.c1_arb.sso
+# watch test.h_arb.c1_arb.cso
+# watch test.h_arb.c1_arb.sso
 # watch test.h_arb.c1_arb.ci_hat
 # watch test.h_arb.c1_arb.si_hat
 # set_principal test.h_arb.c1_arb.c.o
 # 
 # watch test.h_arb.c2_arb.c.o
-# # watch test.h_arb.c2_arb.cso
-# # watch test.h_arb.c2_arb.sso
+# watch test.h_arb.c2_arb.cso
+# watch test.h_arb.c2_arb.sso
 # watch test.h_arb.c2_arb.ci_hat
 # watch test.h_arb.c2_arb.si_hat
 # set_principal test.h_arb.c2_arb.c.o
