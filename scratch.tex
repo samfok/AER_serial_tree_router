@@ -5,7 +5,7 @@
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{arbiter $CTRL$ with active $S$ ports}
+\section{heirarchical arbiter control cell $ARB\_CTRL$}
 
 \subsection{CHP} 
 
@@ -24,34 +24,53 @@ CTRL\equiv
     po-;[~pi]]
 \end{hse}
 
-needs 2 state variables:
+\noindent needs 2 state variables:
 
 \begin{hse}
 CTRL\equiv
-  *[[c1i|c2i];po+;[pi];x+;
-    s1o+;[s1i];y+;s1o-;[~s1i];
-    s2o+;[s2i];x-;s2o-;[~s2i];
-    po-;[~pi];y-]
+  *[[c1i|c2i];po+;[pi];x-;
+    s1o+;[s1i];y-;s1o-;[~s1i];
+    s2o+;[s2i];x+;s2o-;[~s2i];
+    po-;[~pi];y+]
 \end{hse}
 
 
 \subsection{PRS}
 
 \begin{prs2}
-c1i | c2i -> po+
-~s2i & ~x & y -> po-
+(c1i | c2i) & y -> po+
+~s2i & x & ~y -> po-
 
-x & ~y -> s1o+
-~x | y -> s1o-
+~x & y -> s1o+
+x | ~y -> s1o-
 
-~s1i & x & y -> s2o+
-~x -> s2o-
+~s1i & ~x & ~y -> s2o+
+x -> s2o-
 
-pi & ~y -> x+
-s2i & y -> x-
+s2i & ~y -> x+
+pi & y -> x-
 
-s1i -> y+
-~pi -> y-
+~pi -> y+
+s1i -> y-
+\end{prs2}
+
+\noindent after bubble reshuffling
+
+\begin{prs2}
+(~_c1i | ~_c2i) & ~_y -> po+
+_s2i & x & _y -> po-
+
+~x & ~_y -> s1o+
+x | _y -> s1o-
+
+~s1i & ~x & ~y -> s2o+
+x -> s2o-
+
+~_s2i & ~y -> x+
+pi & y -> x-
+
+~pi -> y+
+s1i -> y-
 \end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -144,8 +163,10 @@ ARB_C\equiv
   []\hat{si}->so+;[~\hat{si}];so-]]
 \end{hse}
 
-\noindent Note that the $\hat{c_i}$ branch of the select statement uses $s_i$ and not $\hat{s_i}$ to ensure that the arbitration will traverse the $s_i$ branch after completing the $c_i$ branch. Note also that $s_o$ is shared between both branches of selection statement. 
-We introduce intermediate values $cs_o$ and $ss_o$ and merge them in a third concurrent process.
+\noindent Note that the $\hat{c_i}$ branch of the select statement uses $s_i$ and not $\hat{s_i}$ to ensure that the arbitration will traverse the $s_i$ branch after completing the $c_i$ branch. 
+Note also that $s_o$ is shared between both branches of selection statement and 
+that there are indistinguishable states between the branches. 
+To help distinguish which branch we're in, we introduce intermediate values $cs_o$ and $ss_o$ and merge them in a third concurrent process.
 
 \begin{hse}
 *[[ci->\hat{ci}+;[~ci];\hat{ci}-
@@ -173,6 +194,23 @@ si | ~cso -> co-
 cso | sso -> so+
 ~cso & ~sso -> so-
 \end{prs2}
+
+\noindent after bubble reshuffling
+
+\begin{prs2}
+~_\hat{ci} & ~_si & ~sso -> cso+
+_\hat{ci} -> cso-
+
+_si & cso -> _co-
+~_si | ~cso -> _co+
+
+~_\hat{si} & ~co -> sso+
+_\hat{si} | co -> sso-
+
+cso | sso -> _so-
+~cso & ~sso -> _so+
+\end{prs2}
+
 \pagebreak
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Rajit's probe evaluation circuit}

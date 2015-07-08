@@ -9,20 +9,20 @@ namespace arbiter {
         // sequences between children and parent communications
         bool x, y;
         prs<g.Vdd,g.GND> {
-            g._sReset & (c1i | c2i) & ~y -> p.o+
-            g.pReset | ~s2.i & ~x & y -> p.o-
+            g._sReset & (c1i | c2i) & y -> p.o+
+            g.pReset | ~s2.i & x & ~y -> p.o-
     
-            g._sReset & x & ~y -> s1.o+
-            g.pReset | ~x | y -> s1.o-
+            g._sReset & ~x & y -> s1.o+
+            g.pReset | x | ~y -> s1.o-
     
-            g._sReset & ~s1.i & x & y -> s2.o+
-            g.pReset | ~x -> s2.o-
+            g._sReset & ~s1.i & ~x & ~y -> s2.o+
+            g.pReset | x -> s2.o-
     
-            g._sReset & p.i & ~y -> x+
-            g.pReset | s2.i & y -> x-
+            g.pReset | s2.i & ~y -> x+
+            g._sReset & p.i & y -> x-
     
-            s1.i -> y+
-            ~p.i -> y-
+            ~p.i -> y+
+            s1.i -> y-
         }
     }
     
@@ -33,20 +33,20 @@ namespace arbiter {
         // assumes both children are always requesting
         bool x, y;
         prs<g.Vdd,g.GND> {
-            g._sReset & ~y -> p.o+
-            g.pReset | ~s2.i & ~x & y -> p.o-
+            g._sReset & y -> p.o+
+            g.pReset | ~s2.i & x & ~y -> p.o-
     
-            g._sReset & x & ~y -> s1.o+
-            g.pReset | ~x | y -> s1.o-
+            g._sReset & ~x & y -> s1.o+
+            g.pReset | x | ~y -> s1.o-
     
-            g._sReset & ~s1.i & x & y -> s2.o+
-            g.pReset | ~x -> s2.o-
+            g._sReset & ~s1.i & ~x & ~y -> s2.o+
+            g.pReset | x -> s2.o-
     
-            g._sReset & p.i & ~y -> x+
-            g.pReset | s2.i & y -> x-
+            g.pReset | s2.i & ~y -> x+
+            g._sReset & p.i & y -> x-
     
-            s1.i -> y+
-            ~p.i -> y-
+            ~p.i -> y+
+            s1.i -> y-
         }
     }
     
