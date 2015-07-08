@@ -5,24 +5,27 @@ import "test.act";
 
 namespace arbiter {
     // contains arbiter related processes. 
-    defproc ARB_CTRL (globals g; bool c1i, c2i; port s1, s2, p) {
+    defproc ARB_CTRL (globals g; bool _c1i, _c2i; port s1, s2, p) {
         // sequences between children and parent communications
-        bool x, y;
+        bool x, y, _y, _s2i;
         prs<g.Vdd,g.GND> {
-            g._sReset & (c1i | c2i) & y -> p.o+
-            g.pReset | ~s2.i & x & ~y -> p.o-
+            g._sReset & (~_c1i | ~_c2i) & ~_y -> p.o+
+            g.pReset | _s2i & x & _y -> p.o-
     
-            g._sReset & ~x & y -> s1.o+
-            g.pReset | x | ~y -> s1.o-
+            g._sReset & ~x & ~_y -> s1.o+
+            g.pReset | x | _y -> s1.o-
     
             g._sReset & ~s1.i & ~x & ~y -> s2.o+
             g.pReset | x -> s2.o-
     
-            g.pReset | s2.i & ~y -> x+
+            g.pReset | ~_s2i & ~y -> x+
             g._sReset & p.i & y -> x-
     
             ~p.i -> y+
             s1.i -> y-
+
+            y => _y-
+            s2.i => _s2i-
         }
     }
     
@@ -31,22 +34,25 @@ namespace arbiter {
         // test version of CTRL sequencing circuit
         // does not use children as start signal
         // assumes both children are always requesting
-        bool x, y;
+        bool x, y, _y, _s2i;
         prs<g.Vdd,g.GND> {
-            g._sReset & y -> p.o+
-            g.pReset | ~s2.i & x & ~y -> p.o-
+            g._sReset & ~_y -> p.o+
+            g.pReset | _s2i & x & _y -> p.o-
     
-            g._sReset & ~x & y -> s1.o+
-            g.pReset | x | ~y -> s1.o-
+            g._sReset & ~x & ~_y -> s1.o+
+            g.pReset | x | _y -> s1.o-
     
             g._sReset & ~s1.i & ~x & ~y -> s2.o+
             g.pReset | x -> s2.o-
     
-            g.pReset | s2.i & ~y -> x+
+            g.pReset | ~_s2i & ~y -> x+
             g._sReset & p.i & y -> x-
     
             ~p.i -> y+
             s1.i -> y-
+
+            y => _y-
+            s2.i => _s2i-
         }
     }
     
@@ -105,9 +111,17 @@ namespace arbiter {
         // can be arranged in a binary tree to service more than 2 children
         ARB_CTRL ctrl(g,,,,,);
         ARB_C c1_arb(g,,), c2_arb(g,,);
-        
-        ctrl.c1i = c1.i;
-        ctrl.c2i = c2.i;
+
+        bool _c1i, _c2i, __c1i, __c2i;
+        prs {
+            c1.i => _c1i-
+            c2.i => _c2i-
+            _c1i => __c1i-
+            _c2i => __c2i-
+        }
+
+        ctrl._c1i = _c1i;
+        ctrl._c2i = _c2i;
         ctrl.s1.i = c1_arb.s.o;
         ctrl.s1.o = c1_arb.s.i;
         ctrl.s2.i = c2_arb.s.o;
@@ -115,8 +129,8 @@ namespace arbiter {
         ctrl.p.o = p.o;
         ctrl.p.i = p.i;
         
-        c1_arb.c.i = c1.i;
-        c2_arb.c.i = c2.i;
+        c1_arb.c.i = __c1i;
+        c2_arb.c.i = __c2i;
         c1_arb.c.o = c1.o;
         c2_arb.c.o = c2.o;
     }

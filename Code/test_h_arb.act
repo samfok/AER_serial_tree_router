@@ -14,4 +14,3 @@ prs {
     sReset -> g.Vdd+
     sReset -> g.GND-
 }
-

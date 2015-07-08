@@ -2,15 +2,15 @@ source reset.scr
 random
 # watchall
 
-# watch test.h_arb.ctrl.c1i
-# watch test.h_arb.ctrl.c2i
+# watch test.h_arb.ctrl._c1i
+# watch test.h_arb.ctrl._c2i
 # watch test.h_arb.ctrl.p.o
 # watch test.h_arb.ctrl.s1.i
 # watch test.h_arb.ctrl.s1.o
 # watch test.h_arb.ctrl.s2.i
 # watch test.h_arb.ctrl.s2.o
-# set_principal test.h_arb.ctrl.c1i
-# set_principal test.h_arb.ctrl.c2i
+# set_principal test.h_arb.ctrl._c1i
+# set_principal test.h_arb.ctrl._c2i
 # set_principal test.h_arb.ctrl.p.o
 # set_principal test.h_arb.ctrl.s1.i
 # set_principal test.h_arb.ctrl.s1.o
