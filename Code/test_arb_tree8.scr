@@ -1,0 +1,43 @@
+# script for test_arb_tree with 8 children
+source reset.scr
+random
+# watchall
+
+watch test.arb_tree.h_arb[0].p.o
+watch test.arb_tree.h_arb[1].p.o
+watch test.arb_tree.h_arb[2].p.o
+watch test.arb_tree.h_arb[3].p.o
+watch test.arb_tree.h_arb[4].p.o
+watch test.arb_tree.h_arb[5].p.o
+watch test.arb_tree.h_arb[6].p.o
+
+watch test.arb_tree.h_arb[0].p.i
+watch test.arb_tree.h_arb[1].p.i
+watch test.arb_tree.h_arb[2].p.i
+watch test.arb_tree.h_arb[3].p.i
+watch test.arb_tree.h_arb[4].p.i
+watch test.arb_tree.h_arb[5].p.i
+watch test.arb_tree.h_arb[6].p.i
+
+watch test.c[0].o
+watch test.c[1].o
+watch test.c[2].o
+watch test.c[3].o
+watch test.c[4].o
+watch test.c[5].o
+watch test.c[6].o
+watch test.c[7].o
+
+watch test.c[0].i
+watch test.c[1].i
+watch test.c[2].i
+watch test.c[3].i
+watch test.c[4].i
+watch test.c[5].i
+watch test.c[6].i
+watch test.c[7].i
+
+set_principal test.arb_tree.h_arb[6].p.o
+set_principal test.arb_tree.h_arb[6].p.i
+
+break-on-warn
