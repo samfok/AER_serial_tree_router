@@ -59,49 +59,78 @@ namespace arbiter {
     export
     defproc ARB (globals g; port a1, a2) {
         // The basic 2-input arbiter
-        bool _a1o,_a2o;
+        bool _a1, _a2;
     
         spec {
-            mk_excllo(_a1o, _a2o)
+            mk_excllo(_a1, _a2)
         }
     
         //Cross-Coupled NANDs
         prs<g.Vdd,g.GND> {
-            a1.i & _a2o   => _a1o- //_a1i NAND
-            a2.i & _a1o   => _a2o- //_a2i NAND
+            a1.i & _a2  => _a1-
+            a2.i & _a1  => _a2-
         }
     
         //Filter
         prs<g.Vdd,g.GND> {
-            ~_a1o & _a2o  -> a1.o+
-            _a1o          -> a1.o-
+            ~_a1 & _a2  -> a1.o+
+            _a1         -> a1.o-
     
-            ~_a2o & _a1o -> a2.o+
-            _a2o         -> a2.o-
+            ~_a2 & _a1 -> a2.o+
+            _a2        -> a2.o-
         }
     }
     
-    defproc ARB_C (globals g; port s, c) {
+    export
+    defproc ARB_LOW (globals g; port _a1, _a2) {
+        // The basic 2-input arbiter with active low inputs/outputs
+        bool a1, a2;
+    
+        spec {
+            mk_exclhi(a1, a2)
+        }
+    
+        //Cross-Coupled NORs
+        prs<g.Vdd,g.GND> {
+            _a1.i | a2 => a1-
+            _a2.i | a1 => a2-
+        }
+    
+        //Filter
+        prs<g.Vdd,g.GND> {
+            a1 & ~a2 -> _a1.o-
+            ~a1      -> _a1.o+
+    
+            a2 & ~a1 -> _a2.o-
+            ~a2      -> _a2.o+
+        }
+    }
+    
+    export
+    defproc ARB_C (globals g; port _s; bool _ci, co) {
         // arbiter cell for use with CTRL
         // arbitrates between child request and CTRL request
-        bool ci_hat, si_hat, cso, sso;
+        bool cso, sso;
+        bool _ci_hat, _si_hat, _co;
         ARB arb(g,,);
-        arb.a1.i = c.i;
-        arb.a2.i = s.i;
-        arb.a1.o = ci_hat;
-        arb.a2.o = si_hat;
+        arb.a1.i = _ci;
+        arb.a2.i = _s.i;
+        arb.a1.o = _ci_hat;
+        arb.a2.o = _si_hat;
     
         prs<g.Vdd,g.GND> {
-            ci_hat & s.i & ~sso -> cso+
-            ~ci_hat -> cso-
+            ~_ci_hat & ~_s.i & ~sso -> cso+
+            _ci_hat -> cso-
     
-            cso & ~s.i -> c.o+
-            ~cso | s.i -> c.o-
+            _s.i & cso -> _co-
+            ~_s.i | ~cso -> _co+
     
-            si_hat & ~c.o -> sso+
-            ~si_hat | c.o -> sso-
+            ~_si_hat & ~co -> sso+
+            _si_hat | co -> sso-
     
-            cso | sso => s.o+
+            cso | sso => _s.o-
+
+            _co => co-
         }
     }
 
@@ -189,12 +218,46 @@ namespace arbiter {
         defproc TEST_ARB (globals g) {
             // tests ARB
             active_handshaker c1(g,,), c2(g,,);
-            ARB a(g,,);
+            ARB arb(g,,);
             
-            c1.o = a.a1.i;
-            c1.i = a.a1.o;
-            c2.o = a.a2.i;
-            c2.i = a.a2.o;
+            c1.o = arb.a1.i;
+            c1.i = arb.a1.o;
+            c2.o = arb.a2.i;
+            c2.i = arb.a2.o;
+        }
+
+        export
+        defproc TEST_ARB_LOW (globals g) {
+            // tests ARB with active low inputs
+            active_low_handshaker c1(g,,), c2(g,,);
+            ARB_LOW arb(g,,);
+            
+            c1._o = arb._a1.i;
+            c1._i = arb._a1.o;
+            c2._o = arb._a2.i;
+            c2._i = arb._a2.o;
+        }
+
+        defproc ARB_C_handshaker (globals g; port _s; bool ci, _co) {
+            // used in TEST_ARB_C
+            prs<g.Vdd,g.GND> {
+                g.pReset | ~_s.i -> _s.o+
+                g._sReset & _s.i -> _s.o-
+
+                g.pReset | ci -> _co+
+                g._sReset & ~ci -> _co-
+            }
+        }
+
+        export
+        defproc TEST_ARB_C (globals g) {
+            ARB_C_handshaker c(g,,,);
+            ARB_C arb_c(g,,,);
+            
+            arb_c._s.i = c._s.o;
+            arb_c._s.o = c._s.i;
+            arb_c._ci = c._co;
+            arb_c.co = c.ci;
         }
 
         export 

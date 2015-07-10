@@ -1,0 +1,17 @@
+set_principal test.arb._a1.i
+set_principal test.arb._a1.o
+set_principal test.arb._a2.i
+set_principal test.arb._a2.o
+
+source reset.scr
+random
+break-on-warn
+
+# watchall
+
+# watch test.arb._a1.i
+# watch test.arb._a1.o
+# watch test.arb._a2.i
+# watch test.arb._a2.o
+# watch test.arb.a1
+# watch test.arb.a2

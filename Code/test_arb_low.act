@@ -1,9 +1,9 @@
-// Tests the ARB circuit
+// Tests the ARB_LOW circuit
 import "lib/globals.act";
 import "arbiter.act";
 
 globals g;
-arbiter::test::TEST_ARB test(g);
+arbiter::test::TEST_ARB_LOW test(g);
 
 bool pReset, sReset;
 prs {
