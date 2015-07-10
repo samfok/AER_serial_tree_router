@@ -112,11 +112,11 @@ namespace arbiter {
         // arbitrates between child request and CTRL request
         bool cso, sso;
         bool _ci_hat, _si_hat, _co;
-        ARB arb(g,,);
-        arb.a1.i = _ci;
-        arb.a2.i = _s.i;
-        arb.a1.o = _ci_hat;
-        arb.a2.o = _si_hat;
+        ARB_LOW arb(g,,);
+        arb._a1.i = _ci;
+        arb._a2.i = _s.i;
+        arb._a1.o = _ci_hat;
+        arb._a2.o = _si_hat;
     
         prs<g.Vdd,g.GND> {
             ~_ci_hat & ~_s.i & ~sso -> cso+

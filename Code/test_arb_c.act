@@ -1,0 +1,17 @@
+// Tests ARB_C
+import "lib/globals.act";
+import "arbiter.act";
+
+globals g;
+arbiter::test::TEST_ARB_C test(g);
+
+bool pReset, sReset;
+prs {
+    sReset => g.sReset+
+    pReset => g.pReset+
+    sReset => g._sReset-
+    pReset => g._pReset-
+    sReset -> g.Vdd+
+    sReset -> g.GND-
+}
+
