@@ -710,21 +710,22 @@ Here we describe some of the basic building blocks
 \subsection{Arbiter}
 \label{subsec:arb}
 
-The basic arbiter has two inputs $x1$ and $x2$ and two outputs $a1$ and $a2$.
-$a1$ and $a2$ indicate which of the inputs the arbiter has selected.
+The basic arbiter has two inputs $a1_i$ and $a2_i$, two intermediate variables $a1$ and $a2$, 
+and two outputs $a1_o$ and $a2_o$.
+$a1_o$ and $a2_o$ indicate which of the inputs the arbiter has selected.
 To select an input, the arbiter uses the PRS
 
 \begin{prs2}
-x1&~a2->a1+
-~x1|a2->a1-
+a1i&~a2->a1+
+~a1i|a2->a1-
 
-x2&~a1->a2+
-~x2|a1->a2-
+a2i&~a1->a2+
+~a2i|a1->a2-
 \end{prs2}
 
-When $x1\land\neg\,x2$, the circuit is stable at $a1\land\neg\,a2$.
-When $\neg\,x1\land\,x2$, the circuit is stable at $\neg\,a1\land\,a2$.
-To see the arbitration mechanism, consider the logic when $x1\land\,x2$ is true:
+When $a1_i\land\neg\,a2_i$, the cell is stable at $a1\land\neg\,a2$.
+When $\neg\,a1_i\land\,a2_i$, the cell is stable at $\neg\,a1\land\,a2$.
+To see the arbitration mechanism, consider the case when $a1_i\land\,a2_i$ is true:
 
 \begin{prs2}
 ~a2->a1+
@@ -734,33 +735,56 @@ a2->a1-
 a1->a2-
 \end{prs2}
 
-which describes two cross-coupled inverters. 
-When $x1\land\!x2$, circuit is bistable at either $a1\land\neg\,a2$ or $\neg\,a1\land\,a2$. 
-Intermediate states are unstable. We cannot bound the time it takes to resolve the metastability
-because the resolution time follows an exponential distribution. 
+\noindent which describes two cross-coupled inverters. 
+When $a1_i\land\,a2_i$, circuit is bistable at either $a1\land\neg\,a2$ or $\neg\,a1\land\,a2$. 
+Intermediate states are unstable. The time it takes to resolve the metastability follows an exponential distribution, so it's technically unbounded.
 
 To be CMOS-implementable, we invert the senses of $a1$ and $a2$ to produce
 
 \begin{prs2}
-x1&_a2->_a1-
-~x1|~_a2->_a1+
+a1i&_a2->_a1-
+~a1i|~_a2->_a1+
 
-x2&_a1->_a2-
-~x2|~_a1->_a2+
+a2i&_a1->_a2-
+~a2i|~_a1->_a2+
 \end{prs2}
 
-which describes two cross-coupled NAND gates.
+\noindent which describes two cross-coupled NAND gates.
 
-We don't want to pass on the cross-coupled NAND gates' outputs while they're in a metastable state,
-so we create a filter circuit that passes on the outputs only when they've separated by at least 
+We don't want output the cross-coupled NAND gates' outputs while they're in a metastable state,
+so we use a filter circuit that passes on the outputs only when they've separated by at least 
 the threshold voltage of a PMOS transistor.
 
 \begin{prs2}
-~_a1 & _a2 -> a1+
-_a1 -> a1-
+~_a1 & _a2 -> a1o+
+_a1 -> a1o-
 
-~_a2 & _a1 -> a2+
-_a2 -> a2-
+~_a2 & _a1 -> a2o+
+_a2 -> a2o-
+\end{prs2}
+
+\subsubsection{Active Low Arbiter}
+
+We can also arbitrate between active low signals. 
+With inputs $\_a1_i$ and $\_a2_i$, intermediate variables $a1$ and $a2$, and outputs $\_a1_o$ and $\_a2_o$,
+we now use cross-coupled NOR gates to arbitrate,
+
+\begin{prs2}
+_a1i|a2->a1-
+~_a1i&~a2->a1+
+
+_a2i|a1->a2-
+~_a2i&~a1->a2+
+\end{prs2}
+
+\noindent and filter the outputs with
+
+\begin{prs2}
+~a1 & a2 -> _a1o+
+a1 -> _a1o-
+
+~a2 & a1 -> _a2o+
+a2 -> _a2o-
 \end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

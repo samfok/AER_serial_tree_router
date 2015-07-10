@@ -139,29 +139,34 @@ namespace arbiter {
         // heirarchical arbiter cell
         // can be arranged in a binary tree to service more than 2 children
         ARB_CTRL ctrl(g,,,,,);
-        ARB_C c1_arb(g,,), c2_arb(g,,);
+        ARB_C c1_arb(g,,,), c2_arb(g,,,);
 
-        bool _c1i, _c2i, __c1i, __c2i;
-        prs {
+        bool _c1i, _c2i, _s1a, s1b, _s2a, s2b;
+        prs<g.Vdd,g.GND> {
             c1.i => _c1i-
             c2.i => _c2i-
-            _c1i => __c1i-
-            _c2i => __c2i-
+
+            ctrl.s1.o => _s1a-
+            c1_arb._s.o => s1b- 
+            ctrl.s2.o => _s2a-
+            c2_arb._s.o => s2b-
         }
 
         ctrl._c1i = _c1i;
         ctrl._c2i = _c2i;
-        ctrl.s1.i = c1_arb.s.o;
-        ctrl.s1.o = c1_arb.s.i;
-        ctrl.s2.i = c2_arb.s.o;
-        ctrl.s2.o = c2_arb.s.i;
+
+        ctrl.s1.i = s1b;
+        c1_arb._s.i = _s1a;
+        ctrl.s2.i = s2b;
+        c2_arb._s.i = _s2a;
+
         ctrl.p.o = p.o;
         ctrl.p.i = p.i;
         
-        c1_arb.c.i = __c1i;
-        c2_arb.c.i = __c2i;
-        c1_arb.c.o = c1.o;
-        c2_arb.c.o = c2.o;
+        c1_arb._ci = _c1i;
+        c2_arb._ci = _c2i;
+        c1_arb.co = c1.o;
+        c2_arb.co = c2.o;
     }
 
     export
