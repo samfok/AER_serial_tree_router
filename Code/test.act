@@ -1,24 +1,29 @@
 // Defines processes used in testing
 import "lib/globals.act";
 
-// a simple active handshaker
 export
 defproc active_handshaker(globals g; bool i, o) {
-    prs {
+    // a simple active handshaker
+    prs <g.Vdd,g.GND> {
         ~g.sReset & ~i -> o+
         g.pReset  | i  -> o-
     }
 }
 
-// a simple passive handshaker
+export
+defproc active_low_handshaker(globals g; bool _i, _o) {
+    // a simple active low handshaker
+    prs <g.Vdd,g.GND> {
+        g._sReset & _i   -> _o-
+        ~g._pReset | ~_i -> _o+
+    }
+}
+
 export
 defproc passive_handshaker(globals g; bool i, o) {
-    bool _o;
-    prs {
-        ~g.sReset & i  -> _o-
-        g.pReset  | ~i -> _o+
-
-        _o => o- 
+    // a simple passive handshaker
+    prs <g.Vdd,g.GND> {
+        i  => o+ // just a wire with delay
     }
 }
 
