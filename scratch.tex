@@ -3,18 +3,28 @@
 
 \begin{document}
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{heirarchical arbiter control cell $CTRL$}
+\part{transmitter}
 
-\subsection{CHP} 
+\section{Arbiter tree ($ARB\_TREE$)}
+The transmitter has two arbiter trees: One to arbitrate between row requests and another to arbitrate between column requests. The arbiter tree is a binary tree of heirarchical arbiter cells.
+
+\subsection{Heirarchical arbiter $H\_ARB$}
+
+The heirarchical arbiter cells can be stacked. What is the CHP of the heirarchical arbiter? What is the block diagram of the heirarchical arbiter?
+
+\subsubsection{Control cell $CTRL$}
+
+\paragraph{CHP} 
 
 \begin{csp}
 CTRL\equiv
   *[[#{C1}|#{C2}->P;S1;S1;S2;S2;P]
 \end{csp}
 
-\subsection{HSE}
+\paragraph{HSE} 
+
+Directly translating the CHP,
 
 \begin{hse}
 CTRL\equiv
@@ -24,7 +34,7 @@ CTRL\equiv
     po-;[~pi]]
 \end{hse}
 
-\noindent needs 2 state variables:
+\noindent we have 3 indistinguishable states--after $[p_i]$, after $s1_o\!\downarrow$, and after $s2_o\!\downarrow$. To distinguish betwen 3 states, we need 2 state variables.
 
 \begin{hse}
 CTRL\equiv
@@ -34,8 +44,7 @@ CTRL\equiv
     po-;[~pi];y+]
 \end{hse}
 
-
-\subsection{PRS}
+\paragraph{PRS}
 
 \begin{prs2}
 (c1i | c2i) & y -> po+
@@ -74,47 +83,62 @@ s1i -> y-
 \end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Child arbitration circuit ($ARB\_C$)}
-$ARB\_C$ determines whether a child's request is present or not when called upon by $ARB\_CTRL$.
+\subsubsection{Child Arbiter ($C\!\_ARB$)}
+$C\!\_ARB$ determines whether a child's request is present or not when called upon by $CTRL$.
 
-\subsection{CHP}
+\paragraph{CHP}
 
 \begin{csp}
-ARB_C\equiv
-*[[#C->S;C;C;S
-  \|#S->S;S]]
+C_ARB\equiv
+  *[[#C->S;C;C;S
+    \|#S->S;S]]
 \end{csp}
 
-where 
+\noindent where 
+
 \begin{tabular}[]{rl}
   $C$ & communicates with the child \\ 
   $S$ & communicates with $CTRL$ \\
 \end{tabular} \\ \\
 
-\noindent We arbitrate between requests from the child $\overline{C}$ and 
-requests from the $CTRL$ $\overline{S}$.
+\noindent We arbitrate between requests from the child, $\overline{C}$, and 
+requests from $CTRL$, $\overline{S}$.
 
-\noindent If the arbitration selects the child request, 
+\noindent If the arbitration selects the child request $\overline{C}$, 
 
 \begin{tabular}[]{rl}
-  $S$ & wait for $CTRL$'s signal \\
+  $S$ & wait for and acknowledge $CTRL$'s request \\
   $C$ & signal the child to proceed \\
   $C$ & wait for the child to complete \\
-  $S$ & release $CTRL$ and allow it to move on \\
+  $S$ & release $CTRL$ so it can move on \\
 \end{tabular} \\ \\
 
-\noindent If the arbitration selects $CTRL$'s request,
+\noindent If the arbitration selects $CTRL$'s request $\overline{S}$,
 
 \begin{tabular}[]{rl}
-  $S$ & acknowledge $CTRL$'s request \\
-  $S$ & release $CTRL$ and allow it to move on \\
+  $S$ & wait for and acknowledge $CTRL$'s request \\
+  $S$ & release $CTRL$ so it can move on \\
 \end{tabular} \\ \\
 
 \noindent which is a simple 4-phase handshake. Note that $S$ is shared between the two branches.
-If progressing down the $\overline{C}$ branch, we need to ensure that the $S$ probe of the second branch 
-goes away before servicing the child. 
-However, we also need to keep hold of the $CTRL$ until the child has finished. 
-Therefore we split the second $S$ communication across the child communications.
+
+\paragraph{HSE}
+
+Directly translating the CHP,
+
+\begin{hse}
+*[[ci->[si];so+;co+;[~ci];co-;[~si];so-
+  \|si->so+;[~si];so-]]
+\end{hse}
+
+The states before the $[\neg\,s_i]$ waits in the $\overline{C}$ and $\overline{S}$ branches are indistinguishable. Instead of using a state variable to store which branch we're traversing, we move $[\neg\,s_i]$ forward in the $\overline{C}$ branch. 
+
+\begin{hse}
+*[[ci->[si];so+;[~si];co+;[~ci];co-;so-
+  \|si->so+;[~si];so-]]
+\end{hse}
+
+\noindent or in CHP,
 
 \begin{csp}
 ARB_C\equiv
@@ -122,16 +146,7 @@ ARB_C\equiv
   \|#S->S;S]]
 \end{csp}
 
-\subsection{HSE}
-
-Directly translating the CHP,
-
-\begin{hse}
-*[[ci->[si];so+;[~si];co+;[~ci];co-;so-
-  \|si->so+;[~si];so-]]
-\end{hse}
-
-\noindent After $co\!\downarrow$, the child could raise its request again ($c_i$) and greedily hold the circuit in a loop just servicing the child. 
+\noindent After $co\!\downarrow$, the child could raise its request again ($c_i$) and greedily hold the circuit in a loop servicing the child. 
 We break this loop by releasing $CTRL$ ($s_o\!\downarrow$) before releasing the child. This yields
 
 \begin{hse}
@@ -154,7 +169,7 @@ ARB_C\equiv
   \|si->\hat{si}+;[\hat{si}];so+;[~si];\hat{si}-;[~\hat{si}];so-]]
 \end{hse}
 
-\noindent we can break the arbitration out into a separate process,
+\noindent and break the arbitration out into a separate process,
 
 \begin{hse}
 *[[ci->\hat{ci}+;[~ci];\hat{ci}-
@@ -163,10 +178,10 @@ ARB_C\equiv
   []\hat{si}->so+;[~\hat{si}];so-]]
 \end{hse}
 
-\noindent Note that the $\hat{c_i}$ branch of the select statement uses $s_i$ and not $\hat{s_i}$ to ensure that the arbitration will traverse the $s_i$ branch after completing the $c_i$ branch. 
+\noindent Note that the $\hat{c_i}$ branch of the select statement uses $s_i$ and not $\hat{s_i}$. Putting $[\neg\!s_i]$ before $c_o\!\uparrow$ ensures that the arbitration will not traverse the $s_i$ before the child has completed as indicated by $[\neg\,\hat{c_i}]$. 
 Note also that $s_o$ is shared between both branches of selection statement and 
-that there are indistinguishable states between the branches. 
-To help distinguish which branch we're in, we introduce intermediate values $cs_o$ and $ss_o$ and merge them in a third concurrent process.
+that there are again indistinguishable states between the branches---before $[s_i]$ in the $\overline{C}$ branch and after $[\neg\,\hat{s_i}]$ in the $\overline{S}$ branch.
+To distinguish the branches, we introduce intermediate values $cs_o$ and $ss_o$ and merge them in a third concurrent process.
 
 \begin{hse}
 *[[ci->\hat{ci}+;[~ci];\hat{ci}-
@@ -177,7 +192,7 @@ To help distinguish which branch we're in, we introduce intermediate values $cs_
   []sso->so+;[~sso];so-]
 \end{hse}
 
-\subsection{PRS}
+\paragraph{PRS}
 
 $s_i$ and $c_i$ are inputs to a standard 2-input arbiter, which outputs $\hat{s_i}$ and $\hat{c_i}$.
 
@@ -214,9 +229,9 @@ cso | sso -> _so-
 \pagebreak
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Rajit's probe evaluation circuit}
-For reference when building arbiter.
+For reference.
 
-\subsection{CHP}
+\paragraph{CHP}
 
 \begin{csp}
 *[[#X&#E->E!\mathrm{true},X
@@ -231,7 +246,7 @@ implemented by
 \end{csp}
 
 
-\subsection{HSE}
+\paragraph{HSE}
 
 \begin{hse}
 *[[Xi->t+;[~Xi];t-
@@ -241,7 +256,7 @@ implemented by
   []f->Efo+;[~f];Efo-]]
 \end{hse}
 
-\subsection{PRS}
+\paragraph{PRS}
 
 \begin{prs2}
 t & _Xo & Ei -> _Eto-
@@ -259,356 +274,6 @@ Xo -> _Xo-
 t -> _t-
 ~t -> _t+
 \end{prs2}
-\pagebreak
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{arbiter $CTRL$ with passive $S$ ports}
-This was a candidate arbiter $CTRL$ design. 
-Turns out to be more complicated than $CTRL$ with active $S$ ports so we abandoned it.
 
-\subsection{CHP}
-
-\begin{csp}
-CTRL\approx
-  *[[#{C1}|#{C2}->P;S1;S1\star(S2;S2\star\!P)]
-  
-C_S\equiv
-  *[C;A;A;C]
-\end{csp}
-
-\subsection{HSE}
-
-\begin{hse}
-CTRL\equiv
-  *[[c1i|c2i];po+;[pi];
-    [s1i];s1o+;[~s1i];
-    [s2i];s2o+;[~s2i];
-    po-;[~pi];s1o-;s2o-]
-\end{hse}
-
-\begin{hse}
-C_S\equiv
-  *[co+;[ci];ao+;[ai];
-    ao-;[~ai];co-;[~ci]]
-\end{hse}
-
-needs a state variable
-
-\begin{hse}
-C_S\equiv
-  *[x+;co+;[ci];ao+;[ai];
-    x-;ao-;[~ai];co-;[~ci]]
-\end{hse}
-
-\subsection{PRS}
-
-$CTRL\equiv$
-\begin{prs2}
-(c1i | c2i) & ~s2o -> po+
-~s2i & s2o -> po-
-
-pi & s1i -> s1o+
-~pi -> s1o-
-
-~s1i & s1o & s2i -> s2o+
-~s1o -> s2o-
-\end{prs2}
-
-with active high inputs and outputs, $C\_S\equiv$
-\begin{prs2}
-ai | x -> _co-
-~ai & ~x -> _co+
-
-ci & x -> _ao-
-~ci | ~x -> _ao+
-
-~ci & ~ai -> x+
-ai -> x-
-
-~_co -> co+
-_co -> co-
-
-~_ao -> ao+
-_ao -> ao-
-\end{prs2}
-
-with active low inputs and active high outputs, $C\_S\equiv$
-\begin{prs2}
-~_ai | ~_x -> co+
-_ai & _x -> co-
-
-~_ci & ~_x -> ao+
-_ci | _x -> ao-
-
-_ci & _ai -> _x-
-~_ai -> _x+
-\end{prs2}
-\pagebreak
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{post arbiter}
-
-\includegraphics[width=\textwidth]{img/transmitter/arb.pdf}
-
-\noindent CHP:
-
-\begin{csp}
-CTRL\equiv
-  *[[#{C1}|#{C2}->P;S1;S1\star(S2;S2\star\!P)]]
-\end{csp}
-\begin{csp}
-C_S\equiv
-  *[(SB,SG)\star\!S;(SB,SG)\star\!S]
-\end{csp}
-\begin{csp}  
-C_GATE\equiv
-  *[C\star(A,S);C\star(A,S)]
-\end{csp}
-\begin{csp}
-C_BYPASS\equiv
-  *[S;A;S,A]
-\end{csp}
-\begin{csp}
-C_ARB\equiv
-  *[[#{A1}->A1;A1\|#{A2}->A2;A2]]
-\end{csp}
-
-\noindent HSE:
-
-\begin{hse}
-CTRL\equiv
-  *[[c1i|c2i];po+;[pi];
-    [s1i];s1o+;[~s1i];
-    [s2i];s2o+;[~s2i];
-    po-;[~pi];s1o-,s2o-]
-\end{hse}
-\begin{hse}
-C_S\equiv
-  *[[sgi|sbi];so+;[si];sgo+,sbo+;
-    [~sgi&~sbi];so-;[~si];sgo-,sbo-]
-\end{hse}
-\begin{hse}
-C_GATE\equiv    
-  *[[ci];ao+,so+;[ai&si];co+;
-    [~ci];ao-,so-;[~ai&~si];co-]
-\end{hse}
-\begin{hse}
-C_BYPASS\equiv
-  *[so+;[si];ao+;[ai];
-    so-,ao-;[~si&~ai]]
-\end{hse}
-\begin{hse}
-C_ARB\equiv
-  *[[a1i];a1o+;[~a1i];a1o-
-   \|[a2i];a2o+;[~a2i];a2o-]
-\end{hse}
-
-\noindent PRS
-
-$CTRL\equiv$
-\begin{prs2}
-c1i | c2i -> po+
-~s2i & s2o -> po-
-
-pi & s1i -> s1o+
-pi & ~s1i & s1o & s2i -> s2o+
-~pi -> s1o-, s2o-
-\end{prs2}
-
-$C\_S\equiv$
-\begin{prs}
-sgi | sbi -> so+
-~sgi & ~sbi -> so-
-
-si -> sgo+, sbo+
-~si -> sgo-, sbo-
-\end{prs}
-
-$C\_GATE\equiv$
-\begin{prs2}
-c1i -> ao+, so+
-~c1i -> ao-, so-
-
-ai & si -> c1o+
-~ai & ~si -> c1o-
-\end{prs2}
-
-$C\_BY\!P\!ASS\equiv$
-\begin{prs2}
-~si&~ai -> so+
-si -> ao+
-ai -> so-, ao-
-\end{prs2}
-
-$C\_ARB\equiv$
-\begin{prs2}
-a1i & _a2o -> _a1o-
-~a1i | ~_a2o -> _a1o+
-
-~_a1o & _a2o -> a1o+
-_a1o -> a1o-
-
-a2i & _a1o -> _a2o-
-~a2i | ~_a1o -> _a2o+
-
-~_a2o & _a1o -> a2o+
-_a2o -> a2o-
-\end{prs2}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newpage
-\section{A Better Arbiter (failed. on hold)}
-
-Starting with
-
-\begin{csp}
-ARB2\equiv*
-  *[[#{L1}->R;L1;L1;R
-    \|#{L2}->R;L2;L2;R]]
-\end{csp}
-
-we split out the arbitration into a separate process.
-
-\begin{csp}
-ARB2\equiv
-*[[#{L1}->A1;R;L1;L1;R;A1]] \pll
-*[[#{L2}->A2;R;L2;L2;R;A2]] \pll
-*[[#{A1}->A1;A1\|#{A2}->A2;A2]]
-\end{csp}
-
-This arbiter is not greedy and returns the token to the parent after servicing a child.
-To make it greedy yet fair, we split out communication with the parent arbiter cell into a separate process.
-
-\begin{csp}
-ARB2\equiv
-  *[[#{L1}->A1;R1;L1;L1;A1;R1)]] \pll
-  *[[#{L2}->A2;R2;L2;L2;A2;R2)]] \pll
-  *[[#{A1}->A1;A1\|#{A2}->A2;A2]]\pll
-  *[[#{R1}|#{R2}->R;
-    [#{R1}->R1;R1\|~#{R1}->skip],
-    [#{R2}->R2;R2\|~#{R2}->skip];
-    R]]
-\end{csp}
-
-The parent communication process implements a greedy algorithm because once it acquires the token from the parent,
-it will not return the token until both children have been serviced (if both have requested). 
-The algorithm is fair because each child will only be serviced at most once for posession of the token.
-The parent communication process can signal children processes in parallel because aribtration is handled by the arbitration process.
-We use synchronizers enabled by the parent request to ensure that selection guards are mutually exclusive.
-
-
-\begin{csp}
-ARB2\equiv
-  *[[#{L1}->A1;R1;L1;L1;A1;R1)]] \pll
-  *[[#{L2}->A2;R2;L2;L2;A2;R2)]] \pll
-  *[[#{A1}->A1;A1\|#{A2}->A2;A2]]\pll
-  *[[#{R1}|#{R2}->R;
-    [#{R1'}->R1;R1[]~#{R1'}->skip],
-    [#{R2'}->R2;R2[]~#{R2'}->skip];
-    R]]
-\end{csp}
-where probes on $R1$ and $R2$ have been replaced with probes on $R1'$ and $R2'$, respectively. 
-These are synchronized versions of their respective signals.
-
-Next, we make the 2-phase portions of each 4-phase communication explicit so we can pipeline them.
-Since each communication is paired, it's straightforward to assign the first and second as the first and second
-2-phase communications of a 4-phase protocol. 
-
-\begin{csp}
-ARB2\equiv
-  *[[#{L1}->A1+;R1+;L1+;L1-;A1-;R1-]] \pll
-  *[[#{L2}->A2+;R2+;L2+;L2-;A2-;R2-]] \pll
-  *[[#{A1}->A1+;A1-\|#{A2}->A2+;A2-]]\pll
-  *[[#{R1}|#{R2}->R+;
-    [#{R1'}->R1+;R1-[]~#{R1'}->skip],
-    [#{R2'}->R2+;R2-[]~#{R2'}->skip];
-    R-]]
-\end{csp}
-
-We pipeline the arbitration and parent requests for speed.
-
-\begin{csp}
-ARB2\equiv
-  *[[#{L1}->A1+,R1+;L1+;L1-\star(A1-,R1-)]] \pll
-  *[[#{L2}->A2+,R2+;L2+;L2-\star(A2-,R2-)]] \pll
-  *[[#{A1}->A1+;A1-\|#{A2}->A2+;A2-]]\pll
-  *[[#{R1}|#{R2}->R+;
-    [#{R1'}->R1+;R1-[]~#{R1'}->skip],
-    [#{R2'}->R2+;R2-[]~#{R2'}->skip];
-    R-]]
-\end{csp}
-
-or alternatively expressed with fewer guards as
-
-\begin{csp}
-ARB2\equiv
-  *[L1+\star(A1+,R1+);L1-\star(A1-,R1-)] \pll
-  *[L2+\star(A2+,R2+);L2-\star(A2-,R2-)] \pll
-  *[[#{A1}->A1+;A1-\|#{A2}->A2+;A2-]]\pll
-  *[[#{R1}|#{R2}];R+;
-    [#{R1'}->R1+;R1-[]~#{R1'}->skip],
-    [#{R2'}->R2+;R2-[]~#{R2'}->skip];
-    R-]
-\end{csp}
-
-The HSE is given by
-
-\begin{hse}
-*[[l1i];a1o+,r1o+;[a1i&r1i];l1o+;
-  [~l1i];a1o-,r1o-;[~a1i&~r1i];l1o-]
-*[[l2i];a2o+,r2o+;[a2i&r2i];l2o+;
-  [~l2i];a2o-,r2o-;[~a2i&~r2i];l2o-]
-  
-*[[a1o];a1i+;[~a1o];a1i-
- \|[a2o];a2i+;[~a2o];a2i-]
- 
-*[[r1o|r2o];ro+;[ri];
-  [[r1o'];r1i+;[~r1o];r1i-[][_r1o']],
-  [[r2o'];r2i+;[~r2o];r2i-[][_r2o']];
-  ro-;[~ri]]
-\end{hse}
-
-The arbiter and synchronizer processes are standardized, 
-so we will omit their PRS here. First we develop the PRS for the children communication processes
-
-\begin{prs2}
-l1i->a1o+,r1o+
-~l1i->a1o-,r1o-
-
-a1i&r1i->l1o+
-~a1i&~r1i->l1o-
-
-l2i->a2o+,r2o+
-~l2i->a2o-,r2o-
-
-a2i&r2i->l2o+
-~a2i&~r2i->l2o-
-\end{prs2}
-
-To make these CMOS implementable, we invert the senses of the $L1$ and $L2$ ports.
-
-\begin{prs2}
-~_l1i -> a1o+, r1o+
-_l1i -> a1o-, r1o-
-
-a1i & r1i -> _l1o-
-~a1i & ~r1i -> _l1o+
-
-~_l2i -> a2o+, r2o+
-_l2i -> a2o-, r2o-
-
-a2i & r2i -> _l2o-
-~a2i & ~r2i -> _l2o+
-\end{prs2}
-
-Next we develop the PRS for the parent communication process
-
-\begin{prs2}
-~ri & (r1o | r2o) -> ro+
-~r1o & ~r2o -> ro-
-
-~ri & r1o' -> r1i+
-
-~ri & r2o' -> r2i+
-
-\end{prs2}
-
-This is where things became really complicated and we abandoned this design.
 \end{document}
