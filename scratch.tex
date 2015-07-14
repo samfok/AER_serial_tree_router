@@ -4,22 +4,116 @@
 \begin{document}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\part{transmitter}
+\part{Transmitter}
+The transmitter has two arbiter trees: One to arbitrate between row requests and another to arbitrate between column requests. 
 
 \section{Arbiter tree ($ARB\_TREE$)}
-The transmitter has two arbiter trees: One to arbitrate between row requests and another to arbitrate between column requests. The arbiter tree is a binary tree of heirarchical arbiter cells.
+
+The arbiter tree $ARB\_TREE$ arbitrates between $n$ children (see Figure~\ref{fig:arb_tree}) and is specified by
+
+\begin{figure}
+  \centering
+  \includegraphics[width=.5\textwidth]{img/transmitter/arb_tree.pdf}
+  \caption{The arbiter tree $ARB\_TREE$ arbitrates between $n$ children.}
+  \label{fig:arb_tree}
+\end{figure}
+
+\begin{csp}
+ARB_TREE(n)\equiv
+  *[[\langle\|i:0..n\-1:#{C`i}->C`i;C`i\rangle]]
+\end{csp}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=.5\textwidth]{img/transmitter/arb_tree_h_arb.pdf}
+  \caption{$ARB\_TREE$ is composed of a binary tree of $H\!\_ARB$ cells. Shown here is an $ARB\_TREE$ instance servicing 4 children. The $P$ port of the top $H\!\_ARB$ cell is connected back to itself.}
+  \label{fig:arb_tree_h_arb}
+\end{figure}
+
+In words, when the arbitration selects a requesting child, the first $C_i$ communication indicates that the child should proceed, and the second $C_i$ communication confirms that the child has finished.
+
+We decompose $ARB\_TREE$ into a binary tree of heirarchical arbiter cells, $H\!\_ARB$ (see Figure~\ref{fig:arb_tree_h_arb}). 
+
+\begin{csp}
+ARB_TREE(n)\equiv*[\langle\pll\,i:0..n\-1:H_ARB\rangle]
+\end{csp}
+
+\noindent For an $ARB\_TREE$ instance $arb\_tree$ and $n-1$ $H\_ARB$ instances $h\_arb[0]..h\_arb[n-1]$, we connect the $arb\_tree$ ports to the $h\_arb$ ports according to
+
+\begin{csp}
+\langle\,i:0..n\-1:
+  [i\%2=0 -> 
+    arb_tree.C`i=h_arb[i/2].C`0
+  []i\%2=1 ->
+    arb_tree.C`i=h_arb[i/2].C`1
+  ]\rangle
+\end{csp}
+
+\noindent and the $h\_arb$ ports according to
+
+\begin{csp}
+\langle\,i:0..n\-2:
+  [i\%2=0 -> 
+    h_arb[i].P=h_arb[(n\+i)/2].C`0
+  []i\%2=1 ->
+    h_arb[i].P=h_arb[(n\+i)/2].C`1
+  ]\rangle
+
+h_arb[n\-1].P = h_arb[n\-1].P
+\end{csp}
 
 \subsection{Heirarchical arbiter $H\_ARB$}
 
-The heirarchical arbiter cells can be stacked. What is the CHP of the heirarchical arbiter? What is the block diagram of the heirarchical arbiter?
+With ports
+
+\begin{tabular}[]{rl}
+$C1$ & child 1 port \\
+$C2$ & child 2 port \\
+$P$ & parent port \\
+\end{tabular} \\
+
+\noindent $H\!\_ARB$ is specified by
+
+\begin{csp}
+H_ARB\equiv
+  *[[#{C`1}|#{C`2}->P;
+    [#{C`1}->C`1;C`1\|~#{C`1}->skip];
+    [#{C`2}->C`2;C`2\|~#{C`2}->skip];P]]
+\end{csp}
+
+When a child request arrives and the arbitration selects that child, $H\!\_ARB$ sends a request to the parent. When the parent gives permission to go ahead, $H\!\_ARB$ checks the first child and then the second child. During each check, $H\!\_ARB$ services the child if its request is present. Otherwise, $H\!\_ARB$ skips and moves on. 
+
+$H\!\_ARB$ implements a greedy yet fair arbitration algorithm. $H\!\_ARB$ is greedy because it can service both children for each request to the parent. $H\!\_ARB$ is fair because it will service each child at most once for each request to the parent. 
+
+\begin{figure}
+  \centering
+  \includegraphics[width=.5\textwidth]{img/transmitter/arb_h_detail.pdf}
+  \caption{$H\_ARB$ decomposition. Dotted line indicates wire used for probing only.}
+  \label{fig:h_arb_detail}
+\end{figure}
+
+We decompose $H\!\_ARB$ into a control cell $CTRL$ and two child arbitration cells $C\_ARB$ (see Figure~\ref{fig:h_arb_detail}).
+
+\begin{csp}
+H\_ARB\equiv*[CTRL\pll\!C_ARB\pll\!C_ARB]
+\end{csp}
 
 \subsubsection{Control cell $CTRL$}
+With ports
+
+\begin{tabular}[]{rl}
+$P$ & parent port \\
+$S_1$ & child arbiter 1 port \\
+$S_2$ & child arbiter 2 port \\
+\end{tabular} \\
+
+\noindent $CTRL$ is specified by
 
 \paragraph{CHP} 
 
 \begin{csp}
 CTRL\equiv
-  *[[#{C1}|#{C2}->P;S1;S1;S2;S2;P]
+  *[[#{C`1}|#{C`2}->P;S`1;S`1;S`2;S`2;P]
 \end{csp}
 
 \paragraph{HSE} 
