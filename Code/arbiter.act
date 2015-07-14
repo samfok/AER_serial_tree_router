@@ -7,10 +7,11 @@ namespace arbiter {
     // contains arbiter related processes. 
     defproc CTRL (globals g; bool _c1i, _c2i; port s1, s2, p) {
         // sequences between children and parent communications
-        bool x, y, _y, _s2i;
+        // s2.i is active low from H_ARB environment
+        bool x, y, _y;
         prs<g.Vdd,g.GND> {
             g._sReset & (~_c1i | ~_c2i) & ~_y -> p.o+
-            g.pReset | _s2i & x & _y -> p.o-
+            g.pReset | s2.i & x & _y -> p.o-
     
             g._sReset & ~x & ~_y -> s1.o+
             g.pReset | x | _y -> s1.o-
@@ -18,14 +19,13 @@ namespace arbiter {
             g._sReset & ~s1.i & ~x & ~y -> s2.o+
             g.pReset | x -> s2.o-
     
-            g.pReset | ~_s2i & ~y -> x+
+            g.pReset | ~s2.i & ~y -> x+
             g._sReset & p.i & y -> x-
     
             ~p.i -> y+
             s1.i -> y-
 
             y => _y-
-            s2.i => _s2i-
         }
     }
     
@@ -141,7 +141,7 @@ namespace arbiter {
         CTRL ctrl(g,,,,,);
         C_ARB c1_arb(g,,,), c2_arb(g,,,);
 
-        bool _c1i, _c2i, _s1a, s1b, _s2a, s2b;
+        bool _c1i, _c2i, _s1a, s1b, _s2a;
         prs<g.Vdd,g.GND> {
             c1.i => _c1i-
             c2.i => _c2i-
@@ -149,7 +149,6 @@ namespace arbiter {
             ctrl.s1.o => _s1a-
             c1_arb._s.o => s1b- 
             ctrl.s2.o => _s2a-
-            c2_arb._s.o => s2b-
         }
 
         ctrl._c1i = _c1i;
@@ -157,7 +156,7 @@ namespace arbiter {
 
         ctrl.s1.i = s1b;
         c1_arb._s.i = _s1a;
-        ctrl.s2.i = s2b;
+        ctrl.s2.i = c2_arb._s.o; // ctrl.s2.i will be active low
         c2_arb._s.i = _s2a;
 
         ctrl.p.o = p.o;
