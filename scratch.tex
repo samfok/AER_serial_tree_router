@@ -5,7 +5,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \part{Transmitter}
-The transmitter has two arbiter trees: One to arbitrate between row requests and another to arbitrate between column requests. 
+The transmitter uses two arbiter trees: One to arbitrate between row requests and another to arbitrate between column requests. 
 
 \section{Arbiter tree ($ARB\_TREE$)}
 
@@ -14,7 +14,7 @@ The arbiter tree $ARB\_TREE$ arbitrates between $n$ children (see Figure~\ref{fi
 \begin{figure}
   \centering
   \includegraphics[width=.5\textwidth]{img/transmitter/arb_tree.pdf}
-  \caption{The arbiter tree $ARB\_TREE$ arbitrates between $n$ children.}
+  \caption{$ARB\_TREE$ arbitrates between $n$ children.}
   \label{fig:arb_tree}
 \end{figure}
 
@@ -26,11 +26,11 @@ ARB_TREE(n)\equiv
 \begin{figure}
   \centering
   \includegraphics[width=.5\textwidth]{img/transmitter/arb_tree_h_arb.pdf}
-  \caption{$ARB\_TREE$ is composed of a binary tree of $H\!\_ARB$ cells. Shown here is an $ARB\_TREE$ instance servicing 4 children. The $P$ port of the top $H\!\_ARB$ cell is connected back to itself.}
+  \caption{$ARB\_TREE$ decomposed as a binary tree of $H\!\_ARB$ cells. Here is an $ARB\_TREE$ instance servicing 4 children. The $P$ port of the top $H\!\_ARB$ cell is connected back to itself.}
   \label{fig:arb_tree_h_arb}
 \end{figure}
 
-In words, when the arbitration selects a requesting child, the first $C_i$ communication indicates that the child should proceed, and the second $C_i$ communication confirms that the child has finished.
+In words, the children send requests at any time. When requests arrive, $ARB\_TREE$ selects one requesting child to proceed. The first $C_i$ communication indicates that the child should proceed, and the second $C_i$ communication confirms that the child has finished.
 
 We decompose $ARB\_TREE$ into a binary tree of heirarchical arbiter cells, $H\!\_ARB$ (see Figure~\ref{fig:arb_tree_h_arb}). 
 
@@ -38,7 +38,7 @@ We decompose $ARB\_TREE$ into a binary tree of heirarchical arbiter cells, $H\!\
 ARB_TREE(n)\equiv*[\langle\pll\,i:0..n\-1:H_ARB\rangle]
 \end{csp}
 
-\noindent For an $ARB\_TREE$ instance $arb\_tree$ and $n-1$ $H\_ARB$ instances $h\_arb[0]..h\_arb[n-1]$, we connect the $arb\_tree$ ports to the $h\_arb$ ports according to
+\noindent For an $ARB\_TREE$ instance $arb\_tree$ and $n-1$ $H\_ARB$ instances $h\_arb[0]..h\_arb[n-1]$, we connect the $arb\_tree$ ports to the $h\_arb$ ports as follows.
 
 \begin{csp}
 \langle\,i:0..n\-1:
@@ -49,7 +49,7 @@ ARB_TREE(n)\equiv*[\langle\pll\,i:0..n\-1:H_ARB\rangle]
   ]\rangle
 \end{csp}
 
-\noindent and the $h\_arb$ ports according to
+\noindent We arrange the $h\_arb$ instances as a binary tree.
 
 \begin{csp}
 \langle\,i:0..n\-2:
@@ -62,8 +62,11 @@ ARB_TREE(n)\equiv*[\langle\pll\,i:0..n\-1:H_ARB\rangle]
 h_arb[n\-1].P = h_arb[n\-1].P
 \end{csp}
 
+\noindent The top $h\_arb$'s $P$ port is connected back to itself.
+
 \subsection{Heirarchical arbiter $H\_ARB$}
 
+$H\!\_ARB$ coordinates with its parent (another $H\!\_ARB$ instance) and arbitrates between two children. 
 With ports
 
 \begin{tabular}[]{rl}
@@ -81,9 +84,9 @@ H_ARB\equiv
     [#{C`2}->C`2;C`2\|~#{C`2}->skip];P]]
 \end{csp}
 
-When a child request arrives and the arbitration selects that child, $H\!\_ARB$ sends a request to the parent. When the parent gives permission to go ahead, $H\!\_ARB$ checks the first child and then the second child. During each check, $H\!\_ARB$ services the child if its request is present. Otherwise, $H\!\_ARB$ skips and moves on. 
+When a child request arrives, $H\!\_ARB$ sends a request to its parent. When the parent gives permission to go ahead, $H\!\_ARB$ checks the first child and then the second child. During each check, $H\!\_ARB$ services the child if its request is present. Otherwise, $H\!\_ARB$ skips and moves on. After checking the children, $H\!\_ARB$ releases its parent.
 
-$H\!\_ARB$ implements a greedy yet fair arbitration algorithm. $H\!\_ARB$ is greedy because it can service both children for each request to the parent. $H\!\_ARB$ is fair because it will service each child at most once for each request to the parent. 
+$H\!\_ARB$ implements a greedy yet fair arbitration algorithm. $H\!\_ARB$ is greedy because it can service both children for a single request to the parent. $H\!\_ARB$ is fair because it will service each child at most once for each request to the parent. 
 
 \begin{figure}
   \centering
@@ -92,14 +95,25 @@ $H\!\_ARB$ implements a greedy yet fair arbitration algorithm. $H\!\_ARB$ is gre
   \label{fig:h_arb_detail}
 \end{figure}
 
-We decompose $H\!\_ARB$ into a control cell $CTRL$ and two child arbitration cells $C\_ARB$ (see Figure~\ref{fig:h_arb_detail}).
+We decompose $H\!\_ARB$ into a control cell $CTRL$ and two child arbitration cells $C\_ARB$ as in Figure~\ref{fig:h_arb_detail}.
 
 \begin{csp}
 H\_ARB\equiv*[CTRL\pll\!C_ARB\pll\!C_ARB]
 \end{csp}
 
+\begin{figure}
+  \centering
+  \includegraphics[width=.7\textwidth]{img/transmitter/H_ARB_bubble_reshuffled.pdf}
+  \caption{$H\!\_ARB$ after bubble reshuffling. Ports are expanded and inverters introduced by bubble reshuffling are shown.}
+  \label{fig:h_arb_bubbled}
+\end{figure}
+
+\noindent Bubble reshuffling $CTRL$ and $C\_ARB$ yields the $H\!\_ARB$ shown in Figure~\ref{fig:h_arb_bubbled}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Control cell $CTRL$}
-With ports
+$CTRL$ sequences communications with the parent of $H\!\_ARB$ and the child arbiters.
+$CTRL$ has ports
 
 \begin{tabular}[]{rl}
 $P$ & parent port \\
@@ -107,14 +121,22 @@ $S_1$ & child arbiter 1 port \\
 $S_2$ & child arbiter 2 port \\
 \end{tabular} \\
 
-\noindent $CTRL$ is specified by
-
 \paragraph{CHP} 
 
 \begin{csp}
 CTRL\equiv
   *[[#{C`1}|#{C`2}->P;S`1;S`1;S`2;S`2;P]
 \end{csp}
+
+\noindent where 
+
+\begin{tabular}[]{rl}
+  $C_1$ & probes child 1 \\
+  $C_2$ & probes child 2 \\
+  $P$ & communicates with the parent \\
+  $S_1$ & communicates with the child 1 arbiter \\
+  $S_2$ & communicates with the child 2 arbiter \\
+\end{tabular} \\ \\
 
 \paragraph{HSE} 
 
@@ -128,7 +150,7 @@ CTRL\equiv
     po-;[~pi]]
 \end{hse}
 
-\noindent we have 3 indistinguishable states--after $[p_i]$, after $s1_o\!\downarrow$, and after $s2_o\!\downarrow$. To distinguish betwen 3 states, we need 2 state variables.
+\noindent There are 3 indistinguishable states--after $[p_i]$, after $s1_o\!\downarrow$, and after $s2_o\!\downarrow$. The correct operation of $CTRL$ precludes reshuffling to break symmetry, so we use 2 state variables to distinguish betwen the 3 states.
 
 \begin{hse}
 CTRL\equiv
@@ -178,7 +200,7 @@ s1i -> y-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Child Arbiter ($C\!\_ARB$)}
-$C\!\_ARB$ determines whether a child's request is present or not when called upon by $CTRL$.
+$C\!\_ARB$ determines whether or not a child's request is present when called upon by $CTRL$.
 
 \paragraph{CHP}
 
@@ -195,8 +217,8 @@ C_ARB\equiv
   $S$ & communicates with $CTRL$ \\
 \end{tabular} \\ \\
 
-\noindent We arbitrate between requests from the child, $\overline{C}$, and 
-requests from $CTRL$, $\overline{S}$.
+We arbitrate between requests from the child, $\overline{C}$, and 
+requests from $CTRL$, $\overline{S}$. If there a child request is present, the arbiter is biased towards selecting the child because $S$ requests will not arrive until $CTRL$ has obtained permission from the parent. Although small, there is a chance that a child's request will be skipped on a given iteration of $CTRL$, but the weakly fair assumption ensures that the child will be serviced eventually.
 
 \noindent If the arbitration selects the child request $\overline{C}$, 
 
@@ -248,7 +270,7 @@ We break this loop by releasing $CTRL$ ($s_o\!\downarrow$) before releasing the 
   \|si->so+;[~si];so-]]
 \end{hse}
 
-\noindent It's not possible to express this in CHP, but an approximate expression would be
+\noindent It's not possible to express this in CHP exactly, but an approximation would be
 
 \begin{csp}
 ARB_C\equiv
@@ -321,54 +343,6 @@ cso | sso -> _so-
 \end{prs2}
 
 \noindent where $\_\hat{s_i}$ and $\_\hat{c_i}$ come from an active-low 2-input arbiter with inputs $\_s_i$ and $\_c_i$.
-\pagebreak
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Rajit's probe evaluation circuit}
-For reference.
-
-\paragraph{CHP}
-
-\begin{csp}
-*[[#X&#E->E!\mathrm{true},X
-  \|~#X&#E->E!\mathrm{false}]]
-\end{csp}
-
-implemented by
-
-\begin{csp}
-*[[#X->[E];E!\mathrm{true},X
-  \|#E->E!\mathrm{false}]]
-\end{csp}
-
-
-\paragraph{HSE}
-
-\begin{hse}
-*[[Xi->t+;[~Xi];t-
-  \|Ei->f+;[~Ei];f-]]
-\pll
-*[[t->[Ei];Eto+;[~Ei];Xo+;Eto-;[~t];Xo-
-  []f->Efo+;[~f];Efo-]]
-\end{hse}
-
-\paragraph{PRS}
-
-\begin{prs2}
-t & _Xo & Ei -> _Eto-
-~_Xo -> _Eto+
-
-_Xo & t -> Efo-
-~f -> Efo+
-
-~_t & ~_Eto & ~Ei -> Xo+
-_t & _Eto -> Xo-
-
-Xo -> _Xo-
-~Xo -> _Xo+
-
-t -> _t-
-~t -> _t+
-\end{prs2}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \end{document}

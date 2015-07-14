@@ -15,7 +15,53 @@ Experience comes from bad design"
 \end{displayquote}
 
 Herein is a graveyard of old, abandoned designs. These are not be formatted or documented particularly well. They remain in whatever state they were abandoned in. In the ideal world, explanations for why a design doesn't work would be particularly helpful. However, with deadlines always looming, there is little time for creating such explanations.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Rajit's probe evaluation circuit}
+For reference.
 
+\paragraph{CHP}
+
+\begin{csp}
+*[[#X&#E->E!\mathrm{true},X
+  \|~#X&#E->E!\mathrm{false}]]
+\end{csp}
+
+implemented by
+
+\begin{csp}
+*[[#X->[E];E!\mathrm{true},X
+  \|#E->E!\mathrm{false}]]
+\end{csp}
+
+
+\paragraph{HSE}
+
+\begin{hse}
+*[[Xi->t+;[~Xi];t-
+  \|Ei->f+;[~Ei];f-]]
+\pll
+*[[t->[Ei];Eto+;[~Ei];Xo+;Eto-;[~t];Xo-
+  []f->Efo+;[~f];Efo-]]
+\end{hse}
+
+\paragraph{PRS}
+
+\begin{prs2}
+t & _Xo & Ei -> _Eto-
+~_Xo -> _Eto+
+
+_Xo & t -> Efo-
+~f -> Efo+
+
+~_t & ~_Eto & ~Ei -> Xo+
+_t & _Eto -> Xo-
+
+Xo -> _Xo-
+~Xo -> _Xo+
+
+t -> _t-
+~t -> _t+
+\end{prs2}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{arbiter $CTRL$ with passive $S$ ports}
 This was a candidate arbiter $CTRL$ design. 

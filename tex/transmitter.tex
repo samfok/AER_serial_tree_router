@@ -16,7 +16,7 @@ column arbiter sequences the transmission of their x addresses. Once all of the
 x addresses have been transmitted, the tail bit is transmitted to signal the 
 end of the packet.
 
-\subsection{Transmitter Decomposition}
+\section{Transmitter Decomposition}
 Here we will start from a high level description of the transmitter and then decompose
 the description into a set of concurrent, parallel processes. 
 The highest level description of the address-event transmitter $AEXT$ is
@@ -213,7 +213,7 @@ Now that we have decomposed the transmitter, we will proceed to HSE and PRS
 for the decomposed components.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Event Generator (EVT)}
+\section{Event Generator (EVT)}
 EVT interfaces the neuron with the rest of the transmitter. 
 There is one EVT per neuron.
 EVT has the following ports:
@@ -297,7 +297,7 @@ u  -> _po-
 \end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Interface (INT)}
+\section{Interface (INT)}
 
 There are two sets of INTs in the transmitter:
 one for the rows and another for the columns.
@@ -395,7 +395,7 @@ y -> vo-
 \end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Arbiter (ARB)}
+\section{Arbiter (ARB)}
 
 The arbiter cell ARB sequences requests from rows or columns by arbitrating between concurrent requests. 
 Each ARB instance handles requests from two children and sends requests to its parent. 
@@ -494,7 +494,7 @@ from the arbiter circuit arrives before the reset from the parent cell acknowled
 We will fix these issues in the next section.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{A Better Arbiter}
+\section{A Better Arbiter}
 \label{subsec:arb2}
 
 We eliminate the timing assumption and derive CHP and HSE for a greedy but fair arbiter cell here.
@@ -508,7 +508,7 @@ The arbiter cell is composed of $N-1$ \code{ARB2} cells composed in a binary tre
 The derivation for \code{ARB2} is in section~\ref{subsec:arb2_derivation}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Latch (LTH)}
+\section{Latch (LTH)}
 
 LTH is responsible for storing the column address of a neuron. 
 LTH has the following ports:
@@ -557,7 +557,7 @@ How does sequencer enforce this?
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Y Address Controller (ADY)}
+\section{Y Address Controller (ADY)}
 
 ADY captures the row address and has the following ports:
 
@@ -593,7 +593,7 @@ PRS is given by
 \end{prs}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{X Address Controller (ADX)}
+\section{X Address Controller (ADX)}
 
 ADX captures the column address and has the following ports:
 
@@ -628,7 +628,7 @@ PRS is given by
 \end{prs}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Sequencer (SEQ)}
+\section{Sequencer (SEQ)}
 
 \begin{tabular}[]{rll}
   \code{S} & (active) & (\code{si} and \code{sod}) communicates with LTH \\
@@ -704,504 +704,5 @@ vi&~rk -> vo+
 \end{prs}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Building blocks}
-Here we describe some of the basic building blocks
-
-\subsection{Arbiter}
-\label{subsec:arb}
-
-The basic arbiter has two inputs $a1_i$ and $a2_i$, two intermediate variables $a1$ and $a2$, 
-and two outputs $a1_o$ and $a2_o$.
-$a1_o$ and $a2_o$ indicate which of the inputs the arbiter has selected.
-To select an input, the arbiter uses the PRS
-
-\begin{prs2}
-a1i&~a2->a1+
-~a1i|a2->a1-
-
-a2i&~a1->a2+
-~a2i|a1->a2-
-\end{prs2}
-
-When $a1_i\land\neg\,a2_i$, the cell is stable at $a1\land\neg\,a2$.
-When $\neg\,a1_i\land\,a2_i$, the cell is stable at $\neg\,a1\land\,a2$.
-To see the arbitration mechanism, consider the case when $a1_i\land\,a2_i$ is true:
-
-\begin{prs2}
-~a2->a1+
-a2->a1-
-
-~a1->a2+
-a1->a2-
-\end{prs2}
-
-\noindent which describes two cross-coupled inverters. 
-When $a1_i\land\,a2_i$, circuit is bistable at either $a1\land\neg\,a2$ or $\neg\,a1\land\,a2$. 
-Intermediate states are unstable. The time it takes to resolve the metastability follows an exponential distribution, so it's technically unbounded.
-
-To be CMOS-implementable, we invert the senses of $a1$ and $a2$ to produce
-
-\begin{prs2}
-a1i&_a2->_a1-
-~a1i|~_a2->_a1+
-
-a2i&_a1->_a2-
-~a2i|~_a1->_a2+
-\end{prs2}
-
-\noindent which describes two cross-coupled NAND gates.
-
-We don't want output the cross-coupled NAND gates' outputs while they're in a metastable state,
-so we use a filter circuit that passes on the outputs only when they've separated by at least 
-the threshold voltage of a PMOS transistor.
-
-\begin{prs2}
-~_a1 & _a2 -> a1o+
-_a1 -> a1o-
-
-~_a2 & _a1 -> a2o+
-_a2 -> a2o-
-\end{prs2}
-
-\subsubsection{Active Low Arbiter}
-
-We can also arbitrate between active low signals. 
-With inputs $\_a1_i$ and $\_a2_i$, intermediate variables $a1$ and $a2$, and outputs $\_a1_o$ and $\_a2_o$,
-we now use cross-coupled NOR gates to arbitrate,
-
-\begin{prs2}
-_a1i|a2->a1-
-~_a1i&~a2->a1+
-
-_a2i|a1->a2-
-~_a2i&~a1->a2+
-\end{prs2}
-
-\noindent and filter the outputs with
-
-\begin{prs2}
-a1 & ~a2 -> _a1o-
-~a1 -> _a1o+
-
-a2 & ~a1 -> _a2o-
-~a2 -> _a2o+
-\end{prs2}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Synchronizer}
-\label{subsec:sync}
-When we cannot assume the stability of a signal $x$, we use the synchronizer to generate
-a stable representation of $x$.
-
-\begin{csp}
-SYNC\equiv*[[#{Re}&#X->R;Re;R
-          \|#{Re}&~#X->R;Re;R]]
-\end{csp}
-
-where
-
-\begin{tabular}[c]{rl}
-$Re$ & is the read-enable signal \\
-$X$ & is the input signal \\
-$R$ & is a stabilized representation of $X$ \\
-\end{tabular}
-
-In words, when $Re$ is activated, the synchronizer samples $X$ and outputs a stable representation of $X$.
-However, as we'll see, this is not implementable because of the negated probe on $X$. 
-An HSE of $SYNC$ is
-
-\begin{hse}
-sync\equiv*[[re&x->r.0+;[~re];r.0-
-        \|re&~x->r.1+;[~re];r.1-]]
-\end{hse}
-
-$sync$ is not implementable because $x$ may change at any time.
-each branch of the arbitration statement must do two things:
-prevent the other branch from proceeding and raise the output. In the case that a branch
-has blocked the other but before it has raised its output, the circuit could deadlock if $x$ changes value.
-To fix this situation, we introduce stabilized intermediate variables $a.0$ and $a.1$ to
-stabilize the selection of one of the two gaurds.
-
-\begin{hse}
-sync\equiv*[[re&x->a.0+;[a.0];r.0+;[~re];a.0-;[~a.0];r.0-
-        \|re&~x->a.1+;[a.1];r.1+;[~re];a.1-;[~a.1];r.1-]]
-\end{hse}
-
-Next, we further decompose $sync$ into concurrent stabilization (aka integration) and arbitration processes.
-
-\begin{hse}
-sync\equiv*[[re&~x];a.0+;[~re];a.0-]]
-     \pll*[[re&x];a.1+;[~re];a.1-]]
-     \pll*[[a.0->r.0+;[~a.0&~a.1];r.0-
-        \|a.1->r.1+;[~a.0&a.1];r.1-]]
-\end{hse}
-
-Arbitration now occurs between $a.0$ and $a.1$, which are stable signals as opposed to unstable $x$.
-Unlike typical arbiter circuits, $sync$ will not execute both branches of its arbitration statement
-if both $a.0$ and $a.1$ are true. Rather, $sync$ will only execute one of the branches before 
-$a.0$ and $a.1$ are reset. The three processes are implemented by the PRS
-
-\begin{prs2}
-x->_x-
-~x->_x+
-
-~_re&~x->a.0+
-_re->a.0-
-
-~_re&~_x->a.1+
-_re->a.1-
-
-_r.1&a.0->_r.0-
-~_r.1|(~a.0&~a.1)->_r.0+
-_r.0&a.1->_r.1-
-~r.0|(~a.0&~a.1)->_r.1+
-\end{prs2}
-
-A standard filter circuit composed of inverters with cross-coupled pMOS gates 
-then filters the output signals to resolve metastability and output $r.0$ and $r.1$.
-
-\section{Transmitter Derivations}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{A Better Arbiter}
-\label{subsec:arb2_derivation}
-
-This derivation supports section~\ref{subsec:arb2}.
-
-\begin{csp}
-ARB(n)\equiv*[[\langle\|i:1..n:#{Ci}->Ci;Ci\rangle]]
-\end{csp}
-
-\noindent We decompose the n-child arbiter cell into a binary tree of 
-two-child/one-parent arbiters cells given by
-
-\begin{csp}
-ARB2\equiv
-  *[[#{C1}->R;C1;C1;R
-    \|#{C2}->R;C2;C2;R]]
-\end{csp}
-
-\begin{figure}
-  \centering
-  \begin{subfigure}[t]{.4\textwidth}
-    \includegraphics[width=\textwidth]{img/transmitter/arb2.pdf}
-    \caption{2-input arbiter cell $ARB2$. 
-    The environment consists of parent process $P$ and two children processes $CH1$ and $CH2$.}
-    \label{fig:arb2}
-  \end{subfigure}
-  ~
-  \begin{subfigure}[t]{.4\textwidth}
-    \includegraphics[width=\textwidth]{img/transmitter/ctrl.pdf}
-    \caption{$ARB2$ decomposed into control and arbitration processes. 
-    Dashed lines are used for probing only.}
-    \label{fig:ctrl}
-  \end{subfigure}
-  \caption{$ARB2$ definition and initial decomposition}
-\end{figure}
-
-\noindent (see Figure~\ref{fig:arb2}). 
-The arbiter cell at the top of the binary tree will have its parent port simply connected back to itself to self-acknowledge.
-
-Based on~\cite{precise_exceptions} (section 3.3 Evaluating a Probe),
-we decompose the $ARB2$ into one central control process and 
-two child control processes (see Figure~\ref{fig:ctrl}).
-
-\begin{csp}
-ARB2\equiv\!CTRL\pll\!C_CTRL\pll\!C_CTRL
-\end{csp}
-
-\noindent where
-\begin{csp}
-CTRL\equiv
-  *[[#{C1}|#{C2}->P;S1;S1;S2;S2;P]]
-
-C_CTRL\equiv
-  *[[#{C}->S;C;C;S]
-    \|#{S}->S;S]]
-\end{csp}
-
-\noindent In words for $CTRL$,
-
-\begin{tabular}[]{rl}
-  $\overline{C1}\lor\overline{C2}$ & wait either child request \\
-  $P$ & request parent \\
-  $S1$ & signal or bypass child 1 through $C\_CTRL$ \\
-  $S1$ & wait for child 1 or bypass to complete \\
-  $S2$ & signal or bypass child 2 through $C\_CTRL$ \\
-  $S2$ & wait for child 2 or bypass to complete \\
-  $P$ & release parent \\
-\end{tabular} \\ \\
-
-By only requesting the parent once before servicing both children, $CTRL$ implements the greedy, but fair
-arbitration algorithm.
-
-\noindent In words for $C\_CTRL$,
-
-\begin{tabular}[]{rl}
-  $\overline{C}$ & wait for child request \\
-  $S$ & Sync with $CTRL$ -- Indicates that child 1 should go ahead. \\
-  $C$ & acknowledge child 1's request \\
-  $C$ & wait for child 1 to complete \\
-  $S$ & Sync with $CTRL$ -- Indicates that child 1 is finished. \\ \\
-  $\vert$ & \\ \\
-  $\overline{S}$ & Wait for $CTRL$ \\
-  $S$ & Sync with $CTRL$ -- Indicates that child 1 should be skipped. \\
-  $S$ & Sync with $CTRL$ -- Indicates that child 1 has been skipped. \\
-\end{tabular} \\ \\
-
-\noindent When a child request is present, the arbitration is biased towards seeing
-the first branch's request before second branch's request.
-
-Next, we decompose $C\_CTRL$ into gating, bypass, and arbitration processes. 
-
-\begin{csp}
-C_CTRL\equiv\!C_GATE\pll\!C_BYPASS\pll\!C_ARB
-\end{csp}
-
-\noindent where
-
-\begin{csp}
-C_GATE\equiv
-  *[[#{C}->A;S;C;C;S;A]]
-
-C_BYPASS\equiv
-  *[[#{S}->A;S;S;A]]
-
-C_ARB\equiv
-  *[[#{A1}->A1;A1\|#{A2}->A2;A2]]
-\end{csp}
-
-\noindent $S$ is shared between $CTRL$. 
-We introduce $C\_S$ to make the merging and splitting of the $S$ signals explicit.
-(This is definition is technically incorrect, but I'm not sure at the moment how to fix it...)
-
-\begin{csp}
-C_S\equiv
-  *[[S;SB,SG;SB,SG;S]]
-\end{csp}
-
-\begin{figure}
-  \centering  
-  \includegraphics[width=.8\textwidth]{img/transmitter/arb.pdf}
-  \caption{ARB2 decomposed into control and child subprocesses}
-  \label{fig:arb2_decomp}
-\end{figure}
-
-\noindent (see Figure~\ref{fig:arb2_decomp}). Next, we pipeline $C\_GATE$ and $C\_BY\!P\!ASS$ (and fold the guards into the communications).
-
-\begin{csp}
-C_GATE\equiv
-  *[C\star(A,S);C\star(A,S)]
-
-C_BYPASS\equiv
-  *[S1\star\!A;S1\star\!A]
-\end{csp}
-
-Ports used as gaurds are implemented with passive channels and
-the $\star$ operator also requires that one of the channels be passive. 
-These restrictions imply that $S1$ and $S2$ are active in the control process.
-Likewise, $S$ is passive in the $C\_GATE$ and $C\_BY\!P\!ASS$ processes. 
-
-Our next step is to convert the CHP into HSE and PRS, 
-and as we go through the HSE and PRS we will make changes to the design to improve the implementation.
-Therefore, let's collect our process definitions at this point before moving forward.
-
-\begin{csp}
-CTRL\equiv
-  *[[#{C1}|#{C2}->P;S1;S1;S2;S2;P]]
-
-C_S\equiv
-  *[(SB,SG)\star\!S;(SB,SG)\star\!S]
-  
-C_GATE\equiv
-  *[C\star(A,S);C\star(A,S)]
-
-C_BYPASS\equiv
-  *[S\star\!A;S\star\!A]
-
-C_ARB\equiv
-  *[[#{A1}->A1;A1\|#{A2}->A2;A2]]
-\end{csp}
-
-\noindent Starting with the HSE for $CTRL$,
-
-\begin{hse}
-CTRL\equiv
-  *[[c1i|c2i];po+;[pi];
-    s1o+;[s1i];s1o-[~s1i];
-    s2o+;[s2i];s2o-;[~s2i];
-    po-;[~pi]]
-\end{hse}
-
-
-\noindent This design will be problematic because 
-we won't be able to distinguish between three states of the $CTRL$ HSE: 
-between \code{[pi]} and \code{s1o$\uparrow$},
-between \code{[$\neg$s1i]} and \code{s2o$\uparrow$}, and 
-between \code{[$\neg$s2i]} and \code{po$\downarrow$}. 
-One approach would be to introduce state variables \code{x} and \code{y}:
-
-\begin{hse}
-  *[[c1i|c2i];po+;[pi];
-    s1o+;[s1i];x+;s1o-;[~s1i];y+,
-    s2o+;[s2i];x-;s2o-;[~s2i];
-    po-;[~pi];y-]
-\end{hse}
-
-\noindent However, state variables lead to very messy PRS implementations, 
-and it's impossible to reshuffle this HSE for two reasons.
-First, the $CTRL$ process must have permission from the parent before allowing the children to go ahead.
-This condition is only satisfied after \code{[ri]}.
-Second, the $CTRL$ process must know that its children have completed before releasing the parent.
-This condition is only satisfied after \code{[$\neg$s2i]} because the $S1$ and $S2$ ports are active.
-
-Since the active/passive constraints on port $S$ are causing us pain, let's revist the CHP.
-Recall that $\star$ operators require at least one port to be passive. 
-$\star$ only affects $S$ in the $C\_BY\!P\!ASS$ process. Removing the $\star$ operator yields
-
-\begin{csp}
-C_BYPASS\equiv
-  *[S;A;S;A]
-\end{csp}
-
-\noindent Now we can make the \code{S1} and \code{S2} ports passive in $CTRL$:
-
-\begin{hse}
-CTRL\equiv
-  *[[c1i|c2i];po+;[pi];
-    [s1i];s1o+;[~s1i];s1o-;
-    [s2i];s2o+;[~s2i];s2o-;
-    po-;[~pi]]
-\end{hse}
-
-\noindent and reshuffle to break symmetry by delaying
-\code{s1o$\downarrow$} and \code{s2o$\downarrow$} until after the
-downphase of the $P$ communication.
-
-\begin{hse}
-CTRL\equiv
-  *[[c1i|c2i];po+;[pi];
-    [s1i];s1o+;[~s1i];
-    [s2i];s2o+;[~s2i];
-    po-;[~pi];s1o-,s2o-]
-\end{hse}
-
-\noindent This approximately corresponds to the CHP
-
-\begin{csp}
-  *[[#{C1}|#{C2}->P;S1;S1\star(S2;S2\star\!P)]]
-\end{csp}
-
-\noindent It's only approximate because the $\star$ operators would have \code{s1o} and \code{s2o}
-drop in sequence rather than in parallel.
-Now, we move on to the HSE for $C\_S$, $C\_GATE$ and $C\_BY\!P\!ASS$.
-
-\begin{hse}
-C_S\equiv
-  *[[sgi|sbi];so+;[si];sgo+,sbo+;
-    [~sgi&~sbi];so-;[~si];sgo-,sbo-]
-
-C_GATE\equiv    
-  *[[ci];ao+,so+;[ai&si];co+;
-    [~ci];ao-,so-;[~ai&~si];co-]
-
-C_BYPASS\equiv
-  *[so+;[si];ao+;[ai];
-    so-;[~si];ao-;[~ai]]
-\end{hse}
-
-\noindent This version of $C\_BY\!P\!ASS$ could cause the system to deadlock.
-Consider the case that the child request is present (\code{ci} in $C\_GATE$ is high)
-but $C\_BY\!P\!ASS$ manages to grab the arbiter before $C\_GATE$. 
-$C\_BY\!P\!ASS$ will get stuck at \code{[$\neg$si]} because 
-$C\_S$ is stuck at \code{[$\neg$sgi$\land\neg$sbi]} because
-$C\_GATE$ is stuck at \code{[ai$\land$si]}. $C\_GATE$ is waiting for the arbiter but 
-$C\_BYP\!A\!SS$ won't give up the arbiter.
-To resolve this deadlock, $C\_BYPASS$ must release the arbiter and controller concurrently.
-
-\noindent CHP:
-
-\begin{csp}
-C_BYPASS\equiv
-  *[S;A;S,A]
-\end{csp}
-
-\noindent HSE:
-
-\begin{hse}
-C_BYPASS\equiv
-  *[so+;[si];ao+;[ai];
-    so-,ao-;[~si&~ai]]
-\end{hse}
-
-\noindent Note that now the $C\_GATE$ process will never actually be skipped because
-the $SKIP$ process cannot finish until \code{s1i} goes low. Since \code{s1o} is
-a wired or, \code{s1i} will not go low until both \code{s1o} lines go low.
-
-\noindent Finally, the HSE for $C\_ARB$:
-
-\begin{hse}
-C_ARB\equiv
-  *[[a1i];a1o+;[~a1i];a1o-
-   \|[a2i];a2o+;[~a2i];a2o-]
-\end{hse}
-
-\noindent The PRS for \code{CTRL}:
-
-\begin{prs2}
-c1i | c2i -> po+
-~s2i & s2o -> po-
-
-pi & s1i -> s1o+
-pi & ~s1i & s1o & s2i -> s2o+
-~pi -> s1o-, s2o-
-\end{prs2}
-
-\noindent PRS for $C\_S$:
-
-\begin{prs}
-sgi | sbi -> so+
-~sgi & ~sbi -> so-
-
-si -> sgo+, sbo+
-~si -> sgo-, sbo-
-\end{prs}
-
-\noindent The PRS for $C\_GATE$:
-
-\begin{prs2}
-c1i -> ao+, so+
-~c1i -> ao-, so-
-
-ai & si -> c1o+
-~ai & ~si -> c1o-
-\end{prs2}
-
-\noindent The PRS for $C\_BY\!P\!ASS$:
-
-\begin{prs2}
-~si&~ai -> so+
-si -> ao+
-ai -> so-, ao-
-\end{prs2}
-
-\noindent The PRS for $C\_ARB$:
-
-\begin{prs2}
-a1i & _a2o -> _a1o-
-~a1i | ~_a2o -> _a1o+
-
-~_a1o & _a2o -> a1o+
-_a1o -> a1o-
-
-a2i & _a1o -> _a2o-
-~a2i | ~_a1o -> _a2o+
-
-~_a2o & _a1o -> a2o+
-_a2o -> a2o-
-\end{prs2}
-
-\noindent which is just a standard 2-input arbiter (see section~\ref{subsec:arb})
-with inputs \code{a1lo} and \code{a1so}
 
 \end{document}
