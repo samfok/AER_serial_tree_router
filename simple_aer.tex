@@ -1,0 +1,64 @@
+\documentclass{article}
+\usepackage{mystyle}
+
+\begin{document}
+\title{Simple AER}
+\author{Sam Fok}
+\maketitle
+
+In this document, we develop a simple address-event representation (AER) system for an array of $n$ neurons.
+
+\begin{csp}
+NT(n)\equiv\langle\pll\!i:0..n\-1:*[[P;P]]\rangle
+NR(n)\equiv\langle\pll\!i:0..n\-1:*[[P;P]]\rangle
+\end{csp}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\part{Transmitter ($AEXT$)}
+
+When a neuron spikes, the transmitter sends the neuron's addresss.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Transmitter Decomposition}
+
+The highest level specification of the transmitter is given by
+
+\begin{csp}
+AEXT(n)\equiv
+  *[[\langle\|\!i:0..n\-1:#{C`i}->T!i;C`i;T!i;C`i]]
+\end{csp}
+
+\noindent We decompose $AEXT$ into control $CTRL$ and data $DATA$ processes.
+
+\begin{csp}
+AEXT(n)\equiv*[CTRL(n)\pll\!DATA(n)]
+\end{csp}
+
+\begin{csp}
+CTRL(n)\equiv
+  *[[\langle\|i:0..n\-1:#{C`i}->C`i;C`i]]
+\end{csp}
+
+\begin{csp}
+DATA(n)\equiv
+  \langle\pll\!i:0..n\-1:*[[C`i;A`i;T!i;T!i;A`i;C`i]]\rangle
+\end{csp}
+
+$CTRL$ is just an $n$-way arbiter, which we develop elsewhere.
+
+\begin{csp}
+TX(n)\equiv
+  *[[\langle[]i:0..n\-1:#{S`i}->T!i;S`i;T!i;S`i\rangle]]
+\end{csp}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\part{Receiver ($AERV$)}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Receiver Decomposition}
+
+The highest level of the receiver is given by
+
+\begin{csp}
+AERV(n)\equiv*[[\langle[]i:0..n\-1:C`i;C`i]]
+\end{csp}
+\end{document}
