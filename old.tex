@@ -15,6 +15,105 @@ Experience comes from bad design"
 \end{displayquote}
 
 Herein is a graveyard of old, abandoned designs. These are not be formatted or documented particularly well. They remain in whatever state they were abandoned in. In the ideal world, explanations for why a design doesn't work would be particularly helpful. However, with deadlines always looming, there is little time for creating such explanations.
+
+\section{Old Arbiter ($ARB$)}
+
+The arbiter cell ARB sequences requests from rows or columns by arbitrating between concurrent requests. 
+Each ARB instance handles requests from two children and sends requests to its parent. 
+To arbitrate between $N$ children, we use $N-1$ ARB cells arranged in a binary tree.
+ARB is designed to be greedy but fair.
+ARB's CHP is derived from
+
+\begin{csp}
+ARB\equiv*[[#{L`1}->R;L`1;L`1;R
+          \|#{L`2}->R;L`2;L`2;R]]
+\end{csp}
+
+where
+
+\begin{tabular}[c]{rl}
+$L_1$ & communicates with the first child \\
+$L_2$ & communicates with the second child \\
+$R$ & communicates with the parent arbiter \\
+\end{tabular}
+
+The arbitration operator can be broken out into its own process
+
+\begin{csp}
+ARB\equiv\! *[[#{L`1}->A`1;R;L`1;L`1;R;A`1]]
+      \pll*[[#{L`2}->A`2;R;L`2;L`2;R;A`2]]
+      \pll*[[#{A`1}->A`1;A`1\|#{A`2}->A`2;A2]]
+\end{csp}
+
+The 2-way arbiter has ports:
+
+\begin{tabular}[]{rll}
+  \code{R} & (active) & transmits request to parent \\
+  \code{L1} & (passive) & receives requests from left child 1 \\
+  \code{A1} & (local) & request 1 to internal arbitration circuit \\
+  \code{R1} & (local) & or'ed with \code{R2} to produce \code{R} \\
+  \code{L2} & (passive) & receives requests from left child 2 \\
+  \code{A2} & (local) & request 2 to internal arbitration circuit \\
+  \code{R2} & (local) & or'ed with \code{R2} to produce \code{R} \\
+\end{tabular} \\ \\
+
+The existing HSE for the arbiter cell is given by
+
+\begin{hse}
+*[[l1i&~ri];a1o+;r1o+;[ri&a1i];l1o+;
+  [~l1i];a1o-;r1o-;[~a1i];l1o-]
+
+*[[l2i&~ri];a2o+;r2o+;[ri&a2i];l2o+;
+  [~l2i];a2o-;r2o-;[~a2i];l2o-]
+\end{hse}
+
+In words, for the process communicating with the first child,
+
+\begin{tabular}[]{rl}
+  \code{[l1i$\land$~ri]} & wait for a child's request and to not already have the parent's go-ahead \\
+  \code{a1o$\uparrow$} & request permission from the arbiter circuit \\
+  \code{r1o$\uparrow$} & request permission from the parent \\
+  \code{[ri$\land$a1i]} & wait for permission from the parent and arbiter circuit \\
+  \code{l1o$\uparrow$} & signal child to go-ahead \\
+  \code{[$\neg$l1i]} & wait for child to finish \\
+  \code{a1o$\downarrow$} & withdraw request from the arbiter circuit \\
+  \code{r1o$\downarrow$} & withdraw request from the parent \\
+  \code{[$\neg$a1i]} & wait for arbiter circuit to withdraw go-ahead permission \\
+  \code{l1o$\downarrow$} & reset child go-ahead signal \\
+\end{tabular} \\ \\
+
+The process communicating with the second child has the equivalent semantics.
+The initial \code{$\neg$ri} guard ensures fairness of the arbiter cell.
+The existing PRS is given by
+
+\begin{prs2}
+l1i & _ri -> _a1o-
+~l1i -> _a1o+
+
+a1o & _a2i -> _a1i-
+~a1o | ~_a2i -> _a1i+
+
+~_a1i & ~_ri & _a2i -> l1o+
+_a1i | _ri -> l1o-
+\end{prs2}
+
+\begin{prs2}
+l2i & _ri -> _a2o-
+~l2i -> _a2o+
+
+a2o & _a1i -> _a2i-
+~a2o | ~_a1i -> _a2i+
+
+~_a2i & ~_ri & _a1i -> l2o+
+_a2i | _ri -> l2o-
+\end{prs2}
+
+Note that the existing PRS does not respect the existing HSE. 
+Namely, the \code{[$\neg$a1i]} guard is not respected.
+Correct operation of the arbiter cell assumes that the reset of the filter 
+from the arbiter circuit arrives before the reset from the parent cell acknowledge.
+We will fix these issues in the next section.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Rajit's probe evaluation circuit}
 For reference.

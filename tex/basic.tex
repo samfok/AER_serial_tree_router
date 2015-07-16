@@ -4,13 +4,52 @@
 \part{Building blocks}
 Here we describe some of the basic building blocks.
 
-\section{Arbiter}
+\section{Arbiter ($ARB$)}
 \label{subsec:arb}
 
-The basic arbiter has two inputs $a1_i$ and $a2_i$, two intermediate variables $a1$ and $a2$, 
-and two outputs $a1_o$ and $a2_o$.
-$a1_o$ and $a2_o$ indicate which of the inputs the arbiter has selected.
-To select an input, the arbiter uses the PRS
+The basic arbiter sequences between the possibly simultaneous requests of two clients.
+
+\paragraph{CHP}
+
+\begin{csp}
+ARB\equiv*[[#{A`1}->A1;A1\|#{A`2}->A2;A2]]
+\end{csp}
+
+\noindent where
+
+\begin{tabular}[]{rll}
+  \code{A1} & (passive) & communicates with client 1 \\
+  \code{A2} & (passive) & communicates with client 2 \\
+\end{tabular} \\
+
+\paragraph{HSE}
+
+Directly translating the CHP,
+
+\begin{hse}
+  *[[a1i->a1o+;[~a1i];a1o-
+    \|a2i->a2o+;[~a2i];a2o-]
+\end{hse}
+
+\noindent Introducing intermediate variables $a_1$ and $a_2$,
+
+\begin{hse}
+  *[[a1i->a1+;[a1];a1o+;[~a1i];a1-;[~a1];a1o-
+    \|a2i->a2+;[a2];a2o+;[~a2i];a2-;[~a2];a2o-]
+\end{hse}
+
+\noindent Breaking out the arbitration from communication with the child,
+
+\begin{hse}
+  *[[a1i->a1+;[~a1i];a1-
+    \|a2i->a2+;[~a2i];a2-]
+  *[[a1->a1o+;[~a1];a1o-
+    []a2->a2o+[~a2];a2o-]]
+\end{hse}
+
+\paragraph{PRS}
+
+The arbitration process is implemented by 
 
 \begin{prs2}
 a1i&~a2->a1+
@@ -50,7 +89,7 @@ a2i&_a1->_a2-
 
 We don't want output the cross-coupled NAND gates' outputs while they're in a metastable state,
 so we use a filter circuit that passes on the outputs only when they've separated by at least 
-the threshold voltage of a PMOS transistor.
+the threshold voltage of a PMOS transistor. The client communication process is implemented by
 
 \begin{prs2}
 ~_a1 & _a2 -> a1o+
@@ -85,7 +124,7 @@ a2 & ~a1 -> _a2o-
 \end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Synchronizer}
+\subsection{Synchronizer ($SYNC$)}
 \label{subsec:sync}
 When we cannot assume the stability of a signal $x$, we use the synchronizer to generate
 a stable representation of $x$.

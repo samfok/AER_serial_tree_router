@@ -213,18 +213,35 @@ Now that we have decomposed the transmitter, we will proceed to HSE and PRS
 for the decomposed components.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Event Generator (EVT)}
+\section{Event Generator ($EVT$)}
 EVT interfaces the neuron with the rest of the transmitter. 
 There is one EVT per neuron.
-EVT has the following ports:
+
+\paragraph{CHP}
+
+Safe version:
+
+\begin{csp}
+EVT\equiv
+  *[P;R;C;P;R;C]
+\end{csp}
+
+\noindent Closest to implementation:
+
+\begin{csp}
+EVT\equiv
+  *[P\star\!R;C;P\star\!R;C]
+\end{csp}
+
+where
 
 \begin{tabular}[]{rll}
-  \code{P} & (passive) & communicates with the neuron \\
-  \code{R} & (active) & communicates with row interface INT \\
-  \code{C} & (active) & communicates with the column latch LTH \\
+  $P$ & (passive) & communicates with the neuron \\
+  $R$ & (active) & communicates with row interface $INT$ \\
+  $C$ & (active) & signals the column latch $LTH$ \\
 \end{tabular} \\ \\
 
-EVT's HSE is given by
+\paragraph{HSE}
 
 \begin{hse}
 *[[pi];ro+;[ri];co+,po+;
@@ -243,7 +260,9 @@ In words,
 \end{tabular} \\ \\
 
 Note that the \code{[$\neg$ri]} wait also indicates that the sequencer is done with this row 
-(and acknowledges \code{co$\uparrow$}). EVT's PRS is given by 
+(and acknowledges \code{co$\uparrow$}).
+
+\paragraph{PRS}
 
 \begin{prs2}
  pi&~ri->ro+
@@ -258,9 +277,6 @@ reset, \code{[$\neg$pi]},
 we do not try to raise \code{ro} while executing \code{ro$\downarrow$}. 
 The \code{co$\uparrow$,po$\uparrow$} guard is strengthened with \code{ro} because \code{ri} is a wire connecting all EVT instances in a row. We only want the neurons that have actually spiked
 to proceed with raising their column and neuron reset lines.
-
-\emph{The \code{co$\uparrow$} transition is not explicitely acknowledged. 
-I hope this is accounted for by \code{$\neg$ri}...Check this after implementing LTH.}
 
 Next, we explicitly represent the isochronic fork between
 \code{co} and \code{ro} using a local variable \code{u}.
@@ -297,7 +313,7 @@ u  -> _po-
 \end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Interface (INT)}
+\section{Interface ($INT$)}
 
 There are two sets of INTs in the transmitter:
 one for the rows and another for the columns.
@@ -305,12 +321,29 @@ The row INTs communicate with
 EVT, the row arbiter, and the y-address controller (ADY).
 The column INTs communicate with 
 the column address latch (LTH), the column arbiter, and the x-address controller (ADX).
-Each row (column) INT has the following ports:
+
+\paragraph{CHP}
+
+Safest:
+
+\begin{csp}
+INT\equiv
+  *[V;C;E;V;C;E]
+\end{csp}
+
+Closest to implementation:
+
+\begin{csp}
+INT\equiv
+  *[V\star\!(C,E);V\star\!(C,E)]
+\end{csp}
+
+Each row (column) $INT$ has the following ports:
 
 \begin{tabular}[]{rll}
-  \code{V} & (passive) & receives requests from EVT (LTH) \\
-  \code{C} & (active) & transmits request to the row (column) arbiter \\
-  \code{E} & (active) & communicates with the row (column) address controller \\
+  $V$ & (passive) & receives requests from $EVT$ ($LTH$) \\
+  $C$ & (active) & transmits request to the row (column) arbiter \\
+  $E$ & (active) & communicates with the row (column) address controller \\
 \end{tabular} \\ \\
 
 For row INTs, \code{vi} is the wired-or output of all EVT \code{ro} ports in the row. Likewise,
@@ -395,120 +428,10 @@ y -> vo-
 \end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Arbiter (ARB)}
-
-The arbiter cell ARB sequences requests from rows or columns by arbitrating between concurrent requests. 
-Each ARB instance handles requests from two children and sends requests to its parent. 
-To arbitrate between $N$ children, we use $N-1$ ARB cells arranged in a binary tree.
-ARB is designed to be greedy but fair.
-ARB's CHP is derived from
-
-\begin{csp}
-ARB\equiv*[[#{L`1}->R;L`1;L`1;R
-          \|#{L`2}->R;L`2;L`2;R]]
-\end{csp}
-
-where
-
-\begin{tabular}[c]{rl}
-$L_1$ & communicates with the first child \\
-$L_2$ & communicates with the second child \\
-$R$ & communicates with the parent arbiter \\
-\end{tabular}
-
-The arbitration operator can be broken out into its own process
-
-\begin{csp}
-ARB\equiv\! *[[#{L`1}->A`1;R;L`1;L`1;R;A`1]]
-      \pll*[[#{L`2}->A`2;R;L`2;L`2;R;A`2]]
-      \pll*[[#{A`1}->A`1;A`1\|#{A`2}->A`2;A2]]
-\end{csp}
-
-The 2-way arbiter has ports:
-
-\begin{tabular}[]{rll}
-  \code{R} & (active) & transmits request to parent \\
-  \code{L1} & (passive) & receives requests from left child 1 \\
-  \code{A1} & (local) & request 1 to internal arbitration circuit \\
-  \code{R1} & (local) & or'ed with \code{R2} to produce \code{R} \\
-  \code{L2} & (passive) & receives requests from left child 2 \\
-  \code{A2} & (local) & request 2 to internal arbitration circuit \\
-  \code{R2} & (local) & or'ed with \code{R2} to produce \code{R} \\
-\end{tabular} \\ \\
-
-The existing HSE for the arbiter cell is given by
-
-\begin{hse}
-*[[l1i&~ri];a1o+;r1o+;[ri&a1i];l1o+;
-  [~l1i];a1o-;r1o-;[~a1i];l1o-]
-
-*[[l2i&~ri];a2o+;r2o+;[ri&a2i];l2o+;
-  [~l2i];a2o-;r2o-;[~a2i];l2o-]
-\end{hse}
-
-In words, for the process communicating with the first child,
-
-\begin{tabular}[]{rl}
-  \code{[l1i$\land$~ri]} & wait for a child's request and to not already have the parent's go-ahead \\
-  \code{a1o$\uparrow$} & request permission from the arbiter circuit \\
-  \code{r1o$\uparrow$} & request permission from the parent \\
-  \code{[ri$\land$a1i]} & wait for permission from the parent and arbiter circuit \\
-  \code{l1o$\uparrow$} & signal child to go-ahead \\
-  \code{[$\neg$l1i]} & wait for child to finish \\
-  \code{a1o$\downarrow$} & withdraw request from the arbiter circuit \\
-  \code{r1o$\downarrow$} & withdraw request from the parent \\
-  \code{[$\neg$a1i]} & wait for arbiter circuit to withdraw go-ahead permission \\
-  \code{l1o$\downarrow$} & reset child go-ahead signal \\
-\end{tabular} \\ \\
-
-The process communicating with the second child has the equivalent semantics.
-The initial \code{$\neg$ri} guard ensures fairness of the arbiter cell.
-The existing PRS is given by
-
-\begin{prs2}
-l1i & _ri -> _a1o-
-~l1i -> _a1o+
-
-a1o & _a2i -> _a1i-
-~a1o | ~_a2i -> _a1i+
-
-~_a1i & ~_ri & _a2i -> l1o+
-_a1i | _ri -> l1o-
-\end{prs2}
-
-\begin{prs2}
-l2i & _ri -> _a2o-
-~l2i -> _a2o+
-
-a2o & _a1i -> _a2i-
-~a2o | ~_a1i -> _a2i+
-
-~_a2i & ~_ri & _a1i -> l2o+
-_a2i | _ri -> l2o-
-\end{prs2}
-
-Note that the existing PRS does not respect the existing HSE. 
-Namely, the \code{[$\neg$a1i]} guard is not respected.
-Correct operation of the arbiter cell assumes that the reset of the filter 
-from the arbiter circuit arrives before the reset from the parent cell acknowledge.
-We will fix these issues in the next section.
+\subfile{arb} % arbiter decomposition
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{A Better Arbiter}
-\label{subsec:arb2}
-
-We eliminate the timing assumption and derive CHP and HSE for a greedy but fair arbiter cell here.
-At the highest level, the arbiter cell is specified by
-
-\begin{csp}
-ARB(n)\equiv*[[\langle\|i:1..n:#{Li}->Li;Li\rangle]]
-\end{csp}
-
-The arbiter cell is composed of $N-1$ \code{ARB2} cells composed in a binary tree.
-The derivation for \code{ARB2} is in section~\ref{subsec:arb2_derivation}.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Latch (LTH)}
+\section{Latch ($LTH$)}
 
 LTH is responsible for storing the column address of a neuron. 
 LTH has the following ports:
@@ -557,7 +480,7 @@ How does sequencer enforce this?
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Y Address Controller (ADY)}
+\section{Y Address Controller ($ADY$)}
 
 ADY captures the row address and has the following ports:
 
@@ -593,7 +516,7 @@ PRS is given by
 \end{prs}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{X Address Controller (ADX)}
+\section{X Address Controller ($ADX$)}
 
 ADX captures the column address and has the following ports:
 
@@ -628,7 +551,7 @@ PRS is given by
 \end{prs}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Sequencer (SEQ)}
+\section{Sequencer ($SEQ$)}
 
 \begin{tabular}[]{rll}
   \code{S} & (active) & (\code{si} and \code{sod}) communicates with LTH \\
