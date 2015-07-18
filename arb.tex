@@ -117,7 +117,7 @@ $S_1$ & child arbiter 1 port \\
 $S_2$ & child arbiter 2 port \\
 \end{tabular} \\
 
-\paragraph{CHP} 
+\paragraph{CHP}\mbox{}\\
 
 \begin{csp}
 CTRL\equiv
@@ -134,9 +134,9 @@ CTRL\equiv
   $S_2$ & communicates with the child 2 arbiter \\
 \end{tabular} \\ \\
 
-\paragraph{HSE} 
+\paragraph{HSE}\mbox{}\\
 
-Directly translating the CHP,
+\noindent Directly translating the CHP,
 
 \begin{hse}
 CTRL\equiv
@@ -156,7 +156,7 @@ CTRL\equiv
     po-;[~pi];y+]
 \end{hse}
 
-\paragraph{PRS}
+\paragraph{PRS}\mbox{}\\
 
 \begin{prs2}
 (c1i | c2i) & y -> po+
@@ -198,7 +198,7 @@ s1i -> y-
 \subsubsection{Child Arbiter ($C\!\_ARB$)}
 $C\!\_ARB$ determines whether or not a child's request is present when called upon by $CTRL$.
 
-\paragraph{CHP}
+\paragraph{CHP}\mbox{}\\
 
 \begin{csp}
 C_ARB\equiv
@@ -214,29 +214,29 @@ C_ARB\equiv
 \end{tabular} \\ \\
 
 We arbitrate between requests from the child, $\overline{C}$, and 
-requests from $CTRL$, $\overline{S}$. If there a child request is present, the arbiter is biased towards selecting the child because $S$ requests will not arrive until $CTRL$ has obtained permission from the parent. Although small, there is a chance that a child's request will be skipped on a given iteration of $CTRL$, but the weakly fair assumption ensures that the child will be serviced eventually.
+requests from $CTRL$, $\overline{S}$. If a child request is present, the arbiter is biased towards selecting the child because $S$ requests will not arrive until $CTRL$ has obtained permission from the parent. Although small, there is a chance that a child's request will be skipped on a given iteration of $CTRL$, but the weakly fair assumption ensures that the child will be serviced eventually.
 
-\noindent If the arbitration selects the child request $\overline{C}$, 
+\noindent If the arbitration selects the child request $\overline{C}$, $C\!\_ARB$
 
 \begin{tabular}[]{rl}
-  $S$ & wait for and acknowledge $CTRL$'s request \\
-  $C$ & signal the child to proceed \\
-  $C$ & wait for the child to complete \\
-  $S$ & release $CTRL$ so it can move on \\
+  $S$ & waits for and acknowledge $CTRL$'s request \\
+  $C$ & signals the child to proceed \\
+  $C$ & waits for the child to complete \\
+  $S$ & releases $CTRL$ so it can move on \\
 \end{tabular} \\ \\
 
-\noindent If the arbitration selects $CTRL$'s request $\overline{S}$,
+\noindent If the arbitration selects $CTRL$'s request $\overline{S}$, $C\!\_ARB$
 
 \begin{tabular}[]{rl}
-  $S$ & wait for and acknowledge $CTRL$'s request \\
-  $S$ & release $CTRL$ so it can move on \\
+  $S$ & waits for and acknowledge $CTRL$'s request \\
+  $S$ & releases $CTRL$ so it can move on \\
 \end{tabular} \\ \\
 
 \noindent which is a simple 4-phase handshake. Note that $S$ is shared between the two branches.
 
-\paragraph{HSE}
+\paragraph{HSE}\mbox{}\\
 
-Directly translating the CHP,
+\noindent Directly translating the CHP,
 
 \begin{hse}
 *[[ci->[si];so+;co+;[~ci];co-;[~si];so-
@@ -304,9 +304,9 @@ To distinguish the branches, we introduce intermediate values $cs_o$ and $ss_o$ 
   []sso->so+;[~sso];so-]
 \end{hse}
 
-\paragraph{PRS}
+\paragraph{PRS}\mbox{}\\
 
-$s_i$ and $c_i$ are inputs to a standard 2-input arbiter, which outputs $\hat{s_i}$ and $\hat{c_i}$.
+\noindent $s_i$ and $c_i$ are inputs to a standard 2-input arbiter, which outputs $\hat{s_i}$ and $\hat{c_i}$.
 
 \begin{prs2}
 \hat{ci} & si & ~sso -> cso+
