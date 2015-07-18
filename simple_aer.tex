@@ -9,8 +9,8 @@
 In this document, we develop a simple address-event representation (AER) system for an array of $n$ neurons.
 
 \begin{csp}
-NT(n)\equiv\langle\pll\!i:0..n\-1:*[[P;P]]\rangle
-NR(n)\equiv\langle\pll\!i:0..n\-1:*[[P;P]]\rangle
+NT(n)\equiv\langle\pll\!i:0..n\-1:*[[P`i;P`i]]\rangle
+NR(n)\equiv\langle\pll\!i:0..n\-1:*[[P`i;P`i]]\rangle
 \end{csp}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \part{Transmitter ($AEXT$)}
@@ -24,8 +24,18 @@ The highest level specification of the transmitter is given by
 
 \begin{csp}
 AEXT(n)\equiv
-  *[[\langle\|\!i:0..n\-1:#{C`i}->T!i;C`i;T!i;C`i]]
+  *[[\langle\|\!i:0..n\-1:#{C`i}->T!enc(i);C`i;T!enc(i);C`i]]
 \end{csp}
+
+\noindent in words,
+
+\begin{tabular}[]{rl}
+  $\overline{C_i}$ & when the $i$th neuron spikes and is selected by the arbitration \\
+  $T!enc(i)$ & encode and initiate neuron address transmission \\
+  $C_i$ & signal the neuron's reset \\
+  $T!enc(i)$ & complete neuron address transmission \\
+  $C_i$ & release the neuron's reset \\
+\end{tabular} \\
 
 \noindent We decompose $AEXT$ into control $CTRL$ and data $DATA$ processes.
 
@@ -34,21 +44,71 @@ AEXT(n)\equiv*[CTRL(n)\pll\!DATA(n)]
 \end{csp}
 
 \begin{csp}
-CTRL(n)\equiv
-  *[[\langle\|i:0..n\-1:#{C`i}->C`i;C`i]]
+CTRL(n)\equiv*[[\langle\|i:0..n\-1:#{C`i}->C`i;C`i]]
+\end{csp}
+
+\noindent $CTRL$ is just an $n$-way arbiter, which is developed elsewhere.
+
+\begin{csp}
+DATA(n)\equiv\langle\pll\!i:0..n\-1:*[C`i;A`i;T!enc(i);T!enc(i);A`i;C`i]\rangle
+\end{csp}
+
+\noindent in words,
+
+\begin{tabular}[]{rl}
+  $C_i$ & wait for the $i$th child's request and signal child's reset \\
+  $A_i$ & request the arbiter for permission to proceed \\
+  $T!enc(i)$ & encode and initiate neuron address transmission \\
+  $T!enc(i)$ & complete neuron address transmission \\
+  $A_i$ & release arbiter \\
+  $C_i$ & release child's reset \\
+\end{tabular} \\ \\
+
+\noindent $T$ is shared across the $n$ concurrent processes in $DATA$. We split out the transmition into a separate process.
+
+\begin{csp}
+DATA(n)\equiv\langle\pll\!i:0..n\-1:*[C`i;A`i;S`i;S`i;A`i;C`i]\rangle
 \end{csp}
 
 \begin{csp}
-DATA(n)\equiv
-  \langle\pll\!i:0..n\-1:*[[C`i;A`i;T!i;T!i;A`i;C`i]]\rangle
+TX(n)\equiv*[[\langle[]S`i;T!enc(i);T!enc(i);S`i\rangle]]
 \end{csp}
 
-$CTRL$ is just an $n$-way arbiter, which we develop elsewhere.
+\noindent $NT$, $DATA$, $CTRL$, and $TX$ are connected as follows
 
 \begin{csp}
-TX(n)\equiv
-  *[[\langle[]i:0..n\-1:#{S`i}->T!i;S`i;T!i;S`i\rangle]]
+\langle\,i:0..n\-1:
+  DATA(n).C`i\Leftrightarrow\!NT(n).P`i\rangle
+
+\langle\,i:0..n\-1:
+  DATA(n).A`i\Leftrightarrow\!CTRL(n).C`i\rangle
+
+\langle\,i:0..n\-1:
+  DATA(n).S`i\Leftrightarrow\!TX(n).S`i\rangle
 \end{csp}
+
+\noindent Next, we pipeline and break symmetry (to eliminate indistinguishable states) in $DATA$ and $TX$.
+
+\begin{csp}
+DATA(n)\equiv\langle\pll\!i:0..n\-1:*[C`i;A`i;S`i;C`i\star(S`i,A`i)]\rangle
+\end{csp}
+
+\begin{csp}
+TX(n)\equiv*[[\langle[]S`i\star\!T!enc(i);T!enc(i),S`i\rangle]]
+\end{csp}
+
+\subsection{HSE}
+
+\begin{hse}
+DATA\equiv*
+  [[ci];co+,ao+;[ai];so+;[si];
+   [~ci];so-,ao-;[~si&~ai];co-]
+
+TX\equiv*
+  [[si];to+;[ti];so+;
+   to-;[~si];so-;[~ti]]
+\end{hse}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \part{Receiver ($AERV$)}

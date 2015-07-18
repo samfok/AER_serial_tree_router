@@ -39,9 +39,9 @@ N_ARB(n)\equiv*[\langle\pll\,i:0..n\-1:H_ARB\rangle]
 \begin{csp}
 \langle\,i:0..n\-1:
   [i\%2=0 -> 
-    n_arb.C`i=h_arb[i/2].C`0
+    n_arb.C`i\Leftrightarrow\!h_arb[i/2].C`0
   []i\%2=1 ->
-    n_arb.C`i=h_arb[i/2].C`1
+    n_arb.C`i\Leftrightarrow\!h_arb[i/2].C`1
   ]\rangle
 \end{csp}
 
@@ -50,12 +50,12 @@ N_ARB(n)\equiv*[\langle\pll\,i:0..n\-1:H_ARB\rangle]
 \begin{csp}
 \langle\,i:0..n\-2:
   [i\%2=0 -> 
-    h_arb[i].P=h_arb[(n\+i)/2].C`0
+    h_arb[i].P\Leftrightarrow\!h_arb[(n\+i)/2].C`0
   []i\%2=1 ->
-    h_arb[i].P=h_arb[(n\+i)/2].C`1
+    h_arb[i].P\Leftrightarrow\!h_arb[(n\+i)/2].C`1
   ]\rangle
 
-h_arb[n\-1].P = h_arb[n\-1].P
+h_arb[n\-1].P\Leftrightarrow\!h_arb[n\-1].P
 \end{csp}
 
 \noindent The top $h\_arb$'s $P$ port is connected back to itself.
