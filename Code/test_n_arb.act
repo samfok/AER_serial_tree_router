@@ -4,10 +4,10 @@ import "arbiter.act";
 
 pint N=8;
 globals g;
-arbiter::test::TEST_ARB_TREE<N> test(g);
-// arbiter::test::TEST_ARB_TREE_HALF_EVEN<N> test(g);
-// arbiter::test::TEST_ARB_TREE_HALF_ODD<N> test(g);
-// arbiter::test::TEST_ARB_TREE_HALF_MID<N> test(g);
+arbiter::test::TEST_N_ARB<N> test(g);
+// arbiter::test::TEST_N_ARB_HALF_EVEN<N> test(g);
+// arbiter::test::TEST_N_ARB_HALF_ODD<N> test(g);
+// arbiter::test::TEST_N_ARB_HALF_MID<N> test(g);
 
 bool pReset, sReset;
 prs {

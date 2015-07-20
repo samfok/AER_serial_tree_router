@@ -170,8 +170,8 @@ namespace arbiter {
 
     export
     template <pint N>
-    defproc ARB_TREE (globals g; port c[N]) {
-        // arbiter tree servicing N children
+    defproc N_ARB (globals g; port c[N]) {
+        // N-way arbiter
         H_ARB h_arb[N-1];
 
         // connect globals to arbiters
@@ -283,9 +283,9 @@ namespace arbiter {
 
         export
         template<pint N>
-        defproc TEST_ARB_TREE (globals g) {
-            // tests ARB_TREE
-            ARB_TREE<N> arb_tree(g,);
+        defproc TEST_N_ARB (globals g) {
+            // tests N_ARB
+            N_ARB<N> n_arb(g,);
             active_handshaker c[N];
 
             // connect globals to chidren
@@ -293,16 +293,16 @@ namespace arbiter {
 
             // connect children to arbiter tree ports
             (; i : N : 
-                c[i].o = arb_tree.c[i].i;
-                c[i].i = arb_tree.c[i].o;
+                c[i].o = n_arb.c[i].i;
+                c[i].i = n_arb.c[i].o;
             )
         }
 
         export
         template<pint N>
-        defproc TEST_ARB_TREE_HALF_EVEN (globals g) {
-            // tests ARB_TREE with only even ports active
-            ARB_TREE<N> arb_tree(g,);
+        defproc TEST_N_ARB_HALF_EVEN (globals g) {
+            // tests N_ARB with only even ports active
+            N_ARB<N> n_arb(g,);
             active_handshaker c[N/2];
 
             // connect globals to chidren
@@ -310,21 +310,21 @@ namespace arbiter {
 
             // connect children to arbiter tree ports
             (; i : N/2 : 
-                c[i].o = arb_tree.c[2*i].i;
-                c[i].i = arb_tree.c[2*i].o;
+                c[i].o = n_arb.c[2*i].i;
+                c[i].i = n_arb.c[2*i].o;
             )
 
             // connect dangling arbiter tree ports to GND
             (; i : N/2 : 
-                arb_tree.c[2*i+1].i = g.GND;
+                n_arb.c[2*i+1].i = g.GND;
             )
         }
 
         export
         template<pint N>
-        defproc TEST_ARB_TREE_HALF_ODD (globals g) {
-            // tests ARB_TREE with only odd ports active
-            ARB_TREE<N> arb_tree(g,);
+        defproc TEST_N_ARB_HALF_ODD (globals g) {
+            // tests N_ARB with only odd ports active
+            N_ARB<N> n_arb(g,);
             active_handshaker c[N/2];
 
             // connect globals to chidren
@@ -332,21 +332,21 @@ namespace arbiter {
 
             // connect children to arbiter tree ports
             (; i : N/2 : 
-                c[i].o = arb_tree.c[2*i+1].i;
-                c[i].i = arb_tree.c[2*i+1].o;
+                c[i].o = n_arb.c[2*i+1].i;
+                c[i].i = n_arb.c[2*i+1].o;
             )
 
             // connect dangling arbiter tree ports to GND
             (; i : N/2 : 
-                arb_tree.c[2*i].i = g.GND;
+                n_arb.c[2*i].i = g.GND;
             )
         }
 
         export
         template<pint N>
-        defproc TEST_ARB_TREE_HALF_MID (globals g) {
-            // tests ARB_TREE with only middle ports active
-            ARB_TREE<N> arb_tree(g,);
+        defproc TEST_N_ARB_HALF_MID (globals g) {
+            // tests N_ARB with only middle ports active
+            N_ARB<N> n_arb(g,);
             active_handshaker c[N/2];
 
             // connect globals to chidren
@@ -354,14 +354,14 @@ namespace arbiter {
 
             // connect children to arbiter tree ports
             (; i : N/2 : 
-                c[i].o = arb_tree.c[N/4+i].i;
-                c[i].i = arb_tree.c[N/4+i].o;
+                c[i].o = n_arb.c[N/4+i].i;
+                c[i].i = n_arb.c[N/4+i].o;
             )
 
             // connect dangling arbiter tree ports to GND
             (; i : N/4 : 
-                arb_tree.c[i].i = g.GND;
-                arb_tree.c[3*N/4+i].i = g.GND;
+                n_arb.c[i].i = g.GND;
+                n_arb.c[3*N/4+i].i = g.GND;
             )
         }
     } // end namespace test
