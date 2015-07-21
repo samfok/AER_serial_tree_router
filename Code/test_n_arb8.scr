@@ -3,21 +3,21 @@ source reset.scr
 random
 # watchall
 
-watch test.n_arb.h_arb[0].p.o
-watch test.n_arb.h_arb[1].p.o
-watch test.n_arb.h_arb[2].p.o
-watch test.n_arb.h_arb[3].p.o
-watch test.n_arb.h_arb[4].p.o
-watch test.n_arb.h_arb[5].p.o
-watch test.n_arb.h_arb[6].p.o
+watch test.n_arb.h_arb[0]._po
+watch test.n_arb.h_arb[1]._po
+watch test.n_arb.h_arb[2]._po
+watch test.n_arb.h_arb[3]._po
+watch test.n_arb.h_arb[4]._po
+watch test.n_arb.h_arb[5]._po
+watch test.n_arb.h_arb[6]._po
 
-watch test.n_arb.h_arb[0].p.i
-watch test.n_arb.h_arb[1].p.i
-watch test.n_arb.h_arb[2].p.i
-watch test.n_arb.h_arb[3].p.i
-watch test.n_arb.h_arb[4].p.i
-watch test.n_arb.h_arb[5].p.i
-watch test.n_arb.h_arb[6].p.i
+watch test.n_arb.h_arb[0].pi
+watch test.n_arb.h_arb[1].pi
+watch test.n_arb.h_arb[2].pi
+watch test.n_arb.h_arb[3].pi
+watch test.n_arb.h_arb[4].pi
+watch test.n_arb.h_arb[5].pi
+watch test.n_arb.h_arb[6].pi
 
 watch test.c[0].o
 watch test.c[1].o
@@ -37,7 +37,7 @@ watch test.c[5].i
 watch test.c[6].i
 watch test.c[7].i
 
-set_principal test.n_arb.h_arb[6].p.o
-set_principal test.n_arb.h_arb[6].p.i
+set_principal test.n_arb.h_arb[6]._po
+set_principal test.n_arb.h_arb[6].pi
 
 break-on-warn

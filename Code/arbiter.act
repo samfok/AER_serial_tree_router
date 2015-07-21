@@ -135,16 +135,15 @@ namespace arbiter {
     }
 
     export 
-    defproc H_ARB (globals g; port c1, c2, p) {
+    defproc H_ARB (globals g; bool _c1i, c1o, _c2i, c2o, pi, _po) {
         // heirarchical arbiter cell
         // can be arranged in a binary tree to service more than 2 children
         CTRL ctrl(g,,,,,);
         C_ARB c1_arb(g,,,), c2_arb(g,,,);
 
-        bool _c1i, _c2i, _s1a, s1b, _s2a;
+        bool _s1a, s1b, _s2a;
         prs<g.Vdd,g.GND> {
-            c1.i => _c1i-
-            c2.i => _c2i-
+            ctrl.p.o => _po-
 
             ctrl.s1.o => _s1a-
             c1_arb._s.o => s1b- 
@@ -159,13 +158,12 @@ namespace arbiter {
         ctrl.s2.i = c2_arb._s.o; // ctrl.s2.i will be active low
         c2_arb._s.i = _s2a;
 
-        ctrl.p.o = p.o;
-        ctrl.p.i = p.i;
+        ctrl.p.i = pi;
         
         c1_arb._ci = _c1i;
         c2_arb._ci = _c2i;
-        c1_arb.co = c1.o;
-        c2_arb.co = c2.o;
+        c1_arb.co = c1o;
+        c2_arb.co = c2o;
     }
 
     export
@@ -180,25 +178,31 @@ namespace arbiter {
         // connect arbiters in tree
         (; i : N-2 : 
             [ (i%2) = 0 -> 
-                h_arb[i].p.o = h_arb[(N+i)/2].c1.i;
-                h_arb[i].p.i = h_arb[(N+i)/2].c1.o;
+                h_arb[i]._po = h_arb[(N+i)/2]._c1i;
+                h_arb[i].pi = h_arb[(N+i)/2].c1o;
             [] (i%2) = 1 ->
-                h_arb[i].p.o = h_arb[(N+i)/2].c2.i;
-                h_arb[i].p.i = h_arb[(N+i)/2].c2.o;
+                h_arb[i]._po = h_arb[(N+i)/2]._c2i;
+                h_arb[i].pi = h_arb[(N+i)/2].c2o;
             ]
         )
         
         // connect top of arbiter tree back to itself
         prs<g.Vdd,g.GND> {
-            h_arb[N-2].p.o => h_arb[N-2].p.i+
+            h_arb[N-2]._po => h_arb[N-2].pi-
         }
 
         // connect children ports to arbiter tree leaves
         (; i : N : 
             [ (i%2) = 0 -> 
-               c[i] = h_arb[i/2].c1;
+                prs<g.Vdd,g.GND>{
+                    c[i].i => h_arb[i/2]._c1i-
+                }
+                c[i].o = h_arb[i/2].c1o;
             [] (i%2) = 1 ->
-               c[i] = h_arb[i/2].c2;
+                prs<g.Vdd,g.GND>{
+                    c[i].i => h_arb[i/2]._c2i-
+                }
+                c[i].o = h_arb[i/2].c2o;
             ]
         )
     }
@@ -268,17 +272,18 @@ namespace arbiter {
         defproc TEST_H_ARB (globals g) {
             // tests H_ARB
             active_handshaker c1(g,,), c2(g,,);
-            H_ARB h_arb(g,,,);
+            H_ARB h_arb(g,,,,,,);
             
             // connect top of H_ARB back to itself
             prs<g.Vdd,g.GND> {
-                h_arb.p.o => h_arb.p.i+
+                h_arb._po => h_arb.pi-
+
+                c1.o => h_arb._c1i-
+                c2.o => h_arb._c2i-
             }
 
-            h_arb.c1.i = c1.o;
-            h_arb.c2.i = c2.o;
-            h_arb.c1.o = c1.i;
-            h_arb.c2.o = c2.i;
+            h_arb.c1o = c1.i;
+            h_arb.c2o = c2.i;
         }
 
         export
