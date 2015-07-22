@@ -31,17 +31,17 @@ In words, the children send requests at any time. When requests arrive, $N\!\_AR
 We decompose $N\!\_ARB$ into a binary tree of heirarchical arbiter cells, $H\!\_ARB$ (see Figure~\ref{fig:n_arb_h_arb}). 
 
 \begin{csp}
-N_ARB(n)\equiv*[\langle\pll\,i:0..n\-1:H_ARB\rangle]
+N_ARB(n)\equiv\langle\pll\,i:0..n\-1:H_ARB\rangle
 \end{csp}
 
-\noindent For an $N\!\_ARB$ instance $n\_arb$ and $n-1$ $H\_ARB$ instances $h\_arb[0]..h\_arb[n-1]$, we connect the $n\_arb$ ports to the $h\_arb$ ports as follows.
+\noindent For an $N\!\_ARB$ instance $n\_arb$ with $n$ a power of $2$ and $n-1$ $H\_ARB$ instances $h\_arb[0]..h\_arb[n-1]$, we connect the $n\_arb$ ports to the $h\_arb$ ports as follows.
 
 \begin{csp}
 \langle\,i:0..n\-1:
   [i\%2=0 -> 
-    n_arb.C`i\Leftrightarrow\!h_arb[i/2].C`0
-  []i\%2=1 ->
     n_arb.C`i\Leftrightarrow\!h_arb[i/2].C`1
+  []i\%2=1 ->
+    n_arb.C`i\Leftrightarrow\!h_arb[i/2].C`2
   ]\rangle
 \end{csp}
 
@@ -50,15 +50,30 @@ N_ARB(n)\equiv*[\langle\pll\,i:0..n\-1:H_ARB\rangle]
 \begin{csp}
 \langle\,i:0..n\-2:
   [i\%2=0 -> 
-    h_arb[i].P\Leftrightarrow\!h_arb[(n\+i)/2].C`0
-  []i\%2=1 ->
     h_arb[i].P\Leftrightarrow\!h_arb[(n\+i)/2].C`1
+  []i\%2=1 ->
+    h_arb[i].P\Leftrightarrow\!h_arb[(n\+i)/2].C`2
   ]\rangle
 
 h_arb[n\-1].P \Leftrightarrow\! h_arb[n\-1].P
 \end{csp}
 
-\noindent The top $h\_arb$'s $P$ port is connected back to itself.
+\noindent The top $h\_arb$'s $P$ port is connected back to itself. 
+
+In general (if $n$ is not a power of $2$), we can define the $N\!\_ARB$ recursively with
+
+\begin{csp}
+N_ARB(n)\equiv
+  [n=1->
+    \mathrm{wire}
+  []n=2->
+    H_ARB
+  []n>2->
+    N_ARB(n/2)\pll\!H_ARB\pll\!N_ARB(n\-n/2)
+  ]
+\end{csp}
+
+\noindent The recursion ends with $n=1$ or $n=2$ and produces a balanced tree. The $n=1$ case is just a wire.
 
 \subsection{Heirarchical arbiter $H\_ARB$}
 
@@ -94,7 +109,7 @@ $H\!\_ARB$ implements a greedy yet fair arbitration algorithm. $H\!\_ARB$ is gre
 We decompose $H\!\_ARB$ into a control cell $CTRL$ and two child arbitration cells $C\_ARB$ as in Figure~\ref{fig:h_arb_detail}.
 
 \begin{csp}
-H\_ARB\equiv*[CTRL\pll\!C_ARB\pll\!C_ARB]
+H\_ARB\equiv\!CTRL\pll\!C_ARB\pll\!C_ARB
 \end{csp}
 
 \begin{figure}
@@ -243,57 +258,41 @@ requests from $CTRL$, $\overline{S}$. If a child request is present, the arbiter
   \|si->so+;[~si];so-]]
 \end{hse}
 
-The states before the $[\neg\,s_i]$ waits in the $\overline{C}$ and $\overline{S}$ branches are indistinguishable. Instead of using a state variable to store which branch we're traversing, we move $[\neg\,s_i]$ forward in the $\overline{C}$ branch. 
+\noindent We introduce intermediate variables $\hat{c_i}$ and $\hat{s_i}$ to represent the arbitration,
 
 \begin{hse}
-*[[ci->[si];so+;[~si];co+;[~ci];co-;so-
-  \|si->so+;[~si];so-]]
+*[[ci->\hat{ci}+;[\hat{ci}];[si];so+;co+;[~ci];\hat{ci}-;[~\hat{ci}];co-;[~si];so-
+  \|si->\hat{si}+;[\hat{si}];so+;[~si];\hat{si}-;[~\hat{si}]so-]]
 \end{hse}
 
-\noindent or in CHP,
-
-\begin{csp}
-ARB_C\equiv
-*[[#C->S;S\star(C;C)
-  \|#S->S;S]]
-\end{csp}
-
-\noindent After $co\!\downarrow$, the child could raise its request again ($c_i$) and greedily hold the circuit in a loop servicing the child. 
-We break this loop by releasing $CTRL$ ($s_o\!\downarrow$) before releasing the child. This yields
+\noindent and break out the arbitration into a separate process
 
 \begin{hse}
-*[[ci->[si];so+;[~si];co+;[~ci];so-;co-
-  \|si->so+;[~si];so-]]
-\end{hse}
-
-\noindent It's not possible to express this in CHP exactly, but an approximation would be
-
-\begin{csp}
-ARB_C\equiv
-*[[#C->S;S\star\!C\star\!C
-  \|#S->S;S]]
-\end{csp}
-
-\noindent Next, we use intermediate variables $\hat{c_i}$ and $\hat{s_i}$ to represent the arbitration.
-
-\begin{hse}
-*[[ci->\hat{ci}+;[\hat{ci}];[si];so+;[~si];co+;[~ci];\hat{ci}-;[~\hat{ci}];so-;co-
-  \|si->\hat{si}+;[\hat{si}];so+;[~si];\hat{si}-;[~\hat{si}];so-]]
-\end{hse}
-
-\noindent and break the arbitration out into a separate process,
-
-\begin{hse}
+*[[\hat{ci}->[si];so+;co+;[~\hat{ci}];co-;[~si];so-
+  []\hat{si}->so+;[~\hat{si}];so-]]
 *[[ci->\hat{ci}+;[~ci];\hat{ci}-
-  \|si->\hat{si}+;[~si];\hat{si}-]]\pll
+  \|si->\hat{si}+;[~si];\hat{si}-]]
+\end{hse}
+
+\noindent Note that the $\hat{c_i}$ branch of the select statement uses $s_i$ and not $\hat{s_i}$. In addition, as soon as $c_o$ goes high, $c_i$ could clear before $s_i$, which would allow the arbitration process to complete its $c_i$ branch and select the $s_i$ branch while the $\hat{c_i}$ branch is still in progress. We thus wait for $s_i$ to clear before communicating with the child.
+
+\begin{hse}
+*[[\hat{ci}->[si];so+;[~si];co+;[~\hat{ci}];co-;so-
+  []\hat{si}->so+;[~\hat{si}];so-]]
+*[[ci->\hat{ci}+;[~ci];\hat{ci}-
+  \|si->\hat{si}+;[~si];\hat{si}-]]
+\end{hse}
+
+\noindent After $co\!\downarrow$, the child could raise its request again ($c_i$) and greedily hold the circuit in a loop servicing the child. We break this loop by releasing $CTRL$ ($s_o\!\downarrow$) before releasing the child.
+
+\begin{hse}
 *[[\hat{ci}->[si];so+;[~si];co+;[~\hat{ci}];so-;co-
   []\hat{si}->so+;[~\hat{si}];so-]]
+*[[ci->\hat{ci}+;[~ci];\hat{ci}-
+  \|si->\hat{si}+;[~si];\hat{si}-]]
 \end{hse}
 
-\noindent Note that the $\hat{c_i}$ branch of the select statement uses $s_i$ and not $\hat{s_i}$. Putting $[\neg\!s_i]$ before $c_o\!\uparrow$ ensures that the arbitration will not traverse the $s_i$ before the child has completed as indicated by $[\neg\,\hat{c_i}]$. 
-Note also that $s_o$ is shared between both branches of selection statement and 
-that there are again indistinguishable states between the branches---before $[s_i]$ in the $\overline{C}$ branch and after $[\neg\,\hat{s_i}]$ in the $\overline{S}$ branch.
-To distinguish the branches, we introduce intermediate values $cs_o$ and $ss_o$ and merge them in a third concurrent process.
+\noindent Note that $s_o$ is shared between both branches of selection statement. This sharing results in interfering production rules for $s_o$, so we introduce intermediate values $cs_o$ and $ss_o$ and merge them in a third concurrent process.
 
 \begin{hse}
 *[[ci->\hat{ci}+;[~ci];\hat{ci}-
