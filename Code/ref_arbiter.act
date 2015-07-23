@@ -1,0 +1,150 @@
+// This file is the unbubble-reshuffled version of arbiter.act for reference
+import "lib/globals.act";
+import "channel.act";
+import "test.act";
+
+namespace arbiter {
+    export
+    defproc ARB (globals g; port a1, a2) {
+        // The basic 2-input arbiter
+        bool _a1, _a2;
+    
+        spec {
+            mk_excllo(_a1, _a2)
+        }
+    
+        //Cross-Coupled NANDs
+        prs<g.Vdd,g.GND> {
+            a1.i & _a2  => _a1-
+            a2.i & _a1  => _a2-
+        }
+    
+        //Filter
+        prs<g.Vdd,g.GND> {
+            ~_a1 & _a2  -> a1.o+
+            _a1         -> a1.o-
+    
+            ~_a2 & _a1 -> a2.o+
+            _a2        -> a2.o-
+        }
+    }
+
+    defproc CTRL (globals g; bool c1i, c2i; port s1, s2, p) {
+        // sequences between children and parent communications
+        bool x, y;
+        prs<g.Vdd,g.GND> {
+            g._sReset & (c1i | c2i) & y -> p.o+
+            g.pReset | ~s2.i & x & ~y -> p.o-
+    
+            g._sReset & ~x & y -> s1.o+
+            g.pReset | x | ~y  -> s1.o-
+    
+            g._sReset & ~s1.i & ~x & ~y -> s2.o+
+            g.pReset | x -> s2.o-
+    
+            g.pReset | s2.i & ~y -> x+
+            g._sReset & p.i & y -> x-
+    
+            ~p.i -> y+
+            s1.i -> y-
+        }
+    }
+    export
+    defproc C_ARB (globals g; port s, c) {
+        // controlled arbiter cell for use with CTRL
+        // arbitrates between child request and CTRL request
+        bool cso, sso;
+        bool ci_hat, si_hat;
+        ARB arb(g,,);
+        arb.a1.i = c.i;
+        arb.a2.i = s.i;
+        arb.a1.o = ci_hat;
+        arb.a2.o = si_hat;
+    
+        prs<g.Vdd,g.GND> {
+            ci_hat & s.i & ~sso -> cso+
+            ~ci_hat -> cso-
+    
+            ~s.i & cso -> c.o+
+            s.i | ~cso -> c.o-
+    
+            si_hat & ~c.o -> sso+
+            ~si_hat | c.o -> sso-
+    
+            cso | sso => s.o+
+        }
+    }
+
+    defproc H_ARB (globals g; port c1, c2, p) {
+        // heirarchical arbiter cell
+        // can be arranged in a binary tree to service more than 2 children
+        CTRL ctrl(g,,,,,);
+        C_ARB c1_arb(g,,), c2_arb(g,,);
+
+        ctrl.c1i = c1.i;
+        ctrl.c2i = c2.i;
+        c1_arb.c.i = c1.i;
+        c1_arb.c.o = c1.o;
+        c2_arb.c.i = c2.i;
+        c2_arb.c.o = c2.o;
+
+        ctrl.p.o = p.o;
+        ctrl.p.i = p.i;
+        ctrl.s1.o = c1_arb.s.i;
+        ctrl.s1.i = c1_arb.s.o;
+        ctrl.s2.o = c2_arb.s.i;
+        ctrl.s2.i = c2_arb.s.o;
+    }
+    
+    template <pint N>
+    defproc _N_ARB (globals g; port c[N], p);
+    // N-way arbiter used in recursive definition of N_ARB
+
+    export
+    template <pint N>
+    defproc N_ARB (globals g; port c[N]) {
+        // N-way arbiter
+        _N_ARB<N> n_arb(g,c,);
+        prs<g.Vdd,g.GND> {
+            n_arb.p.o => n_arb.p.i+
+        }
+    }
+
+    template <pint N>
+    defproc _N_ARB (globals g; port c[N], p) {
+        // N-way arbiter used in recursive definition of N_ARB
+        [ N=1 ->
+            c[0].i = p.o;
+            c[0].o = p.i;
+        [] N=2 ->
+            H_ARB h_arb(g, c[0], c[1], p);
+        [] N>2 ->
+            H_ARB h_arb(g,,,p);
+            _N_ARB<N/2> n_arb1(g, c[0..N/2-1],);
+            _N_ARB<N-N/2> n_arb2(g, c[N/2..N-1],);
+            n_arb1.p.o = h_arb.c1.i;
+            n_arb1.p.i = h_arb.c1.o;
+            n_arb2.p.o = h_arb.c2.i;
+            n_arb2.p.i = h_arb.c2.o;
+        ]
+    }
+
+    namespace test {
+        export
+        template<pint N>
+        defproc TEST_N_ARB (globals g) {
+            // tests N_ARB
+            N_ARB<N> n_arb(g,);
+            active_handshaker c[N];
+
+            // connect globals to chidren
+            (; i : N : c[i].g=g;) 
+
+            // connect children to arbiter tree ports
+            (; i : N : 
+                c[i].o = n_arb.c[i].i;
+                c[i].i = n_arb.c[i].o;
+            )
+        }
+    }
+}
