@@ -268,28 +268,28 @@ requests from $CTRL$, $\overline{S}$. If a child request is present, the arbiter
 \noindent and break out the arbitration into a separate process
 
 \begin{hse}
-*[[\hat{ci}->[si];so+;co+;[~\hat{ci}];co-;[~si];so-
-  []\hat{si}->so+;[~\hat{si}];so-]]
 *[[ci->\hat{ci}+;[~ci];\hat{ci}-
   \|si->\hat{si}+;[~si];\hat{si}-]]
+*[[\hat{ci}->[si];so+;co+;[~\hat{ci}];co-;[~si];so-
+  []\hat{si}->so+;[~\hat{si}];so-]]
 \end{hse}
 
 \noindent Note that the $\hat{c_i}$ branch of the select statement uses $s_i$ and not $\hat{s_i}$. In addition, as soon as $c_o$ goes high, $c_i$ could clear before $s_i$, which would allow the arbitration process to complete its $c_i$ branch and select the $s_i$ branch while the $\hat{c_i}$ branch is still in progress. We thus wait for $s_i$ to clear before communicating with the child.
 
 \begin{hse}
-*[[\hat{ci}->[si];so+;[~si];co+;[~\hat{ci}];co-;so-
-  []\hat{si}->so+;[~\hat{si}];so-]]
 *[[ci->\hat{ci}+;[~ci];\hat{ci}-
   \|si->\hat{si}+;[~si];\hat{si}-]]
+*[[\hat{ci}->[si];so+;[~si];co+;[~\hat{ci}];co-;so-
+  []\hat{si}->so+;[~\hat{si}];so-]]
 \end{hse}
 
 \noindent After $co\!\downarrow$, the child could raise its request again ($c_i$) and greedily hold the circuit in a loop servicing the child. We break this loop by releasing $CTRL$ ($s_o\!\downarrow$) before releasing the child.
 
 \begin{hse}
-*[[\hat{ci}->[si];so+;[~si];co+;[~\hat{ci}];so-;co-
-  []\hat{si}->so+;[~\hat{si}];so-]]
 *[[ci->\hat{ci}+;[~ci];\hat{ci}-
   \|si->\hat{si}+;[~si];\hat{si}-]]
+*[[\hat{ci}->[si];so+;[~si];co+;[~\hat{ci}];so-;co-
+  []\hat{si}->so+;[~\hat{si}];so-]]
 \end{hse}
 
 \noindent Note that $s_o$ is shared between both branches of selection statement. This sharing results in interfering production rules for $s_o$, so we introduce intermediate values $cs_o$ and $ss_o$ and merge them in a third concurrent process.
