@@ -1,95 +1,91 @@
 // Defines N input logic gates
 
-namespace logic {
-    export
-    template <pint N>
-    defproc AND (bool i[N], bool o) {
-        [ N=1 ->
-            i[0] = o;
-        [] N=2 ->
-            bool _x0, _x1;
-            prs {
-                i[0] => _x0-
-                i[1] => _x1-
-                _x0 | _x1 => o-
-            }
-        [] N=3 ->
-            bool _x0, x12;
-            prs {
-                i[0] => _x0-
-                i[1] & i[2] => _x12-
-                _x0 | _x12 => o-
-            }
-        [] N>=4 ->
-            pint k=N/4;
-            AND<k>     and0(i[0..k-1],);
-            AND<2*k>   and1(i[k..2*k-1],);
-            AND<3*k>   and2(i[2*k..3*k-1],);
-            AND<N-3*k> and3(i[3*k..N-1],);
-            bool _x01, _x23;
-            prs {
-                and0.o & and1.o => _x01-
-                and2.o & and3.o => _x23-
-                _x01 | _x23 => o-
-            }
-        ]
-    }
+export
+template <pint N>
+defproc AND (bool i[N], o) {
+    [ N=1 ->
+        i[0] = o;
+    [] N=2 ->
+        bool _o;
+        prs {
+            i[0] & i[1] => _o-
+            _o => o-
+        }
+    [] N=3 ->
+        bool _x0, _x12;
+        prs {
+            i[0] => _x0-
+            i[1] & i[2] => _x12-
+            _x0 | _x12 => o-
+        }
+    [] N>=4 ->
+        pint k=N/4;
+        AND<k>     and0(i[0..k-1],);
+        AND<2*k>   and1(i[k..2*k-1],);
+        AND<3*k>   and2(i[2*k..3*k-1],);
+        AND<N-3*k> and3(i[3*k..N-1],);
+        bool _x01, _x23;
+        prs {
+            and0.o & and1.o => _x01-
+            and2.o & and3.o => _x23-
+            _x01 | _x23 => o-
+        }
+    ]
+}
 
-    export
-    template <pint N>
-    defproc OR (bool i[N], bool o) {
-        [ N=1 ->
-            i[0] = o;
-        [] N=2 ->
-            bool _x0, _x1;
-            prs {
-                i[0] => _x0-
-                i[1] => _x1-
-                _x0 & _x1 => o-
-            }
-        [] N=3 ->
-            bool _x0, _x12;
-            prs {
-                i[0] => _x0-
-                i[1] | i[2] => _x12-
-                _x0 & _x12 => o-
-            }
-        [] N>=4 ->
-            pint k=N/4;
-            OR<k>     or0(i[0..k-1],);
-            OR<2*k>   or1(i[k..2*k-1],);
-            OR<3*k>   or2(i[2*k..3*k-1],);
-            OR<N-3*k> or3(i[3*k..N-1],);
-            bool _x01, _x23;
-            prs {
-                or0.o | or1.o => _x01-
-                or2.o | or3.o => _x23-
-                _x01 & _x23 => o-
-            }
-        ]
-    }
+export
+template <pint N>
+defproc OR (bool i[N], o) {
+    [ N=1 ->
+        i[0] = o;
+    [] N=2 ->
+        bool _o;
+        prs {
+            i[0] | i[1] => _o-
+            _o => o-
+        }
+    [] N=3 ->
+        bool _x0, _x12;
+        prs {
+            i[0] => _x0-
+            i[1] | i[2] => _x12-
+            _x0 & _x12 => o-
+        }
+    [] N>=4 ->
+        pint k=N/4;
+        OR<k>     or0(i[0..k-1],);
+        OR<2*k>   or1(i[k..2*k-1],);
+        OR<3*k>   or2(i[2*k..3*k-1],);
+        OR<N-3*k> or3(i[3*k..N-1],);
+        bool _x01, _x23;
+        prs {
+            or0.o | or1.o => _x01-
+            or2.o | or3.o => _x23-
+            _x01 & _x23 => o-
+        }
+    ]
+}
 
-    export
-    template <pint N>
-    defproc C_TREE (bool i[N], bool o) {
-        [ N=1 ->
-            i[0] = o;
-        [] N=2 -> 
-            bool _o;
-            prs {
-                i[0] & i[1] -> _o-
-                ~i[0] & ~i[1] -> _o+
-                _o => o-
-            }
-        [] N>2 ->
-            C_TREE<N/2> c_tree0(i[0..N/2-1],);
-            C_TREE<N-N/2> c_tree1(i[N/2..N-1],);
-            bool _o;
-            prs {
-                c_tree0.o & c_tree1.o -> _o-
-                ~c_tree0.o & ~c_tree1.o -> _o+
-                _o => o-
-            }
-        ]
-    }
+export
+template <pint N>
+defproc C_TREE (bool i[N], o) {
+    [ N=1 ->
+        i[0] = o;
+    [] N=2 -> 
+        bool _o;
+        prs {
+            i[0] & i[1] -> _o-
+            ~i[0] & ~i[1] -> _o+
+            _o => o-
+        }
+    [] N>2 ->
+        C_TREE<N/2> c_tree0(i[0..N/2-1],);
+        C_TREE<N-N/2> c_tree1(i[N/2..N-1],);
+        bool _o;
+        prs {
+            c_tree0.o & c_tree1.o -> _o-
+            ~c_tree0.o & ~c_tree1.o -> _o+
+            _o => o-
+        }
+    ]
 }
