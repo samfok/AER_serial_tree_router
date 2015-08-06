@@ -2,36 +2,46 @@
 import "lib/globals.act";
 
 export
-defproc active_handshaker(globals g; bool i, o) {
+template <pint N>
+defproc active_handshaker(globals g; bool i[N], o[N]) {
     // a simple active handshaker
-    prs <g.Vdd,g.GND> {
-        ~g.sReset & ~i -> o+
-        g.pReset  | i  -> o-
-    }
+    (; n : N :
+        prs <g.Vdd,g.GND> {
+            ~g.sReset & ~i[n] -> o[n]+
+            g.pReset  | i[n]  -> o[n]-
+        }
+    )
 }
 
 export
-defproc active_low_handshaker(globals g; bool _i, _o) {
+template <pint N>
+defproc active_low_handshaker(globals g; bool _i[N], _o[N]) {
     // a simple active low handshaker
-    prs <g.Vdd,g.GND> {
-        g._sReset & _i   -> _o-
-        ~g._pReset | ~_i -> _o+
-    }
+    (; n : N :
+        prs <g.Vdd,g.GND> {
+            g._sReset & _i[n]   -> _o[n]-
+            ~g._pReset | ~_i[n] -> _o[n]+
+        }
+    )
 }
 
 export
-defproc passive_handshaker(globals g; bool i, o) {
+template <pint N>
+defproc passive_handshaker(globals g; bool i[N], o[N]) {
     // a simple passive handshaker
-    prs <g.Vdd,g.GND> {
-        i  => o+ // just a wire with delay
-    }
+    (; n : N :
+        prs <g.Vdd,g.GND> {
+            i[n]  => o[n]+ // just a wire with delay
+        }
+    )
 }
 
 export
+template <pint N>
 defproc TEST_TEST(globals g) {
     // tests active and passive handshakers
-    active_handshaker a(g,,);
-    passive_handshaker p(g,,);
+    active_handshaker<N> a(g,,);
+    passive_handshaker<N> p(g,,);
     
     a.i = p.o;
     a.o = p.i;

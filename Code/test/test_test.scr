@@ -1,5 +1,11 @@
 source reset.scr
 random
-watch test.a.i
-watch test.a.o
+watch test.a.i[0]
+watch test.a.o[0]
+watch test.a.i[1]
+watch test.a.o[1]
+watch test.a.i[2]
+watch test.a.o[2]
+watch test.a.i[3]
+watch test.a.o[3]
 cycle

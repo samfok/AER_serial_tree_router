@@ -2,7 +2,8 @@ import "lib/globals.act";
 import "test.act";
 
 globals g;
-TEST_TEST test(g);
+pint N=2;
+TEST_TEST<N> test(g);
 
 bool pReset, sReset;
 prs {
