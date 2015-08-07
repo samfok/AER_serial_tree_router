@@ -5,157 +5,148 @@ import "test.act";
 
 namespace transmitter {
     export
-    defproc EVT (globals g; port p, r, c) {
+    defproc EVT (globals g; bool pi, po, ri, ro, ci, co) {
         bool u, _pi;
         prs {
-            ~g.sReset & ~_pi & ~r.i -> r.o+
-            g.pReset | _pi          -> r.o-
+            ~g.sReset & ~_pi & ~ri -> ro+
+            g.pReset | _pi          -> ro-
     
-            g.pReset | r.i & r.o -> u-
-            ~g.sReset & ~r.i     -> u+
+            g.pReset | ri & ro -> u-
+            ~g.sReset & ~ri     -> u+
     
-            u => p.o-
-            u => c.o-
+            u => po-
+            u => co-
     
-            p.i => _pi-
-        }
-    }
-
-    defproc dummy_LTH_INT(globals g; port v; bool rk) {
-        // utility for TEST_EVT
-        prs {
-            ~g.sReset & v.i & ~rk -> v.o+
-            g.pReset | ~v.i & rk  -> v.o-
+            pi => _pi-
         }
     }
 
     export
-    defproc TEST_EVT (globals g) {
-        active_handshaker neuron(g,,);
-        dummy_LTH_INT lth_int(g,,);
-        EVT e(g,,,);
-        
-        e.p.i = neuron.o;
-        e.p.o = neuron.i;
-        e.r.o = lth_int.v.i;
-        e.r.i = lth_int.v.o;
-        e.c.o = lth_int.rk;
+    defproc INT (globals g; bool vi, vo, ei, eo, ci, co) {
     }
     
     export
-    defproc INT (globals g; port v, e, c) {
-    }
-    
-    export
-    defproc ARB (globals g; port l1, l2, r) {
-    }
-    
-    export
-    defproc ARB_stat (globals g; port l1, l2, r) {
+    defproc ARB_stat (globals g; bool li[2], lo[2], ri, ro) {
         // ARB_stat is the arbiter using synchronizers
-        bool _a1i,_a2i,_a1o,_a2o,a1o,a2o,_ri;
+        bool _ai[2], _ao[2], ao[2], _ri;
     
         //Force Arbiter Behavior
         spec {
-            // mk_exclhi(l1.o, l2.o)
-            mk_excllo(_a1i,_a2i)
+            mk_excllo(_ai[0],_ai[1])
         }
     
         //Implement fair and greedy algorithm
         prs<g.Vdd,g.GND> {
             //asymmetric c-elements
-            l1.i & _ri -> _a1o-
-            ~l1.i      -> _a1o+
-            l2.i & _ri -> _a2o-
-            ~l2.i      -> _a2o+
+            li[0] & _ri -> _ao[0]-
+            ~li[0]      -> _ao[0]+
+            li[1] & _ri -> _ao[1]-
+            ~li[1]      -> _ao[1]+
     
             // staticizers
-            _a1o => a1o-
-            _a2o => a2o-
+            _ao[0] => ao[0]-
+            _ao[1] => ao[1]-
     
             // parent lines
-            a1o | a2o => r.o+
-            r.i => _ri-
+            ao[0] | ao[1] => ro+
+            ri => _ri-
         }
     
         //Cross-Coupled NANDs
         prs<g.Vdd,g.GND> {
-            //_a1i NAND
-            a1o & _a2i   => _a1i-
-            //_a2i NAND
-            a2o &  _a1i  => _a2i-
+            ao[0] & _ai[1]   => _ai[0]-
+            ao[1] &  _ai[0]  => _ai[1]-
         }
     
         //Filter
         prs<g.Vdd,g.GND> {
-            _a1i & _ri   -> l1.o-
-            ~_a1i & ~_ri -> l1.o+ // requires staticizer
-            _a2i & _ri   -> l2.o-
-            ~_a2i & ~_ri -> l2.o+
+            _ai[0] & _ri   -> lo[0]-
+            ~_ai[0] & ~_ri -> lo[0]+ // requires staticizer
+            _ai[1] & _ri   -> lo[1]-
+            ~_ai[1] & ~_ri -> lo[1]+
         }
     }
     
     export
-    defproc ARB_ng (globals g; port l1, l2, r) {
+    defproc ARB_ng (globals g; bool li[2], lo[2], ri, ro) {
         // ARB_ng is the arbiter implemented on neurogrid and earlier chips.
         // Its filter circuit is not QDI. 
         // Specifically, assumes that a1i (a2i) changes before ri in l1o- (l2o-)
         // guards.
-        bool _a1i,_a2i,_a1o,_a2o,a1o,a2o,_ri;
+        bool _ai[2], _ao[2], ao[2], _ri;
     
         //Force Arbiter Behavior
         spec {
-            // mk_exclhi(l1.o, l2.o)
-            mk_excllo(_a1i,_a2i)
+            mk_excllo(_ai[0],_ai[1])
         }
     
         //Implement fair and greedy algorithm
         prs<g.Vdd,g.GND> {
             //asymmetric c-elements
-            l1.i & _ri -> _a1o-
-            ~l1.i      -> _a1o+
-            l2.i & _ri -> _a2o-
-            ~l2.i      -> _a2o+
+            li[0] & _ri -> _ao[0]-
+            ~li[0]      -> _ao[0]+
+            li[1] & _ri -> _ao[1]-
+            ~li[1]      -> _ao[1]+
     
             // staticizers
-            _a1o => a1o-
-            _a2o => a2o-
+            _ao[0] => ao[0]-
+            _ao[1] => ao[1]-
     
             // parent lines
-            a1o | a2o => r.o+
-            r.i => _ri-
+            ao[0] | ao[1] => ro+
+            ri => _ri-
         }
     
         //Cross-Coupled NANDs
         prs<g.Vdd,g.GND> {
-            //_a1i NAND
-            a1o & _a2i   => _a1i-
-            //_a2i NAND
-            a2o &  _a1i  => _a2i-
+            ao[0] & _ai[1]   => _ai[0]-
+            ao[1] &  _ai[0]  => _ai[1]-
         }
     
         //Filter
         prs<g.Vdd,g.GND> {
-            _a1i | _ri   -> l1.o-
-            ~_a1i & ~_ri -> l1.o+
-            _a2i | _ri   -> l2.o-
-            ~_a2i & ~_ri -> l2.o+
+            _ai[0] | _ri   -> lo[0]-
+            ~_ai[0] & ~_ri -> lo[0]+
+            _ai[1] | _ri   -> lo[1]-
+            ~_ai[1] & ~_ri -> lo[1]+
         }
     }
     
     export
-    defproc LTH (globals gl; port l, g; bool rk) {
+    defproc LTH (globals g; bool li, lo, gi, go, rk) {
     }
     
     export
-    defproc ADY (globals g; port y, v, d) {
+    defproc ADY (globals g; bool yi, yo, vi, vo, di, do) {
     }
     
     export
-    defproc ADX (globals g; port x, v, c) {
+    defproc ADX (globals g; bool xi, xo, vi, vo, ci, co) {
     }
     
     export
-    defproc SEQ (globals g; port s, x, y, t, d) {
+    defproc SEQ (globals g; bool si, so, xi, xo, yi, yo, ti, to, di, do) {
+    }
+    namespace test {
+        defproc dummy_LTH_INT(globals g; bool vi, vo, rk) {
+            // utility for TEST_EVT
+            prs {
+                ~g.sReset & vi & ~rk -> vo+
+                g.pReset | ~vi & rk  -> vo-
+            }
+        }
+
+        export
+        defproc TEST_EVT (globals g) {
+            active_handshaker<1> neuron(g,,);
+            dummy_LTH_INT lth_int(g,,,);
+            EVT e(g,,,,,,);
+            
+            e.pi = neuron.o[0];
+            e.po = neuron.i[0];
+            e.ro = lth_int.vi;
+            e.ri = lth_int.vo;
+            e.co = lth_int.rk;
+        }
     }
 } // namespace transmitter

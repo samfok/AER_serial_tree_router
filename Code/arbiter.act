@@ -5,13 +5,12 @@ import "test.act";
 
 namespace arbiter {
     // contains arbiter related processes. 
-    defproc CTRL (globals g; bool _ci[2], s0i, s0o, s1i, s1o, pi, po) {
+    defproc CTRL (globals g; bool _ci[2], s0i, s0o, _s1i, s1o, pi, po) {
         // sequences between children and parent communications
-        // s2.i is active low from H_ARB environment
         bool x, y, _y;
         prs<g.Vdd,g.GND> {
             g._sReset & (~_ci[0] | ~_ci[1]) & ~_y -> po+
-            g.pReset | s1i & x & _y -> po-
+            g.pReset | _s1i & x & _y -> po-
     
             g._sReset & ~x & ~_y -> s0o+
             g.pReset | x | _y -> s0o-
@@ -19,7 +18,7 @@ namespace arbiter {
             g._sReset & ~s0i & ~x & ~y -> s1o+
             g.pReset | x -> s1o-
     
-            g.pReset | ~s1i & ~y -> x+
+            g.pReset | ~_s1i & ~y -> x+
             g._sReset & pi & y -> x-
     
             ~pi -> y+
@@ -152,7 +151,7 @@ namespace arbiter {
 
         ctrl.s0i = s0b;
         c0_arb._si = _s0a;
-        ctrl.s1i = c1_arb._so; // ctrl.s2.i will be active low
+        ctrl._s1i = c1_arb._so;
         c1_arb._si = _s1a;
     }
 

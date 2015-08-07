@@ -19,15 +19,15 @@ watch test.n_arb.h_arb[4].pi
 watch test.n_arb.h_arb[5].pi
 watch test.n_arb.h_arb[6].pi
 
-watch test.c[0].o
-watch test.c[1].o
-watch test.c[2].o
-watch test.c[3].o
+watch test.c.o[0]
+watch test.c.o[1]
+watch test.c.o[2]
+watch test.c.o[3]
 
-watch test.c[0].i
-watch test.c[1].i
-watch test.c[2].i
-watch test.c[3].i
+watch test.c.i[0]
+watch test.c.i[1]
+watch test.c.i[2]
+watch test.c.i[3]
 
 set_principal test.n_arb.h_arb[6]._po
 set_principal test.n_arb.h_arb[6].pi

@@ -1,7 +1,7 @@
-set_principal test.arb._a1.i
-set_principal test.arb._a1.o
-set_principal test.arb._a2.i
-set_principal test.arb._a2.o
+set_principal test.arb._ai[0]
+set_principal test.arb._ao[0]
+set_principal test.arb._ai[1]
+set_principal test.arb._ao[1]
 
 source reset.scr
 random
@@ -9,9 +9,9 @@ break-on-warn
 
 # watchall
 
-# watch test.arb._a1.i
-# watch test.arb._a1.o
-# watch test.arb._a2.i
-# watch test.arb._a2.o
-# watch test.arb.a1
-# watch test.arb.a2
+# watch test.arb._ai[0]
+# watch test.arb._ao[0]
+# watch test.arb._ai[1]
+# watch test.arb._ao[1]
+# watch test.arb.a[0]
+# watch test.arb.a[1]

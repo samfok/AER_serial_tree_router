@@ -1,11 +1,11 @@
 source reset.scr
 random
-watch test.e.p.i
-watch test.e.p.o
-watch test.e.r.i
-watch test.e.r.o
-watch test.e.c.o
-set_principal test.e.p.i
-set_principal test.e.p.o
-set_principal test.e.c.o
+watch test.e.pi
+watch test.e.po
+watch test.e.ri
+watch test.e.ro
+watch test.e.co
+set_principal test.e.pi
+set_principal test.e.po
+set_principal test.e.co
 break-on-warn
