@@ -1,16 +1,16 @@
 source reset.scr
 random
 # watchall
-# watch test.ctrl.p.i
-# watch test.ctrl.p.o
-# watch test.ctrl.s1.i
-# watch test.ctrl.s1.o
-# watch test.ctrl.s2.i
-# watch test.ctrl.s2.o
-# set_principal test.ctrl.p.i
-# set_principal test.ctrl.p.o
-# set_principal test.ctrl.s1.i
-# set_principal test.ctrl.s1.o
-# set_principal test.ctrl.s2.i
-# set_principal test.ctrl.s2.o
+# watch test.ctrl.pi
+# watch test.ctrl.po
+# watch test.ctrl.s0i
+# watch test.ctrl.s0o
+# watch test.ctrl.s1i
+# watch test.ctrl.s1o
+# set_principal test.ctrl.pi
+# set_principal test.ctrl.po
+# set_principal test.ctrl.s0i
+# set_principal test.ctrl.s0o
+# set_principal test.ctrl.s1i
+# set_principal test.ctrl.s1o
 break-on-warn
