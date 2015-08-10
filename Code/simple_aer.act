@@ -1,0 +1,133 @@
+// This file contains PRS for a simple address event transmitter/receiver
+import "lib/globals.act";
+import "channel.act";
+import "arbiter.act";
+import "logic.act";
+import "test.act";
+
+namespace n4 { // simple example with 4 sender/receiver neurons
+    template <pint NN>
+    defproc STATE (globals g; bool c[NN], co[NN], si[NN], so[NN]) {
+        // Transmitter state sequences inputs to encoder
+        bool x[NN];
+        (; i : NN :
+            prs<g.Vdd,g.GND> {
+                    c[i] & ~x[i] -> so[i]+
+                    g.pReset | x[i] -> so[i]-
+
+                    ~si[i] & x[i] -> co[i]+
+                    si[i] | ~x[i] -> co[i]-
+
+                    si[i] -> x[i]+
+                    ~c[i] -> x[i]-
+            }
+        )
+    }
+
+    template <pint M, N, NN>
+    defproc ENC (globals g; bool vi, si[NN], so[NN]; aMx1ofN<M,N> d) {
+        // Transmitter encoder converts 1-of-NN encoding into M-1-of-N encoding
+        prs<g.Vdd,g.GND> {
+            vi & (si[0]|si[2]) -> d.m[0].n[0]+
+            vi & (si[1]|si[3]) -> d.m[0].n[1]+
+            vi & (si[0]|si[1]) -> d.m[1].n[0]+
+            vi & (si[2]|si[3]) -> d.m[1].n[1]+
+
+            ~vi -> d.m[0].n[0]-
+            ~vi -> d.m[0].n[1]-
+            ~vi -> d.m[1].n[0]-
+            ~vi -> d.m[1].n[1]-
+
+            si[0] & d.a -> so[0]+
+            si[1] & d.a -> so[1]+
+            si[2] & d.a -> so[2]+
+            si[3] & d.a -> so[3]+
+
+            ~si[0] & ~d.a -> so[0]-
+            ~si[1] & ~d.a -> so[1]-
+            ~si[2] & ~d.a -> so[2]-
+            ~si[3] & ~d.a -> so[3]-
+        }
+    }
+
+    export
+    template <pint M,N>
+    defproc VN (bool i[M*N], o) {
+        // detects valid/neutral data
+        OR<N> or[M];
+        (; m : M :
+            (; n : N :
+                or[m].i[n] = i[m*M+n];
+            )
+        )
+
+        C_TREE<M> c_tree(,o);
+
+        (; k : M :
+            or[k].o = c_tree.i[k];
+        )
+    }
+
+    export
+    template <pint M,N,NN>
+    defproc AEXT (globals g; bool ci[NN], co[NN]; aMx1ofN<M,N> d) {
+        ::arbiter::N_ARB<NN> arb(g, ci,);
+        STATE<NN> state(g,, co,,);
+        VN<1, NN> vn(,);
+        ENC<M, N, NN> enc(g,,,,);
+
+        state.c = arb.co;
+        state.so = enc.si;
+        state.si = enc.so;
+        state.so = vn.i;
+        vn.o = enc.vi;
+        enc.d = d;
+    }
+
+    export
+    template <pint M, N, NN>
+    defproc AERV (globals g; bool ri[NN], ro[NN]; aMx1ofN<M,N> d) {
+        // receiver
+        VN<M,N> vn(,);
+    }
+
+    export
+    template <pint M, N, NN>
+    defproc AER (globals g; bool ci[NN], co[NN], ri[NN], ro[NN]) {
+        // AER system. 
+        // Transmits spikes from transmitter neurons to receiver neurons
+        AEXT<M,N,NN> aext(g,ci,co,);
+        AERV<M,N,NN> aerv(g,ri,ro,);
+        aext.d = aerv.d;
+    }
+
+    namespace test {
+        export
+        template <pint M,N,NN>
+        defproc TEST_AEXT(globals g) {
+            active_handshaker<NN> s(g,,);
+            AEXT<M,N,NN> aext(g,,,);
+            aext.ci = s.o;
+            aext.co = s.i;
+
+            VN<M,N> vn(, aext.d.a);
+            vn.i[0] = aext.d.m[0].n[0];
+            vn.i[1] = aext.d.m[0].n[1];
+            vn.i[2] = aext.d.m[1].n[0];
+            vn.i[3] = aext.d.m[1].n[1];
+        }
+
+        export
+        template <pint M, N, NN>
+        defproc TEST_AER(globals g) {
+            active_handshaker<NN> s(g,,);
+            passive_handshaker<NN> r(g,,);
+            AER<M,N,NN> aer(g,,,,);
+
+            aer.ci = s.o;
+            aer.co = s.i;
+            aer.ro = r.i;
+            aer.ri = r.o;
+        }
+    }
+}

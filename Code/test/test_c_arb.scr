@@ -1,0 +1,20 @@
+source reset.scr
+random
+# watchall
+
+watch test.c_arb._si
+watch test.c_arb._so
+watch test.c_arb._ci
+watch test.c_arb.co
+watch test.c_arb._co
+watch test.c_arb._ci_hat
+watch test.c_arb._si_hat
+watch test.c_arb.cso
+watch test.c_arb.sso
+set_principal test.c_arb._si
+set_principal test.c_arb._so
+set_principal test.c_arb._ci
+set_principal test.c_arb.co
+
+break-on-warn
+

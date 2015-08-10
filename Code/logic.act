@@ -21,8 +21,8 @@ defproc AND (bool i[N], o) {
     [] N>=4 ->
         pint k=N/4;
         AND<k>     and0(i[0..k-1],);
-        AND<2*k>   and1(i[k..2*k-1],);
-        AND<3*k>   and2(i[2*k..3*k-1],);
+        AND<k>   and1(i[k..2*k-1],);
+        AND<k>   and2(i[2*k..3*k-1],);
         AND<N-3*k> and3(i[3*k..N-1],);
         bool _x01, _x23;
         prs {
@@ -54,8 +54,8 @@ defproc OR (bool i[N], o) {
     [] N>=4 ->
         pint k=N/4;
         OR<k>     or0(i[0..k-1],);
-        OR<2*k>   or1(i[k..2*k-1],);
-        OR<3*k>   or2(i[2*k..3*k-1],);
+        OR<k>   or1(i[k..2*k-1],);
+        OR<k>   or2(i[2*k..3*k-1],);
         OR<N-3*k> or3(i[3*k..N-1],);
         bool _x01, _x23;
         prs {
