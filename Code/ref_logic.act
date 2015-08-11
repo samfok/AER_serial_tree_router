@@ -30,7 +30,7 @@ defproc OR (bool i[N], o) {
         }
     [] N>2 ->
         OR<N/2> or0(i[0..N/2-1],);
-        OR<N/2> or1(i[N/2..N-1],);
+        OR<N-N/2> or1(i[N/2..N-1],);
         prs {
             or0.o | or1.o => o+
         }
