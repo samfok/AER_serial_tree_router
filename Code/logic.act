@@ -3,6 +3,7 @@
 export
 template <pint N>
 defproc AND (bool i[N], o) {
+    // AND tree with 2/3 input NANDS and 2 input NORS
     [ N=1 ->
         i[0] = o;
     [] N=2 ->
@@ -12,23 +13,38 @@ defproc AND (bool i[N], o) {
             _o => o-
         }
     [] N=3 ->
-        bool _x0, _x12;
+        bool _o;
         prs {
-            i[0] => _x0-
-            i[1] & i[2] => _x12-
-            _x0 | _x12 => o-
+            i[0] & i[1] & i[2] => _o-
+            _o => o-
         }
-    [] N>=4 ->
-        pint k=N/4;
-        AND<k>     and0(i[0..k-1],);
-        AND<k>   and1(i[k..2*k-1],);
-        AND<k>   and2(i[2*k..3*k-1],);
-        AND<N-3*k> and3(i[3*k..N-1],);
+    [] N=4 ->
         bool _x01, _x23;
         prs {
-            and0.o & and1.o => _x01-
-            and2.o & and3.o => _x23-
+            i[0] & i[1] => _x01-
+            i[2] & i[3] => _x23-
             _x01 | _x23 => o-
+        }
+    [] N=5 ->
+        bool _x012, _x34;
+        prs {
+            i[0] & i[1] & i[2] => _x012-
+            i[3] & i[4] => _x34-
+            _x012 | _x34 => o-
+        }
+    [] N>=6 ->
+        pint k=N/6;
+        AND<k>     and0(i[0..k-1],);
+        AND<k>     and1(i[k..2*k-1],);
+        AND<k>     and2(i[2*k..3*k-1],);
+        AND<k>     and3(i[3*k..4*k-1],);
+        AND<k>     and4(i[4*k..5*k-1],);
+        AND<N-5*k> and5(i[5*k..N-1],);
+        bool _x012, _x345;
+        prs {
+            and0.o & and1.o & and2.o => _x012-
+            and3.o & and4.o & and5.o => _x345-
+            _x012 | _x345 => o-
         }
     ]
 }
@@ -36,6 +52,7 @@ defproc AND (bool i[N], o) {
 export
 template <pint N>
 defproc OR (bool i[N], o) {
+    // OR tree with 2/3 input NANDS and 2 input NORS
     [ N=1 ->
         i[0] = o;
     [] N=2 ->
@@ -51,17 +68,35 @@ defproc OR (bool i[N], o) {
             i[1] | i[2] => _x12-
             _x0 & _x12 => o-
         }
-    [] N>=4 ->
-        pint k=N/4;
-        OR<k>     or0(i[0..k-1],);
-        OR<k>   or1(i[k..2*k-1],);
-        OR<k>   or2(i[2*k..3*k-1],);
-        OR<N-3*k> or3(i[3*k..N-1],);
+    [] N=4 ->
         bool _x01, _x23;
+        prs {
+            i[0] | i[1] => _x01-
+            i[2] | i[3] => _x23-
+            _x01 & _x23 => o-
+        }
+    [] N=5 ->
+        bool _x01, _x23, _x4;
+        prs {
+            i[0] | i[1] => _x01-
+            i[2] | i[3] => _x23-
+            i[4] => _x4-
+            _x01 & _x23 & _x4 => o-
+        }
+    [] N>=6 ->
+        pint k=N/6;
+        OR<k>     or0(i[0..k-1],);
+        OR<k>     or1(i[k..2*k-1],);
+        OR<k>     or2(i[2*k..3*k-1],);
+        OR<k>     or3(i[3*k..4*k-1],);
+        OR<k>     or4(i[4*k..5*k-1],);
+        OR<N-5*k> or5(i[5*k..N-1],);
+        bool _x01, _x23, _x45;
         prs {
             or0.o | or1.o => _x01-
             or2.o | or3.o => _x23-
-            _x01 & _x23 => o-
+            or4.o | or5.o => _x45-
+            _x01 & _x23 & _x45 => o-
         }
     ]
 }

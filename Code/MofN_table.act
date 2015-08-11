@@ -1,4 +1,4 @@
-pint M=2;
+pint M=4;
 pint N=4;
 pint NN;
 
@@ -30,7 +30,7 @@ pint NN;
     [ N=2 ->
         NN=16;
     [] N=4 ->
-        NN=512;
+        NN=256;
     [] N=8 ->
         NN=4096;
     ]
