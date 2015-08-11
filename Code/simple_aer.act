@@ -146,6 +146,28 @@ namespace aer {
         }
 
         export
+        template <pint M, N, NN, k>
+        defproc TEST_AEXT1(globals g) {
+            active_handshaker<1> s(g,,);
+            AEXT<M, N, NN> aext(g,,,);
+            (; nn : NN :
+                [ nn = k ->
+                    aext.ci[nn] = s.o[0];
+                    aext.co[nn] = s.i[0];
+                [] nn != k ->
+                    aext.ci[nn] = g.GND;
+                ]
+            )
+
+            VN<M, N> vn(, aext.d.a);
+            (; m : M :
+                (; n : N :
+                    vn.i[m*N+n] = aext.d.m[m].n[n];
+                )
+            )
+        }
+
+        export
         template <pint M, N, NN>
         defproc TEST_AER(globals g) {
             active_handshaker<NN> s(g,,);

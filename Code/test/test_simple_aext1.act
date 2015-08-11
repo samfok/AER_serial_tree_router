@@ -1,0 +1,22 @@
+// TESTS the SIMPLE_AEXT circuit with 1 sender
+import "lib/globals.act";
+import "simple_aer.act";
+
+pint M=3;
+pint N=4;
+pint NN=64; // NN=N^M
+pint k=17; // 0 <= k < NN
+
+globals g;
+aer::test::TEST_AEXT1<M, N, NN, k> test(g);
+
+bool pReset, sReset;
+prs {
+    sReset => g.sReset+
+    pReset => g.pReset+
+    sReset => g._sReset-
+    pReset => g._pReset-
+    sReset -> g.Vdd+
+    sReset -> g.GND-
+}
+
