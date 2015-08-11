@@ -6,47 +6,74 @@ import "logic.act";
 import "test.act";
 
 namespace n4 { // simple example with 4 sender/receiver neurons
-    template <pint NN>
-    defproc STATE (globals g; bool c[NN], co[NN], si[NN], so[NN]) {
+    template <pint N>
+    defproc STATE (globals g; bool c[N], co[N], si[N], so[N]) {
         // Transmitter state sequences inputs to encoder
-        bool x[NN];
-        (; i : NN :
+        bool x[N];
+        (; n : N :
             prs<g.Vdd,g.GND> {
-                    c[i] & ~x[i] -> so[i]+
-                    g.pReset | x[i] -> so[i]-
+                    c[n] & ~x[n] -> so[n]+
+                    g.pReset | x[n] -> so[n]-
 
-                    ~si[i] & x[i] -> co[i]+
-                    si[i] | ~x[i] -> co[i]-
+                    ~si[n] & x[n] -> co[n]+
+                    si[n] | ~x[n] -> co[n]-
 
-                    si[i] -> x[i]+
-                    ~c[i] -> x[i]-
+                    si[n] -> x[n]+
+                    ~c[n] -> x[n]-
             }
         )
     }
 
+    template <pint m, M, N, NN, LR, NR>
+    defproc _ENC (bool vi, si[NN]; aMx1ofN<M,N> d) {
+        // recursive utility to build the encoding function
+        // converts 1-of-NN encoding (NN = N^M) to M-1-of-N encoding
+        // m group index
+        // N elements per group
+        // NN total elements
+        // LR length per run
+        // NR number of runs
+        prs {
+            (: n : N :
+                vi & (| : nr : NR : 
+                     (| : lr : LR :
+                        si[n*LR + nr*N*LR + lr])) -> d.m[m].n[n]+
+            )
+        }
+
+        [LR != 1 ->
+            _ENC<m+1, M, N, NN, LR/N, NR*N> _enc(vi, si, d);
+        ]
+    }
+
     template <pint M, N, NN>
-    defproc ENC (globals g; bool vi, si[NN], so[NN]; aMx1ofN<M,N> d) {
+    defproc ENC (bool vi, si[NN], so[NN]; aMx1ofN<M,N> d) {
         // Transmitter encoder converts 1-of-NN encoding into M-1-of-N encoding
-        prs<g.Vdd,g.GND> {
-            vi & (si[0]|si[2]) -> d.m[0].n[0]+
-            vi & (si[1]|si[3]) -> d.m[0].n[1]+
-            vi & (si[0]|si[1]) -> d.m[1].n[0]+
-            vi & (si[2]|si[3]) -> d.m[1].n[1]+
+        // M encoding groups
+        // N neurons per group
+        // N^M = NN total neurons
 
-            ~vi -> d.m[0].n[0]-
-            ~vi -> d.m[0].n[1]-
-            ~vi -> d.m[1].n[0]-
-            ~vi -> d.m[1].n[1]-
+        // encode
+        pint m_0 = 0;
+        pint LR_0 = NN/N;
+        pint NR_0 = 1;
+        _ENC<m_0, M, N, NN, LR_0, NR_0> _enc(vi, si, d);
 
-            si[0] & d.a -> so[0]+
-            si[1] & d.a -> so[1]+
-            si[2] & d.a -> so[2]+
-            si[3] & d.a -> so[3]+
+        // reset encoding
+        prs {
+            (: m : M :
+                (: n : N :
+                    ~vi -> d.m[m].n[n]-
+                )
+            )
+        }
 
-            ~si[0] & ~d.a -> so[0]-
-            ~si[1] & ~d.a -> so[1]-
-            ~si[2] & ~d.a -> so[2]-
-            ~si[3] & ~d.a -> so[3]-
+        // communicate with STATE
+        prs {
+            (: nn : NN :
+                si[nn] & d.a -> so[nn]+
+                ~si[nn] & ~d.a -> so[nn]-
+            )
         }
     }
 
@@ -74,7 +101,7 @@ namespace n4 { // simple example with 4 sender/receiver neurons
         ::arbiter::N_ARB<NN> arb(g, ci,);
         STATE<NN> state(g,, co,,);
         VN<1, NN> vn(,);
-        ENC<M, N, NN> enc(g,,,,);
+        ENC<M, N, NN> enc(,,,);
 
         state.c = arb.co;
         state.so = enc.si;
