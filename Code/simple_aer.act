@@ -5,7 +5,7 @@ import "arbiter.act";
 import "logic.act";
 import "test.act";
 
-namespace n4 { // simple example with 4 sender/receiver neurons
+namespace aer {
     template <pint N>
     defproc STATE (globals g; bool c[N], co[N], si[N], so[N]) {
         // Transmitter state sequences inputs to encoder
@@ -84,7 +84,7 @@ namespace n4 { // simple example with 4 sender/receiver neurons
         OR<N> or[M];
         (; m : M :
             (; n : N :
-                or[m].i[n] = i[m*M+n];
+                or[m].i[n] = i[m*N+n];
             )
         )
 
@@ -130,18 +130,19 @@ namespace n4 { // simple example with 4 sender/receiver neurons
 
     namespace test {
         export
-        template <pint M,N,NN>
+        template <pint M, N, NN>
         defproc TEST_AEXT(globals g) {
             active_handshaker<NN> s(g,,);
-            AEXT<M,N,NN> aext(g,,,);
+            AEXT<M, N, NN> aext(g,,,);
             aext.ci = s.o;
             aext.co = s.i;
 
-            VN<M,N> vn(, aext.d.a);
-            vn.i[0] = aext.d.m[0].n[0];
-            vn.i[1] = aext.d.m[0].n[1];
-            vn.i[2] = aext.d.m[1].n[0];
-            vn.i[3] = aext.d.m[1].n[1];
+            VN<M, N> vn(, aext.d.a);
+            (; m : M :
+                (; n : N :
+                    vn.i[m*N+n] = aext.d.m[m].n[n];
+                )
+            )
         }
 
         export

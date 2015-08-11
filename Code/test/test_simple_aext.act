@@ -1,12 +1,10 @@
 // TESTS the SIMPLE_AEXT circuit
 import "lib/globals.act";
 import "simple_aer.act";
+import "MofN_table.act";
 
-pint M=2;
-pint N=2;
-pint NN=4;
 globals g;
-n4::test::TEST_AEXT<M,N,NN> test(g);
+aer::test::TEST_AEXT<M, N, NN> test(g);
 
 bool pReset, sReset;
 prs {
