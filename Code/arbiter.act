@@ -56,7 +56,7 @@ namespace arbiter {
     }
     
     export
-    defproc ARB (globals g; bool ai[2], ao[1]) {
+    defproc ARB (bool ai[2], ao[2]) {
         // The basic 2-input arbiter
         bool _a[2];
     
@@ -65,13 +65,13 @@ namespace arbiter {
         }
     
         //Cross-Coupled NANDs
-        prs<g.Vdd,g.GND> {
+        prs {
             ai[0] & _a[1]  => _a[0]-
             ai[1] & _a[0]  => _a[1]-
         }
     
         //Filter
-        prs<g.Vdd,g.GND> {
+        prs {
             ~_a[0] & _a[1] -> ao[0]+
             _a[0]          -> ao[0]-
     
@@ -81,7 +81,7 @@ namespace arbiter {
     }
     
     export
-    defproc ARB_LOW (globals g; bool _ai[2], _ao[2]) {
+    defproc _ARB (bool _ai[2], _ao[2]) {
         // The basic 2-input arbiter with active low inputs/outputs
         bool a[2];
     
@@ -90,13 +90,13 @@ namespace arbiter {
         }
     
         //Cross-Coupled NORs
-        prs<g.Vdd,g.GND> {
+        prs {
             _ai[0] | a[1] => a[0]-
             _ai[1] | a[0] => a[1]-
         }
     
         //Filter
-        prs<g.Vdd,g.GND> {
+        prs {
             a[0] & ~a[1] -> _ao[0]-
             ~a[0]        -> _ao[0]+
     
@@ -106,18 +106,18 @@ namespace arbiter {
     }
     
     export
-    defproc C_ARB (globals g; bool _si, _so, _ci, co) {
+    defproc C_ARB (bool _si, _so, _ci, co) {
         // controlled arbiter cell for use with CTRL
         // arbitrates between child request and CTRL request
         bool cso, sso;
         bool _ci_hat, _si_hat, _co;
-        ARB_LOW arb(g,,);
+        _ARB arb(,);
         arb._ai[0] = _ci;
         arb._ai[1] = _si;
         arb._ao[0] = _ci_hat;
         arb._ao[1] = _si_hat;
     
-        prs<g.Vdd,g.GND> {
+        prs {
             ~_ci_hat & ~_si & ~sso -> cso+
             _ci_hat -> cso-
     
@@ -138,10 +138,10 @@ namespace arbiter {
         // heirarchical arbiter cell
         // can be arranged in a binary tree to service more than 2 children
         CTRL ctrl(g, _ci,,,,, pi,);
-        C_ARB c0_arb(g,,, _ci[0], co[0]), c1_arb(g,,, _ci[1], co[1]);
+        C_ARB c0_arb(,, _ci[0], co[0]), c1_arb(,, _ci[1], co[1]);
 
         bool _s0a, s0b, _s1a;
-        prs<g.Vdd,g.GND> {
+        prs {
             ctrl.po => _po-
 
             ctrl.s0o => _s0a-
@@ -176,19 +176,19 @@ namespace arbiter {
         )
         
         // connect top of arbiter tree back to itself
-        prs<g.Vdd,g.GND> {
+        prs {
             h_arb[N-2]._po => h_arb[N-2].pi-
         }
 
         // connect children ports to arbiter tree leaves
         (; n : N : 
             [ (n%2) = 0 -> 
-                prs<g.Vdd,g.GND>{
+                prs {
                     ci[n] => h_arb[n/2]._ci[0]-
                 }
                 co[n] = h_arb[n/2].co[0];
             [] (n%2) = 1 ->
-                prs<g.Vdd,g.GND>{
+                prs {
                     ci[n] => h_arb[n/2]._ci[1]-
                 }
                 co[n] = h_arb[n/2].co[1];
@@ -216,7 +216,7 @@ namespace arbiter {
         defproc TEST_ARB (globals g) {
             // tests ARB
             active_handshaker<2> c(g,,);
-            ARB arb(g,,);
+            ARB arb(,);
             
             c.o = arb.ai;
             c.i = arb.ao;
@@ -226,7 +226,7 @@ namespace arbiter {
         defproc TEST_ARB_LOW (globals g) {
             // tests ARB with active low inputs
             active_low_handshaker<2> c(g,,);
-            ARB_LOW arb(g,,);
+            _ARB arb(,);
             
             c._o = arb._ai;
             c._i = arb._ao;
@@ -246,7 +246,7 @@ namespace arbiter {
         export
         defproc TEST_C_ARB (globals g) {
             C_ARB_handshaker c(g,,,,);
-            C_ARB c_arb(g,,,,);
+            C_ARB c_arb(,,,);
             
             c_arb._si = c._so;
             c_arb._so = c._si;
