@@ -7,25 +7,46 @@ import "test.act";
 
 namespace aer {
     template <pint N>
-    defproc STATE (globals g; bool c[N], co[N], si[N], so[N]) {
-        // Transmitter state sequences inputs to encoder
+    defproc ENC_XMIT (globals g; bool ci[N], co[N], di, so[N]) {
+        // Transmission portion of encoder 
+        // Sequences inputs to encoder function block
+        bool c[N];
+        ::arbiter::N_ARB<N> arb(g, ci, c);
         bool x[N];
-        (; n : N :
-            prs<g.Vdd,g.GND> {
+        prs {
+            (: n : N :
                     c[n] & ~x[n] -> so[n]+
-                    g.pReset | x[n] -> so[n]-
+                    ~c[n] | x[n] -> so[n]-
 
-                    ~si[n] & x[n] -> co[n]+
-                    si[n] | ~x[n] -> co[n]-
+                    ~di & x[n] -> co[n]+
+                    ~x[n] -> co[n]-
 
-                    si[n] -> x[n]+
+                    c[n] & di -> x[n]+
                     ~c[n] -> x[n]-
-            }
-        )
+            )
+        }
     }
 
     template <pint m, M, N, NN, LR, NR>
-    defproc _ENC (bool vi, si[NN]; aMx1ofN<M,N> d) {
+    defproc _ENC_FBLK (bool vi, si[NN]; aMx1ofN<M,N> d);
+
+    template <pint M, N, NN>
+    defproc ENC_FBLK (bool vi, si[NN]; aMx1ofN<M,N> d) {
+        // Function block portion of encoder
+        // Converts 1-of-NN encoding into M-1-of-N encoding
+        // M encoding groups
+        // N neurons per group
+        // N^M = NN total neurons
+
+        // encode
+        pint m_0 = 0;
+        pint LR_0 = NN/N;
+        pint NR_0 = 1;
+        _ENC_FBLK<m_0, M, N, NN, LR_0, NR_0> _enc_fblk(vi, si, d);
+    }
+
+    template <pint m, M, N, NN, LR, NR>
+    defproc _ENC_FBLK (bool vi, si[NN]; aMx1ofN<M,N> d) {
         // recursive utility to build the encoding function
         // converts 1-of-NN encoding (NN = N^M) to M-1-of-N encoding
         // m group index
@@ -38,43 +59,13 @@ namespace aer {
                 vi & (| : nr : NR : 
                      (| : lr : LR :
                         si[n*LR + nr*N*LR + lr])) -> d.m[m].n[n]+
+                ~vi -> d.m[m].n[n]-
             )
         }
 
         [LR != 1 ->
-            _ENC<m+1, M, N, NN, LR/N, NR*N> _enc(vi, si, d);
+            _ENC_FBLK<m+1, M, N, NN, LR/N, NR*N> _enc_fblk(vi, si, d);
         ]
-    }
-
-    template <pint M, N, NN>
-    defproc ENC (bool vi, si[NN], so[NN]; aMx1ofN<M,N> d) {
-        // Transmitter encoder converts 1-of-NN encoding into M-1-of-N encoding
-        // M encoding groups
-        // N neurons per group
-        // N^M = NN total neurons
-
-        // encode
-        pint m_0 = 0;
-        pint LR_0 = NN/N;
-        pint NR_0 = 1;
-        _ENC<m_0, M, N, NN, LR_0, NR_0> _enc(vi, si, d);
-
-        // reset encoding
-        prs {
-            (: m : M :
-                (: n : N :
-                    ~vi -> d.m[m].n[n]-
-                )
-            )
-        }
-
-        // communicate with STATE
-        prs {
-            (: nn : NN :
-                si[nn] & d.a -> so[nn]+
-                ~si[nn] & ~d.a -> so[nn]-
-            )
-        }
     }
 
     export
@@ -98,17 +89,13 @@ namespace aer {
     export
     template <pint M,N,NN>
     defproc AEXT (globals g; bool ci[NN], co[NN]; aMx1ofN<M,N> d) {
-        ::arbiter::N_ARB<NN> arb(g, ci,);
-        STATE<NN> state(g,, co,,);
+        ENC_XMIT<NN> enc_xmit(g, ci, co, d.a,);
         VN<1, NN> vn(,);
-        ENC<M, N, NN> enc(,,,);
+        ENC_FBLK<M, N, NN> enc_fblk(,,d);
 
-        state.c = arb.co;
-        state.so = enc.si;
-        state.si = enc.so;
-        state.so = vn.i;
-        vn.o = enc.vi;
-        enc.d = d;
+        enc_xmit.so = enc_fblk.si;
+        enc_xmit.so = vn.i;
+        vn.o = enc_fblk.vi;
     }
 
     export

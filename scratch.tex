@@ -4,146 +4,35 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-What happens when we have more than one group? Let's say we have 4 inputs and are using 1-of-2 encoding, so that becomes 2 groups.
+Essentially, we are converting from a 1-of-N code to an M-1-of-N code.
 
-\section{single process}
+\subsection{CHP}
 
 \begin{csp}
 AEXT\equiv
-  *[[\langle\|i:0..n\-1:#{C`i}->D!i;D;C`i;C`i\rangle]]
-\equiv
-  *[[\langle\|i:0..n\-1:C`i\star(D!i;D!i);C`i\rangle]]
+  *[[\langle\|i:0..n\-1:#{C`i}->D!enc(i);D;C`i;C`i\rangle]]
 \end{csp}
 
-\noindent Compiling CHP to HSE.
+\begin{csp}
+STATE\equiv*[[\langle\|i:0..n\-1:#{C`i}->S`i;S`i;C`i;C`i\rangle]]
+\end{csp}
 
-\begin{hse}
-AEXT
-\equiv
-  *[[c0i->d00+,d10+;[di];d00-,d10-;[~di];c0o+;[~c0i];c0o-
-    \|c1i->d01+,d10+;[di];d01-,d10-;[~di];c1o+;[~c1i];c1o-
-    \|c2i->d00+,d11+;[di];d00-,d11-;[~di];c2o+;[~c2i];c2o-
-    \|c3i->d01+,d11+;[di];d01-,d11-;[~di];c3o+;[~c3i];c3o-
-   ]]
-\equiv
-  *[[c0i->c0+;[c0];d00+,d10+;[di];d00-,d10-;[~di];c0o+;[~c0i];c0-;[~c0];c0o-
-    \|c1i->c1+;[c1];d01+,d10+;[di];d01-,d10-;[~di];c1o+;[~c1i];c1-;[~c1];c1o-
-    \|c2i->c2+;[c2];d00+,d11+;[di];d00-,d11-;[~di];c2o+;[~c2i];c2-;[~c2];c2o-
-    \|c3i->c3+;[c3];d01+,d11+;[di];d01-,d11-;[~di];c3o+;[~c3i];c3-;[~c3];c3o-
-   ]]
-\equiv
-  *[[c0i->c0+;[~c0i];c0-
-    \|c1i->c1+;[~c1i];c1-
-    \|c2i->c2+;[~c2i];c2-
-    \|c3i->c3+;[~c3i];c3-
-   ]] \pll
-  *[[c0];d00+,d10+;[di];d00-,d10-;[~di];c0o+;[~c0];c0o-] \pll
-  *[[c1];d01+,d10+;[di];d01-,d10-;[~di];c1o+;[~c1];c1o-] \pll
-  *[[c2];d00+,d11+;[di];d00-,d11-;[~di];c2o+;[~c2];c2o-] \pll
-  *[[c3];d01+,d11+;[di];d01-,d11-;[~di];c3o+;[~c3];c3o-]
-\end{hse}
+\begin{csp}
+ENC\equiv*[[S`i;D!enc(i);D;S`i]]
+\end{csp}
+Need blocks for arbitration, state, encoding and transmission.
 
-\noindent where we see arbitration and encoding processes. Need to disambiguate states within branches and between branches. A single state variable in each branch should suffice.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{HSE}
 
-\begin{hse}
-*[[c0];d00+,d10+;[di];x0+;d00-,d10-;[~di];c0o+;x0-;[~c0];c0o-] \pll
-*[[c1];d01+,d10+;[di];x1+;d01-,d10-;[~di];c1o+;x1-;[~c1];c1o-] \pll
-*[[c2];d00+,d11+;[di];x2+;d00-,d11-;[~di];c2o+;x2-;[~c2];c2o-] \pll
-*[[c3];d01+,d11+;[di];x3+;d01-,d11-;[~di];c3o+;x3-;[~c3];c3o-]
-\end{hse}
-
-\noindent Compiling HSE to PRS
-
-\begin{prs2}
-~di & (c0 | c2) -> d00+
-di & (x0 | x2) -> d00-
-
-~di & (c1 | c3) -> d01+
-di & (x1 | x3) -> d01-
-
-~di & (c0 | c1) -> d10+
-di & (x0 | x1) -> d10-
-
-~di & (c2 | c3) -> d11+
-di & (x2 | x3) -> d11-
-\end{prs2}
-
-\begin{prs2}
-c0 & di -> x0+
-c0o & ~di -> x0-
-
-c1 & di -> x1+
-c1o & ~di -> x1-
-
-c2 & di -> x2+
-c2o & ~di -> x2-
-
-c3 & di -> x3+
-c3o & ~di -> x3-
-\end{prs2}
-
-\begin{prs2}
-x0 & ~di -> c0o+
-~x0 & ~c0 -> c0o-
-
-x1 & ~di -> c1o+
-~x1 & ~c1 -> c1o-
-
-x2 & ~di -> c2o+
-~x2 & ~c2 -> c2o-
-
-x3 & ~di -> c3o+
-~x3 & ~c3 -> c3o-
-\end{prs2}
-
-\noindent Ick. The data wires go high again as soon as the acknowledge clears because the arbiter hasn't cleared yet. I don't know that I can make PRS that implements the HSE without building a decoder essentially...Could use combinations of $xi$ but that's building a decoder...
-
-\noindent The branches still don't exclude each other...Consider: branch 1 passes $c0_o\uparrow$. Before it can set $x0\downarrow$, $\neg\!c0$ becomes true. This means the arbiter can select another branch. The other branch begins and passes $di$. Do any $dij$ pulldowns get activated prematurely? No...What about pulldowns getting activated that shouldn't? Sure, but these would be vacuous...What about $ck_o$ pullups? Well if another branch is executing, then $c1_o$ must have caused $\neg\!c0$ so it's already done its job, so again vacuous...
-
-\section{with valid and neutral detectors}
-
-Can think if it as going from one giant 1-of-N code being converted to m 1-of-n codes...
-
-arbitration:
-\begin{hse}
-*[[c0i->c0+;[~c0i];c0-
-  \|c1i->c1+;[~c1i];c1-
-  \|c2i->c2+;[~c2i];c2-
-  \|c3i->c3+;[~c3i];c3-
- ]]
-\end{hse}
-
-encoding and transmition:
-\begin{hse}
-*[[c0|c1|c2|c3];
-  [c0->d00+,d10+[]c1->d01+,d10+[]c2->d00+,d11+[]c3->d01+,d11+];
-  [~c0&~c1&~c2&~c3];d00-,d01-,d10-,d11-]
-\end{hse}
-
-reset:
-\begin{hse}
-*[[c0&di->c0o+
-  []c1&di->c1o+
-  []c2&di->c2o+
-  []c3&di->c3o+
- ]]
-\end{hse}
-
-\noindent Hmm this has the problem of one request going high before the data lines have gone low...I think I need additional state.
-
-arbitration:
-\begin{hse}
-ARB\equiv
-*[[c0i->c0+;[~c0i];c0-
-  \|c1i->c1+;[~c1i];c1-
-  \|c2i->c2+;[~c2i];c2-
-  \|c3i->c3+;[~c3i];c3-
- ]]
-\end{hse}
-
-state: communicates with encoding and transmition and reset
 \begin{hse}
 STATE\equiv
+*[[c0i->c0+;[~c0i];c0-
+  \|c1i->c1+;[~c1i];c1-
+  \|c2i->c2+;[~c2i];c2-
+  \|c3i->c3+;[~c3i];c3-
+ ]]
+
 *[[c0->s0o+;[s0i];s0o-;[~s0i];c0o+;[~c0];c0o-
   []c1->s1o+;[s1i];s1o-;[~s1i];c1o+;[~c1];c1o-
   []c2->s2o+;[s2i];s2o-;[~s2i];c2o+;[~c2];c2o-
@@ -151,21 +40,13 @@ STATE\equiv
  ]]
 \end{hse}
 
-encoding and transmition: computes the function and resets data wires. Takes the form 
-\begin{csp}
-TX\equiv*[[v(s)];D\Uparrow;[n(s)];D\Downarrow]
-\end{csp}
-
-\noindent where $v$ and $n$ are functions computing the validity and neutrality. $D$ indicates computing and transmitting the function.
-
 \begin{hse}
-TX\equiv
+ENC\equiv
 *[[s0i|s1i|s2i|s3i];
   [s0i->d00+,d10+[]s1i->d01+,d10+[]s2i->d00+,d11+[]s3i->d01+,d11+];
   [~s0i&~s1i&~s2i&~s3i];d00-,d01-,d10-,d11-]
 \end{hse}
 
-reset: receives valid signal and sends reset to state
 \begin{hse}
 RESET\equiv
 *[[s0i&di->s0o+;[~s0i&~di];s0o-
@@ -175,9 +56,8 @@ RESET\equiv
  ]]
 \end{hse}
 
-What is the problem here? Do the states really need selection? I don't think so. It implies additional shared state across the selection branches.
+In $STATE$, we replace selection with concurrent execution. 
 
-state:
 \begin{hse}
 STATE\equiv
 *[[c0];s0o+;[s0i];s0o-;[~s0i];c0o+;[~c0];c0o-]
@@ -186,23 +66,13 @@ STATE\equiv
 *[[c3];s3o+;[s3i];s3o-;[~s3i];c3o+;[~c3];c3o-]
 \end{hse}
 
-Does this still work? I think so. The neuron reset isn't raised until the data wires have been cleared as implied by $sj_i$.
+\noindent The $S$ communication requires exclusion because it is used to raise and lower the data wires. Concurrent execution is valid because mutually exclusive access to the data wires is ensured by waiting for the data wires to clear as implied by $\neg sj_i$ before raising the the neuron reset signal, which then leads to the arbiter selecting another branch of $STATE$.
 
-I should also be able to simplify the function encoder/decoder no? Why do we have that initial validity check? Since it's effectively a 1-of-N code, the selection branch implies the validity check.
-
-\begin{hse}
-TX\equiv
-*[[s0i->d00+,d10+[]s1i->d01+,d10+[]s2i->d00+,d11+[]s3i->d01+,d11+];
-  [~s0i&~s1i&~s2i&~s3i];d00-,d01-,d10-,d11-]
-\end{hse}
-
-The neutrality check is a bit more tricky. The current neutrality check on the $sj_i$'s implies $d_i$. I would like to replace it with a simple check on $d_i$. This would save us the unscalable chain of pulldowns for the reset.  However, using $d_i$ instead of the $sj_i$'s would cause instability in the reset circuit. 
-
-Alternatively, could we add a valid/neutral detection circuit? for the $sj_i$'s. Since $sj_i$ effectively implement a giant 1-of-N code, this turns out to be simply an OR gate, which can be distributed across a tree of circuit elements with reasonable pullup/pulldown chains.
+Next, we simplify $ENC$. The $sj_i$ validity check is superflous, and the neutrality check requires a transistor chain that grows linearly with the number of neurons. The validity check is unecessary because the $sj_i$ effectively implement a 1-of-N code, so the selection branch guards alone implement the validity check. To implement a scalable neutrality check, we add a valid/neutral detection circuit for the $sj_i$'s. Since $sj_i$ effectively implement a giant 1-of-N code, this turns out to be simply an OR gate, which can be distributed across a tree of OR gates.
 
 \begin{hse}
-TX\equiv
-*[[s0i->d00+,d10+[]s1i->d01+,d10+[]s2i->d00+,d11+[]s3i->d01+,d11+];
+ENC\equiv
+*[[vi&s0i->d00+,d10+[]vi&s1i->d01+,d10+[]vi&s2i->d00+,d11+[]vi&s3i->d01+,d11+];
   [~vi];d00-,d01-,d10-,d11-]
 \end{hse}
 
@@ -211,15 +81,9 @@ VN\equiv
 *[[s0i|s1i|s2i|s3i];vo+;[~s0i&~s1i&~s2i&~s3i];vo-]]
 \end{hse}
 
-Note we'll need to add $v_i$ to the transmission guards otherwise $v$'s upward transition would not be acknowledged.
+Note that even though the initial validity check worked, we needed to add $v_i$ to the transmission guards otherwise $VN$'s $v_o$'s upward transition would not be acknowledged.
 
-\begin{hse}
-TX\equiv
-*[[vi&s0i->d00+,d10+[]vi&s1i->d01+,d10+[]vi&s2i->d00+,d11+[]vi&s3i->d01+,d11+];
-  [~vi];d00-,d01-,d10-,d11-]
-\end{hse}
-
-$STATE$ ensures the mutual exclusion of the reset branches, so we don't need to use selection.
+Next, we simplify $RESET$. $STATE$ ensures the mutual exclusion of the reset branches, so we don't need to use selection.
 
 \begin{hse}
 RESET\equiv
@@ -229,34 +93,71 @@ RESET\equiv
 *[[s3i&di];s3o+;[~s3i&~di];s3o-]
 \end{hse}
 
-Overall:
+We should reall lump the encoding and reset circuits together
 
 \begin{hse}
-ARB\equiv
+ENC\equiv
+*[[vi&s0i->d00+,d10+[]vi&s1i->d01+,d10+[]vi&s2i->d00+,d11+[]vi&s3i->d01+,d11+];
+  [~vi];d00-,d01-,d10-,d11-]
+
+*[[s0i&di];s0o+;[~s0i&~di];s0o-]
+*[[s1i&di];s1o+;[~s1i&~di];s1o-]
+*[[s2i&di];s2o+;[~s2i&~di];s2o-]
+*[[s3i&di];s3o+;[~s3i&~di];s3o-]
+\end{hse}
+
+
+To summarize,
+
+\begin{hse}
+ENC_XMIT\equiv
 *[[c0i->c0+;[~c0i];c0-
   \|c1i->c1+;[~c1i];c1-
   \|c2i->c2+;[~c2i];c2-
   \|c3i->c3+;[~c3i];c3-
  ]]
+ 
+*[[c0];s0o+;[di];x0+;s0o-;[~di];c0o+;[~c0];x0-;c0o-]
+*[[c1];s1o+;[di];x1+;s1o-;[~di];c1o+;[~c1];x1-;c1o-]
+*[[c2];s2o+;[di];x2+;s2o-;[~di];c2o+;[~c2];x2-;c2o-]
+*[[c3];s3o+;[di];x3+;s3o-;[~di];c3o+;[~c3];x3-;c3o-]
 
-STATE\equiv
-*[[c0];s0o+;[s0i];s0o-;[~s0i];c0o+;[~c0];c0o-]
-*[[c1];s1o+;[s1i];s1o-;[~s1i];c1o+;[~c1];c1o-]
-*[[c2];s2o+;[s2i];s2o-;[~s2i];c2o+;[~c2];c2o-]
-*[[c3];s3o+;[s3i];s3o-;[~s3i];c3o+;[~c3];c3o-]
-
-TX\equiv
+ENC_FBLK\equiv
 *[[vi&s0i->d00+,d10+[]vi&s1i->d01+,d10+[]vi&s2i->d00+,d11+[]vi&s3i->d01+,d11+];
   [~vi];d00-,d01-,d10-,d11-]
 
 VN\equiv
 *[[s0i|s1i|s2i|s3i];vo+;[~s0i&~s1i&~s2i&~s3i];vo-]]
-
-RESET\equiv
-*[[s0i&di];s0o+;[~s0i&~di];s0o-]
-*[[s1i&di];s1o+;[~s1i&~di];s1o-]
-*[[s2i&di];s2o+;[~s2i&~di];s2o-]
-*[[s3i&di];s3o+;[~s3i&~di];s3o-]
 \end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{PRS}
+
+$ENC\_XMIT_k\equiv$
+\begin{prs2}
+ck&~xk->sko+
+~ck|xk->sko-
+
+ck&di->xk+
+~ck->xk-
+
+~di&xk->cko+
+~xk->cko-
+\end{prs2}
+
+$ENC\_FBLK\equiv$
+\begin{prs2}
+vi & (s0i|s2i) -> d00+
+vi & (s1i|s3i) -> d01+
+vi & (s0i|s1i) -> d10+
+vi & (s2i|s3i) -> d11+
+
+~vi -> d00-
+~vi -> d01-
+~vi -> d10-
+~vi -> d11-
+\end{prs2}
+
+$VN$ is a standard $OR$ tree.
 
 \end{document}
