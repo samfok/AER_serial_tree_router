@@ -6,80 +6,207 @@
 \author{Sam Fok}
 \maketitle
 
-In this document, we develop a simple address-event representation (AER) system for an array of $n$ neurons.
+In this document, we develop a simple address-event representation (AER) system for an array of $N$ neurons. Each neuron can be split into a sending and receiving process. 
 
 \begin{csp}
-NT(n)\equiv\langle\pll\!i:0..n\-1:*[[P`i;P`i]]\rangle
-NR(n)\equiv\langle\pll\!i:0..n\-1:*[[P`i;P`i]]\rangle
+SEND\equiv\langle\pll\!n:0..N\-1:*[[P`i;P`i]]\rangle
+RECV\equiv\langle\pll\!n:0..N\-1:*[[P`i;P`i]]\rangle
 \end{csp}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\part{Transmitter ($AEXT$)}
 
-When a neuron spikes, the transmitter sends the neuron's addresss.
+\noindent $SEND$ will provide input to the transmitter, and $RECV$ will receive input from the receiver.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Transmitter Decomposition}
+\section{Transmitter ($AEXT$)}
 
-The highest level specification of the transmitter is given by
+When a neuron spikes, the transmitter sends the neuron's addresss. Essentially, we are converting from a 1-of-N code to an M-1-of-N code.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{CHP}
+The transmitter is specified by
 
 \begin{csp}
 AEXT\equiv
-  *[[\langle\|\!i:0..n\-1:#{C`i}->C`i;T!i;T!i,C`i]]
+  *[[\langle\|n:0..N\-1:#{C`n}->D!enc(C`n);D;C`n;C`n\rangle]]
 \end{csp}
 
-\noindent in words,
+\noindent In words,
 
 \begin{tabular}[]{rl}
-  $\overline{C_i}$ & when the $i$th neuron spikes and is selected by the arbitration \\
-  $T!i$ & initiate neuron address transmission \\
-  $C_i$ & signal the neuron's reset \\
-  $T!i$ & complete neuron address transmission \\
-  $C_i$ & release the neuron's reset \\
+  $\overline{C_n}$ & when the $i$th neuron spikes and is selected by the arbiter \\
+  $D!enc(C_n)$ & compute and transmit the encoding of the neuron address \\
+  $D$ & reset the data transmission lines \\
+  $C_n$ & signal the neuron's reset \\
+  $C_i$ & lower the neuron's reset \\
 \end{tabular} \\
 
-\noindent Variation 1
+We split the transmitter into control and data (encoding) processes. 
 
 \begin{csp}
-AEXT\equiv
-  *[[\langle\|\!i:0..n\-1:C`i\star\!T!i;T!i,C`i]]
+CTRL\equiv*[[\langle\|n:0..N\-1:#{C`n}->S`n;S`n;C`n;C`n\rangle]]
 \end{csp}
 
-\noindent Variation 2
+\begin{csp}
+ENC\equiv*[S\star\!D!enc(S);S\star\!D]
+\end{csp}
 
-  *[[\langle\|\!i:0..n\-1:C`i\star\!T!i;T!i,C`i]]
+\noindent $CTRL$ arbitrates between incoming neuron requests. $S_n$ in $CTRL$ are combined into $S$ in $ENC$, which computes the encoded neuron address and transmits it.
 
-\subsection{HSE for $n=2$ transmitter}
+We further split the encoder into transmission and function blocks.
 
-Starting with the control process,
+\begin{csp}
+ENC_XMIT\equiv\langle\pll\,n:0..N\-1:*[S`n\star\!X`n;S`n\star\!X`n]\rangle
+ENC_FBLK\equiv*[[valid(X)];D!enc(X);[neutral(X)];D]
+\end{csp}
+
+\noindent $ENC\_XMIT$ transmits the neuron signal to $ENC\_XMIT$, which computes the encoding and transmits it to the environment. $X_n$ in $ENC\_XMIT$ are combined into $X$ in $ENC\_FBLK$. $valid(\cdot)$ computes validity, and $neutral(\cdot)$ computes neutrality.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{HSE}
+
+First, $CTRL$.
 
 \begin{hse}
-AEXT\equiv
-  *[[c1i->d10+;[di];c1o+;[~c1i];d10-[~di];c1o-
-    \|c2i->d11+;[di];c2o+;[~c2i];d11-;[~di];c2o-]
+CTRL\equiv
+*[[\langle\|n:0..N\-1:cni->sno+;[sni];sno-;[~sni];cno+;[cni];cno-\rangle]]
 \end{hse}
 
-\noindent Introducing intermediate signals $c_1$ and $c_2$ to represent the arbitration,
+We introduce intermediate variables $cn$ to represent the arbitration.
 
 \begin{hse}
-AEXT\equiv
-  *[[c1i->c1+;[c1];d10+;[di];c1o+;[~c1i];c1-;[~c1];d10-;[~di];c1o-
-    \|c2i->c2+;[c2];d11+;[di];c2o+;[~c2i];c2-;[~c2];d11-;[~di];c2o-]
+CTRL\equiv
+*[[\langle\|n:0..N\-1:cni->cn+;sno+;[sni];sno-;[~sni];cno+;[cni];cn-;cno-\rangle]]
 \end{hse}
 
-\noindent Breaking out arbitration into its own process
+We decompose $CTRL$ into arbitration and communication.
 
 \begin{hse}
-  *[[c1i->c1+;[~c1i];c1-
-    \|c2i->c2+;[~c2i];c2-]] \pll
-  *[[c1];d10+;[di];d10-;[~di];c1o+;[~c1];c1o-] \pll
-  *[[c2];d11+;[di];d11-;[~di];c2o+;[~c2];c2o-]
+CTRL\equiv
+*[[\langle\|n:0..N\-1:cni->cn+;[~cni];cn-;\rangle]] \pll
+\langle\pll\!n:0..N\-1:*[[cn];sno+;[sni];sno-;[~sni];cno+;[~cn];cno-]\rangle
+\end{hse}
+
+\noindent Note how we must complete all 4 phases of the $S$ communication before signaling the neuron to reset. If the neuron were reset earlier, it would lower its signal to the arbiter, which could then select another neuron, violating the mutually exclusive access to the data wires as required for delay insensitive codes. 
+
+This sequencing contains indistinguishable states, so we introduce state variables $xn$ to eliminate them.
+
+\begin{hse}
+CTRL\equiv
+*[[\langle\|n:0..N\-1:cni->cn+;[~cni];cn-;\rangle]] \pll
+\langle\pll\!n:0..N\-1:*[[cn];sno+;[sni];xn+;sno-;[~sni];cno+;[~cn];xn-;cno-]\rangle
+\end{hse}
+
+Next, $ENC\_XMIT$.
+
+\begin{hse}
+ENC_XMIT\equiv
+\langle\pll\!n:0..N\-1:*[[sni];xno+;[di];sno+;[~sni];xno-;[~di];sno-]\rangle
+\end{hse}
+
+Next, $ENC\_FBLK$,
+
+\begin{hse}
+ENC_FBLK\equiv
+*[[\langle|n:0..N\-1:xni\rangle];
+  [\langle[]n:0..N\-1:xni->D(enc(xni))\Uparrow\rangle];
+  [\langle&n:0..N\-1:~xni\rangle];D\Downarrow]
+\end{hse}
+
+\noindent where $D(enc(xn_i))$ are the data wires corresponding to the M-1-of-N encoding of $n$. In words,
+
+\begin{tabular}[]{ll}
+  $\texttt{[}\langle \lor n:0..N-1:xn_i\rangle\texttt{]}$ & 
+    wait for the 1-of-N input to become valid \\
+  $\texttt{[}\langle\texttt{[}\!\!\texttt{]}n:0..N-1:xn_i\rightarrow 
+    D(enc(xn_i))\Uparrow\rangle\texttt{]}$ & 
+    convert the 1-of-N input to an M-1-of-N code on the data lines \\
+  $\texttt{[}\langle\land n:0..N-1:\neg xn_i\rangle\texttt{]}$ & 
+    wait for the 1-of-N input to become neutral \\
+  $D\Downarrow$ & lower the data lines \\
+\end{tabular} \\
+
+\noindent With a 1-of-N input, the validity check is superflous and can be ensured by the selection statement. The neutrality check would require a long series chain of transistors. 
+
+We pull the valid/neutral checks into a separate process and use an intermediate variable to represent validity/neutrality.
+
+\begin{hse}
+ENC_FBLK\equiv
+*[[\langle[]n:0..N\-1:vi&xni->D(enc(xni))\Uparrow\rangle];[~vi];D\Downarrow]
+
+VN\equiv
+*[[\langle|n:0..N\-1:xni\rangle];vo+;[\langle&n:0..N\-1:~xni\rangle];vo-]]
+\end{hse}
+
+\noindent The valid and neutral checks will be implemented by OR and AND trees, respectively and avoid the long series chains of transistors. Note that we still need the $v_i$ validity guard in the selection. Otherwise, the upward transition of the valid/neutral output would not be acknowledged.
+
+In summary,
+
+\begin{hse}
+CTRL\equiv
+*[[\langle\|n:0..N\-1:cni->cn+;[~cni];cn-;\rangle]] \pll
+\langle\pll\!n:0..N\-1:*[[cn];sno+;[sni];xn+;sno-;[~sni];cno+;[~cn];xn-;cno-]\rangle
+\end{hse}
+
+\begin{hse}
+ENC_XMIT\equiv
+\langle\pll\!n:0..N\-1:*[[sni];xno+;[di];sno+;[~sni];xno-;[~di];sno-]\rangle
+\end{hse}
+
+\begin{hse}
+ENC_FBLK\equiv
+*[[\langle[]n:0..N\-1:vi&xni->D(enc(xn))\Uparrow\rangle];[~vi];D\Downarrow]
+
+VN\equiv
+*[[\langle|n:0..N\-1:sni\rangle];vo+;[\langle&n:0..N\-1:~sni\rangle];vo-]]
 \end{hse}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\part{Receiver ($AERV$)}
+\subsection{PRS}
+
+First, $CTRL$,
+
+$cn_i$ is input to an arbiter and $cn$ is its output,
+
+For the $n$th concurrent process, $CTRL_n\equiv$
+\begin{prs2}
+cn & ~xn -> sno+
+~cn | xn -> sno-
+
+sni -> xn+
+~cn -> xn-
+
+~sni & xn -> cno+
+sni | ~xn -> cno-
+\end{prs2}
+
+Next, $ENC\_XMIT$,
+
+For the $n$th concurrent process, $ENC\_XMIT_n\equiv$
+\begin{prs2}
+sni -> xno+
+~sni -> xno-
+
+xno & di -> sno+
+~xno & ~di -> sno-
+\end{prs2}
+
+Next, $ENC\_FBLK$,
+
+For $j$ indexing M and $k$ indexing N of the M-1-of-N code, $ENC\_FBLK_{jk}\equiv$
+\begin{prs2}
+vi & x(enc^{\-1}(j,k))i -> djko+
+
+~vi -> djko-
+\end{prs2}
+
+\noindent where $enc^{-1}(j,k)$ computes the indices of $x$ that raise the $j,k$th data wire.
+
+$VN$ is just an $OR$ tree because the input is a 1-of-N code.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Receiver Decomposition}
+\section{Receiver ($AERV$)}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{CHP}
 
 The highest level of the receiver is given by
 
@@ -87,5 +214,10 @@ The highest level of the receiver is given by
 AERV(n)\equiv*[dec(D)?x;[\langle[]i:0..n\-1:x=i->C`i;C`i];D]
 \end{csp}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{HSE}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{PRS}
 
 \end{document}
