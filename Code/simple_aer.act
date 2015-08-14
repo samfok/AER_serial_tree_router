@@ -7,31 +7,44 @@ import "test.act";
 
 namespace aer {
     template <pint N>
-    defproc ENC_XMIT (globals g; bool ci[N], co[N], di, so[N]) {
-        // Transmission portion of encoder 
-        // Sequences inputs to encoder function block
+    defproc CTRL (globals g; bool ci[N], co[N], si[N], so[N]) {
         bool c[N];
         ::arbiter::N_ARB<N> arb(g, ci, c);
         bool x[N];
         prs {
             (: n : N :
-                    c[n] & ~x[n] -> so[n]+
-                    ~c[n] | x[n] -> so[n]-
+                c[n] & ~x[n] -> so[n]+
+                ~c[n] | x[n] -> so[n]-
 
-                    ~di & x[n] -> co[n]+
-                    ~x[n] -> co[n]-
+                ~si[n] & x[n] -> co[n]+
+                si[n] | ~x[n] -> co[n]-
 
-                    c[n] & di -> x[n]+
-                    ~c[n] -> x[n]-
+                si[n] -> x[n]+
+                ~c[n] -> x[n]-
+            )
+        }
+    }
+
+    template <pint N>
+    defproc ENC_XMIT (bool si[N], so[N], xo[N], di) {
+        // Transmission portion of encoder 
+        // Sequences inputs to encoder function block
+        prs {
+            (: n : N :
+                si[n] -> xo[n]+
+                ~si[n] -> xo[n]-
+
+                xo[n] & di -> so[n]+
+                ~xo[n] & ~di -> so[n]-
             )
         }
     }
 
     template <pint m, M, N, NN, LR, NR>
-    defproc _ENC_FBLK (bool vi, si[NN]; aMx1ofN<M,N> d);
+    defproc _ENC_FBLK (bool vi, xi[NN]; aMx1ofN<M,N> d);
 
     template <pint M, N, NN>
-    defproc ENC_FBLK (bool vi, si[NN]; aMx1ofN<M,N> d) {
+    defproc ENC_FBLK (bool vi, xi[NN]; aMx1ofN<M,N> d) {
         // Function block portion of encoder
         // Converts 1-of-NN encoding into M-1-of-N encoding
         // M encoding groups
@@ -42,11 +55,11 @@ namespace aer {
         pint m_0 = 0;
         pint LR_0 = NN/N;
         pint NR_0 = 1;
-        _ENC_FBLK<m_0, M, N, NN, LR_0, NR_0> _enc_fblk(vi, si, d);
+        _ENC_FBLK<m_0, M, N, NN, LR_0, NR_0> _enc_fblk(vi, xi, d);
     }
 
     template <pint m, M, N, NN, LR, NR>
-    defproc _ENC_FBLK (bool vi, si[NN]; aMx1ofN<M,N> d) {
+    defproc _ENC_FBLK (bool vi, xi[NN]; aMx1ofN<M,N> d) {
         // recursive utility to build the encoding function
         // converts 1-of-NN encoding (NN = N^M) to M-1-of-N encoding
         // m group index
@@ -58,13 +71,13 @@ namespace aer {
             (: n : N :
                 vi & (| : nr : NR : 
                      (| : lr : LR :
-                        si[n*LR + nr*N*LR + lr])) -> d.m[m].n[n]+
+                        xi[n*LR + nr*N*LR + lr])) -> d.m[m].n[n]+
                 ~vi -> d.m[m].n[n]-
             )
         }
 
         [LR != 1 ->
-            _ENC_FBLK<m+1, M, N, NN, LR/N, NR*N> _enc_fblk(vi, si, d);
+            _ENC_FBLK<m+1, M, N, NN, LR/N, NR*N> _enc_fblk(vi, xi, d);
         ]
     }
 
@@ -89,13 +102,16 @@ namespace aer {
     export
     template <pint M,N,NN>
     defproc AEXT (globals g; bool ci[NN], co[NN]; aMx1ofN<M,N> d) {
-        ENC_XMIT<NN> enc_xmit(g, ci, co, d.a,);
-        VN<1, NN> vn(,);
+        CTRL<NN> ctrl(g, ci, co,,);
+        ENC_XMIT<NN> enc_xmit(,,, d.a);
         ENC_FBLK<M, N, NN> enc_fblk(,,d);
+        VN<1, NN> vn(,);
 
-        enc_xmit.so = enc_fblk.si;
-        enc_xmit.so = vn.i;
-        vn.o = enc_fblk.vi;
+        ctrl.si = enc_xmit.so;
+        ctrl.so = enc_xmit.si;
+        enc_xmit.xo = enc_fblk.xi;
+        enc_xmit.xo = vn.i;
+        enc_fblk.vi = vn.o;
     }
 
     export
@@ -124,12 +140,13 @@ namespace aer {
             aext.ci = s.o;
             aext.co = s.i;
 
-            VN<M, N> vn(, aext.d.a);
+            VN<M, N> vn(,);
             (; m : M :
                 (; n : N :
                     vn.i[m*N+n] = aext.d.m[m].n[n];
                 )
             )
+            vn.o = aext.d.a;
         }
 
         export

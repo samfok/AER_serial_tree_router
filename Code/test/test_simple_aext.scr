@@ -6,25 +6,44 @@ break-on-warn
 source reset.scr
 # watchall
 
+# #################### M1 N2 debug ############################################
+
+# set_principal test.aext.ci[0]
+# set_principal test.aext.ci[1]
+# set_principal test.aext.co[0]
+# set_principal test.aext.co[1]
+# set_principal test.aext.ctrl.so[0]
+# set_principal test.aext.ctrl.so[1]
+# set_principal test.aext.ctrl.si[0]
+# set_principal test.aext.ctrl.si[1]
+# set_principal test.aext.enc_fblk.vi
+# set_principal test.aext.d.m[0].n[0]
+# set_principal test.aext.d.m[0].n[1]
+# set_principal test.aext.d.a
+# 
+# source reset.scr
+# 
+# watch test.aext.ci[0]
+# watch test.aext.ci[1]
+# watch test.aext.co[0]
+# watch test.aext.co[1]
+# watch test.aext.ctrl.so[0]
+# watch test.aext.ctrl.so[1]
+# watch test.aext.ctrl.si[0]
+# watch test.aext.ctrl.si[1]
+# watch test.aext.ctrl.x[0]
+# watch test.aext.ctrl.x[1]
+# watch test.aext.enc_fblk.vi
+# watch test.aext.d.m[0].n[0]
+# watch test.aext.d.m[0].n[1]
+# watch test.aext.d.a
+
 # #################### M2 N2 ##################################################
 
 # set_principal test.aext.ci[0]
 # set_principal test.aext.ci[1]
 # set_principal test.aext.ci[2]
 # set_principal test.aext.ci[3]
-# set_principal test.aext.co[0]
-# set_principal test.aext.co[1]
-# set_principal test.aext.co[2]
-# set_principal test.aext.co[3]
-# set_principal test.aext.state.so[0]
-# set_principal test.aext.state.so[1]
-# set_principal test.aext.state.so[2]
-# set_principal test.aext.state.so[3]
-# set_principal test.aext.state.si[0]
-# set_principal test.aext.state.si[1]
-# set_principal test.aext.state.si[2]
-# set_principal test.aext.state.si[3]
-# set_principal test.aext.enc.vi
 # set_principal test.aext.d.m[0].n[0]
 # set_principal test.aext.d.m[0].n[1]
 # set_principal test.aext.d.m[1].n[0]
@@ -37,23 +56,6 @@ source reset.scr
 # watch test.aext.ci[1]
 # watch test.aext.ci[2]
 # watch test.aext.ci[3]
-# watch test.aext.co[0]
-# watch test.aext.co[1]
-# watch test.aext.co[2]
-# watch test.aext.co[3]
-# watch test.aext.state.so[0]
-# watch test.aext.state.so[1]
-# watch test.aext.state.so[2]
-# watch test.aext.state.so[3]
-# watch test.aext.state.si[0]
-# watch test.aext.state.si[1]
-# watch test.aext.state.si[2]
-# watch test.aext.state.si[3]
-# watch test.aext.state.x[0]
-# watch test.aext.state.x[1]
-# watch test.aext.state.x[2]
-# watch test.aext.state.x[3]
-# watch test.aext.enc.vi
 # watch test.aext.d.m[0].n[0]
 # watch test.aext.d.m[0].n[1]
 # watch test.aext.d.m[1].n[0]

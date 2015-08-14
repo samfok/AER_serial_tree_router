@@ -7,20 +7,231 @@
 Essentially, we are converting from a 1-of-N code to an M-1-of-N code.
 
 \subsection{CHP}
+The transmitter is specified by
 
 \begin{csp}
 AEXT\equiv
-  *[[\langle\|i:0..n\-1:#{C`i}->D!enc(i);D;C`i;C`i\rangle]]
+  *[[\langle\|n:0..N\-1:#{C`n}->D!enc(C`n);D;C`n;C`n\rangle]]
+\end{csp}
+
+\noindent In words,
+
+\begin{tabular}[]{rl}
+  $\overline{C_n}$ & when the $i$th neuron spikes and is selected by the arbiter \\
+  $D!enc(C_n)$ & compute and transmit the encoding of the neuron address \\
+  $D$ & reset the data transmission lines \\
+  $C_n$ & signal the neuron's reset \\
+  $C_i$ & lower the neuron's reset \\
+\end{tabular} \\
+
+We split the transmitter into control and data (encoding) processes. 
+
+\begin{csp}
+CTRL\equiv*[[\langle\|n:0..N\-1:#{C`n}->S`n;S`n;C`n;C`n\rangle]]
 \end{csp}
 
 \begin{csp}
-STATE\equiv*[[\langle\|i:0..n\-1:#{C`i}->S`i;S`i;C`i;C`i\rangle]]
+ENC\equiv*[S\star\!D!enc(S);S\star\!D]
+\end{csp}
+
+\noindent Control arbitrates between incoming neuron requests. The encoder computes and transmits the endoded neuron address. $S$ in $ENC$ is composed of all the $S_n$ in $CTRL$.
+
+We further split the encoder into transmission and function blocks.
+
+\begin{csp}
+ENC_XMIT\equiv\langle\pll\,n:0..N\-1:*[S`n\star\!X`n;S`n\star\!X`n]\rangle
+ENC_FBLK\equiv*[[valid(X)];D!enc(X);[neutral(X)];D]
+\end{csp}
+
+\noindent $X$ in $ENC\_FBLK$ is composed of all the $X_n$ in $ENC\_XMIT$, $valid(\cdot)$ computes validity, and $neutral(\cdot)$ computes neutrality.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{HSE}
+
+First, $CTRL$,
+
+\begin{hse}
+CTRL\equiv
+*[[\langle\|n:0..N\-1:cni->sno+;[sni];sno-;[~sni];cno+;[cni];cno-\rangle]]
+\end{hse}
+
+We introduce intermediate variables $cn$ to represent the arbitration.
+
+\begin{hse}
+CTRL\equiv
+*[[\langle\|n:0..N\-1:cni->cn+;sno+;[sni];sno-;[~sni];cno+;[cni];cn-;cno-\rangle]]
+\end{hse}
+
+We break out the arbitration process.
+
+\begin{hse}
+CTRL\equiv
+*[[\langle\|n:0..N\-1:cni->cn+;[~cni];cn-;\rangle]] \pll
+\langle\pll\!n:0..N\-1:*[[cn];sno+;[sni];sno-;[~sni];cno+;[~cn];cno-]\rangle
+\end{hse}
+
+We introduce state variables $xn$ to eliminate indistinguishable states,
+
+\begin{hse}
+CTRL\equiv
+*[[\langle\|n:0..N\-1:cni->cn+;[~cni];cn-;\rangle]] \pll
+\langle\pll\!n:0..N\-1:*[[cn];sno+;[sni];xn+;sno-;[~sni];cno+;[~cn];xn-;cno-]\rangle
+\end{hse}
+
+Next, $ENC\_XMIT$,
+
+\begin{hse}
+ENC_XMIT\equiv
+\langle\pll\!n:0..N\-1:*[[sni];xno+;[di];sno+;[~sni];xno-;[~di];sno-]\rangle
+\end{hse}
+
+Next, $ENC\_FBLK$,
+
+\begin{hse}
+ENC_FBLK\equiv
+*[[\langle|n:0..N\-1:xni\rangle];
+  [\langle[]n:0..N\-1:xni->D(enc(xni))\Uparrow\rangle];
+  [\langle&n:0..N\-1:~xni\rangle];D\Downarrow]
+\end{hse}
+
+We split out the valid/neutral checks into a separate process to avoid long series chain of transistors.
+
+\begin{hse}
+ENC_FBLK\equiv
+*[[\langle[]n:0..N\-1:vi&xni->D(enc(xni))\Uparrow\rangle];[~vi];D\Downarrow]
+
+VN\equiv
+*[[\langle|n:0..N\-1:xni\rangle];vo+;[\langle&n:0..N\-1:~xni\rangle];vo-]]
+\end{hse}
+
+\noindent Note that we still need the $v_i$ guard in the transmission. Otherwise, the up transition of the valid/neutral output would not be acknowledged.
+
+In summary,
+
+\begin{hse}
+CTRL\equiv
+*[[\langle\|n:0..N\-1:cni->cn+;[~cni];cn-;\rangle]] \pll
+\langle\pll\!n:0..N\-1:*[[cn];sno+;[sni];xn+;sno-;[~sni];cno+;[~cn];xn-;cno-]\rangle
+\end{hse}
+
+\begin{hse}
+ENC_XMIT\equiv
+\langle\pll\!n:0..N\-1:*[[sni];xno+;[di];sno+;[~sni];xno-;[~di];sno-]\rangle
+\end{hse}
+
+\begin{hse}
+ENC_FBLK\equiv
+*[[\langle[]n:0..N\-1:vi&xni->D(enc(xn))\Uparrow\rangle];[~vi];D\Downarrow]
+
+VN\equiv
+*[[\langle|n:0..N\-1:sni\rangle];vo+;[\langle&n:0..N\-1:~sni\rangle];vo-]]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{PRS}
+
+First, $CTRL$,
+
+$cn_i$ is input to an arbiter and $cn$ is its output,
+
+$CTRL\equiv$
+\begin{prs2}
+cn & ~xn -> sno+
+~cn | xn -> sno-
+
+sni -> xn+
+~cn -> xn-
+
+~sni & xn -> cno+
+sni | ~xn -> cno-
+\end{prs2}
+
+Next, $ENC\_XMIT$,
+
+$ENC\_XMIT_n\equiv$
+\begin{prs2}
+sni -> xno+
+~sni -> xno-
+
+xno & di -> sno+
+~xno & ~di -> sno-
+\end{prs2}
+
+Next, $ENC\_FBLK$,
+
+$ENC\_FBLK_{jk}\equiv$
+\begin{prs2}
+vi & enc^{\-1}(j,k) -> djk+
+
+~vi -> djk-
+\end{prs2}
+
+$VN$ is a standard $OR$ tree since this is a 1-of-N code.
+
+\pagebreak
+
+\begin{csp}
+STATE\equiv*[[\langle\|n:0..N\-1:#{C`n}->S`n;S`n;C`n;C`n\rangle]]
 \end{csp}
 
 \begin{csp}
-ENC\equiv*[[S`i;D!enc(i);D;S`i]]
+ENC\equiv*[[S`n;D!enc(n);D;S`n]]
 \end{csp}
 Need blocks for arbitration, state, encoding and transmission.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{HSE}
+
+\begin{hse}
+ENC_XMIT\equiv
+*[[c0i->c0+;[~c0i];c0-
+  \|c1i->c1+;[~c1i];c1-
+  \|c2i->c2+;[~c2i];c2-
+  \|c3i->c3+;[~c3i];c3-
+ ]]
+ 
+*[[c0];s0o+;[di];x0+;s0o-;[~di];c0o+;[~c0];x0-;c0o-]
+*[[c1];s1o+;[di];x1+;s1o-;[~di];c1o+;[~c1];x1-;c1o-]
+*[[c2];s2o+;[di];x2+;s2o-;[~di];c2o+;[~c2];x2-;c2o-]
+*[[c3];s3o+;[di];x3+;s3o-;[~di];c3o+;[~c3];x3-;c3o-]
+
+ENC_FBLK\equiv
+*[[vi&s0i->d00+,d10+[]vi&s1i->d01+,d10+[]vi&s2i->d00+,d11+[]vi&s3i->d01+,d11+];
+  [~vi];d00-,d01-,d10-,d11-]
+
+VN\equiv
+*[[s0i|s1i|s2i|s3i];vo+;[~s0i&~s1i&~s2i&~s3i];vo-]]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{PRS}
+
+$ENC\_XMIT_n\equiv$
+\begin{prs2}
+cn&~xn->sno+
+~cn|xn->sno-
+
+cn&di->xn+
+~cn->xn-
+
+~di&xn->cno+
+~xn->cno-
+\end{prs2}
+
+$ENC\_FBLK\equiv$
+\begin{prs2}
+vi & (s0i|s2i) -> d00+
+vi & (s1i|s3i) -> d01+
+vi & (s0i|s1i) -> d10+
+vi & (s2i|s3i) -> d11+
+
+~vi -> d00-
+~vi -> d01-
+~vi -> d10-
+~vi -> d11-
+\end{prs2}
+
+$VN$ is a standard $OR$ tree.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{HSE}
@@ -130,34 +341,5 @@ VN\equiv
 *[[s0i|s1i|s2i|s3i];vo+;[~s0i&~s1i&~s2i&~s3i];vo-]]
 \end{hse}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{PRS}
-
-$ENC\_XMIT_k\equiv$
-\begin{prs2}
-ck&~xk->sko+
-~ck|xk->sko-
-
-ck&di->xk+
-~ck->xk-
-
-~di&xk->cko+
-~xk->cko-
-\end{prs2}
-
-$ENC\_FBLK\equiv$
-\begin{prs2}
-vi & (s0i|s2i) -> d00+
-vi & (s1i|s3i) -> d01+
-vi & (s0i|s1i) -> d10+
-vi & (s2i|s3i) -> d11+
-
-~vi -> d00-
-~vi -> d01-
-~vi -> d10-
-~vi -> d11-
-\end{prs2}
-
-$VN$ is a standard $OR$ tree.
 
 \end{document}
