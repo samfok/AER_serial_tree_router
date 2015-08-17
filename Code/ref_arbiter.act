@@ -5,7 +5,7 @@ import "test.act";
 
 namespace arbiter {
     export
-    defproc ARB (globals g; bool ai[2], ao[2]) {
+    defproc ARB (bool ai[2], ao[2]) {
         // The basic 2-input arbiter
         bool _a[2];
     
@@ -14,13 +14,13 @@ namespace arbiter {
         }
     
         //Cross-Coupled NANDs
-        prs<g.Vdd,g.GND> {
+        prs {
             ai[0] & _a[1]  => _a[0]-
             ai[1] & _a[0]  => _a[1]-
         }
     
         //Filter
-        prs<g.Vdd,g.GND> {
+        prs {
             ~_a[0] & _a[1] -> ao[0]+
             _a[0]          -> ao[0]-
     
@@ -50,18 +50,18 @@ namespace arbiter {
         }
     }
     export
-    defproc C_ARB (globals g; bool si, so, ci, co) {
+    defproc C_ARB (bool si, so, ci, co) {
         // controlled arbiter cell for use with CTRL
         // arbitrates between child request and CTRL request
         bool cso, sso;
         bool ci_hat, si_hat;
-        ARB arb(g,,);
+        ARB arb(,);
         arb.ai[0] = ci;
         arb.ai[1] = si;
         arb.ao[0] = ci_hat;
         arb.ao[1] = si_hat;
     
-        prs<g.Vdd,g.GND> {
+        prs {
             ci_hat & si & ~sso -> cso+
             ~ci_hat -> cso-
     
@@ -79,7 +79,7 @@ namespace arbiter {
         // heirarchical arbiter cell
         // can be arranged in a binary tree to service more than 2 children
         CTRL ctrl(g, ci,,,,, pi, po);
-        C_ARB c1_arb(g,,, ci[0], co[0]), c2_arb(g,,, ci[1], co[1]);
+        C_ARB c1_arb(,, ci[0], co[0]), c2_arb(,, ci[1], co[1]);
 
         ctrl.s0o = c1_arb.si;
         ctrl.s0i = c1_arb.so;
