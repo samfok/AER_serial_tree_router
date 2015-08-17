@@ -26,25 +26,25 @@ namespace aer {
     }
 
     template <pint N>
-    defproc ENC_XMIT (bool si[N], so[N], xo[N], di) {
+    defproc ENC_XMIT (bool si[N], so[N], di; c1of<N> xo) {
         // Transmission portion of encoder 
         // Sequences inputs to encoder function block
         prs {
             (: n : N :
-                si[n] -> xo[n]+
-                ~si[n] -> xo[n]-
+                si[n] -> xo.n[n]+
+                ~si[n] -> xo.n[n]-
 
-                xo[n] & di -> so[n]+
-                ~xo[n] & ~di -> so[n]-
+                xo.n[n] & di -> so[n]+
+                ~xo.n[n] & ~di -> so[n]-
             )
         }
     }
 
     template <pint m, M, N, NN, LR, NR>
-    defproc _ENC_FBLK (bool vi, xi[NN]; aMx1ofN<M,N> d);
+    defproc _ENC_FBLK (bool vi; c1of<NN> xi; aMx1ofN<M,N> d);
 
     template <pint M, N, NN>
-    defproc ENC_FBLK (bool vi, xi[NN]; aMx1ofN<M,N> d) {
+    defproc ENC_FBLK (bool vi; c1of<NN> xi; aMx1ofN<M,N> d) {
         // Function block portion of encoder
         // Converts 1-of-NN encoding into M-1-of-N encoding
         // M encoding groups
@@ -59,7 +59,7 @@ namespace aer {
     }
 
     template <pint m, M, N, NN, LR, NR>
-    defproc _ENC_FBLK (bool vi, xi[NN]; aMx1ofN<M,N> d) {
+    defproc _ENC_FBLK (bool vi; c1of<NN> xi; aMx1ofN<M,N> d) {
         // recursive utility to build the encoding function
         // converts 1-of-NN encoding (NN = N^M) to M-1-of-N encoding
         // m group index
@@ -71,7 +71,7 @@ namespace aer {
             (: n : N :
                 vi & (| : nr : NR : 
                      (| : lr : LR :
-                        xi[n*LR + nr*N*LR + lr])) -> d.m[m].n[n]+
+                        xi.n[n*LR + nr*N*LR + lr])) -> d.m[m].n[n]+
                 ~vi -> d.m[m].n[n]-
             )
         }
@@ -83,12 +83,12 @@ namespace aer {
 
     export
     template <pint M,N>
-    defproc VN (bool i[M*N], o) {
-        // detects valid/neutral data
+    defproc VN (c1of<N> d[M]; bool o) {
+        // detects valid/neutral data on d
         OR<N> or[M];
         (; m : M :
             (; n : N :
-                or[m].i[n] = i[m*N+n];
+                or[m].i[n] = d[m].n[n];
             )
         )
 
@@ -103,22 +103,54 @@ namespace aer {
     template <pint M,N,NN>
     defproc AEXT (globals g; bool ci[NN], co[NN]; aMx1ofN<M,N> d) {
         CTRL<NN> ctrl(g, ci, co,,);
-        ENC_XMIT<NN> enc_xmit(,,, d.a);
+        ENC_XMIT<NN> enc_xmit(,, d.a,);
         ENC_FBLK<M, N, NN> enc_fblk(,,d);
         VN<1, NN> vn(,);
 
         ctrl.si = enc_xmit.so;
         ctrl.so = enc_xmit.si;
         enc_xmit.xo = enc_fblk.xi;
-        enc_xmit.xo = vn.i;
+        enc_xmit.xo = vn.d[0];
         enc_fblk.vi = vn.o;
+    }
+
+    template <pint M, N, NN>
+    defproc DEC_FBLK (globals g; aMx1ofN<M,N> d; bool vi, xo[NN]) {
+        prs {
+        }
+    }
+
+    template <pint N>
+    defproc DEC_XMIT (globals g; bool xi[N], do, ci[N], co[N]) {
+        bool y[N];
+        prs {
+            (: n : N :
+                xi[n] & ~y[n] -> co[n]+
+                ~xi[n] -> co[n]-
+
+                ci[n] -> do+
+                g.pReset | ~ci[n] & y[n] -> do-
+
+                ci[n] | do -> y[n]+
+                ~ci[n] & ~do -> y[n]-
+            )
+        }
     }
 
     export
     template <pint M, N, NN>
     defproc AERV (globals g; bool ri[NN], ro[NN]; aMx1ofN<M,N> d) {
-        // receiver
-        VN<M,N> vn(,);
+        // // receiver
+        // DEC_FBLK dec_fblk();
+        // VN<M,N> vn(,);
+        // DEC_XMIT dec_xmit(g,,,,);
+
+        // (; m : M :
+        //     (; n : N :
+        //         vn.i[m*N+n] = d.m[m].n[n];
+        //     )
+        // )
+        // dec_fblk.vi = vn.o;
     }
 
     export
@@ -141,11 +173,7 @@ namespace aer {
             aext.co = s.i;
 
             VN<M, N> vn(,);
-            (; m : M :
-                (; n : N :
-                    vn.i[m*N+n] = aext.d.m[m].n[n];
-                )
-            )
+            vn.d = aext.d.m;
             vn.o = aext.d.a;
         }
 
@@ -163,12 +191,9 @@ namespace aer {
                 ]
             )
 
-            VN<M, N> vn(, aext.d.a);
-            (; m : M :
-                (; n : N :
-                    vn.i[m*N+n] = aext.d.m[m].n[n];
-                )
-            )
+            VN<M, N> vn(,);
+            vn.d = aext.d.m;
+            vn.o = aext.d.a;
         }
 
         export
