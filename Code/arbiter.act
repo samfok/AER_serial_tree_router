@@ -155,45 +155,37 @@ namespace arbiter {
         c1_arb._si = _s1a;
     }
 
+    template <pint N>
+    defproc _N_ARB (globals g; bool _ci[N], co[N], pi, _po) {
+        // recursive utility to build an N-way arbiter tree
+        [ N = 1 ->
+            _ci[0] = _po;
+            co[0] = pi;
+        [] N = 2 ->
+            H_ARB h_arb(g, _ci, co, pi, _po);
+        [] N > 2 ->
+            _N_ARB<N/2>   _n_arb0(g, _ci[0..N/2-1], co[0..N/2-1],,);
+            _N_ARB<N-N/2> _n_arb1(g, _ci[N/2..N-1], co[N/2..N-1],,);
+            H_ARB h_arb(g,,, pi, _po);
+            h_arb._ci[0] = _n_arb0._po;
+            h_arb._ci[1] = _n_arb1._po;
+            h_arb.co[0] = _n_arb0.pi;
+            h_arb.co[1] = _n_arb1.pi;
+        ]
+    }
+
     export
     template <pint N>
     defproc N_ARB (globals g; bool ci[N], co[N]) {
         // N-way arbiter
-        H_ARB h_arb[N-1];
-
-        // connect globals to arbiters
-        (; n : N-1 : h_arb[n].g=g;) 
-        
-        // connect arbiters in tree
-        (; n : N-2 : 
-            [ (n%2) = 0 -> 
-                h_arb[n]._po = h_arb[(N+n)/2]._ci[0];
-                h_arb[n].pi = h_arb[(N+n)/2].co[0];
-            [] (n%2) = 1 ->
-                h_arb[n]._po = h_arb[(N+n)/2]._ci[1];
-                h_arb[n].pi = h_arb[(N+n)/2].co[1];
-            ]
-        )
-        
-        // connect top of arbiter tree back to itself
+        bool _ci[N];
+        _N_ARB<N> _n_arb(g, _ci, co,,);
         prs {
-            h_arb[N-2]._po => h_arb[N-2].pi-
+            // connect top of tree back to itself
+            _n_arb._po => _n_arb.pi-
+            // connect child ports to arbiter leaves
+            (: n : N : ci[n] => _ci[n]-)
         }
-
-        // connect children ports to arbiter tree leaves
-        (; n : N : 
-            [ (n%2) = 0 -> 
-                prs {
-                    ci[n] => h_arb[n/2]._ci[0]-
-                }
-                co[n] = h_arb[n/2].co[0];
-            [] (n%2) = 1 ->
-                prs {
-                    ci[n] => h_arb[n/2]._ci[1]-
-                }
-                co[n] = h_arb[n/2].co[1];
-            ]
-        )
     }
 
     namespace test {

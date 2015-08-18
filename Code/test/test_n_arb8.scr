@@ -1,23 +1,9 @@
 # script for test_n_arb with 8 children
 source reset.scr
 random
-# watchall
 
-watch test.n_arb.h_arb[0]._po
-watch test.n_arb.h_arb[1]._po
-watch test.n_arb.h_arb[2]._po
-watch test.n_arb.h_arb[3]._po
-watch test.n_arb.h_arb[4]._po
-watch test.n_arb.h_arb[5]._po
-watch test.n_arb.h_arb[6]._po
-
-watch test.n_arb.h_arb[0].pi
-watch test.n_arb.h_arb[1].pi
-watch test.n_arb.h_arb[2].pi
-watch test.n_arb.h_arb[3].pi
-watch test.n_arb.h_arb[4].pi
-watch test.n_arb.h_arb[5].pi
-watch test.n_arb.h_arb[6].pi
+watch test.n_arb._n_arb._po
+watch test.n_arb._n_arb.pi
 
 watch test.c.o[0]
 watch test.c.o[1]
@@ -36,8 +22,5 @@ watch test.c.i[4]
 watch test.c.i[5]
 watch test.c.i[6]
 watch test.c.i[7]
-
-set_principal test.n_arb.h_arb[6]._po
-set_principal test.n_arb.h_arb[6].pi
 
 break-on-warn
