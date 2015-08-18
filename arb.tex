@@ -3,20 +3,20 @@
 \begin{document}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{$n$-way Arbiter ($N\!\_ARB$)}
+\section{$N$-way Arbiter ($N\!\_ARB$)}
 
-The $n$-way arbiter $N\_ARB$ arbitrates between $n$ children (see Figure~\ref{fig:n_arb}) and is specified by
+The $N$-way arbiter $N\_ARB$ arbitrates between $N$ children (see Figure~\ref{fig:n_arb}) and is specified by
 
 \begin{figure}
   \centering
   \includegraphics[width=.5\textwidth]{img/transmitter/n_arb.pdf}
-  \caption{$N\!\_ARB$ arbitrates between $n$ children.}
+  \caption{$N\!\_ARB$ arbitrates between $N$ children.}
   \label{fig:n_arb}
 \end{figure}
 
 \begin{csp}
-N_ARB(n)\equiv
-  *[[\langle\|i:0..n\-1:#{C`i}->C`i;C`i\rangle]]
+N_ARB(N)\equiv
+  *[[\langle\|n:0..N\-1:#{C`n}->C`n;C`n\rangle]]
 \end{csp}
 
 \begin{figure}
@@ -26,63 +26,32 @@ N_ARB(n)\equiv
   \label{fig:n_arb_h_arb}
 \end{figure}
 
-In words, the children send requests at any time. When requests arrive, $N\!\_ARB$ selects one requesting child to proceed. The first $C_i$ communication indicates that the child should proceed, and the second $C_i$ communication confirms that the child has finished.
+In words, the children send requests at any time. When requests arrive, $N\!\_ARB$ selects one requesting child to proceed. The first $C_n$ communication indicates that the child should proceed, and the second $C_n$ communication confirms that the child has finished.
 
-We decompose $N\!\_ARB$ into a binary tree of heirarchical arbiter cells, $H\!\_ARB$ (see Figure~\ref{fig:n_arb_h_arb}). 
-
-\begin{csp}
-N_ARB(n)\equiv\langle\pll\,i:0..n\-1:H_ARB\rangle
-\end{csp}
-
-\noindent For an $N\!\_ARB$ instance $n\_arb$ with $n$ a power of $2$ and $n-1$ $H\_ARB$ instances $h\_arb[0]..h\_arb[n-1]$, we connect the $n\_arb$ ports to the $h\_arb$ ports as follows.
+We construct the $N\!\_ARB$ as a binary tree recursively (see Figure~\ref{fig:n_arb_h_arb}). 
 
 \begin{csp}
-\langle\,i:0..n\-1:
-  [i\%2=0 -> 
-    n_arb.C`i\Leftrightarrow\!h_arb[i/2].C`1
-  []i\%2=1 ->
-    n_arb.C`i\Leftrightarrow\!h_arb[i/2].C`2
-  ]\rangle
-\end{csp}
-
-\noindent We arrange the $h\_arb$ instances as a binary tree.
-
-\begin{csp}
-\langle\,i:0..n\-2:
-  [i\%2=0 -> 
-    h_arb[i].P\Leftrightarrow\!h_arb[(n\+i)/2].C`1
-  []i\%2=1 ->
-    h_arb[i].P\Leftrightarrow\!h_arb[(n\+i)/2].C`2
-  ]\rangle
-
-h_arb[n\-1].P \Leftrightarrow\! h_arb[n\-1].P
-\end{csp}
-
-\noindent The top $h\_arb$'s $P$ port is connected back to itself. 
-
-In general (if $n$ is not a power of $2$), we can define the $N\!\_ARB$ recursively with
-
-\begin{csp}
-N_ARB(n)\equiv
-  [n=1->
+N_ARB(N)\equiv
+  [ N=1 ->
     \mathrm{wire}
-  []n=2->
+  [] N=2 ->
     H_ARB
-  []n>2->
-    N_ARB(n/2)\pll\!H_ARB\pll\!N_ARB(n\-n/2)
+  [] N>2 ->
+    N_ARB(N/2)\pll\!H_ARB\pll\!N_ARB(N\-N/2)
   ]
 \end{csp}
 
-\noindent The recursion ends with $n=1$ or $n=2$ and produces a balanced tree. The $n=1$ case is just a wire.
+\noindent The recursion ends with $N=1$ or $N=2$ and produces a balanced tree. The top $H\_ARB$'s $P$ port is connected back to itself. 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Heirarchical arbiter $H\_ARB$}
 
 $H\!\_ARB$ coordinates with its parent (another $H\!\_ARB$ instance) and arbitrates between two children. 
 With ports
 
 \begin{tabular}[]{rl}
+$C0$ & child 0 port \\
 $C1$ & child 1 port \\
-$C2$ & child 2 port \\
 $P$ & parent port \\
 \end{tabular} \\
 
@@ -90,9 +59,9 @@ $P$ & parent port \\
 
 \begin{csp}
 H_ARB\equiv
-  *[[#{C`1}|#{C`2}->P;
-    [#{C`1}->C`1;C`1\|~#{C`1}->skip];
-    [#{C`2}->C`2;C`2\|~#{C`2}->skip];P]]
+  *[[#{C`0}|#{C`1}->P;
+    [#{C`0}->C`0;C`0\|~#{C`0}->skip];
+    [#{C`1}->C`1;C`1\|~#{C`1}->skip];P]]
 \end{csp}
 
 When a child request arrives, $H\!\_ARB$ sends a request to its parent. When the parent gives permission to go ahead, $H\!\_ARB$ checks the first child and then the second child. During each check, $H\!\_ARB$ services the child if its request is present. Otherwise, $H\!\_ARB$ skips and moves on. After checking the children, $H\!\_ARB$ releases its parent.
@@ -128,25 +97,25 @@ $CTRL$ has ports
 
 \begin{tabular}[]{rl}
 $P$ & parent port \\
+$S_0$ & child arbiter 0 port \\
 $S_1$ & child arbiter 1 port \\
-$S_2$ & child arbiter 2 port \\
 \end{tabular} \\
 
 \paragraph{CHP}\mbox{}\\
 
 \begin{csp}
 CTRL\equiv
-  *[[#{C`1}|#{C`2}->P;S`1;S`1;S`2;S`2;P]
+  *[[#{C`0}|#{C`1}->P;S`0;S`0;S`1;S`1;P]
 \end{csp}
 
 \noindent where 
 
 \begin{tabular}[]{rl}
+  $C_0$ & probes child 0 \\
   $C_1$ & probes child 1 \\
-  $C_2$ & probes child 2 \\
   $P$ & communicates with the parent \\
+  $S_0$ & communicates with the child 0 arbiter \\
   $S_1$ & communicates with the child 1 arbiter \\
-  $S_2$ & communicates with the child 2 arbiter \\
 \end{tabular} \\ \\
 
 \paragraph{HSE}\mbox{}\\
@@ -155,58 +124,58 @@ CTRL\equiv
 
 \begin{hse}
 CTRL\equiv
-  *[[c1i|c2i];po+;[pi];
+  *[[c0i|c1i];po+;[pi];
+    s0o+;[s0i];[~s0i];s0o-;
     s1o+;[s1i];[~s1i];s1o-;
-    s2o+;[s2i];[~s2i];s2o-;
     po-;[~pi]]
 \end{hse}
 
-\noindent There are 3 indistinguishable states--after $[p_i]$, after $s1_o\!\downarrow$, and after $s2_o\!\downarrow$. The correct operation of $CTRL$ precludes reshuffling to break symmetry, so we use 2 state variables to distinguish betwen the 3 states.
+\noindent There are 3 indistinguishable states--after $[p_i]$, after $s0_o\!\downarrow$, and after $s1_o\!\downarrow$. The correct operation of $CTRL$ precludes reshuffling to break symmetry, so we use 2 state variables to distinguish betwen the 3 states.
 
 \begin{hse}
 CTRL\equiv
-  *[[c1i|c2i];po+;[pi];x-;
-    s1o+;[s1i];y-;s1o-;[~s1i];
-    s2o+;[s2i];x+;s2o-;[~s2i];
+  *[[c0i|c1i];po+;[pi];x-;
+    s0o+;[s0i];y-;s0o-;[~s0i];
+    s1o+;[s1i];x+;s1o-;[~s1i];
     po-;[~pi];y+]
 \end{hse}
 
 \paragraph{PRS}\mbox{}\\
 
 \begin{prs2}
-(c1i | c2i) & y -> po+
-~s2i & x & ~y -> po-
+(c0i | c1i) & y -> po+
+~s1i & x & ~y -> po-
 
-~x & y -> s1o+
-x | ~y -> s1o-
+~x & y -> s0o+
+x | ~y -> s0o-
 
-~s1i & ~x & ~y -> s2o+
-x -> s2o-
+~s0i & ~x & ~y -> s1o+
+x -> s1o-
 
-s2i & ~y -> x+
+s1i & ~y -> x+
 pi & y -> x-
 
 ~pi -> y+
-s1i -> y-
+s0i -> y-
 \end{prs2}
 
 \noindent after bubble reshuffling
 
 \begin{prs2}
-(~_c1i | ~_c2i) & ~_y -> po+
-_s2i & x & _y -> po-
+(~_c0i | ~_c1i) & ~_y -> po+
+_s1i & x & _y -> po-
 
-~x & ~_y -> s1o+
-x | _y -> s1o-
+~x & ~_y -> s0o+
+x | _y -> s0o-
 
-~s1i & ~x & ~y -> s2o+
-x -> s2o-
+~s0i & ~x & ~y -> s1o+
+x -> s1o-
 
-~_s2i & ~y -> x+
+~_s1i & ~y -> x+
 pi & y -> x-
 
 ~pi -> y+
-s1i -> y-
+s0i -> y-
 \end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
