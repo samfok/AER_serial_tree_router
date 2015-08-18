@@ -153,7 +153,7 @@ ENC_XMIT\equiv
 
 \begin{hse}
 ENC_FBLK\equiv
-*[[\langle[]n:0..N\-1:vi&xni->D(enc(xn))\Uparrow\rangle];[~vi];D\Downarrow]
+*[[\langle[]n:0..N\-1:vi&xni->D(enc(xni))\Uparrow\rangle];[~vi];D\Downarrow]
 
 VN\equiv
 *[[\langle|n:0..N\-1:sni\rangle];vo+;[\langle&n:0..N\-1:~sni\rangle];vo-]]
@@ -194,7 +194,6 @@ Next, $ENC\_FBLK$,
 For $j$ indexing M and $k$ indexing N of the M-1-of-N code, $ENC\_FBLK_{jk}\equiv$
 \begin{prs2}
 vi & x(enc^{\-1}(j,k))i -> djko+
-
 ~vi -> djko-
 \end{prs2}
 
@@ -214,10 +213,74 @@ The highest level of the receiver is given by
 AERV(n)\equiv*[dec(D)?x;[\langle[]i:0..n\-1:x=i->C`i;C`i];D]
 \end{csp}
 
+The receiver is so simple we can skip control/data decomposition.
+We decompose the receiver into processes for decoding the input data and transmitting spikes to the selected neurons.
+
+\begin{csp}
+DEC_FBLK\equiv*[dec(D)?S;[valid(S)];D;[neutral(S)]]
+DEC_XMIT\equiv*[\langle[]n:0..N\-1:XD`n\star\!C`n;XD`n\star\!C`n\rangle]
+\end{csp}
+
+We execute the branches of $DEC\_XMIT$ concurrently and ensure mutual exclusion using a valid/neutral detector on $Do$.
+
+\begin{csp}
+DEC_XMIT\equiv
+\langle\pll\!n:0..N\-1:*[XD`n\star\!C`n;XD`n\star\!C`n]\rangle
+
+*[[valid(Do)];do+;[neutral(Do)];do-]
+\end{csp}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{HSE}
+
+First, $DEC\_FBLK$.
+
+\begin{hse}
+DEC_FBLK\equiv
+*[[valid(D)];X(dec(D))o\Uparrow;[neutral(D)];Xo\Downarrow]
+\end{hse}
+
+We pull the valid/neutral logic into a separate process.
+
+\begin{hse}
+DEC_FBLK\equiv
+*[[vi];X(dec(D))o\Uparrow;[~vi];Xo\Downarrow]
+\end{hse}
+
+\begin{hse}
+VN\equiv
+*[[\langle&m:0..M\-1:\langle|n:0..N\-1:dmni\rangle\rangle];vo+;
+  [\langle&m:0..M\-1:\langle&n:0..N\-1:~dmni\rangle\rangle];vo-]
+\end{hse}
+
+Next, $DEC\_XMIT$.
+
+\begin{hse}
+DEC_XMIT\equiv
+\langle\pll\!n:0..N\-1:*[[xni];cno+;[cni];dno+;[~xni];cno-;[~cni];dno-]\rangle 
+
+*[[\langle|n:0..N\-1:dno\rangle];do+;[\langle&n:0..N\-1:dno\rangle];do-]
+\end{hse}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{PRS}
 
+First, $DEC\_FBLK_n$.
+
+\begin{prs2}
+vi & d(enc(n)) -> xno+
+~vi -> xno-
+\end{prs2}
+
+Next, $DEC\_XMIT_n$.
+
+\begin{prs2}
+xni -> cno+
+~xni -> cno-
+
+cni -> dno+
+~cni -> dno-
+\end{prs2}
+
+For checking an M-1-of-N code, $VN$ is composed of $M$, $N$-input OR gates followed by a binary tree of $M-1$ C-elements.
 \end{document}
