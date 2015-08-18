@@ -1,0 +1,21 @@
+// TESTS the SIMPLE_AER circuit with 1 sender/receiver
+import "lib/globals.act";
+import "simple_aer.act";
+
+pint M=3;
+pint N=2;
+pint NN=8;
+pint k=5;
+globals g;
+aer::test::TEST_AER1<M, N, NN, k> test(g);
+
+bool pReset, sReset;
+prs {
+    sReset => g.sReset+
+    pReset => g.pReset+
+    sReset => g._sReset-
+    pReset => g._pReset-
+    sReset -> g.Vdd+
+    sReset -> g.GND-
+}
+
