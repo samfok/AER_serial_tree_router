@@ -3,7 +3,7 @@
 export
 template <pint N>
 defproc AND (bool i[N], o) {
-    // AND tree with 2/3 input NANDS and 2 input NORS
+    // AND tree with 2 and 3 input NANDS and 2 input NORS
     [ N=1 ->
         i[0] = o;
     [] N=2 ->
@@ -51,8 +51,23 @@ defproc AND (bool i[N], o) {
 
 export
 template <pint N>
+defproc AND_LINE (bool i[N], o) {
+    [ N = 1 ->
+        i[0] = o;
+    [] N >= 2 ->
+        AND_LINE<N-1> and(i[0..N-2],);
+        bool _o;
+        prs {
+            and.o & i[N-1] => _o-
+            _o => o-
+        }
+    ]
+}
+
+export
+template <pint N>
 defproc OR (bool i[N], o) {
-    // OR tree with 2/3 input NANDS and 2 input NORS
+    // OR tree with 2 and 3 input NANDS and 2 input NORS
     [ N=1 ->
         i[0] = o;
     [] N=2 ->
@@ -97,6 +112,22 @@ defproc OR (bool i[N], o) {
             or2.o | or3.o => _x23-
             or4.o | or5.o => _x45-
             _x01 & _x23 & _x45 => o-
+        }
+    ]
+}
+
+export
+template <pint N>
+defproc OR_LINE (bool i[N], o) {
+    // OR line with 2 input NANDS and 2 input NORS
+    [ N = 1 ->
+        i[0] = o;
+    [] N >= 2 ->
+        OR_LINE<N-1> or(i[0..N-2],);
+        bool _o;
+        prs {
+            or.o | i[N-1] => _o-
+            _o => o-
         }
     ]
 }

@@ -60,7 +60,7 @@ namespace aer {
         }
 
         template <pint m, M, N, NN, LR, NR>
-        defproc _ENC_FBLK (bool vi; c1of<NN> xi; aMx1ofN<M,N> d);
+        defproc ENC_FBLK_ (bool vi; c1of<NN> xi; aMx1ofN<M,N> d);
 
         template <pint M, N, NN>
         defproc ENC_FBLK (bool vi; c1of<NN> xi; aMx1ofN<M,N> d) {
@@ -73,11 +73,11 @@ namespace aer {
             pint m_0 = 0;
             pint LR_0 = NN/N;
             pint NR_0 = 1;
-            _ENC_FBLK<m_0, M, N, NN, LR_0, NR_0> _enc_fblk(vi, xi, d);
+            ENC_FBLK_<m_0, M, N, NN, LR_0, NR_0> _enc_fblk(vi, xi, d);
         }
 
         template <pint m, M, N, NN, LR, NR>
-        defproc _ENC_FBLK (bool vi; c1of<NN> xi; aMx1ofN<M,N> d) {
+        defproc ENC_FBLK_ (bool vi; c1of<NN> xi; aMx1ofN<M,N> d) {
             // recursive utility to build the encoding function
             // converts 1-of-NN encoding to M-1-of-N encoding
             // m group index
@@ -95,7 +95,7 @@ namespace aer {
             }
 
             [LR != 1 ->
-                _ENC_FBLK<m+1, M, N, NN, LR/N, NR*N> _enc_fblk(vi, xi, d);
+                ENC_FBLK_<m+1, M, N, NN, LR/N, NR*N> _enc_fblk(vi, xi, d);
             ]
         }
 
