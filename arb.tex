@@ -105,7 +105,7 @@ $S_1$ & child arbiter 1 port \\
 
 \begin{csp}
 CTRL\equiv
-  *[[#{C`0}|#{C`1}->P;S`0;S`0;S`1;S`1;P]
+  *[[#{C`0}|#{C`1}->P;S`0;S`0;S`1;S`1;P]]
 \end{csp}
 
 \noindent where 
@@ -227,64 +227,64 @@ requests from $CTRL$, $\overline{S}$. If a child request is present, the arbiter
   \|si->so+;[~si];so-]]
 \end{hse}
 
-\noindent We introduce intermediate variables $\hat{c_i}$ and $\hat{s_i}$ to represent the arbitration,
+\noindent We introduce intermediate variables $c$ and $s$ to represent the arbitration,
 
 \begin{hse}
-*[[ci->\hat{ci}+;[\hat{ci}];[si];so+;co+;[~ci];\hat{ci}-;[~\hat{ci}];co-;[~si];so-
-  \|si->\hat{si}+;[\hat{si}];so+;[~si];\hat{si}-;[~\hat{si}]so-]]
+*[[ci->c+;[si];so+;co+;[~ci];c-;co-;[~si];so-
+  \|si->s+;so+;[~si];s-;so-]]
 \end{hse}
 
 \noindent and break out the arbitration into a separate process
 
 \begin{hse}
-*[[ci->\hat{ci}+;[~ci];\hat{ci}-
-  \|si->\hat{si}+;[~si];\hat{si}-]]
-*[[\hat{ci}->[si];so+;co+;[~\hat{ci}];co-;[~si];so-
-  []\hat{si}->so+;[~\hat{si}];so-]]
+*[[ci->c+;[~ci];c-
+  \|si->s+;[~si];s-]]
+*[[c->[si];so+;co+;[~c];co-;[~si];so-
+  []s->so+;[~s];so-]]
 \end{hse}
 
-\noindent Note that the $\hat{c_i}$ branch of the select statement uses $s_i$ and not $\hat{s_i}$. In addition, as soon as $c_o$ goes high, $c_i$ could clear before $s_i$, which would allow the arbitration process to complete its $c_i$ branch and select the $s_i$ branch while the $\hat{c_i}$ branch is still in progress. We thus wait for $s_i$ to clear before communicating with the child.
+\noindent Note that the $c$ branch of the select statement uses $s_i$ and not $s$. In addition, as soon as $c_o$ goes high, $c_i$ could clear before $s_i$, which would allow the arbitration process to complete its $c_i$ branch and select the $s_i$ branch while the $c$ branch is still in progress. We thus wait for $s_i$ to clear before communicating with the child.
 
 \begin{hse}
-*[[ci->\hat{ci}+;[~ci];\hat{ci}-
-  \|si->\hat{si}+;[~si];\hat{si}-]]
-*[[\hat{ci}->[si];so+;[~si];co+;[~\hat{ci}];co-;so-
-  []\hat{si}->so+;[~\hat{si}];so-]]
+*[[ci->c+;[~ci];c-
+  \|si->s+;[~si];s-]]
+*[[c->[si];so+;[~si];co+;[~c];co-;so-
+  []s->so+;[~s];so-]]
 \end{hse}
 
 \noindent After $co\!\downarrow$, the child could raise its request again ($c_i$) and greedily hold the circuit in a loop servicing the child. We break this loop by releasing $CTRL$ ($s_o\!\downarrow$) before releasing the child.
 
 \begin{hse}
-*[[ci->\hat{ci}+;[~ci];\hat{ci}-
-  \|si->\hat{si}+;[~si];\hat{si}-]]
-*[[\hat{ci}->[si];so+;[~si];co+;[~\hat{ci}];so-;co-
-  []\hat{si}->so+;[~\hat{si}];so-]]
+*[[ci->c+;[~ci];c-
+  \|si->s+;[~si];s-]]
+*[[c->[si];so+;[~si];co+;[~c];so-;co-
+  []s->so+;[~s];so-]]
 \end{hse}
 
 \noindent Note that $s_o$ is shared between both branches of selection statement. This sharing results in interfering production rules for $s_o$, so we introduce intermediate values $cs_o$ and $ss_o$ and merge them in a third concurrent process.
 
 \begin{hse}
-*[[ci->\hat{ci}+;[~ci];\hat{ci}-
-  \|si->\hat{si}+;[~si];\hat{si}-]]\pll
-*[[\hat{ci}->[si];cso+;[~si];co+;[~\hat{ci}];cso-;co-
-  []\hat{si}->sso+;[~\hat{si}];sso-]]\pll
+*[[ci->c+;[~ci];c-
+  \|si->s+;[~si];s-]]\pll
+*[[c->[si];cso+;[~si];co+;[~c];cso-;co-
+  []s->sso+;[~s];sso-]]\pll
 *[[cso->so+;[~cso];so-]
   []sso->so+;[~sso];so-]
 \end{hse}
 
 \paragraph{PRS}\mbox{}\\
 
-\noindent $s_i$ and $c_i$ are inputs to a standard 2-input arbiter, which outputs $\hat{s_i}$ and $\hat{c_i}$.
+\noindent $s_i$ and $c_i$ are inputs to a standard 2-input arbiter, which outputs $s$ and $c$.
 
 \begin{prs2}
-\hat{ci} & si & ~sso -> cso+
-~\hat{ci} -> cso-
+c & si & ~sso -> cso+
+~c -> cso-
 
 ~si & cso -> co+
 si | ~cso -> co-
 
-\hat{si} & ~co -> sso+
-~\hat{si} | co -> sso-
+s & ~co -> sso+
+~s | co -> sso-
 
 cso | sso -> so+
 ~cso & ~sso -> so-
@@ -293,20 +293,20 @@ cso | sso -> so+
 \noindent after bubble reshuffling
 
 \begin{prs2}
-~_\hat{ci} & ~_si & ~sso -> cso+
-_\hat{ci} -> cso-
+~_c & ~_si & ~sso -> cso+
+_c -> cso-
 
 _si & cso -> _co-
 ~_si | ~cso -> _co+
 
-~_\hat{si} & ~co -> sso+
-_\hat{si} | co -> sso-
+~_s & ~co -> sso+
+_s | co -> sso-
 
 cso | sso -> _so-
 ~cso & ~sso -> _so+
 \end{prs2}
 
-\noindent where $\_\hat{s_i}$ and $\_\hat{c_i}$ come from an active-low 2-input arbiter with inputs $\_s_i$ and $\_c_i$.
+\noindent where $\_s$ and $\_c$ come from an active-low 2-input arbiter with inputs $\_s_i$ and $\_c_i$.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \end{document}
