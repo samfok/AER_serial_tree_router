@@ -4,7 +4,7 @@ import "simple_aer.act";
 import "MofN_table.act";
 
 globals g;
-aer::test::TEST_AEXT<M, N, NN> test(g);
+aer::transmitter::test::TEST_AEXT<M, N, NN> test(g);
 
 bool pReset, sReset;
 prs {

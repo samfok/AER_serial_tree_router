@@ -8,7 +8,7 @@ pint NN=64; // NN=N^M
 pint k=17; // 0 <= k < NN
 
 globals g;
-aer::test::TEST_AEXT1<M, N, NN, k> test(g);
+aer::transmitter::test::TEST_AEXT1<M, N, NN, k> test(g);
 
 bool pReset, sReset;
 prs {

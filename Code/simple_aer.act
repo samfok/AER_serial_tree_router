@@ -6,24 +6,6 @@ import "logic.act";
 import "test.act";
 
 namespace aer {
-    export
-    template <pint M,N>
-    defproc VN (c1of<N> d[M]; bool o) {
-        // detects valid/neutral data on d
-        OR<N> or[M];
-        (; m : M :
-            (; n : N :
-                or[m].i[n] = d[m].n[n];
-            )
-        )
-
-        C_TREE<M> c_tree(,o);
-
-        (; k : M :
-            or[k].o = c_tree.i[k];
-        )
-    }
-
     namespace transmitter {
         template <pint N>
         defproc CTRL (globals g; bool ci[N], co[N], si[N], so[N]) {
@@ -117,6 +99,41 @@ namespace aer {
             enc_xmit.xo = vn.d[0];
             enc_fblk.vi = vn.o;
         }
+
+        namespace test {
+            export
+            template <pint M, N, NN>
+            defproc TEST_AEXT(globals g) {
+                active_handshaker<NN> s(g,,);
+                AEXT<M, N, NN> aext(g,,,);
+                aext.ci = s.o;
+                aext.co = s.i;
+
+                VN<M, N> vn(,);
+                vn.d = aext.d.m;
+                vn.o = aext.d.a;
+            }
+
+            export
+            template <pint M, N, NN, k>
+            defproc TEST_AEXT1(globals g) {
+                // test AEXT with a single sender
+                active_handshaker<1> s(g,,);
+                AEXT<M, N, NN> aext(g,,,);
+                (; nn : NN :
+                    [ nn = k ->
+                        aext.ci[nn] = s.o[0];
+                        aext.co[nn] = s.i[0];
+                    [] nn != k ->
+                        aext.ci[nn] = g.GND;
+                    ]
+                )
+
+                VN<M, N> vn(,);
+                vn.d = aext.d.m;
+                vn.o = aext.d.a;
+            }
+        } // namespace test
     } // namespace transmitter
 
     namespace receiver {
@@ -229,39 +246,6 @@ namespace aer {
     namespace test {
         export
         template <pint M, N, NN>
-        defproc TEST_AEXT(globals g) {
-            active_handshaker<NN> s(g,,);
-            ::aer::transmitter::AEXT<M, N, NN> aext(g,,,);
-            aext.ci = s.o;
-            aext.co = s.i;
-
-            VN<M, N> vn(,);
-            vn.d = aext.d.m;
-            vn.o = aext.d.a;
-        }
-
-        export
-        template <pint M, N, NN, k>
-        defproc TEST_AEXT1(globals g) {
-            // test AEXT with a single sender
-            active_handshaker<1> s(g,,);
-            ::aer::transmitter::AEXT<M, N, NN> aext(g,,,);
-            (; nn : NN :
-                [ nn = k ->
-                    aext.ci[nn] = s.o[0];
-                    aext.co[nn] = s.i[0];
-                [] nn != k ->
-                    aext.ci[nn] = g.GND;
-                ]
-            )
-
-            VN<M, N> vn(,);
-            vn.d = aext.d.m;
-            vn.o = aext.d.a;
-        }
-
-        export
-        template <pint M, N, NN>
         defproc TEST_AER(globals g) {
             active_handshaker<NN> s(g,,);
             passive_handshaker<NN> r(g,,);
@@ -292,5 +276,5 @@ namespace aer {
                 ]
             )
         }
-    }
+    } // namespace test
 }

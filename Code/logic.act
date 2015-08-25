@@ -155,3 +155,21 @@ defproc C_TREE (bool i[N], o) {
         }
     ]
 }
+
+export
+template <pint M,N>
+defproc VN (c1of<N> d[M]; bool o) {
+    // detects valid/neutral data on d
+    OR<N> or[M];
+    (; m : M :
+        (; n : N :
+            or[m].i[n] = d[m].n[n];
+        )
+    )
+
+    C_TREE<M> c_tree(,o);
+
+    (; k : M :
+        or[k].o = c_tree.i[k];
+    )
+}
