@@ -7,13 +7,3 @@ pint N=4;
 pint NN=256;
 globals g;
 aer::test::TEST_AER<M,N,NN> test(g);
-
-bool pReset, sReset;
-prs {
-    sReset => g.sReset+
-    pReset => g.pReset+
-    sReset => g._sReset-
-    pReset => g._pReset-
-    sReset -> g.Vdd+
-    sReset -> g.GND-
-}

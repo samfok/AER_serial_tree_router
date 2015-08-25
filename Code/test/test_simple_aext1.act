@@ -9,14 +9,3 @@ pint k=17; // 0 <= k < NN
 
 globals g;
 aer::transmitter::test::TEST_AEXT1<M, N, NN, k> test(g);
-
-bool pReset, sReset;
-prs {
-    sReset => g.sReset+
-    pReset => g.pReset+
-    sReset => g._sReset-
-    pReset => g._pReset-
-    sReset -> g.Vdd+
-    sReset -> g.GND-
-}
-
