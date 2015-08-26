@@ -1,0 +1,114 @@
+// This file contains PRS for a feedfoward tree transmitter
+import "lib/globals.act";
+import "channel.act";
+import "arbiter.act";
+import "logic.act";
+import "test.act";
+
+namespace aer {
+    namespace transmitter {
+        export
+        defproc NODE_LEAF (globals g; bool di[2], do[2]; aMx1ofN<1,2> x) {
+            // leaf node of tree transmitter
+            bool a[2], xi;
+            xi = x.a;
+            ::arbiter::ARB arb(di, a);
+
+            prs<g.Vdd, g.GND> {
+                a[0] & ~do[1] & ~do[0] -> x.m[0].n[0]+
+                g.pReset | do[0] -> x.m[0].n[0]-
+
+                a[1] & ~do[0] & ~do[1] -> x.m[0].n[1]+
+                g.pReset | do[1] -> x.m[0].n[1]-
+
+                xi & a[0] & ~do[1] -> do[0]+
+                ~xi & ~a[0] -> do[0]-
+
+                xi & a[1] & ~do[0] -> do[1]+
+                ~xi & ~a[1] -> do[1]-
+            }
+        }
+
+        template <pint M>
+        defproc NODE (globals g; aMx1ofN<M,2> d[2]; aMx1ofN<M+1,2> x) {
+            bool a[2], do[2];
+            bool xi;
+            ::arbiter::ARB arb(, a);
+            VN<M,2> vn0, vn1;
+
+            do[0] = d[0].a;
+            do[1] = d[1].a;
+            xi = x.a;
+            vn0.d = d[0].m;
+            vn1.d = d[1].m;
+            arb.i[0] = vn0.o;
+            arb.i[1] = vn1.o;
+
+            prs<g.Vdd, g.GND> {
+                a[0] & ~do[1] & ~do[0] -> x.m[0].n[0]+
+                g.pReset | do[0] -> x.m[0].n[0]-
+
+                a[1] & ~do[0] & ~do[1] -> x.m[0].n[1]+
+                g.pReset | do[1] -> x.m[0].n[1]-
+
+                (: m : M :
+                    (a[0] & d[0].m[m].n[0] | a[1] & d[1].m[m].n[0]) &
+                        ~do[1] & ~do[0] -> x.m[0].n[0]+
+                    g.pReset | do[0] | do[1] -> x.m[m+1].n[0]-
+
+                    (a[0] & d[0].m[m].n[1] | a[1] & d[1].m[m].n[1]) &
+                        ~do[1] & ~do[0] -> x.m[0].n[1]+
+                    g.pReset | do[0] | do[1] -> x.m[m+1].n[1]-
+                )
+
+                xi & a[0] & ~do[1] -> do[0]+
+                ~xi & ~a[0] -> do[0]-
+
+                xi & a[1] & ~do[0] -> do[1]+
+                ~xi & ~a[1] -> do[1]-
+            }
+        }
+
+        template <pint M, NN>
+        defproc AEXT_TREE (globals g; bool ci[NN], co[NN]; aMx1ofN<M,2> d) {
+            // [ NN = 1 ->
+            // [] NN = 2 ->
+            // [] NN > 2 ->
+            //     // AEXT_TREE<> aext0(g,);
+            // ]
+        }
+
+        template <pint M, NN>
+        defproc AEXT (globals g; bool ci[NN], co[NN]; aMx1ofN<M,2> d) {
+            // transmitter
+        
+        }
+
+        namespace test {
+            export
+            defproc TEST_LEAF (globals g) {
+                active_handshaker<2> s(g,,);
+                NODE_LEAF node(g,,,);
+                VN<1,2> vn(,);
+                node.di = s.o;
+                node.do = s.i;
+                node.x.m = vn.d;
+                node.x.a = vn.o;
+            }
+        } // namespace test
+    } // namespace transmitter
+
+    namespace receiver {
+        namespace test {
+        } // namespace test
+    } // namespace receiver
+
+    export
+    template <pint NN>
+    defproc AER (globals g) {
+    }
+
+    namespace test {
+    } // namespace test
+} // namespace aer
+

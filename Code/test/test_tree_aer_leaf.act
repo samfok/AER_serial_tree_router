@@ -1,0 +1,5 @@
+import "tree_aer.act";
+import "lib/globals.act";
+
+globals g;
+aer::transmitter::test::TEST_LEAF test(g);
