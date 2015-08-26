@@ -1,0 +1,23 @@
+# set_principal test.aext.ci[0]
+# set_principal test.aext.ci[1]
+# set_principal test.aext.co[0]
+# set_principal test.aext.co[1]
+# set_principal test.aext.x.m[0].n[0]
+# set_principal test.aext.x.m[0].n[1]
+# set_principal test.aext.xi
+
+source reset.scr
+random
+break-on-warn
+
+# watchall
+
+# watch test.aext.ci[0]
+# watch test.aext.ci[1]
+# watch test.aext.co[0]
+# watch test.aext.co[1]
+# watch test.aext.a[0]
+# watch test.aext.a[1]
+# watch test.aext.x.m[0].n[0]
+# watch test.aext.x.m[0].n[1]
+# watch test.aext.xi

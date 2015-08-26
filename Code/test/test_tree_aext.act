@@ -1,0 +1,7 @@
+import "tree_aer.act";
+import "lib/globals.act";
+
+pint M=2;
+pint NN=4;
+globals g;
+aer::transmitter::test::TEST_AEXT<M,NN> test(g);
