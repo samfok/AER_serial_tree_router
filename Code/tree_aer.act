@@ -8,9 +8,9 @@ import "test.act";
 pint N=2;
 namespace aer {
     namespace transmitter {
-        export
-        defproc NODE_LEAF (globals g; bool di[2], do[2]; aMx1ofN<1,N> x) {
+        defproc NODE_LEAF_PSX (globals g; bool di[2], do[2]; aMx1ofN<1,N> x) {
             // leaf node of transmitter tree
+            // pipelined send, sequential reset X first
             bool a[2], xi;
             xi = x.a;
             ::arbiter::ARB arb(di, a);
@@ -30,9 +30,32 @@ namespace aer {
             }
         }
 
+        defproc NODE_LEAF_PP (globals g; bool di[2], do[2]; aMx1ofN<1,N> x) {
+            // leaf node of transmitter tree
+            // pipelined send, pipelined reset
+            bool a[2], xi;
+            xi = x.a;
+            ::arbiter::ARB arb(di, a);
+
+            prs<g.Vdd, g.GND> {
+                a[0] & ~do[1] -> x.m[0].n[0]+
+                g.pReset | ~a[0] -> x.m[0].n[0]-
+
+                a[1] & ~do[0] -> x.m[0].n[1]+
+                g.pReset | ~a[1] -> x.m[0].n[1]-
+
+                xi & a[0] & ~do[1] -> do[0]+
+                ~xi -> do[0]-
+
+                xi & a[1] & ~do[0] -> do[1]+
+                ~xi -> do[1]-
+            }
+        }
+
         template <pint M>
-        defproc NODE_INT (globals g; aMx1ofN<M,N> d[2]; aMx1ofN<M+1,N> x) {
+        defproc NODE_INT_PSX (globals g; aMx1ofN<M,N> d[2]; aMx1ofN<M+1,N> x) {
             // interior node of transmitter tree
+            // pipelined send, sequential reset X first
             bool a[2], do[2];
             bool xi = x.a; // for convenience
             ::arbiter::ARB arb(, a);
@@ -69,6 +92,63 @@ namespace aer {
                 ~xi & ~a[1] -> do[1]-
             }
         }
+
+        template <pint M>
+        defproc NODE_INT_PP (globals g; aMx1ofN<M,N> d[2]; aMx1ofN<M+1,N> x) {
+            // interior node of transmitter tree
+            // pipelined send, pipelined reset
+            bool a[2], do[2];
+            bool xi = x.a; // for convenience
+            ::arbiter::ARB arb(, a);
+            VN<M,2> vn[2];
+
+            do[0] = d[0].a;
+            do[1] = d[1].a;
+            vn[0].d = d[0].m;
+            vn[1].d = d[1].m;
+            arb.i[0] = vn[0].o;
+            arb.i[1] = vn[1].o;
+
+            prs<g.Vdd, g.GND> {
+                a[0] & ~do[1] -> x.m[0].n[0]+
+                g.pReset | ~a[0] -> x.m[0].n[0]-
+
+                a[1] & ~do[0] -> x.m[0].n[1]+
+                g.pReset | ~a[1] -> x.m[0].n[1]-
+
+                (: m : M :
+                    (a[0] & d[0].m[m].n[0] | a[1] & d[1].m[m].n[0])
+                        & ~do[0] & ~do[1] -> x.m[m+1].n[0]+
+                    g.pReset | (~a[0] & do[0] | ~a[1] & do[1])
+                        -> x.m[m+1].n[0]-
+
+
+                    (a[0] & d[0].m[m].n[1] | a[1] & d[1].m[m].n[1])
+                        & ~do[0] & ~do[1] -> x.m[m+1].n[1]+
+                    g.pReset | (~a[0] & do[0] | ~a[1] & do[1])
+                        -> x.m[m+1].n[1]-
+                )
+
+                xi & a[0] & ~do[1] -> do[0]+
+                ~xi -> do[0]-
+
+                xi & a[1] & ~do[0] -> do[1]+
+                ~xi -> do[1]-
+            }
+        }
+
+        export
+        defproc NODE_LEAF (globals g; bool di[2], do[2]; aMx1ofN<1,N> x) {
+            // NODE_LEAF_PSX imp(g, di, do, x);
+            NODE_LEAF_PP imp(g, di, do, x);
+        }
+
+        template <pint M>
+        defproc NODE_INT (globals g; aMx1ofN<M,N> d[2]; aMx1ofN<M+1,N> x) {
+            // NODE_INT_PSX<M> imp(g, d, x);
+            NODE_INT_PP<M> imp(g, d, x);
+        }
+
 
         export
         template <pint M, NN>

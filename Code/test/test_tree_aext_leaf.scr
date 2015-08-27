@@ -12,12 +12,12 @@ break-on-warn
 
 # watchall
 
-# watch test.node.di[0]
-# watch test.node.di[1]
-# watch test.node.do[0]
-# watch test.node.do[1]
-# watch test.node.a[0]
-# watch test.node.a[1]
-# watch test.node.x.m[0].n[0]
-# watch test.node.x.m[0].n[1]
-# watch test.node.xi
+watch test.node.di[0]
+watch test.node.di[1]
+watch test.node.do[0]
+watch test.node.do[1]
+watch test.node.a[0]
+watch test.node.a[1]
+watch test.node.x.m[0].n[0]
+watch test.node.x.m[0].n[1]
+watch test.node.xi
