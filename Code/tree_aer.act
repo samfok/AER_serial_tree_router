@@ -30,19 +30,17 @@ namespace aer {
             }
         }
 
-        defproc NODE_LEAF_PP (globals g; bool di[2], do[2]; aMx1ofN<1,N> x) {
+        defproc NODE_LEAF_PP (bool di[2], do[2]; aMx1ofN<1,N> x) {
             // leaf node of transmitter tree
             // pipelined send, pipelined reset
             bool a[2], xi;
             xi = x.a;
             ::arbiter::ARB arb(di, a);
 
-            prs<g.Vdd, g.GND> {
-                a[0] & ~do[1] -> x.m[0].n[0]+
-                g.pReset | ~a[0] -> x.m[0].n[0]-
+            prs {
+                a[0] & ~do[1] => x.m[0].n[0]+
 
-                a[1] & ~do[0] -> x.m[0].n[1]+
-                g.pReset | ~a[1] -> x.m[0].n[1]-
+                a[1] & ~do[0] => x.m[0].n[1]+
 
                 xi & a[0] & ~do[1] -> do[0]+
                 ~xi -> do[0]-
@@ -110,15 +108,13 @@ namespace aer {
             arb.i[1] = vn[1].o;
 
             prs<g.Vdd, g.GND> {
-                a[0] & ~do[1] -> x.m[0].n[0]+
-                g.pReset | ~a[0] -> x.m[0].n[0]-
+                a[0] & ~do[1] => x.m[0].n[0]+
 
-                a[1] & ~do[0] -> x.m[0].n[1]+
-                g.pReset | ~a[1] -> x.m[0].n[1]-
+                a[1] & ~do[0] => x.m[0].n[1]+
 
                 (: m : M :
                     (a[0] & d[0].m[m].n[0] | a[1] & d[1].m[m].n[0])
-                        & ~do[0] & ~do[1] -> x.m[m+1].n[0]+
+                    & ~do[0] & ~do[1] -> x.m[m+1].n[0]+
                     g.pReset | (~a[0] & do[0] | ~a[1] & do[1])
                         -> x.m[m+1].n[0]-
 
@@ -140,7 +136,7 @@ namespace aer {
         export
         defproc NODE_LEAF (globals g; bool di[2], do[2]; aMx1ofN<1,N> x) {
             // NODE_LEAF_PSX imp(g, di, do, x);
-            NODE_LEAF_PP imp(g, di, do, x);
+            NODE_LEAF_PP imp(di, do, x);
         }
 
         template <pint M>
@@ -152,7 +148,7 @@ namespace aer {
 
         export
         template <pint M, NN>
-        defproc AEXT (globals g; bool ci[NN], co[NN]; aMx1ofN<M,N> x) {
+        defproc AEXT (globals g; bool si[NN], so[NN]; aMx1ofN<M,N> x) {
             // transmitter
             // M number of bits
             // NN number of neurons. NN=N^M
@@ -160,16 +156,16 @@ namespace aer {
 
             [ M = 1 ->
                 NN = N; // assert NN=N. checks for NN=N^M overall
-                NODE_LEAF node_leaf(g, ci, co, x);
+                NODE_LEAF node_leaf(g, si, so, x);
             [] M > 1 ->
                 AEXT<M-1, NN/2> aext[2];
                 NODE_INT<M-1> node_int(g,, x);
                 aext[0].g = g;
                 aext[1].g = g;
-                aext[0].ci = ci[0..NN/2-1];
-                aext[1].ci = ci[NN/2..NN-1];
-                aext[0].co = co[0..NN/2-1];
-                aext[1].co = co[NN/2..NN-1];
+                aext[0].si = si[0..NN/2-1];
+                aext[1].si = si[NN/2..NN-1];
+                aext[0].so = so[0..NN/2-1];
+                aext[1].so = so[NN/2..NN-1];
                 node_int.d[0] = aext[0].x;
                 node_int.d[1] = aext[1].x;
             ]
@@ -177,24 +173,13 @@ namespace aer {
 
         namespace test {
             export
-            defproc TEST_LEAF (globals g) {
-                active_handshaker<2> s(g,,);
-                NODE_LEAF node(g,,,);
-                VN<1,N> vn(,);
-                node.di = s.o;
-                node.do = s.i;
-                node.x.m = vn.d;
-                node.x.a = vn.o;
-            }
-
-            export
             template <pint M, NN>
             defproc TEST_AEXT (globals g) {
                 active_handshaker<NN> s(g,,);
                 AEXT<M,NN> aext(g,,,);
                 VN<M,N> vn(,);
-                aext.ci = s.o;
-                aext.co = s.i;
+                aext.si = s.o;
+                aext.so = s.i;
                 aext.x.m = vn.d;
                 aext.x.a = vn.o;
             }
@@ -202,16 +187,77 @@ namespace aer {
     } // namespace transmitter
 
     namespace receiver {
+        defproc NODE_LEAF (bool xi[2], xo[2]; aMx1ofN<1,N> d) {
+            bool do = d.a; // for convience
+            prs {
+                d.m[0].n[0] -> xo[0]+
+                ~d.m[0].n[0] -> xo[0]-
+
+                d.m[0].n[1] -> xo[1]+
+                ~d.m[0].n[1] -> xo[1]-
+
+                xi[0] | xi[1] => do+
+            }
+        }
+
+        template <pint M>
+        defproc NODE_INT (aMx1ofN<M, N> d; aMx1ofN<M-1, N> x[2]) {
+            bool do = d.a; // for convience
+            bool xi[2]; // for convienence
+            xi[0] = x[0].a;
+            xi[1] = x[1].a;
+            prs {
+                (: m : 1..M-1 :
+                    d.m[0].n[0] & d.m[m].n[0] -> x[0].m[m-1].n[0]+
+                    ~d.m[0].n[0] -> x[0].m[m-1].n[0]-
+
+                    d.m[0].n[1] & d.m[m].n[0] -> x[1].m[m-1].n[0]+
+                    ~d.m[0].n[1] -> x[1].m[m-1].n[0]-
+                )
+
+                xi[0] | xi[1] => do+
+            }
+        }
+
+        export
+        template <pint M, NN>
+        defproc AERV (bool ri[NN], ro[NN]; aMx1ofN<M,N> d) {
+            bool do = d.a; // for convience
+            [ M = 1 ->
+                NN = N; // assert NN=N. checks for NN=N^M overall
+                NODE_LEAF node_leaf(ri, ro, d);
+            [] M > 1 ->
+                AERV<M-1, NN/2> aerv[2];
+                NODE_INT<M> node_int(d,);
+                aerv[0].ri = ri[0..NN/2-1];
+                aerv[1].ri = ri[NN/2..NN-1];
+                aerv[0].ro = ro[0..NN/2-1];
+                aerv[1].ro = ro[NN/2..NN-1];
+                node_int.x[0] = aerv[0].d;
+                node_int.x[1] = aerv[1].d;
+            ]
+        }
+
         namespace test {
         } // namespace test
     } // namespace receiver
 
     export
-    template <pint NN>
-    defproc AER (globals g) {
+    template <pint M, NN>
+    defproc AER (globals g; bool si[NN], so[NN], ri[NN], ro[NN]) {
+        transmitter::AEXT<M, NN> aext(g, si, so,);
+        receiver::AERV<M, NN> aerv(ri, ro,);
+        aext.x = aerv.d;
     }
 
     namespace test {
+        export
+        template <pint M, NN>
+        defproc TEST_AER (globals g) {
+            active_handshaker<NN> s(g,,);
+            passive_handshaker<NN> r(g,,);
+            AER<M, NN> aer(g, s.o, s.i, r.o, r.i);
+        }
     } // namespace test
 } // namespace aer
 

@@ -1,0 +1,239 @@
+\documentclass{article}
+\usepackage{mystyle}
+
+\begin{document}
+\title{Tree AER}
+\author{Sam Fok}
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Transmitter ($AEXT$)}
+
+Each node of the tree has two passive input ports $D0$ and $D1$ and one active output port $X$.
+
+$D0$ and $D1$ are merged into $X$. Arbitration occurs between the $D0$ and $D1$ requests. 
+
+There are four ways to reshuffle 2-phase communications. Each complete 4-phase communication contains 2 2-phase communications, there are $4^2=16$ possible reshufflings of the 4-phase communication. There are more if we consider interleavings across the up and down phases. 
+
+\begin{csp}
+*[[#{D0}->D0\*X!(0,D0?)
+  \|#{D1}->D1\*X!(1,D1?)]]
+\end{csp}
+
+All variations generate the arbiter request using a completion tree
+
+\begin{hse}
+*[[V(D0)];a0i+;[N(D0)];a0i-]
+*[[V(D1)];a1i+;[N(D1)];a1i-]
+\end{hse}
+
+\begin{hse}
+*[[a0i->a0+;[~a0i];a0-
+  \|a1i->a1+;[~a1i];a1-]]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Pipelined send, sequential reset with X first}
+
+\subsubsection{First level}
+
+\begin{csp}
+*[[D0\star\!X!0;X;D0
+  \|D1\star\!X!1;X;D1]]
+\end{csp}
+
+\begin{hse}
+*[[a0->x`{00}+;[xi];d0o+;x`{00}-;[~xi&~a0];d0o-
+  []a1->x`{01}+;[xi];d1o+;x`{01}-;[~xi&~a1];d1o-]]
+\end{hse}
+
+\subsubsection{Subsequent levels}
+
+\begin{csp}
+*[[D0\star\!X!(0,D0?);X;D0
+  \|D1\star\!X!(1,D1?);X;D1]]
+\end{csp}
+
+\begin{hse}
+*[[a0->x`{00}+,\langle,m:M:[d0`{m0}->x`{(m\+1)0}+[]d0`{m1}->x`{(m\+1)1}+]\rangle;[xi];d0o+;
+   x\!\Downarrow;[~xi&~a0];d0o-
+  []a1->x`{01}+,\langle,m:M:[d1`{m0}->x`{(m\+1)0}+[]d1`{m1}->x`{(m\+1)1}+]\rangle;[xi];d1o+;
+   x\!\Downarrow;[~xi&~a1];d1o-
+ ]]
+\end{hse}
+
+\subsubsection{PRS}
+
+First and subsequent level...
+
+\begin{prs2}
+a0 & ~d1o & ~d0o-> x`{00}+
+d0o -> x`{00}-
+
+a1 & ~d0o & ~d1o -> x`{01}+
+d1o -> x`{01}-
+\end{prs2}
+
+\noindent Subsequent levels only...
+
+\begin{prs2}
+((a0 & d0`{m0}) | (a1 & d1`{m0})) & ~d0o & ~d1o -> x`{(m\+1)0}+
+
+d0o | d1o -> x`{(m\+1)0}-
+\end{prs2}
+
+\begin{prs2}
+((a0 & d0`{m1}) | (a1 & d1`{m1})) & ~d0o & ~d1o -> x`{(m\+1)1}+
+
+d0o | d1o -> x`{(m\+1)1}-
+\end{prs2}
+
+\noindent Common to all levels...
+
+\begin{prs2}
+xi & a0 & ~d1o -> d0o+
+~xi & ~a0 -> d0o-
+
+xi & a1 & ~d0o-> d1o+
+~xi & ~a1 -> d1o-
+\end{prs2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Pipelined send, pipelined reset}
+
+\subsubsection{Leaf node}
+
+\begin{csp}
+*[[D0\star\!X!0;D0\star\!X
+  \|D1\star\!X!1;D1\star\!X]]
+\end{csp}
+
+\begin{hse}
+*[[a0->x`{00}+;[xi];d0o+;[~a0];x`{00}-;[~xi];d0o-
+  []a1->x`{01}+;[xi];d1o+;[~a1];x`{01}-;[~xi];d1o-]]
+\end{hse}
+
+\subsubsection{Intermediate nodes}
+
+\begin{csp}
+*[[D0\star\!X!(0,D0?);D0\star\!X
+  \|D1\star\!X!(1,D1?);D1\star\!X]]
+\end{csp}
+
+\begin{hse}
+*[[a0->x`{00}+,\langle,m:M:[d0`{m0}->x`{(m\+1)0}+[]d0`{m1}->x`{(m\+1)1}+]\rangle;[xi];d0o+;
+  [~a0];x\!\Downarrow;[~xi];d0o-
+  []a1->x`{01}+,\langle,m:M:[d1`{m0}->x`{(m\+1)0}+[]d1`{m1}->x`{(m\+1)1}+]\rangle;[xi];d1o+;
+  [~a1];x\!\Downarrow;[~xi];d1o-
+ ]]
+\end{hse}
+
+\subsubsection{PRS}
+
+Leaf and intermediate nodes...
+
+\begin{prs2}
+a0 & ~d1o -> x`{00}+
+~a0 | d1o -> x`{00}-
+
+a1 & ~d0o -> x`{01}+
+~a1 | d0o -> x`{01}-
+\end{prs2}
+
+\noindent Intermediate nodes only...
+
+\begin{prs2}
+(a0 & d0`{m0} | a1 & d1`{m0}) & ~d0o & ~d1o -> x`{(m\+1)0}+
+
+~a0 & d0o | ~a1 & d1o -> x`{(m\+1)0}-
+\end{prs2}
+
+\begin{prs2}
+(a0 & d0`{m1} | a1 & d1`{m1}) & ~d0o & ~d1o -> x`{(m\+1)1}+
+
+~a0 & d0o | ~a1 & d1o -> x`{(m\+1)1}-
+\end{prs2}
+
+\noindent Common to all nodes...
+
+\begin{prs2}
+xi & a0 & ~d1o -> d0o+
+~xi -> d0o-
+
+xi & a1 & ~d0o -> d1o+
+~xi -> d1o-
+\end{prs2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Receiver ($AERV$)}
+
+The receiver simply looks at the highest order bit and directs the traffic accordingly.
+
+\begin{csp}
+AERV\equiv
+*[D?y;[y=0->X0!y[]y=1->X1!y];D;X0,X1]
+\end{csp}
+
+All variations use a completion tree to indicate valid/neutral data
+
+\begin{hse}
+*[[V(D)];vo;[N(D)];vo-]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Pipelined send, pipelined reset}
+
+\subsubsection{Leaf level}
+
+\begin{csp}
+*[[D=0->D\star\!X0[]D=1->D\star\!X1];D\star\!(X0,X1)]
+\end{csp}
+
+\begin{hse}
+*[[d`{00}];x0o+;[x0i];do+;[~d`{00}];x0o-,x1o-;[~x0i&~x1i];do-]
+*[[d`{01}];x1o+;[x1i];do+;[~d`{01}];x0o-,x1o-;[~x0i&~x1i];do-]
+\end{hse}
+
+\subsubsection{Higher levels}
+
+\begin{csp}
+*[D?y\star\![y=0->X0!y[]y=1->X1!y];D\star\!(X0,X1)]
+\end{csp}
+
+\begin{hse}
+*[[d`{00}];\langle,m:1..M\-1:[d`{m0}->x0`{(m\-1)0}+[]d`{m1}->x0`{(m\-1)1}+]\rangle;[x0i];do+;
+  [~d`{00}];x0\!\Downarrow;[~x0i&~x1i];do-]
+*[[d`{01}];\langle,m:1..M\-1:[d`{m0}->x1`{(m\-1)0}+[]d`{m1}->x1`{(m\-1)1}+]\rangle;[x1i];do+;
+  [~d`{01}];x1\!\Downarrow;[~x0i&~x1i];do-]
+\end{hse}
+
+\subsubsection{PRS}
+
+Leaf...
+
+\begin{prs2}
+d`{00} -> x0o+
+~d`{00} -> x0o-
+
+d`{01} -> x1o+
+~d`{01} -> x1o-
+\end{prs2}
+
+\noindent Higher levels...
+
+\begin{prs2}
+d`{00} & d`{m0} -> x0`{(m\-1)0}+
+~d`{00} -> x0`{(m\-1)0}-
+
+d`{01} & d`{m0} -> x1`{(m\-1)0}+
+~d`{01} -> x1`{(m\-1)0}-
+\end{prs2}
+
+\noindent Common to all levels...
+
+\begin{prs2}
+x0i | x1i -> do+
+~x0i & ~x1i -> do-
+\end{prs2}
+
+\end{document}
