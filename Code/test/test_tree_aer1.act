@@ -1,0 +1,11 @@
+import "tree_aer.act";
+import "lib/globals.act";
+
+// pint M=1;
+// pint NN=2;
+
+pint M=2;
+pint NN=4;
+
+globals g;
+aer::test::TEST_AER1<M,NN> test(g);

@@ -3,8 +3,7 @@ break-on-warn
 
 # #################### default ################################################
 
-# source reset.scr
-# watchall
+source reset.scr
 
 # #################### M1 NN2 #################################################
 
@@ -28,32 +27,58 @@ break-on-warn
 
 # #################### M2 NN4 debug ###########################################
 
-set_principal test.aer.si[0]
-set_principal test.aer.si[1]
-set_principal test.aer.si[2]
-set_principal test.aer.si[3]
-set_principal test.aer.so[0]
-set_principal test.aer.so[1]
-set_principal test.aer.so[2]
-set_principal test.aer.so[3]
-set_principal test.aer.aext.x.m[0].n[0]
-set_principal test.aer.aext.x.m[0].n[1]
-set_principal test.aer.aext.x.m[1].n[0]
-set_principal test.aer.aext.x.m[1].n[1]
-set_principal test.aer.aext.xi
-
-source reset.scr
-
-watch test.aer.si[0]
-watch test.aer.si[1]
-watch test.aer.si[2]
-watch test.aer.si[3]
-watch test.aer.so[0]
-watch test.aer.so[1]
-watch test.aer.so[2]
-watch test.aer.so[3]
-watch test.aer.aext.x.m[0].n[0]
-watch test.aer.aext.x.m[0].n[1]
-watch test.aer.aext.x.m[1].n[0]
-watch test.aer.aext.x.m[1].n[1]
-watch test.aer.aext.xi
+# set_principal test.aer.si[0]
+# set_principal test.aer.si[1]
+# set_principal test.aer.si[2]
+# set_principal test.aer.si[3]
+# set_principal test.aer.so[0]
+# set_principal test.aer.so[1]
+# set_principal test.aer.so[2]
+# set_principal test.aer.so[3]
+# set_principal test.aer.aext.x.m[0].n[0]
+# set_principal test.aer.aext.x.m[0].n[1]
+# set_principal test.aer.aext.x.m[1].n[0]
+# set_principal test.aer.aext.x.m[1].n[1]
+# set_principal test.aer.aext.xi
+# 
+# set_principal test.aer.ri[0]
+# set_principal test.aer.ri[1]
+# set_principal test.aer.ri[2]
+# set_principal test.aer.ri[3]
+# set_principal test.aer.ro[0]
+# set_principal test.aer.ro[1]
+# set_principal test.aer.ro[2]
+# set_principal test.aer.ro[3]
+# set_principal test.aer.aerv.node_int.x[0].m[0].n[0]
+# set_principal test.aer.aerv.node_int.x[0].m[0].n[1]
+# set_principal test.aer.aerv.node_int.x[1].m[0].n[0]
+# set_principal test.aer.aerv.node_int.x[1].m[0].n[1]
+# 
+# source reset.scr
+# 
+# watch test.aer.si[0]
+# watch test.aer.si[1]
+# watch test.aer.si[2]
+# watch test.aer.si[3]
+# watch test.aer.so[0]
+# watch test.aer.so[1]
+# watch test.aer.so[2]
+# watch test.aer.so[3]
+# watch test.aer.aext.x.m[0].n[0]
+# watch test.aer.aext.x.m[0].n[1]
+# watch test.aer.aext.x.m[1].n[0]
+# watch test.aer.aext.x.m[1].n[1]
+# watch test.aer.aext.xi
+# 
+# watch test.aer.ri[0]
+# watch test.aer.ri[1]
+# watch test.aer.ri[2]
+# watch test.aer.ri[3]
+# watch test.aer.ro[0]
+# watch test.aer.ro[1]
+# watch test.aer.ro[2]
+# watch test.aer.ro[3]
+# watch test.aer.aerv.node_int.x[0].m[0].n[0]
+# watch test.aer.aerv.node_int.x[0].m[0].n[1]
+# watch test.aer.aerv.node_int.x[1].m[0].n[0]
+# watch test.aer.aerv.node_int.x[1].m[0].n[1]

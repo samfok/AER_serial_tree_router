@@ -209,7 +209,7 @@ All variations use a completion tree to indicate valid/neutral data
 
 \subsubsection{PRS}
 
-Leaf...
+Leaf node...
 
 \begin{prs2}
 d`{00} -> x0o+
@@ -219,17 +219,17 @@ d`{01} -> x1o+
 ~d`{01} -> x1o-
 \end{prs2}
 
-\noindent Higher levels...
+\noindent Intermediate nodes...
 
 \begin{prs2}
 d`{00} & d`{m0} -> x0`{(m\-1)0}+
-~d`{00} -> x0`{(m\-1)0}-
+~d`{00} & ~d`{m0} -> x0`{(m\-1)0}-
 
 d`{01} & d`{m0} -> x1`{(m\-1)0}+
-~d`{01} -> x1`{(m\-1)0}-
+~d`{01} & d`{m1} -> x1`{(m\-1)0}-
 \end{prs2}
 
-\noindent Common to all levels...
+\noindent Common to all nodes...
 
 \begin{prs2}
 x0i | x1i -> do+
