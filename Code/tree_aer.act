@@ -95,19 +95,27 @@ namespace aer {
         }
         */
 
-        template <pint M>
+        template <pint M; pbool root>
         defproc NODE_INT (globals g; aMx1ofN<M,N> d[2]; aMx1ofN<M+1,N> x) {
             // interior node of transmitter tree
             // pipelined send, pipelined reset
             bool a[2], do[2];
             bool xi = x.a; // for convenience
-            ::arbiter::ARB arb(, a);
-            VN<M,2> vn[2];
+            do[0] = d[0].a; // for convenience
+            do[1] = d[1].a; // for convenience
 
-            do[0] = d[0].a;
-            do[1] = d[1].a;
-            vn[0].d = d[0].m;
-            vn[1].d = d[1].m;
+            ::arbiter::ARB arb(, a);
+
+            [ root ->
+                VN<M,2> vn[2];
+                vn[0].d = d[0].m;
+                vn[1].d = d[1].m;
+            [] ~root ->
+                VN<1,2> vn[2];
+                vn[0].d[0] = d[0].m[0];
+                vn[1].d[0] = d[1].m[0];
+            ]
+
             arb.i[0] = vn[0].o;
             arb.i[1] = vn[1].o;
 
@@ -138,7 +146,7 @@ namespace aer {
         }
 
         export
-        template <pint M, NN>
+        template <pint M, NN; pbool root>
         defproc AEXT (globals g; bool si[NN], so[NN]; aMx1ofN<M,N> x) {
             // transmitter
             // M number of bits
@@ -149,16 +157,22 @@ namespace aer {
                 NN = N; // assert NN=N. checks for NN=N^M overall
                 NODE_LEAF node_leaf(si, so, x);
             [] M > 1 ->
-                AEXT<M-1, NN/2> aext[2];
-                NODE_INT<M-1> node_int(g,, x);
+                AEXT<M-1, NN/2, false> aext[2];
                 aext[0].g = g;
                 aext[1].g = g;
                 aext[0].si = si[0..NN/2-1];
                 aext[1].si = si[NN/2..NN-1];
                 aext[0].so = so[0..NN/2-1];
                 aext[1].so = so[NN/2..NN-1];
-                node_int.d[0] = aext[0].x;
-                node_int.d[1] = aext[1].x;
+                [ root ->
+                    NODE_INT<M-1, true> node_root(g,, x);
+                    node_root.d[0] = aext[0].x;
+                    node_root.d[1] = aext[1].x;
+                [] ~root ->
+                    NODE_INT<M-1, false> node_int(g,, x);
+                    node_int.d[0] = aext[0].x;
+                    node_int.d[1] = aext[1].x;
+                ]
             ]
         }
 
@@ -167,12 +181,27 @@ namespace aer {
             template <pint M, NN>
             defproc TEST_AEXT (globals g) {
                 active_handshaker<NN> s(g,,);
-                AEXT<M,NN> aext(g,,,);
-                VN<M,N> vn(,);
+                AEXT<M, NN, true> aext(g,,,);
+                VN<M, N> vn(,);
                 aext.si = s.o;
                 aext.so = s.i;
                 aext.x.m = vn.d;
                 aext.x.a = vn.o;
+            }
+
+            export
+            template <pint M, NN>
+            defproc TEST_AEXT1 (globals g) {
+                active_handshaker<1> s(g,,);
+                AEXT<M, NN, true> aext(g,,,);
+                VN<M, N> vn(,);
+                aext.si[0] = s.o[0];
+                aext.so[0] = s.i[0];
+                aext.x.m = vn.d;
+                aext.x.a = vn.o;
+                (; nn : 1..NN-1 :
+                    aext.si[nn] = g.GND;
+                )
             }
         } // namespace test
     } // namespace transmitter
@@ -240,7 +269,7 @@ namespace aer {
     export
     template <pint M, NN>
     defproc AER (globals g; bool si[NN], so[NN], ri[NN], ro[NN]) {
-        transmitter::AEXT<M, NN> aext(g, si, so,);
+        transmitter::AEXT<M, NN, true> aext(g, si, so,);
         receiver::AERV<M, NN> aerv(ri, ro,);
         aext.x = aerv.d;
     }

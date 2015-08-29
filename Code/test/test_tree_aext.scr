@@ -4,18 +4,159 @@ break-on-warn
 # #################### default ################################################
 
 source reset.scr
-# watchall
+
+# #################### M3 NN8 debug ###########################################
+
+# set_principal test.aext.si[0]
+# set_principal test.aext.si[1]
+# set_principal test.aext.si[2]
+# set_principal test.aext.si[3]
+# set_principal test.aext.si[4]
+# set_principal test.aext.si[5]
+# set_principal test.aext.si[6]
+# set_principal test.aext.si[7]
+# set_principal test.aext.so[0]
+# set_principal test.aext.so[1]
+# set_principal test.aext.so[2]
+# set_principal test.aext.so[3]
+# set_principal test.aext.so[4]
+# set_principal test.aext.so[5]
+# set_principal test.aext.so[6]
+# set_principal test.aext.so[7]
+# 
+# set_principal test.aext.x.m[0].n[0]
+# set_principal test.aext.x.m[0].n[1]
+# set_principal test.aext.x.m[1].n[0]
+# set_principal test.aext.x.m[1].n[1]
+# set_principal test.aext.x.m[2].n[0]
+# set_principal test.aext.x.m[2].n[1]
+# set_principal test.aext.xi
+# set_principal test.aext.node_root.a[0]
+# set_principal test.aext.node_root.a[1]
+# set_principal test.aext.node_root.vn[0].o
+# set_principal test.aext.node_root.vn[1].o
+# 
+# set_principal test.aext.aext[0].x.m[0].n[0]
+# set_principal test.aext.aext[0].x.m[0].n[1]
+# set_principal test.aext.aext[0].x.m[1].n[0]
+# set_principal test.aext.aext[0].x.m[1].n[1]
+# set_principal test.aext.aext[0].xi
+# set_principal test.aext.aext[0].node_int.a[0]
+# set_principal test.aext.aext[0].node_int.a[1]
+# 
+# set_principal test.aext.aext[1].x.m[0].n[0]
+# set_principal test.aext.aext[1].x.m[0].n[1]
+# set_principal test.aext.aext[1].x.m[1].n[0]
+# set_principal test.aext.aext[1].x.m[1].n[1]
+# set_principal test.aext.aext[1].xi
+# set_principal test.aext.aext[1].node_int.a[0]
+# set_principal test.aext.aext[1].node_int.a[1]
+# 
+# set_principal test.aext.aext[0].aext[0].x.m[0].n[0]
+# set_principal test.aext.aext[0].aext[0].x.m[0].n[1]
+# set_principal test.aext.aext[0].aext[0].xi
+# set_principal test.aext.aext[0].aext[0].node_leaf.a[0]
+# set_principal test.aext.aext[0].aext[0].node_leaf.a[1]
+# 
+# set_principal test.aext.aext[0].aext[1].x.m[0].n[0]
+# set_principal test.aext.aext[0].aext[1].x.m[0].n[1]
+# set_principal test.aext.aext[0].aext[1].xi
+# set_principal test.aext.aext[0].aext[1].node_leaf.a[0]
+# set_principal test.aext.aext[0].aext[1].node_leaf.a[1]
+# 
+# set_principal test.aext.aext[1].aext[0].x.m[0].n[0]
+# set_principal test.aext.aext[1].aext[0].x.m[0].n[1]
+# set_principal test.aext.aext[1].aext[0].xi
+# set_principal test.aext.aext[1].aext[0].node_leaf.a[0]
+# set_principal test.aext.aext[1].aext[0].node_leaf.a[1]
+# 
+# set_principal test.aext.aext[1].aext[1].x.m[0].n[0]
+# set_principal test.aext.aext[1].aext[1].x.m[0].n[1]
+# set_principal test.aext.aext[1].aext[1].xi
+# set_principal test.aext.aext[1].aext[1].node_leaf.a[0]
+# set_principal test.aext.aext[1].aext[1].node_leaf.a[1]
+# 
+# source reset.scr
+# 
+# watch test.aext.si[0]
+# watch test.aext.si[1]
+# watch test.aext.si[2]
+# watch test.aext.si[3]
+# watch test.aext.si[4]
+# watch test.aext.si[5]
+# watch test.aext.si[6]
+# watch test.aext.si[7]
+# watch test.aext.so[0]
+# watch test.aext.so[1]
+# watch test.aext.so[2]
+# watch test.aext.so[3]
+# watch test.aext.so[4]
+# watch test.aext.so[5]
+# watch test.aext.so[6]
+# watch test.aext.so[7]
+# 
+# watch test.aext.x.m[0].n[0]
+# watch test.aext.x.m[0].n[1]
+# watch test.aext.x.m[1].n[0]
+# watch test.aext.x.m[1].n[1]
+# watch test.aext.x.m[2].n[0]
+# watch test.aext.x.m[2].n[1]
+# watch test.aext.xi
+# watch test.aext.node_root.a[0]
+# watch test.aext.node_root.a[1]
+# watch test.aext.node_root.vn[0].o
+# watch test.aext.node_root.vn[1].o
+# 
+# watch test.aext.aext[0].x.m[0].n[0]
+# watch test.aext.aext[0].x.m[0].n[1]
+# watch test.aext.aext[0].x.m[1].n[0]
+# watch test.aext.aext[0].x.m[1].n[1]
+# watch test.aext.aext[0].xi
+# watch test.aext.aext[0].node_int.a[0]
+# watch test.aext.aext[0].node_int.a[1]
+# 
+# watch test.aext.aext[1].x.m[0].n[0]
+# watch test.aext.aext[1].x.m[0].n[1]
+# watch test.aext.aext[1].x.m[1].n[0]
+# watch test.aext.aext[1].x.m[1].n[1]
+# watch test.aext.aext[1].xi
+# watch test.aext.aext[1].node_int.a[0]
+# watch test.aext.aext[1].node_int.a[1]
+# 
+# watch test.aext.aext[0].aext[0].x.m[0].n[0]
+# watch test.aext.aext[0].aext[0].x.m[0].n[1]
+# watch test.aext.aext[0].aext[0].xi
+# watch test.aext.aext[0].aext[0].node_leaf.a[0]
+# watch test.aext.aext[0].aext[0].node_leaf.a[1]
+# 
+# watch test.aext.aext[0].aext[1].x.m[0].n[0]
+# watch test.aext.aext[0].aext[1].x.m[0].n[1]
+# watch test.aext.aext[0].aext[1].xi
+# watch test.aext.aext[0].aext[1].node_leaf.a[0]
+# watch test.aext.aext[0].aext[1].node_leaf.a[1]
+# 
+# watch test.aext.aext[1].aext[0].x.m[0].n[0]
+# watch test.aext.aext[1].aext[0].x.m[0].n[1]
+# watch test.aext.aext[1].aext[0].xi
+# watch test.aext.aext[1].aext[0].node_leaf.a[0]
+# watch test.aext.aext[1].aext[0].node_leaf.a[1]
+# 
+# watch test.aext.aext[1].aext[1].x.m[0].n[0]
+# watch test.aext.aext[1].aext[1].x.m[0].n[1]
+# watch test.aext.aext[1].aext[1].xi
+# watch test.aext.aext[1].aext[1].node_leaf.a[0]
+# watch test.aext.aext[1].aext[1].node_leaf.a[1]
 
 # #################### M2 NN4 debug ###########################################
 
-# set_principal test.aext.ci[0]
-# set_principal test.aext.ci[1]
-# set_principal test.aext.ci[2]
-# set_principal test.aext.ci[3]
-# set_principal test.aext.co[0]
-# set_principal test.aext.co[1]
-# set_principal test.aext.co[2]
-# set_principal test.aext.co[3]
+# set_principal test.aext.si[0]
+# set_principal test.aext.si[1]
+# set_principal test.aext.si[2]
+# set_principal test.aext.si[3]
+# set_principal test.aext.so[0]
+# set_principal test.aext.so[1]
+# set_principal test.aext.so[2]
+# set_principal test.aext.so[3]
 # 
 # set_principal test.aext.x.m[0].n[0]
 # set_principal test.aext.x.m[0].n[1]
@@ -41,14 +182,14 @@ source reset.scr
 # 
 # source reset.scr
 # 
-# watch test.aext.ci[0]
-# watch test.aext.ci[1]
-# watch test.aext.ci[2]
-# watch test.aext.ci[3]
-# watch test.aext.co[0]
-# watch test.aext.co[1]
-# watch test.aext.co[2]
-# watch test.aext.co[3]
+# watch test.aext.si[0]
+# watch test.aext.si[1]
+# watch test.aext.si[2]
+# watch test.aext.si[3]
+# watch test.aext.so[0]
+# watch test.aext.so[1]
+# watch test.aext.so[2]
+# watch test.aext.so[3]
 # 
 # watch test.aext.x.m[0].n[0]
 # watch test.aext.x.m[0].n[1]
@@ -74,10 +215,10 @@ source reset.scr
 
 # #################### M2 NN4 #################################################
 
-# set_principal test.aext.ci[0]
-# set_principal test.aext.ci[1]
-# set_principal test.aext.ci[2]
-# set_principal test.aext.ci[3]
+# set_principal test.aext.si[0]
+# set_principal test.aext.si[1]
+# set_principal test.aext.si[2]
+# set_principal test.aext.si[3]
 # set_principal test.aext.x.m[0].n[0]
 # set_principal test.aext.x.m[0].n[1]
 # set_principal test.aext.x.m[1].n[0]
@@ -85,10 +226,10 @@ source reset.scr
 # 
 # source reset.scr
 # 
-# watch test.aext.ci[0]
-# watch test.aext.ci[1]
-# watch test.aext.ci[2]
-# watch test.aext.ci[3]
+# watch test.aext.si[0]
+# watch test.aext.si[1]
+# watch test.aext.si[2]
+# watch test.aext.si[3]
 # watch test.aext.x.m[0].n[0]
 # watch test.aext.x.m[0].n[1]
 # watch test.aext.x.m[1].n[0]
@@ -96,14 +237,14 @@ source reset.scr
 
 # #################### M3 NN8 #################################################
 
-# set_principal test.aext.ci[0]
-# set_principal test.aext.ci[1]
-# set_principal test.aext.ci[2]
-# set_principal test.aext.ci[3]
-# set_principal test.aext.ci[4]
-# set_principal test.aext.ci[5]
-# set_principal test.aext.ci[6]
-# set_principal test.aext.ci[7]
+# set_principal test.aext.si[0]
+# set_principal test.aext.si[1]
+# set_principal test.aext.si[2]
+# set_principal test.aext.si[3]
+# set_principal test.aext.si[4]
+# set_principal test.aext.si[5]
+# set_principal test.aext.si[6]
+# set_principal test.aext.si[7]
 # set_principal test.aext.x.m[0].n[0]
 # set_principal test.aext.x.m[0].n[1]
 # set_principal test.aext.x.m[1].n[0]
@@ -113,14 +254,14 @@ source reset.scr
 # 
 # source reset.scr
 # 
-# watch test.aext.ci[0]
-# watch test.aext.ci[1]
-# watch test.aext.ci[2]
-# watch test.aext.ci[3]
-# watch test.aext.ci[4]
-# watch test.aext.ci[5]
-# watch test.aext.ci[6]
-# watch test.aext.ci[7]
+# watch test.aext.si[0]
+# watch test.aext.si[1]
+# watch test.aext.si[2]
+# watch test.aext.si[3]
+# watch test.aext.si[4]
+# watch test.aext.si[5]
+# watch test.aext.si[6]
+# watch test.aext.si[7]
 # watch test.aext.x.m[0].n[0]
 # watch test.aext.x.m[0].n[1]
 # watch test.aext.x.m[1].n[0]
