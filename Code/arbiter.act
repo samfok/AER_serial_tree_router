@@ -192,8 +192,8 @@ namespace arbiter {
         export
         defproc TEST_CTRL_TEST (globals g) {
             // tests CTRL_TEST
-            passive_handshaker<2> s(g,,);
-            passive_handshaker<1> p(g,,);
+            passive_handshaker<2> s(,);
+            passive_handshaker<1> p(,);
             CTRL_TEST ctrl(g,,,,,,);
             
             ctrl.po = p.i[0];

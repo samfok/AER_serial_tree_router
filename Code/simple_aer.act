@@ -248,7 +248,7 @@ namespace aer {
         template <pint M, N, NN>
         defproc TEST_AER(globals g) {
             active_handshaker<NN> s(g,,);
-            passive_handshaker<NN> r(g,,);
+            passive_handshaker<NN> r(,);
             AER<M,N,NN> aer(g,,,,);
 
             aer.ci = s.o;
@@ -262,7 +262,7 @@ namespace aer {
         defproc TEST_AER1(globals g) {
             // test AER with a single sender/receiver
             active_handshaker<1> s(g,,);
-            passive_handshaker<1> r(g,,);
+            passive_handshaker<1> r(,);
             AER<M,N,NN> aer(g,,,,);
             (; nn : NN :
                 [ nn = k ->

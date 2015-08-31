@@ -1,5 +1,6 @@
 initialize
 random
+break-on-warn
 
 mode reset
 set g.Vdd 1

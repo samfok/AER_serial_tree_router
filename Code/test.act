@@ -27,10 +27,10 @@ defproc active_low_handshaker(globals g; bool _i[N], _o[N]) {
 
 export
 template <pint N>
-defproc passive_handshaker(globals g; bool i[N], o[N]) {
+defproc passive_handshaker(bool i[N], o[N]) {
     // a simple passive handshaker
     (; n : N :
-        prs <g.Vdd,g.GND> {
+        prs {
             i[n]  => o[n]+ // just a wire with delay
         }
     )
@@ -41,7 +41,7 @@ template <pint N>
 defproc TEST_TEST(globals g) {
     // tests active and passive handshakers
     active_handshaker<N> a(g,,);
-    passive_handshaker<N> p(g,,);
+    passive_handshaker<N> p(,);
     
     a.i = p.o;
     a.o = p.i;
