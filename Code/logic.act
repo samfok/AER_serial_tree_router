@@ -1,9 +1,10 @@
 // Defines N input logic gates
+import "channel.act";
 
 export
 template <pint N>
 defproc AND (bool i[N], o) {
-    // AND tree with 2 and 3 input NANDS and 2 input NORS
+    // AND tree with 2 and 3 input NANDs and 2 input NORs
     [ N=1 ->
         i[0] = o;
     [] N=2 ->
@@ -52,6 +53,8 @@ defproc AND (bool i[N], o) {
 export
 template <pint N>
 defproc AND_LINE (bool i[N], o) {
+    // Logical AND implemented as a line of AND gates
+    // Implemented with 2 input NANDs
     [ N = 1 ->
         i[0] = o;
     [] N >= 2 ->
@@ -67,7 +70,9 @@ defproc AND_LINE (bool i[N], o) {
 export
 template <pint N>
 defproc OR (bool i[N], o) {
-    // OR tree with 2 and 3 input NANDS and 2 input NORS
+    // Logical OR implemented with as few transistors as possible
+    // Implemented as an OR tree with 2 and 3 input NANDs and 2 input NORs
+    // We don't use 3 input NORs because the pullup chain would be too slow
     [ N=1 ->
         i[0] = o;
     [] N=2 ->
@@ -119,7 +124,8 @@ defproc OR (bool i[N], o) {
 export
 template <pint N>
 defproc OR_LINE (bool i[N], o) {
-    // OR line with 2 input NANDS and 2 input NORS
+    // Logical OR implemented as line of OR gates
+    // Implemented with 2 input NORs
     [ N = 1 ->
         i[0] = o;
     [] N >= 2 ->
@@ -157,9 +163,9 @@ defproc C_TREE (bool i[N], o) {
 }
 
 export
-template <pint M,N>
+template <pint M, N>
 defproc VN (c1of<N> d[M]; bool o) {
-    // detects valid/neutral data on d
+    // detects data validity/neutrality on d
     OR<N> or[M];
     (; m : M :
         (; n : N :
@@ -172,4 +178,25 @@ defproc VN (c1of<N> d[M]; bool o) {
     (; k : M :
         or[k].o = c_tree.i[k];
     )
+}
+
+template <pint M, N>
+defproc Mx1ofN_WIRES (c1of<N> d[M]; bool o[M*N]) {
+    // Connect a Mx1ofN channel to NN wires
+    pint MN = M*N;
+    (; n : N :
+        d[0].n[n] = o[n];
+    )
+    [ M > 1 ->
+        Mx1ofN_WIRES<M-1, N> w(d[1..M-1], o[N..MN-1]);
+    ]
+}
+
+export
+template <pint M, N, NN>
+defproc N_DETECT (c1of<N> d[M]; bool o) {
+    // detects data neutrality on d
+    bool x[NN];
+    Mx1ofN_WIRES<M, N> wires(d, x);
+    OR<NN> or(x, o);
 }
