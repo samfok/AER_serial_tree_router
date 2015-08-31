@@ -1,6 +1,5 @@
 # script for test_n_arb with 8 children
 source reset.scr
-random
 
 watch test.n_arb._n_arb._po
 watch test.n_arb._n_arb.pi
@@ -22,5 +21,3 @@ watch test.c.i[4]
 watch test.c.i[5]
 watch test.c.i[6]
 watch test.c.i[7]
-
-break-on-warn

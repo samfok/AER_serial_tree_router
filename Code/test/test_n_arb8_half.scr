@@ -1,6 +1,5 @@
 # script for test_n_arb with 8 ports but only 4 children
 source reset.scr
-random
 # watchall
 
 watch test.n_arb.h_arb[0]._po
@@ -31,6 +30,3 @@ watch test.c.i[3]
 
 set_principal test.n_arb.h_arb[6]._po
 set_principal test.n_arb.h_arb[6].pi
-
-break-on-warn
-

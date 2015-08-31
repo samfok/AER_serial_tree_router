@@ -1,5 +1,4 @@
 source reset.scr
-random
 watch test.a.i[0]
 watch test.a.o[0]
 watch test.a.i[1]

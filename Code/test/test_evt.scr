@@ -1,11 +1,11 @@
+set_principal test.e.pi
+set_principal test.e.po
+set_principal test.e.co
+
 source reset.scr
-random
+
 watch test.e.pi
 watch test.e.po
 watch test.e.ri
 watch test.e.ro
 watch test.e.co
-set_principal test.e.pi
-set_principal test.e.po
-set_principal test.e.co
-break-on-warn

@@ -1,5 +1,4 @@
 source reset.scr
-random
 # watchall
 # watch test.ctrl.pi
 # watch test.ctrl.po
@@ -13,4 +12,3 @@ random
 # set_principal test.ctrl.s0o
 # set_principal test.ctrl.s1i
 # set_principal test.ctrl.s1o
-break-on-warn

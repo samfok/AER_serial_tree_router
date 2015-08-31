@@ -4,8 +4,6 @@ set_principal test.arb._i[1]
 set_principal test.arb._o[1]
 
 source reset.scr
-random
-break-on-warn
 
 # watchall
 

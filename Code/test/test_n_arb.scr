@@ -1,5 +1,2 @@
 source reset.scr
-random
 # watchall
-
-break-on-warn
