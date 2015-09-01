@@ -197,11 +197,10 @@ namespace aer {
     namespace receiver {
         defproc NODE_LEAF (bool xi[2], xo[2]; aMx1ofN<1,N> d) {
             bool do = d.a; // for convience
+            d.m[0].n[0] = xo[0];
+            d.m[0].n[1] = xo[1];
+
             prs {
-                d.m[0].n[0] => xo[0]+
-
-                d.m[0].n[1] => xo[1]+
-
                 xi[0] | xi[1] => do+
             }
         }
