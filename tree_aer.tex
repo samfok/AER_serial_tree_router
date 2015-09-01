@@ -6,6 +6,8 @@
 \author{Sam Fok}
 \maketitle
 
+\part{Primary Working Design}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Transmitter ($AEXT$)}
 
@@ -25,18 +27,11 @@ Where the bullet operator indicates the there will be some interleaving between 
   \|a1i->a1+;[~a1i];a1-]]
 \end{hse}
 
-The root node generates its arbiter requests using full completion circuits:
+The intermediate nodes generate their arbiter requests using completion circuits:
 
 \begin{hse}
 *[[V(D0)];a0i+;[N(D0)];a0i-]
 *[[V(D1)];a1i+;[N(D1)];a1i-]
-\end{hse}
-
-All other intermediate nodes generate arbiter requests using the highest bit only:
-
-\begin{hse}
-*[[V(D0`{0})];a0i+;[N(D0`{0})];a0i-]
-*[[V(D1`{0})];a1i+;[N(D1`{0})];a1i-]
 \end{hse}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -71,7 +66,7 @@ All other intermediate nodes generate arbiter requests using the highest bit onl
 
 \subsubsection{PRS}
 
-Leaf and intermediate nodes...
+\textbf{Leaf and intermediate nodes...}
 
 \begin{prs2}
 a0 & ~d1o -> x`{00}+
@@ -81,7 +76,7 @@ a1 & ~d0o -> x`{01}+
 ~a1 | d0o -> x`{01}-
 \end{prs2}
 
-\noindent Intermediate nodes only...
+\noindent \textbf{Intermediate nodes only...}
 
 \begin{prs2}
 (a0 & d0`{m0} | a1 & d1`{m0}) & ~d0o & ~d1o -> x`{(m\+1)0}+
@@ -95,7 +90,7 @@ a1 & ~d0o -> x`{01}+
 ~a0 & d0o | ~a1 & d1o -> x`{(m\+1)1}-
 \end{prs2}
 
-\noindent Common to all nodes...
+\noindent \textbf{Common to all nodes...}
 
 \begin{prs2}
 xi & a0 & ~d1o -> d0o+
@@ -104,6 +99,44 @@ xi & a0 & ~d1o -> d0o+
 xi & a1 & ~d0o -> d1o+
 ~xi -> d1o-
 \end{prs2}
+
+\subsubsection{CMOS-implementable PRS}
+
+\textbf{Leaf and intermediate nodes...}
+
+\begin{prs2}
+a0 & ~d1o -> x`{00}+
+~a0 | d1o -> x`{00}-
+
+a1 & ~d0o -> x`{01}+
+~a1 | d0o -> x`{01}-
+\end{prs2}
+
+\noindent \textbf{Intermediate nodes only...}
+
+\begin{prs2}
+(a0 & d0`{m0} | a1 & d1`{m0}) & ~d0o & ~d1o -> x`{(m\+1)0}+
+
+~a0 & d0o | ~a1 & d1o -> x`{(m\+1)0}-
+\end{prs2}
+
+\begin{prs2}
+(a0 & d0`{m1} | a1 & d1`{m1}) & ~d0o & ~d1o -> x`{(m\+1)1}+
+
+~a0 & d0o | ~a1 & d1o -> x`{(m\+1)1}-
+\end{prs2}
+
+\noindent \textbf{Common to all nodes...}
+
+\begin{prs2}
+xi & a0 & ~d1o -> d0o+
+~xi -> d0o-
+
+xi & a1 & ~d0o -> d1o+
+~xi -> d1o-
+\end{prs2}
+
+\subsubsection{Accounting}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Receiver ($AERV$)}
@@ -139,7 +172,7 @@ The receiver simply looks at the highest order bit and directs the traffic accor
 
 \subsubsection{PRS}
 
-Leaf node...
+\textbf{Leaf node...}
 
 \begin{prs2}
 d`{00} -> x0o+
@@ -149,22 +182,121 @@ d`{01} -> x1o+
 ~d`{01} -> x1o-
 \end{prs2}
 
-\noindent Intermediate nodes...
+\noindent \textbf{Intermediate nodes...}
 
 \begin{prs2}
 d`{00} & d`{m0} -> x0`{(m\-1)0}+
 ~d`{00} & ~d`{m0} -> x0`{(m\-1)0}-
 
 d`{01} & d`{m0} -> x1`{(m\-1)0}+
-~d`{01} & d`{m1} -> x1`{(m\-1)0}-
+~d`{01} & ~d`{m0} -> x1`{(m\-1)0}-
 \end{prs2}
 
-\noindent Common to all nodes...
+\begin{prs2}
+d`{00} & d`{m1} -> x0`{(m\-1)1}+
+~d`{00} & ~d`{m1} -> x0`{(m\-1)1}-
+
+d`{01} & d`{m0} -> x1`{(m\-1)1}+
+~d`{01} & ~d`{m0} -> x1`{(m\-1)1}-
+\end{prs2}
+
+\noindent \textbf{Common to all nodes...}
 
 \begin{prs2}
 x0i | x1i -> do+
 ~x0i & ~x1i -> do-
 \end{prs2}
+
+\subsubsection{CMOS-implementable PRS}
+
+\textbf{Leaf node...}
+
+\noindent Wires. No transistors required.
+
+\begin{prs2}
+d`{00} -> x0o+
+~d`{00} -> x0o-
+
+d`{01} -> x1o+
+~d`{01} -> x1o-
+\end{prs2}
+
+\noindent \textbf{Intermediate nodes...}
+
+\begin{prs2}
+d`{00} & d`{m0} -> _x0`{(m\-1)0}+
+~d`{00} & ~d`{m0} -> _x0`{(m\-1)0}-
+
+d`{01} & d`{m0} -> _x1`{(m\-1)0}+
+~d`{01} & ~d`{m0} -> _x1`{(m\-1)0}-
+\end{prs2}
+
+\begin{prs2}
+d`{00} & d`{m1} -> _x0`{(m\-1)1}+
+~d`{00} & ~d`{m1} -> _x0`{(m\-1)1}-
+
+d`{01} & d`{m0} -> _x1`{(m\-1)1}+
+~d`{01} & ~d`{m0} -> _x1`{(m\-1)1}-
+\end{prs2}
+
+
+\begin{prs2}
+_x0`{(m\-1)0} -> x0`{(m\-1)0}-
+~_x0`{(m\-1)0} -> x0`{(m\-1)0}+
+
+_x1`{(m\-1)0} -> x1`{(m\-1)0}-
+~_x1`{(m\-1)0} -> x1`{(m\-1)0}+
+\end{prs2}
+
+\begin{prs2}
+_x0`{(m\-1)1} -> x0`{(m\-1)1}-
+~_x0`{(m\-1)1} -> x0`{(m\-1)1}+
+
+_x1`{(m\-1)1} -> x1`{(m\-1)1}-
+~_x1`{(m\-1)1} -> x1`{(m\-1)1}+
+\end{prs2}
+
+\noindent 4 C-elements per output bit = 32 transistors per output bit.
+
+\noindent \\ \textbf{Common to all nodes ($N-1$ nodes)...}
+
+\noindent 1 OR gate per node. 
+
+\noindent \\ Naively, we could implement the OR gate at each node. 
+
+\begin{prs2}
+x0i | x1i -> _do+
+~x0i & ~x1i -> _do-
+
+
+_do -> do-
+~_do -> do+
+\end{prs2}
+
+\noindent This would require 6 transistors per node.
+
+\noindent \\ Alternatively, we could alternante NAND and NOR gates at each level of the tree.
+
+\noindent Starting at the bottom of the tree and at every other level:
+\begin{prs2}
+x0i | x1i -> _do+
+~x0i & ~x1i -> _do-
+\end{prs2}
+
+\noindent Starting at one up from the bottom of the tree and at every other level:
+\begin{prs2}
+_x0i & _x1i -> do-
+~_x0i | ~_x1i -> do+
+\end{prs2}
+
+\noindent This would require $4$ transistors per node.
+
+\subsubsection{Accounting}
+
+$4096$ neurons ($12$ bits) would require need $147,036$ transistors for the receiver.
+$$4(4095) + 32(11+(2)10+(4)9+(8)8+(16)7+(32)6+(64)5+(128)4+(256)3+(512)2+1024) =  147036$$
+
+\noindent At $2\mu\textrm{m}^2$ per $10$ transistors in $28\mathrm{nm}$, this requires $29,407\mu\textrm{m}^2$ total, or approximately $7.2\mu\textrm{m}^2$ per neuron.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Appendix}

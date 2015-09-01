@@ -95,7 +95,7 @@ namespace aer {
         }
         */
 
-        template <pint M; pbool root>
+        template <pint M>
         defproc NODE_INT (globals g; aMx1ofN<M,N> d[2]; aMx1ofN<M+1,N> x) {
             // interior node of transmitter tree
             // pipelined send, pipelined reset
@@ -106,15 +106,9 @@ namespace aer {
 
             ::arbiter::ARB arb(, a);
 
-            [ root ->
-                VN<M,2> vn[2];
-                vn[0].d = d[0].m;
-                vn[1].d = d[1].m;
-            [] ~root ->
-                VN<1,2> vn[2];
-                vn[0].d[0] = d[0].m[0];
-                vn[1].d[0] = d[1].m[0];
-            ]
+            VN<M,2> vn[2];
+            vn[0].d = d[0].m;
+            vn[1].d = d[1].m;
 
             arb.i[0] = vn[0].o;
             arb.i[1] = vn[1].o;
@@ -164,15 +158,9 @@ namespace aer {
                 aext[1].si = si[NN/2..NN-1];
                 aext[0].so = so[0..NN/2-1];
                 aext[1].so = so[NN/2..NN-1];
-                [ root ->
-                    NODE_INT<M-1, true> node_root(g,, x);
-                    node_root.d[0] = aext[0].x;
-                    node_root.d[1] = aext[1].x;
-                [] ~root ->
-                    NODE_INT<M-1, false> node_int(g,, x);
-                    node_int.d[0] = aext[0].x;
-                    node_int.d[1] = aext[1].x;
-                ]
+                NODE_INT<M-1> node_int(g,, x);
+                node_int.d[0] = aext[0].x;
+                node_int.d[1] = aext[1].x;
             ]
         }
 

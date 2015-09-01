@@ -28,10 +28,10 @@ source reset.scr
 # set_principal test.aext.x.m[2].n[0]
 # set_principal test.aext.x.m[2].n[1]
 # set_principal test.aext.xi
-# set_principal test.aext.node_root.a[0]
-# set_principal test.aext.node_root.a[1]
-# set_principal test.aext.node_root.vn[0].o
-# set_principal test.aext.node_root.vn[1].o
+# set_principal test.aext.node_int.a[0]
+# set_principal test.aext.node_int.a[1]
+# set_principal test.aext.node_int.vn[0].o
+# set_principal test.aext.node_int.vn[1].o
 # 
 # set_principal test.aext.aext[0].x.m[0].n[0]
 # set_principal test.aext.aext[0].x.m[0].n[1]
@@ -99,10 +99,10 @@ source reset.scr
 # watch test.aext.x.m[2].n[0]
 # watch test.aext.x.m[2].n[1]
 # watch test.aext.xi
-# watch test.aext.node_root.a[0]
-# watch test.aext.node_root.a[1]
-# watch test.aext.node_root.vn[0].o
-# watch test.aext.node_root.vn[1].o
+# watch test.aext.node_int.a[0]
+# watch test.aext.node_int.a[1]
+# watch test.aext.node_int.vn[0].o
+# watch test.aext.node_int.vn[1].o
 # 
 # watch test.aext.aext[0].x.m[0].n[0]
 # watch test.aext.aext[0].x.m[0].n[1]
