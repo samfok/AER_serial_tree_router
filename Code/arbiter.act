@@ -178,14 +178,18 @@ namespace arbiter {
     template <pint N>
     defproc N_ARB (globals g; bool i[N], o[N]) {
         // N-way arbiter
-        bool _i[N];
-        _N_ARB<N> _n_arb(g, _i, o,,);
-        prs {
-            // connect top of tree back to itself
-            _n_arb._po => _n_arb.pi-
-            // connect child ports to arbiter leaves
-            (: n : N : i[n] => _i[n]-)
-        }
+        [ N = 2 ->
+            ARB arb(i, o);
+        [] N = 1 | N > 2 ->
+            bool _i[N];
+            _N_ARB<N> _n_arb(g, _i, o,,);
+            prs {
+                // connect top of tree back to itself
+                _n_arb._po => _n_arb.pi-
+                // connect child ports to arbiter leaves
+                (: n : N : i[n] => _i[n]-)
+            }
+        ]
     }
 
     namespace test {
