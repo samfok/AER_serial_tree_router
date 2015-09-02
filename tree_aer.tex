@@ -320,22 +320,7 @@ _x1`{(m\-1)1} -> x1`{(m\-1)1}-
 
 \noindent \\ \textbf{Common to all nodes ($N-1$ nodes)...}
 
-\noindent 1 OR gate per node. 
-
-\noindent \\ Naively, we could implement the OR gate at each node. 
-
-\begin{prs2}
-x0i | x1i -> _do+
-~x0i & ~x1i -> _do-
-
-
-_do -> do-
-~_do -> do+
-\end{prs2}
-
-\noindent This would require 6 transistors per node.
-
-\noindent \\ Alternatively, we could alternante NAND and NOR gates at each level of the tree.
+\noindent We implement the OR gate by alternanting NAND and NOR gates at each level of the tree.
 
 \noindent Starting at the bottom of the tree and at every other level:
 \begin{prs2}
@@ -349,18 +334,58 @@ _x0i & _x1i -> do-
 ~_x0i | ~_x1i -> do+
 \end{prs2}
 
-\noindent This would require $4$ transistors per node.
+\noindent This requires $4$ transistors per node. If there are an odd number of levels, we add an inverter to the top of the tree.
 
 %%%%%%%%%%%%%%%%
 \subsubsection{Accounting}
 
-$4096$ neurons ($12$ bits) would require need $147,036$ transistors for the receiver.
-$$4(4095) + 32(11+(2)10+(4)9+(8)8+(16)7+(32)6+(64)5+(128)4+(256)3+(512)2+1024) =  147036$$
+With 1-of-2 encoding (dual-rail encoding) and 4096 neurons, the receiver requires 147,036 transistors across 20,427 gates. To arrive at this number, we note that the receiver is organized as a tree with 4095 nodes. Each node of the tree can be divided into circuitry assocaited with communicating on $X$, which outputs data to the lower layers and circuitry associated with communicating on $D$, which acknowledges data from higher layers. The output circuitry accounting is in Table~\ref{tab:recv}. The receiver output circuitry requires 130,656 transistors across 16,332 gates. The receiver acknowledge circuitry requires 16,380 transistors across 4095 gates.
 
-\noindent At $2\mu\textrm{m}^2$ per $10$ transistors in $28\mathrm{nm}$, this requires $29,407\mu\textrm{m}^2$ total, or approximately $7.2\mu\textrm{m}^2$ per neuron.
+\noindent At 2$\mu\textrm{m}^2$ per 10 transistors, the receiver requires 29,407$\mu\textrm{m}^2$ total or approximately 7.2$\mu\textrm{m}^2$ per neuron. 
+
+\noindent At 2$\mu\textrm{m}^2$ per gate, the receiver requires 40,854$\mu\textrm{m}^2$ total or approximately 10$\mu\textrm{m}^2$ per neuron.
+
+\begin{table}
+  \centering
+  \begin{tabular}{|r|l|l|l|l|l|l|}
+  \hline
+  Level & Nodes & Bits & Gates/Node & Transistors/Node & Gates & Transistors \\
+  \hline
+  (root) 0 & 1 & 11 & 44 & 352 & 44 & 352 \\
+  \hline
+  1 & 2 & 10 & 40 & 320 & 80 & 640 \\
+  \hline
+  2 & 4 & 9 & 36 & 288 & 144 & 1152 \\
+  \hline
+  3 & 8 & 8 & 32 & 246 & 256 & 2048 \\
+  \hline
+  4 & 16 & 7 & 28 & 224 & 448 & 3584 \\
+  \hline
+  5 & 32 & 6 & 24 & 192 & 768 & 6144 \\
+  \hline
+  6 & 64 & 5 & 20 & 160 & 1280 & 10240 \\
+  \hline
+  7 & 128 & 4 & 16 & 128 & 2048 & 16384 \\
+  \hline
+  8 & 256 & 3 & 12 & 96 & 3072 & 24576 \\
+  \hline
+  9 & 512 & 2 & 8 & 64 & 4096 & 32768 \\
+  \hline
+  10 & 1024 & 1 & 4 & 32 & 4096 & 32768 \\
+  \hline
+  11 & 2048 & 0 & 0 & 0 & 0 & 0 \\
+  \hline
+  \end{tabular}
+  \caption{\label{tab:recv} Receiver output circuitry requirements for 4096 neurons.}
+\end{table}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Appendix}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Transmitter ordering: $D;X;X;D$}
+
+I would prefer this ordering because it would allow the data to be pipelined, but the PRS may not be so simple...
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Transmitter ordering: $D\!\star\!X;X;D$}
