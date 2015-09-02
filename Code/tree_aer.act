@@ -128,7 +128,6 @@ namespace aer {
     } // namespace transmitter
 
     namespace receiver {
-        template <pint reset_state>
         defproc NODE_LEAF (bool xi[2], xo[2]; aMx1ofN<1,N> d) {
             // leaf node of receiver tree
             // interleaved send, interleaved reset
@@ -136,18 +135,16 @@ namespace aer {
             (; n : N : d.m[0].n[n] = xo[n];)
 
             prs {
-                [ reset_state = 0 ->
-                    xi[0] | xi[1] => do-
-                [] reset_state = 1 ->
-                    xi[0] & xi[1] => do-
-                ]
+                (| : n : N : xi[n]) => do-
             }
         }
 
-        template <pint M>
+        template <pint M, reset>
         defproc NODE_INT (aMx1ofN<M, N> d; aMx1ofN<M-1, N> x[N]) {
             // interior node of receiver tree
             // interleaved send, interleaved reset
+            // M bits, decrements by 1 at each level of the tree
+            // reset state, alternates at each level of the tree
             bool do = d.a; // for convience
             bool xi[N]; // for convienence
             (; n : N : xi[n] = x[n].a;)
@@ -167,13 +164,40 @@ namespace aer {
                         _x[n].m[m-1].n[1] => x[n].m[m-1].n[1]-
                     )
                 )
-
-                [ reset_state = 0 ->
-                    xi[0] | xi[1] => do-
-                [] reset_state = 1 ->
-                    xi[0] & xi[1] => do-
-                ]
             }
+
+            [ reset = 1 ->
+                prs {
+                    (| : n : N : xi[n]) => do-
+                }
+            [] reset = 0 ->
+                prs {
+                    (& : n : N : xi[n]) => do-
+                }
+            ]
+        }
+
+        
+        template <pint M, NN, reset>
+        defproc AERV_ (bool ri[NN], ro[NN]; aMx1ofN<M,N> d) {
+            // utility for constructing receiver
+            // M bits
+            // NN neurons. NN=N^M
+            bool do = d.a; // for convience
+            [ M = 1 ->
+                NN = N; // assert NN=N. checks for NN=N^M overall
+                NODE_LEAF node_leaf(ri, ro, d);
+            [] M > 1 ->
+                pint next_reset = (reset+1)%2;
+                AERV_<M-1, NN/N, next_reset> aerv[N];
+                NODE_INT<M, reset> node_int(d,);
+                pint k = NN/N;
+                (; n : N :
+                    aerv[n].ri = ri[(n*k)..((n+1)*k-1)];
+                    aerv[n].ro = ro[(n*k)..((n+1)*k-1)];
+                    node_int.x[n] = aerv[n].d;
+                )
+            ]
         }
 
         export
@@ -182,19 +206,15 @@ namespace aer {
             // receiver
             // M bits
             // NN neurons. NN=N^M
-            bool do = d.a; // for convience
-            [ M = 1 ->
-                NN = N; // assert NN=N. checks for NN=N^M overall
-                NODE_LEAF node_leaf(ri, ro, d);
-            [] M > 1 ->
-                AERV<M-1, NN/N> aerv[N];
-                NODE_INT<M> node_int(d,);
-                pint k = NN/N;
-                (; n : N :
-                    aerv[n].ri = ri[(n*k)..((n+1)*k-1)];
-                    aerv[n].ro = ro[(n*k)..((n+1)*k-1)];
-                    node_int.x[n] = aerv[n].d;
-                )
+            pint reset = (M % 2);
+            AERV_<M, NN, reset> aerv_(ri, ro,);
+            [ reset = 0 ->
+                aerv_.d = d;
+            [] reset = 1 ->
+                aerv_.d.m = d.m;
+                prs {
+                    aerv_.d.a => d.a-
+                }
             ]
         }
     } // namespace receiver
