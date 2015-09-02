@@ -8,33 +8,9 @@ import "test.act";
 pint N=2;
 namespace aer {
     namespace transmitter {
-        /*
-        defproc NODE_LEAF (globals g; bool di[2], do[2]; aMx1ofN<1,N> x) {
-            // leaf node of transmitter tree
-            // pipelined send, sequential reset X first
-            bool a[2], xi;
-            xi = x.a;
-            ::arbiter::ARB arb(di, a);
-
-            prs<g.Vdd, g.GND> {
-                a[0] & ~do[1] & ~do[0] -> x.m[0].n[0]+
-                g.pReset | do[0] -> x.m[0].n[0]-
-
-                a[1] & ~do[0] & ~do[1] -> x.m[0].n[1]+
-                g.pReset | do[1] -> x.m[0].n[1]-
-
-                xi & a[0] & ~do[1] -> do[0]+
-                ~xi & ~a[0] -> do[0]-
-
-                xi & a[1] & ~do[0] -> do[1]+
-                ~xi & ~a[1] -> do[1]-
-            }
-        }
-        */
-
         defproc NODE_LEAF (bool di[2], do[2]; aMx1ofN<1,N> x) {
             // leaf node of transmitter tree
-            // pipelined send, pipelined reset
+            // interleaved send, interleaved reset
             bool a[2], xi;
             xi = x.a;
             ::arbiter::ARB arb(di, a);
@@ -52,53 +28,10 @@ namespace aer {
             }
         }
 
-        /*
         template <pint M>
         defproc NODE_INT (globals g; aMx1ofN<M,N> d[2]; aMx1ofN<M+1,N> x) {
             // interior node of transmitter tree
-            // pipelined send, sequential reset X first
-            bool a[2], do[2];
-            bool xi = x.a; // for convenience
-            ::arbiter::ARB arb(, a);
-            VN<M,2> vn[2];
-
-            do[0] = d[0].a;
-            do[1] = d[1].a;
-            vn[0].d = d[0].m;
-            vn[1].d = d[1].m;
-            arb.i[0] = vn[0].o;
-            arb.i[1] = vn[1].o;
-
-            prs<g.Vdd, g.GND> {
-                a[0] & ~do[1] & ~do[0] -> x.m[0].n[0]+
-                g.pReset | do[0] -> x.m[0].n[0]-
-
-                a[1] & ~do[0] & ~do[1] -> x.m[0].n[1]+
-                g.pReset | do[1] -> x.m[0].n[1]-
-
-                (: m : M :
-                    (a[0] & d[0].m[m].n[0] | a[1] & d[1].m[m].n[0]) &
-                        ~do[1] & ~do[0] -> x.m[m+1].n[0]+
-                    g.pReset | do[0] | do[1] -> x.m[m+1].n[0]-
-
-                    (a[0] & d[0].m[m].n[1] | a[1] & d[1].m[m].n[1]) &
-                        ~do[1] & ~do[0] -> x.m[m+1].n[1]+
-                    g.pReset | do[0] | do[1] -> x.m[m+1].n[1]-
-                )
-
-                xi & a[0] & ~do[1] -> do[0]+
-                ~xi & ~a[0] -> do[0]-
-
-                xi & a[1] & ~do[0] -> do[1]+
-                ~xi & ~a[1] -> do[1]-
-            }
-        }
-        */
-
-        template <pint M>
-        defproc NODE_INT (globals g; aMx1ofN<M,N> d[2]; aMx1ofN<M+1,N> x) {
-            // interior node of transmitter tree
-            // pipelined send, pipelined reset
+            // interleaved send, interleaved reset
             bool a[2], do[2];
             bool xi = x.a; // for convenience
             do[0] = d[0].a; // for convenience
@@ -143,8 +76,8 @@ namespace aer {
         template <pint M, NN; pbool root>
         defproc AEXT (globals g; bool si[NN], so[NN]; aMx1ofN<M,N> x) {
             // transmitter
-            // M number of bits
-            // NN number of neurons. NN=N^M
+            // M bits
+            // NN neurons. NN=N^M
             bool xi = x.a; // for convenience
 
             [ M = 1 ->
@@ -196,6 +129,8 @@ namespace aer {
 
     namespace receiver {
         defproc NODE_LEAF (bool xi[2], xo[2]; aMx1ofN<1,N> d) {
+            // leaf node of receiver tree
+            // interleaved send, interleaved reset
             bool do = d.a; // for convience
             d.m[0].n[0] = xo[0];
             d.m[0].n[1] = xo[1];
@@ -207,6 +142,8 @@ namespace aer {
 
         template <pint M>
         defproc NODE_INT (aMx1ofN<M, N> d; aMx1ofN<M-1, N> x[2]) {
+            // interior node of receiver tree
+            // interleaved send, interleaved reset
             bool do = d.a; // for convience
             bool xi[2]; // for convienence
             xi[0] = x[0].a;
@@ -233,6 +170,9 @@ namespace aer {
         export
         template <pint M, NN>
         defproc AERV (bool ri[NN], ro[NN]; aMx1ofN<M,N> d) {
+            // receiver
+            // M bits
+            // NN neurons. NN=N^M
             bool do = d.a; // for convience
             [ M = 1 ->
                 NN = N; // assert NN=N. checks for NN=N^M overall
@@ -248,14 +188,13 @@ namespace aer {
                 node_int.x[1] = aerv[1].d;
             ]
         }
-
-        namespace test {
-        } // namespace test
     } // namespace receiver
 
     export
     template <pint M, NN>
     defproc AER (globals g; bool si[NN], so[NN], ri[NN], ro[NN]) {
+        // address-event representation tranceiver
+        // M bits
         transmitter::AEXT<M, NN, true> aext(g, si, so,);
         receiver::AERV<M, NN> aerv(ri, ro,);
         aext.x = aerv.d;

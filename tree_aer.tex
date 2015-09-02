@@ -6,8 +6,6 @@
 \author{Sam Fok}
 \maketitle
 
-\part{Primary Working Design}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Transmitter ($AEXT$)}
 
@@ -34,9 +32,10 @@ The intermediate nodes generate their arbiter requests using completion circuits
 *[[V(D1)];a1i+;[N(D1)];a1i-]
 \end{hse}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Transmitter ordering $D\!\star\!X;D\!\star\!X$}
 
+%%%%%%%%%%%%%%%%
 \subsubsection{Leaf node}
 
 \begin{csp}
@@ -49,6 +48,7 @@ The intermediate nodes generate their arbiter requests using completion circuits
   []a1->x`{01}+;[xi];d1o+;[~a1];x`{01}-;[~xi];d1o-]]
 \end{hse}
 
+%%%%%%%%%%%%%%%%
 \subsubsection{Intermediate nodes}
 
 \begin{csp}
@@ -64,9 +64,10 @@ The intermediate nodes generate their arbiter requests using completion circuits
  ]]
 \end{hse}
 
+%%%%%%%%%%%%%%%%
 \subsubsection{PRS}
 
-\textbf{Leaf and intermediate nodes...}
+\noindent \textbf{Leaf and intermediate nodes...creating the highest order bit}
 
 \begin{prs2}
 a0 & ~d1o -> x`{00}+
@@ -76,7 +77,7 @@ a1 & ~d0o -> x`{01}+
 ~a1 | d0o -> x`{01}-
 \end{prs2}
 
-\noindent \textbf{Intermediate nodes only...}
+\noindent \textbf{Intermediate nodes only...transmitting the existing lower order bits}
 
 \begin{prs2}
 (a0 & d0`{m0} | a1 & d1`{m0}) & ~d0o & ~d1o -> x`{(m\+1)0}+
@@ -100,55 +101,108 @@ xi & a1 & ~d0o -> d1o+
 ~xi -> d1o-
 \end{prs2}
 
+%%%%%%%%%%%%%%%%
 \subsubsection{CMOS-implementable PRS}
+We alternate between version 1 and 2 described below at each layer. Using only one of the versions would require extra inverters. The leaves will likely use version 1.
 
-\textbf{Leaf and intermediate nodes...}
+\noindent \textbf{Version 1}
+
+\noindent \textbf{Leaf and intermediate nodes...creating the highest order bit}
 
 \begin{prs2}
-a0 & ~d1o -> x`{00}+
-~a0 | d1o -> x`{00}-
+a0 & _d1o -> _x`{00}-
+~a0 | ~_d1o -> _x`{00}+
 
-a1 & ~d0o -> x`{01}+
-~a1 | d0o -> x`{01}-
+a1 & _d0o -> _x`{01}-
+~a1 | ~_d0o -> _x`{01}+
 \end{prs2}
 
-\noindent \textbf{Intermediate nodes only...}
+\noindent \textbf{Intermediate nodes only...transmitting the existing lower order bits}
 
 \begin{prs2}
-(a0 & d0`{m0} | a1 & d1`{m0}) & ~d0o & ~d1o -> x`{(m\+1)0}+
+(a0 & d0`{m0} | a1 & d1`{m0}) & _d0o & _d1o -> _x`{(m\+1)0}-
 
-~a0 & d0o | ~a1 & d1o -> x`{(m\+1)0}-
+~a0 & ~_d0o | ~a1 & ~_d1o -> _x`{(m\+1)0}+
 \end{prs2}
 
 \begin{prs2}
-(a0 & d0`{m1} | a1 & d1`{m1}) & ~d0o & ~d1o -> x`{(m\+1)1}+
+(a0 & d0`{m1} | a1 & d1`{m1}) & _d0o & _d1o -> _x`{(m\+1)1}-
 
-~a0 & d0o | ~a1 & d1o -> x`{(m\+1)1}-
+~a0 & ~_d0o | ~a1 & ~_d1o -> _x`{(m\+1)1}+
 \end{prs2}
 
 \noindent \textbf{Common to all nodes...}
 
 \begin{prs2}
-xi & a0 & ~d1o -> d0o+
-~xi -> d0o-
+xi & a0 & _d1o -> _d0o-
+~xi -> _d0o+
 
-xi & a1 & ~d0o -> d1o+
-~xi -> d1o-
+xi & a1 & _d0o -> _d1o-
+~xi -> _d1o+
 \end{prs2}
 
+\noindent \textbf{Version 2}
+
+\noindent \textbf{Leaf and intermediate nodes...creating the highest order bit}
+
+\begin{prs2}
+~_a0 & ~d1o -> x`{00}+
+_a0 | d1o -> x`{00}-
+
+~_a1 & ~d0o -> x`{01}+
+_a1 | d0o -> x`{01}-
+\end{prs2}
+
+\noindent \textbf{Intermediate nodes only...transmitting the existing lower order bits}
+
+\begin{prs2}
+(~_a0 & ~_d0`{m0} | ~_a1 & ~_d1`{m0}) & ~d0o & ~d1o -> x`{(m\+1)0}+
+
+_a0 & d0o | _a1 & d1o -> x`{(m\+1)0}-
+\end{prs2}
+
+\begin{prs2}
+(~_a0 & ~_d0`{m1} | ~_a1 & ~_d1`{m1}) & ~d0o & ~d1o -> x`{(m\+1)1}+
+
+_a0 & d0o | _a1 & d1o -> x`{(m\+1)1}-
+\end{prs2}
+
+\noindent \textbf{Common to all nodes...}
+
+\begin{prs2}
+~_xi & ~_a0 & ~d1o -> d0o+
+_xi -> d0o-
+
+~_xi & ~_a1 & ~d0o -> d1o+
+_xi -> d1o-
+\end{prs2}
+
+\noindent \textbf{Leaf and intermediate nodes...}
+
+%%%%%%%%%%%%%%%%
 \subsubsection{Accounting}
 
-For $4096$ neurons ($12$ bits), the valid/neutral detectors used as input to the arbiters at each level would require $81,572$ transistors.
+For $4096$ neurons ($12$ bits)...
+
+\noindent The valid/neutral detectors used as input to the arbiters at each level would require $81,572$ transistors. Each node has 2 v/n detectors. The bitwidth of the nodes decrease as we go down the tree, but the number of nodes grows exponentially.
 $$2(146)+4(132)+8(118)+16(104)+32(90)+64(76)+128(62)+256(48)+512(34)+1024(20)+2048(6)=81572$$
 
+\noindent An arbiter requires $12$ transistors. $4095$ nodes worth of arbiters requires $49,140$ transistors.
+
+\noindent The merging circuitry will require $105,662$ transistors. We'll need an additional $8192$ transistors to interface with all the neurons because of inverters on the neuron acknowledge signals.
+
+\noindent This brings our total to $244,566$ transistors for the transmitter.
+
+\noindent At $2\mu\textrm{m}^2$ per $10$ transistors in $28\mathrm{nm}$, this requires $48,913\mu\textrm{m}^2$ total, or approximately $11.95\mu\textrm{m}^2$ per neuron.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Receiver ($AERV$)}
 
 The receiver simply looks at the highest order bit and directs the traffic accordingly.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Receiver ordering: $D\!\star\!X;D\!\star\!X$}
 
+%%%%%%%%%%%%%%%%
 \subsubsection{Leaf level}
 
 \begin{csp}
@@ -160,6 +214,7 @@ The receiver simply looks at the highest order bit and directs the traffic accor
 *[[d`{01}];x1o+;[x1i];do+;[~d`{01}];x0o-,x1o-;[~x0i&~x1i];do-]
 \end{hse}
 
+%%%%%%%%%%%%%%%%
 \subsubsection{Higher levels}
 
 \begin{csp}
@@ -173,6 +228,7 @@ The receiver simply looks at the highest order bit and directs the traffic accor
   [~d`{01}];x1\!\Downarrow;[~x0i&~x1i];do-]
 \end{hse}
 
+%%%%%%%%%%%%%%%%
 \subsubsection{PRS}
 
 \textbf{Leaf node...}
@@ -210,6 +266,7 @@ x0i | x1i -> do+
 ~x0i & ~x1i -> do-
 \end{prs2}
 
+%%%%%%%%%%%%%%%%
 \subsubsection{CMOS-implementable PRS}
 
 \textbf{Leaf node...}
@@ -294,6 +351,7 @@ _x0i & _x1i -> do-
 
 \noindent This would require $4$ transistors per node.
 
+%%%%%%%%%%%%%%%%
 \subsubsection{Accounting}
 
 $4096$ neurons ($12$ bits) would require need $147,036$ transistors for the receiver.
@@ -304,9 +362,10 @@ $$4(4095) + 32(11+(2)10+(4)9+(8)8+(16)7+(32)6+(64)5+(128)4+(256)3+(512)2+1024) =
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Appendix}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Transmitter ordering: $D\!\star\!X;X;D$}
 
+%%%%%%%%%%%%%%%%
 \subsubsection{First level}
 
 \begin{csp}
@@ -319,6 +378,7 @@ $$4(4095) + 32(11+(2)10+(4)9+(8)8+(16)7+(32)6+(64)5+(128)4+(256)3+(512)2+1024) =
   []a1->x`{01}+;[xi];d1o+;x`{01}-;[~xi&~a1];d1o-]]
 \end{hse}
 
+%%%%%%%%%%%%%%%%
 \subsubsection{Subsequent levels}
 
 \begin{csp}
@@ -334,6 +394,7 @@ $$4(4095) + 32(11+(2)10+(4)9+(8)8+(16)7+(32)6+(64)5+(128)4+(256)3+(512)2+1024) =
  ]]
 \end{hse}
 
+%%%%%%%%%%%%%%%%
 \subsubsection{PRS}
 
 First and subsequent level...
