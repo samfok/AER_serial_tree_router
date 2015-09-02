@@ -128,42 +128,37 @@ namespace aer {
     } // namespace transmitter
 
     namespace receiver {
-        defproc NODE_LEAF (bool xi[2], xo[2]; aMx1ofN<1,N> d) {
+        defproc NODE_LEAF (bool xi[N], xo[N]; aMx1ofN<1,N> d) {
             // leaf node of receiver tree
             // interleaved send, interleaved reset
             bool do = d.a; // for convience
-            d.m[0].n[0] = xo[0];
-            d.m[0].n[1] = xo[1];
+            (; n : N : d.m[0].n[n] = xo[n];)
 
             prs {
-                xi[0] | xi[1] => do+
+                (| : n : N : xi[n]) => do+
             }
         }
 
         template <pint M>
-        defproc NODE_INT (aMx1ofN<M, N> d; aMx1ofN<M-1, N> x[2]) {
+        defproc NODE_INT (aMx1ofN<M, N> d; aMx1ofN<M-1, N> x[N]) {
             // interior node of receiver tree
             // interleaved send, interleaved reset
             bool do = d.a; // for convience
-            bool xi[2]; // for convienence
-            xi[0] = x[0].a;
-            xi[1] = x[1].a;
+            bool xi[N]; // for convienence
+            (; n : N : xi[n] = x[n].a;)
+
             prs {
                 (: m : 1..M-1 :
-                    d.m[0].n[0] & d.m[m].n[0] -> x[0].m[m-1].n[0]+
-                    ~d.m[0].n[0] & ~d.m[m].n[0] -> x[0].m[m-1].n[0]-
+                    (: n : N:
+                        d.m[0].n[n] & d.m[m].n[0] -> x[n].m[m-1].n[0]+
+                        ~d.m[0].n[n] & ~d.m[m].n[0] -> x[n].m[m-1].n[0]-
 
-                    d.m[0].n[0] & d.m[m].n[1] -> x[0].m[m-1].n[1]+
-                    ~d.m[0].n[0] & ~d.m[m].n[1] -> x[0].m[m-1].n[1]-
-
-                    d.m[0].n[1] & d.m[m].n[0] -> x[1].m[m-1].n[0]+
-                    ~d.m[0].n[1] & ~d.m[m].n[0] -> x[1].m[m-1].n[0]-
-
-                    d.m[0].n[1] & d.m[m].n[1] -> x[1].m[m-1].n[1]+
-                    ~d.m[0].n[1] & ~d.m[m].n[1] -> x[1].m[m-1].n[1]-
+                        d.m[0].n[n] & d.m[m].n[1] -> x[n].m[m-1].n[1]+
+                        ~d.m[0].n[n] & ~d.m[m].n[1] -> x[n].m[m-1].n[1]-
+                    )
                 )
 
-                xi[0] | xi[1] => do+
+                (| : n : N : xi[n]) => do+
             }
         }
 
@@ -178,14 +173,14 @@ namespace aer {
                 NN = N; // assert NN=N. checks for NN=N^M overall
                 NODE_LEAF node_leaf(ri, ro, d);
             [] M > 1 ->
-                AERV<M-1, NN/2> aerv[2];
+                AERV<M-1, NN/N> aerv[N];
                 NODE_INT<M> node_int(d,);
-                aerv[0].ri = ri[0..NN/2-1];
-                aerv[1].ri = ri[NN/2..NN-1];
-                aerv[0].ro = ro[0..NN/2-1];
-                aerv[1].ro = ro[NN/2..NN-1];
-                node_int.x[0] = aerv[0].d;
-                node_int.x[1] = aerv[1].d;
+                pint k = NN/N;
+                (; n : N :
+                    aerv[n].ri = ri[(n*k)..((n+1)*k-1)];
+                    aerv[n].ro = ro[(n*k)..((n+1)*k-1)];
+                    node_int.x[n] = aerv[n].d;
+                )
             ]
         }
     } // namespace receiver
