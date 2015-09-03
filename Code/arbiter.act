@@ -156,7 +156,7 @@ namespace arbiter {
     }
 
     template <pint N>
-    defproc _N_ARB (globals g; bool _ci[N], co[N], pi, _po) {
+    defproc N_ARB_ (globals g; bool _ci[N], co[N], pi, _po) {
         // recursive utility to build an N-way arbiter tree
         [ N = 1 ->
             _ci[0] = _po;
@@ -164,13 +164,13 @@ namespace arbiter {
         [] N = 2 ->
             H_ARB h_arb(g, _ci, co, pi, _po);
         [] N > 2 ->
-            _N_ARB<N/2>   _n_arb0(g, _ci[0..N/2-1], co[0..N/2-1],,);
-            _N_ARB<N-N/2> _n_arb1(g, _ci[N/2..N-1], co[N/2..N-1],,);
+            N_ARB_<N/2>   n_arb0_(g, _ci[0..N/2-1], co[0..N/2-1],,);
+            N_ARB_<N-N/2> n_arb1_(g, _ci[N/2..N-1], co[N/2..N-1],,);
             H_ARB h_arb(g,,, pi, _po);
-            h_arb._ci[0] = _n_arb0._po;
-            h_arb._ci[1] = _n_arb1._po;
-            h_arb.co[0] = _n_arb0.pi;
-            h_arb.co[1] = _n_arb1.pi;
+            h_arb._ci[0] = n_arb0_._po;
+            h_arb._ci[1] = n_arb1_._po;
+            h_arb.co[0] = n_arb0_.pi;
+            h_arb.co[1] = n_arb1_.pi;
         ]
     }
 
@@ -182,10 +182,10 @@ namespace arbiter {
             ARB arb(i, o);
         [] N = 1 | N > 2 ->
             bool _i[N];
-            _N_ARB<N> _n_arb(g, _i, o,,);
+            N_ARB_<N> n_arb_(g, _i, o,,);
             prs {
                 // connect top of tree back to itself
-                _n_arb._po => _n_arb.pi-
+                n_arb_._po => n_arb_.pi-
                 // connect child ports to arbiter leaves
                 (: n : N : i[n] => _i[n]-)
             }
