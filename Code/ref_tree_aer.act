@@ -9,7 +9,7 @@ namespace aer {
     namespace transmitter {
         template <pint N>
         defproc NODE_LEAF (bool di[N], do[N]; aMx1ofN<1,N> x) {
-            // leaf node of transmitter tree
+            // transmitter tree leaf node 
             // interleaved send, interleaved reset
             // N neurons
             bool a[N], xi;
@@ -31,7 +31,7 @@ namespace aer {
                 (: n : 1..N-2 :
                     xi & a[n] &
                     (&: ni : 0..n-1 : ~do[ni]) &
-                    (&: ni : n+1..N-1 : ~do[ni]) => x.m[0].n[n]+
+                    (&: ni : n+1..N-1 : ~do[ni]) -> do[n]+
                 )
                 xi & a[N-1] & (& : n : 0..N-2: ~do[n]) -> do[N-1]+
 
@@ -43,7 +43,7 @@ namespace aer {
 
         template <pint M, N>
         defproc NODE_INT (globals g; aMx1ofN<M,N> d[N]; aMx1ofN<M+1,N> x) {
-            // interior node of transmitter tree
+            // transmitter tree interior node
             // interleaved send, interleaved reset
             // M groups
             // N items per group
@@ -86,7 +86,7 @@ namespace aer {
                 (: n : 1..N-2 :
                     xi & a[n] &
                     (& : ni : 0..n-1 : ~do[ni]) &
-                    (& : ni : n+1..N-1 : ~do[ni]) => x.m[0].n[n]+
+                    (& : ni : n+1..N-1 : ~do[ni]) -> do[n]+
                 )
                 xi & a[N-1] & (& : n : 0..N-2: ~do[n]) -> do[N-1]+
 
