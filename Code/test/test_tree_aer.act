@@ -1,17 +1,10 @@
-import "tree_aer.act";
+import "ref_tree_aer.act";
+// import "tree_aer.act";
 import "lib/globals.act";
 
-// pint M=1;
-// pint NN=2;
-
-// pint M=2;
-// pint NN=4;
-
-// pint M=3;
-// pint NN=8;
-
-pint M=8;
-pint NN=256;
+pint M=6;
+pint N=2;
+pint NN=64;
 
 globals g;
-aer::test::TEST_AER<M,NN> test(g);
+aer::test::TEST_AER<M, N, NN> test(g);

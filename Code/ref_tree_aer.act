@@ -1,108 +1,183 @@
-// This file contains PRS for a feedfoward tree transmitter
+// This file serves as reference for tree_aer.act
 import "lib/globals.act";
 import "channel.act";
 import "arbiter.act";
 import "logic.act";
 import "test.act";
 
-pint N=2;
 namespace aer {
     namespace transmitter {
-        defproc NODE_LEAF (bool di[2], do[2]; aMx1ofN<1,N> x) {
+        template <pint N>
+        defproc NODE_LEAF (bool di[N], do[N]; aMx1ofN<1,N> x) {
             // leaf node of transmitter tree
             // interleaved send, interleaved reset
-            bool a[2], xi;
+            bool a[N], xi;
             xi = x.a;
             ::arbiter::ARB arb(di, a);
 
-            prs {
-                a[0] & ~do[1] => x.m[0].n[0]+
+            prs { // transmit up the tree
+                a[0] & (& : n : 1..N-1: ~do[n]) => x.m[0].n[0]+
+                (: n : 1..N-2 :
+                    a[n] &
+                    (&: ni : 0..n-1 : ~do[ni]) &
+                    (&: ni : n+1..N-1 : ~do[ni]) => x.m[0].n[n]+
+                )
+                a[N-1] & (& : n : 0..N-2: ~do[n]) => x.m[0].n[N-1]+
+            }
 
-                a[1] & ~do[0] => x.m[0].n[1]+
+            prs { // acknowledge the children
+                xi & a[0] & (& : n : 1..N-1: ~do[n]) -> do[0]+
+                (: n : 1..N-2 :
+                    xi & a[n] &
+                    (&: ni : 0..n-1 : ~do[ni]) &
+                    (&: ni : n+1..N-1 : ~do[ni]) => x.m[0].n[n]+
+                )
+                xi & a[N-1] & (& : n : 0..N-2: ~do[n]) -> do[N-1]+
 
-                xi & a[0] & ~do[1] -> do[0]+
-                ~xi -> do[0]-
-
-                xi & a[1] & ~do[0] -> do[1]+
-                ~xi -> do[1]-
+                (: n : N : 
+                    ~xi -> do[n]-
+                )
             }
         }
 
-        template <pint M>
-        defproc NODE_INT (globals g; aMx1ofN<M,N> d[2]; aMx1ofN<M+1,N> x) {
+        template <pint M, N>
+        defproc NODE_INT (globals g; aMx1ofN<M,N> d[N]; aMx1ofN<M+1,N> x) {
             // interior node of transmitter tree
             // interleaved send, interleaved reset
-            bool a[2], do[2];
+            bool a[N], do[N];
             bool xi = x.a; // for convenience
-            do[0] = d[0].a; // for convenience
-            do[1] = d[1].a; // for convenience
+            (; n : N : do[n] = d[n].a;) // for convenience
 
-            ::arbiter::ARB arb(, a);
+            ::arbiter::N_ARB<N> arb(g,, a);
 
-            VN<M,2> vn[2];
-            vn[0].d = d[0].m;
-            vn[1].d = d[1].m;
+            VN<M,N> vn[N];
+            (; n : N : vn[n].d = d[n].m;)
+            (; n : N : vn[n].o = arb.i[n];)
 
-            arb.i[0] = vn[0].o;
-            arb.i[1] = vn[1].o;
-
-            prs<g.Vdd, g.GND> {
-                a[0] & ~do[1] => x.m[0].n[0]+
-
-                a[1] & ~do[0] => x.m[0].n[1]+
-
-                (: m : M :
-                    (a[0] & d[0].m[m].n[0] | a[1] & d[1].m[m].n[0])
-                    & ~do[0] & ~do[1] -> x.m[m+1].n[0]+
-                    g.pReset | (~a[0] & do[0] | ~a[1] & do[1])
-                        -> x.m[m+1].n[0]-
-
-
-                    (a[0] & d[0].m[m].n[1] | a[1] & d[1].m[m].n[1])
-                        & ~do[0] & ~do[1] -> x.m[m+1].n[1]+
-                    g.pReset | (~a[0] & do[0] | ~a[1] & do[1])
-                        -> x.m[m+1].n[1]-
+            /*--------------------- version 1 -------------------------------*/
+            /*----------------- works with up to M=5, NN=32 -----------------*/
+            prs { // create and transmit new highest order group
+                a[0] & (& : n : 1..N-1 : ~do[n]) => x.m[0].n[0]+
+                (: n : 1..N-2 :
+                    a[n] &
+                    (& : ni : 0..n-1 : ~do[ni]) &
+                    (& : ni : n+1..N-1 : ~do[ni]) => x.m[0].n[n]+
                 )
-
-                xi & a[0] & ~do[1] -> do[0]+
-                ~xi -> do[0]-
-
-                xi & a[1] & ~do[0] -> do[1]+
-                ~xi -> do[1]-
+                a[N-1] & (& : n : 0..N-2 : ~do[n]) => x.m[0].n[N-1]+
             }
+
+            prs<g.Vdd, g.GND> { // transmit intermediate 1-of-N groups
+                (: m : M :
+                    (: no : N :
+                        (| : n : N : a[n] & d[n].m[m].n[no]) &
+                        (& : n : N : ~do[n]) -> x.m[m+1].n[no]+
+
+                        g.pReset | (| : n : N : ~a[n] & do[n])
+                            -> x.m[m+1].n[no]-
+                    )
+                )
+            }
+
+            prs { // acknowledge children
+                xi & a[0] & (& : n : 1..N-1: ~do[n]) -> do[0]+
+                (: n : 1..N-2 :
+                    xi & a[n] &
+                    (& : ni : 0..n-1 : ~do[ni]) &
+                    (& : ni : n+1..N-1 : ~do[ni]) => x.m[0].n[n]+
+                )
+                xi & a[N-1] & (& : n : 0..N-2: ~do[n]) -> do[N-1]+
+
+                (: n : N : 
+                    ~xi -> do[n]-
+                )
+            }
+            /*--------------------- version 2 -------------------------------*/
+            /*----------------- works with up to M=6, NN=64 -----------------*/
+            // prs { // transmit new highest order group
+            //     a[0] & (& : n : 1..N-1 : ~do[n]) => x.m[0].n[0]+
+            //     a[N-1] & (& : n : 0..N-2 : ~do[n]) => x.m[0].n[N-1]+
+            // }
+
+            // prs<g.Vdd, g.GND> { // transmit intermediate 1-of-N groups
+            //     (: m : M :
+            //         (: no : N :
+            //             (| : n : N : a[n] & d[n].m[m].n[no]) &
+            //             (& : n : N : ~do[n]) -> x.m[m+1].n[no]+
+
+            //             g.pReset | (| : n : N : ~a[n] & do[n])
+            //                 -> x.m[m+1].n[no]-
+            //         )
+            //     )
+            // }
+
+            // prs { // acknowledge children
+            //     xi & a[0] & (& : n : 1..N-1: ~do[n]) -> do[0]+
+            //     xi & a[N-1] & (& : n : 0..N-2: ~do[n]) -> do[N-1]+
+
+            //     (: n : N : 
+            //         ~xi -> do[n]-
+            //     )
+            // }
+            /*---------------------- version 3 ------------------------------*/
+            /*----------------- works with up to M=11, NN=2048 --------------*/
+            // prs { // transmit new highest order group
+            //     a[0] & ~do[1] => x.m[0].n[0]+
+            //     a[1] & ~do[0] => x.m[0].n[1]+
+            // }
+
+            // prs<g.Vdd, g.GND> { // transmit intermediate 1-of-N groups
+            //     (: m : M :
+            //         (a[0] & d[0].m[m].n[0] | a[1] & d[1].m[m].n[0]) &
+            //             ~do[0] & ~do[1] -> x.m[m+1].n[0]+
+            //         g.pReset | ~a[0] & do[0] | ~a[1] & do[1] -> x.m[m+1].n[0]-
+
+            //         (a[0] & d[0].m[m].n[1] | a[1] & d[1].m[m].n[1]) &
+            //             ~do[0] & ~do[1] -> x.m[m+1].n[1]+
+            //         g.pReset | ~a[0] & do[0] | ~a[1] & do[1] -> x.m[m+1].n[1]-
+            //     )
+            // }
+
+            // prs { // acknowledge children
+            //     xi & a[0] & ~do[1] -> do[0]+
+            //     ~xi -> do[0]-
+
+            //     xi & a[1] & ~do[0] -> do[1]+
+            //     ~xi -> do[1]-
+            // }
+            /*---------------------------------------------------------------*/
         }
 
         export
-        template <pint M, NN; pbool root>
+        template <pint M, N, NN; pbool root>
         defproc AEXT (globals g; bool si[NN], so[NN]; aMx1ofN<M,N> x) {
             // transmitter
-            // M bits
+            // M groups
+            // N items per group
             // NN neurons. NN=N^M
             bool xi = x.a; // for convenience
 
             [ M = 1 ->
                 NN = N; // assert NN=N. checks for NN=N^M overall
-                NODE_LEAF node_leaf(si, so, x);
+                NODE_LEAF<N> node_leaf(si, so, x);
             [] M > 1 ->
-                AEXT<M-1, NN/2, false> aext[2];
-                aext[0].g = g;
-                aext[1].g = g;
-                aext[0].si = si[0..NN/2-1];
-                aext[1].si = si[NN/2..NN-1];
-                aext[0].so = so[0..NN/2-1];
-                aext[1].so = so[NN/2..NN-1];
-                NODE_INT<M-1> node_int(g,, x);
-                node_int.d[0] = aext[0].x;
-                node_int.d[1] = aext[1].x;
+                NODE_INT<M-1, N> node_int(g,, x);
+                AEXT<M-1, N, NN/N, false> aext[N];
+                (; n : N : aext[n].g = g;)
+                pint k = NN/N;
+                (; n : N :
+                    aext[n].si = si[n*k..(n+1)*k-1];
+                    aext[n].so = so[n*k..(n+1)*k-1];
+                    node_int.d[n] = aext[n].x;
+                )
             ]
         }
 
         namespace test {
             export
-            template <pint M, NN>
+            template <pint M, N, NN>
             defproc TEST_AEXT (globals g) {
                 active_handshaker<NN> s(g,,);
-                AEXT<M, NN, true> aext(g,,,);
+                AEXT<M, N, NN, true> aext(g,,,);
                 VN<M, N> vn(,);
                 aext.si = s.o;
                 aext.so = s.i;
@@ -111,10 +186,10 @@ namespace aer {
             }
 
             export
-            template <pint M, NN>
+            template <pint M, N, NN>
             defproc TEST_AEXT1 (globals g) {
                 active_handshaker<1> s(g,,);
-                AEXT<M, NN, true> aext(g,,,);
+                AEXT<M, N, NN, true> aext(g,,,);
                 VN<M, N> vn(,);
                 aext.si[0] = s.o[0];
                 aext.so[0] = s.i[0];
@@ -128,6 +203,7 @@ namespace aer {
     } // namespace transmitter
 
     namespace receiver {
+        template <pint N>
         defproc NODE_LEAF (bool xi[N], xo[N]; aMx1ofN<1,N> d) {
             // leaf node of receiver tree
             // interleaved send, interleaved reset
@@ -139,7 +215,7 @@ namespace aer {
             }
         }
 
-        template <pint M>
+        template <pint M, N>
         defproc NODE_INT (aMx1ofN<M, N> d; aMx1ofN<M-1, N> x[N]) {
             // interior node of receiver tree
             // interleaved send, interleaved reset
@@ -163,18 +239,19 @@ namespace aer {
         }
 
         export
-        template <pint M, NN>
+        template <pint M, N, NN>
         defproc AERV (bool ri[NN], ro[NN]; aMx1ofN<M,N> d) {
             // receiver
-            // M bits
+            // M groups
+            // N items per group
             // NN neurons. NN=N^M
             bool do = d.a; // for convience
             [ M = 1 ->
                 NN = N; // assert NN=N. checks for NN=N^M overall
-                NODE_LEAF node_leaf(ri, ro, d);
+                NODE_LEAF<N> node_leaf(ri, ro, d);
             [] M > 1 ->
-                AERV<M-1, NN/N> aerv[N];
-                NODE_INT<M> node_int(d,);
+                AERV<M-1, N, NN/N> aerv[N];
+                NODE_INT<M, N> node_int(d,);
                 pint k = NN/N;
                 (; n : N :
                     aerv[n].ri = ri[(n*k)..((n+1)*k-1)];
@@ -186,30 +263,33 @@ namespace aer {
     } // namespace receiver
 
     export
-    template <pint M, NN>
+    template <pint M, N, NN>
     defproc AER (globals g; bool si[NN], so[NN], ri[NN], ro[NN]) {
         // address-event representation tranceiver
-        // M bits
-        transmitter::AEXT<M, NN, true> aext(g, si, so,);
-        receiver::AERV<M, NN> aerv(ri, ro,);
+        // Uses M 1-of-N encoding
+        // M groups
+        // N items per group
+        // NN=N^M
+        transmitter::AEXT<M, N, NN, true> aext(g, si, so,);
+        receiver::AERV<M, N, NN> aerv(ri, ro,);
         aext.x = aerv.d;
     }
 
     namespace test {
         export
-        template <pint M, NN>
+        template <pint M, N, NN>
         defproc TEST_AER (globals g) {
             active_handshaker<NN> s(g,,);
             passive_handshaker<NN> r(,);
-            AER<M, NN> aer(g, s.o, s.i, r.o, r.i);
+            AER<M, N, NN> aer(g, s.o, s.i, r.o, r.i);
         }
 
         export
-        template <pint M, NN>
+        template <pint M, N, NN>
         defproc TEST_AER1 (globals g) {
             active_handshaker<1> s(g,,);
             passive_handshaker<1> r(,);
-            AER<M, NN> aer(g,,,,);
+            AER<M, N, NN> aer(g,,,,);
             aer.si[0] = s.o[0];
             aer.so[0] = s.i[0];
             aer.ri[0] = r.o[0];
