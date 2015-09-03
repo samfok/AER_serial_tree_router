@@ -11,6 +11,7 @@ namespace aer {
         defproc NODE_LEAF (bool di[N], do[N]; aMx1ofN<1,N> x) {
             // leaf node of transmitter tree
             // interleaved send, interleaved reset
+            // N neurons
             bool a[N], xi;
             xi = x.a;
             ::arbiter::ARB arb(di, a);
@@ -44,6 +45,8 @@ namespace aer {
         defproc NODE_INT (globals g; aMx1ofN<M,N> d[N]; aMx1ofN<M+1,N> x) {
             // interior node of transmitter tree
             // interleaved send, interleaved reset
+            // M groups
+            // N items per group
             bool a[N], do[N];
             bool xi = x.a; // for convenience
             (; n : N : do[n] = d[n].a;) // for convenience
@@ -176,6 +179,9 @@ namespace aer {
             export
             template <pint M, N, NN>
             defproc TEST_AEXT (globals g) {
+                // M groups
+                // N items per group
+                // NN neurons. NN=N^M
                 active_handshaker<NN> s(g,,);
                 AEXT<M, N, NN> aext(g,,,);
                 VN<M, N> vn(,);
@@ -188,6 +194,10 @@ namespace aer {
             export
             template <pint M, N, NN>
             defproc TEST_AEXT1 (globals g) {
+                // Tests AEXT with 1 neuron
+                // M groups
+                // N items per group
+                // NN neuron ports. NN=N^M
                 active_handshaker<1> s(g,,);
                 AEXT<M, N, NN> aext(g,,,);
                 VN<M, N> vn(,);
@@ -207,6 +217,7 @@ namespace aer {
         defproc NODE_LEAF (bool xi[N], xo[N]; aMx1ofN<1,N> d) {
             // leaf node of receiver tree
             // interleaved send, interleaved reset
+            // N neurons
             bool do = d.a; // for convience
             (; n : N : d.m[0].n[n] = xo[n];)
 
@@ -219,6 +230,9 @@ namespace aer {
         defproc NODE_INT (aMx1ofN<M, N> d; aMx1ofN<M-1, N> x[N]) {
             // interior node of receiver tree
             // interleaved send, interleaved reset
+            // M groups, decrements by 1 at each level of the tree
+            // N items per group
+            // reset, alternates at each level of the tree
             bool do = d.a; // for convience
             bool xi[N]; // for convienence
             (; n : N : xi[n] = x[n].a;)
@@ -279,6 +293,9 @@ namespace aer {
         export
         template <pint M, N, NN>
         defproc TEST_AER (globals g) {
+            // M groups
+            // N items per group
+            // NN neurons. NN=N^M
             active_handshaker<NN> s(g,,);
             passive_handshaker<NN> r(,);
             AER<M, N, NN> aer(g, s.o, s.i, r.o, r.i);
@@ -287,6 +304,10 @@ namespace aer {
         export
         template <pint M, N, NN>
         defproc TEST_AER1 (globals g) {
+            // Tests AER with 1 neuron
+            // M groups
+            // N items per group
+            // NN neuron ports. NN=N^M
             active_handshaker<1> s(g,,);
             passive_handshaker<1> r(,);
             AER<M, N, NN> aer(g,,,,);
