@@ -92,7 +92,7 @@ namespace aer {
         }
 
         export
-        template <pint M, N, NN; pbool root>
+        template <pint M, N, NN>
         defproc AEXT (globals g; bool si[NN], so[NN]; aMx1ofN<M,N> x) {
             // transmitter
             // M bits
@@ -103,7 +103,7 @@ namespace aer {
                 NN = N; // assert NN=N. checks for NN=N^M overall
                 NODE_LEAF<N> node_leaf(si, so, x);
             [] M > 1 ->
-                AEXT<M-1, N, NN/N, false> aext[2];
+                AEXT<M-1, N, NN/N> aext[2];
                 aext[0].g = g;
                 aext[1].g = g;
                 aext[0].si = si[0..NN/2-1];
@@ -121,7 +121,7 @@ namespace aer {
             template <pint M, N, NN>
             defproc TEST_AEXT (globals g) {
                 active_handshaker<NN> s(g,,);
-                AEXT<M, N, NN, true> aext(g,,,);
+                AEXT<M, N, NN> aext(g,,,);
                 VN<M, N> vn(,);
                 aext.si = s.o;
                 aext.so = s.i;
@@ -133,7 +133,7 @@ namespace aer {
             template <pint M, N, NN>
             defproc TEST_AEXT1 (globals g) {
                 active_handshaker<1> s(g,,);
-                AEXT<M, N, NN, true> aext(g,,,);
+                AEXT<M, N, NN> aext(g,,,);
                 VN<M, N> vn(,);
                 aext.si[0] = s.o[0];
                 aext.so[0] = s.i[0];
@@ -244,7 +244,7 @@ namespace aer {
     defproc AER (globals g; bool si[NN], so[NN], ri[NN], ro[NN]) {
         // address-event representation tranceiver
         // M bits
-        transmitter::AEXT<M, N, NN, true> aext(g, si, so,);
+        transmitter::AEXT<M, N, NN> aext(g, si, so,);
         receiver::AERV<M, N, NN> aerv(ri, ro,);
         aext.x = aerv.d;
     }
