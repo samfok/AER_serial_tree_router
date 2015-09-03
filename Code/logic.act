@@ -1,10 +1,13 @@
 // Defines N input logic gates
 import "channel.act";
+import "logic.h"; // forward declare functions
 
 export
 template <pint N>
 defproc AND (bool i[N], o) {
-    // AND tree with 2 and 3 input NANDs and 2 input NORs
+    // Logical AND implemented with as few transistors as possible
+    // Implemented as an AND tree with 2 and 3 input NANDs and 2 input NORs
+    // We don't use 3 input NORs because the pullup chain would be too slow
     [ N=1 ->
         i[0] = o;
     [] N=2 ->
@@ -48,6 +51,13 @@ defproc AND (bool i[N], o) {
             _x012 | _x345 => o-
         }
     ]
+}
+
+export
+template <pint N>
+defproc _AND (bool _i[N], _o) {
+    // active low version of AND
+    OR<N> _(_i, _o);
 }
 
 export
@@ -123,6 +133,13 @@ defproc OR (bool i[N], o) {
 
 export
 template <pint N>
+defproc _OR (bool _i[N], _o) {
+    // active low version of OR
+    AND<N> _(_i, _o);
+}
+
+export
+template <pint N>
 defproc OR_LINE (bool i[N], o) {
     // Logical OR implemented as line of OR gates
     // Implemented with 2 input NORs
@@ -180,6 +197,24 @@ defproc VN (c1of<N> d[M]; bool o) {
     )
 }
 
+
+export
+template <pint M, N>
+defproc _VN (c1of<N> _d[M]; bool _o) {
+    // active low version of VN
+    _OR<N> _or[M];
+    (; m : M :
+        (; n : N :
+            _or[m]._i[n] = _d[m].n[n];
+        )
+    )
+
+    C_TREE<M> c_tree(,_o);
+
+    (; k : M :
+        _or[k]._o = c_tree.i[k];
+    )
+}
 template <pint M, N>
 defproc Mx1ofN_WIRES (c1of<N> d[M]; bool o[M*N]) {
     // Connect a Mx1ofN channel to NN wires
