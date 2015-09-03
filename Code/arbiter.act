@@ -192,6 +192,24 @@ namespace arbiter {
         ]
     }
 
+    export
+    template <pint N>
+    defproc _N_ARB (globals g; bool _i[N], _o[N]) {
+        // active low version of N_ARB
+        [ N = 2 ->
+            _ARB _arb(_i, _o);
+        [] N = 1 | N > 2 ->
+            bool o[N];
+            N_ARB_<N> n_arb_(g, _i, o,,);
+            prs {
+                // connect top of tree back to itself
+                n_arb_._po => n_arb_.pi-
+                // connect child ports to arbiter leaves
+                (: n : N : o[n] => _o[n]-)
+            }
+        ]
+    }
+
     namespace test {
         export
         defproc TEST_CTRL_TEST (globals g) {
@@ -219,13 +237,13 @@ namespace arbiter {
         }
 
         export
-        defproc TEST_ARB_LOW (globals g) {
-            // tests ARB with active low inputs
-            active_low_handshaker<2> c(g,,);
-            _ARB arb(,);
+        defproc TEST__ARB (globals g) {
+            // tests _ARB
+            _active_handshaker<2> _c(g,,);
+            _ARB _arb(,);
             
-            c._o = arb._i;
-            c._i = arb._o;
+            _c._o = _arb._i;
+            _c._i = _arb._o;
         }
 
         defproc C_ARB_handshaker (globals g; bool _si, _so, ci, _co) {
@@ -333,5 +351,17 @@ namespace arbiter {
                 n_arb.i[3*N/4+n] = g.GND;
             )
         }
+
+        export
+        template<pint N>
+        defproc TEST__N_ARB (globals g) {
+            // tests _N_ARB
+            _N_ARB<N> _n_arb(g,,);
+            _active_handshaker<N> _c(g,,);
+
+            _c._o = _n_arb._i;
+            _c._i = _n_arb._o;
+        }
+
     } // end namespace test
 } // end namespace arbiter

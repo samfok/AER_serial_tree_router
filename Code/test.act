@@ -15,8 +15,8 @@ defproc active_handshaker(globals g; bool i[N], o[N]) {
 
 export
 template <pint N>
-defproc active_low_handshaker(globals g; bool _i[N], _o[N]) {
-    // a simple active low handshaker
+defproc _active_handshaker(globals g; bool _i[N], _o[N]) {
+    // active low version of active_handshaker
     (; n : N :
         prs <g.Vdd,g.GND> {
             g._sReset & _i[n]   -> _o[n]-

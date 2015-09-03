@@ -1,0 +1,7 @@
+// Tests the n-way active low arbiter
+import "lib/globals.act";
+import "arbiter.act";
+
+pint N=8;
+globals g;
+arbiter::test::TEST__N_ARB<N> test(g);
