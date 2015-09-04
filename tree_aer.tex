@@ -103,45 +103,9 @@ xi & a1 & ~d0o -> d1o+
 
 %%%%%%%%%%%%%%%%
 \subsubsection{CMOS-implementable PRS}
-We alternate between version 1 and 2 described below at each layer. Using only one of the versions would require more inverters. The leaves will likely use version 1.
+We alternate between version 1 and 2 described below at each layer. Using only one of the versions would require more inverters. The leaves will use version 1, though this is arbitrary.
 
-\noindent \textbf{Version 1}
-
-\noindent \textbf{Leaf and intermediate nodes...creating the highest order bit}
-
-\begin{prs2}
-a0 & _d1o -> _x`{00}-
-~a0 | ~_d1o -> _x`{00}+
-
-a1 & _d0o -> _x`{01}-
-~a1 | ~_d0o -> _x`{01}+
-\end{prs2}
-
-\noindent \textbf{Intermediate nodes only...transmitting the existing lower order bits}
-
-\begin{prs2}
-(a0 & d0`{m0} | a1 & d1`{m0}) & _d0o & _d1o -> _x`{(m\+1)0}-
-
-~a0 & ~_d0o | ~a1 & ~_d1o -> _x`{(m\+1)0}+
-\end{prs2}
-
-\begin{prs2}
-(a0 & d0`{m1} | a1 & d1`{m1}) & _d0o & _d1o -> _x`{(m\+1)1}-
-
-~a0 & ~_d0o | ~a1 & ~_d1o -> _x`{(m\+1)1}+
-\end{prs2}
-
-\noindent \textbf{Common to all nodes...}
-
-\begin{prs2}
-xi & a0 & _d1o -> _d0o-
-~xi -> _d0o+
-
-xi & a1 & _d0o -> _d1o-
-~xi -> _d1o+
-\end{prs2}
-
-\noindent \textbf{Version 2}
+\noindent \\ \textbf{Version 0}
 
 \noindent \textbf{Leaf and intermediate nodes...creating the highest order bit}
 
@@ -177,7 +141,41 @@ _xi -> d0o-
 _xi -> d1o-
 \end{prs2}
 
-\noindent \textbf{Leaf and intermediate nodes...}
+\noindent \\ \textbf{Version 1}
+
+\noindent \textbf{Leaf and intermediate nodes...creating the highest order bit}
+
+\begin{prs2}
+a0 & _d1o -> _x`{00}-
+~a0 | ~_d1o -> _x`{00}+
+
+a1 & _d0o -> _x`{01}-
+~a1 | ~_d0o -> _x`{01}+
+\end{prs2}
+
+\noindent \textbf{Intermediate nodes only...transmitting the existing lower order bits}
+
+\begin{prs2}
+(a0 & d0`{m0} | a1 & d1`{m0}) & _d0o & _d1o -> _x`{(m\+1)0}-
+
+~a0 & ~_d0o | ~a1 & ~_d1o -> _x`{(m\+1)0}+
+\end{prs2}
+
+\begin{prs2}
+(a0 & d0`{m1} | a1 & d1`{m1}) & _d0o & _d1o -> _x`{(m\+1)1}-
+
+~a0 & ~_d0o | ~a1 & ~_d1o -> _x`{(m\+1)1}+
+\end{prs2}
+
+\noindent \textbf{Common to all nodes...}
+
+\begin{prs2}
+xi & a0 & _d1o -> _d0o-
+~xi -> _d0o+
+
+xi & a1 & _d0o -> _d1o-
+~xi -> _d1o+
+\end{prs2}
 
 %%%%%%%%%%%%%%%%
 \subsubsection{Accounting}

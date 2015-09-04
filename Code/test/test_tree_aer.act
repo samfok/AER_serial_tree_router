@@ -1,6 +1,6 @@
 // Tests the tree AER system
-import "ref_tree_aer.act";
-// import "tree_aer.act";
+// import "ref_tree_aer.act";
+import "tree_aer.act";
 import "lib/globals.act";
 
 pint M=6; // data encoded in M 1-of-N groups
