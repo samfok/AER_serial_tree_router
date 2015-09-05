@@ -155,6 +155,13 @@ defproc OR_LINE (bool i[N], o) {
     ]
 }
 
+defproc NOR (bool i[2], o) {
+    // Logical NOR
+    prs {
+        i[0] | i[1] => o-
+    }
+}
+
 export
 template <pint N>
 defproc C_TREE (bool i[N], o) {
@@ -183,18 +190,37 @@ export
 template <pint M, N>
 defproc VN (c1of<N> d[M]; bool o) {
     // detects data validity/neutrality on d
-    OR<N> or[M];
-    (; m : M :
-        (; n : N :
-            or[m].i[n] = d[m].n[n];
+    C_TREE<M> c_tree(,);
+    
+    [ N > 2 ->
+        OR<N> or[M];
+        (; m : M :
+            (; n : N :
+                or[m].i[n] = d[m].n[n];
+            )
         )
-    )
 
-    C_TREE<M> c_tree(,o);
+        (; k : M :
+            or[k].o = c_tree.i[k];
+        )
+        c_tree.o = o;
+    [] N = 2 ->
+        NOR nor[M];
+        (; m : M :
+            (; n : N :
+                nor[m].i[n] = d[m].n[n];
+            )
+        )
 
-    (; k : M :
-        or[k].o = c_tree.i[k];
-    )
+        (; k : M :
+            nor[k].o = c_tree.i[k];
+        )
+        bool _o;
+        c_tree.o = _o;
+        prs {
+            _o => o-
+        }
+    ]
 }
 
 
