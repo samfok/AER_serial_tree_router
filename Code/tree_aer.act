@@ -8,13 +8,13 @@ import "test.act";
 namespace aer {
     namespace transmitter {
         template <pint N>
-        defproc NODE_LEAF (bool di[N], _do[N]; aMx1ofN<1,N> _x) {
+        defproc NODE_LEAF (globals g; bool di[N], _do[N]; aMx1ofN<1,N> _x) {
             // leaf node of transmitter tree
             // interleaved send, interleaved reset
             // N neurons
             bool a[N], xi;
             xi = _x.a;
-            ::arbiter::ARB arb(di, a);
+            ::arbiter::N_ARB<N> arb(g, di, a);
 
             prs { // transmit up the tree
                 a[0] & (& : n : 1..N-1: _do[n]) => _x.m[0].n[0]-
@@ -159,7 +159,7 @@ namespace aer {
 
             [ M = 1 ->
                 NN = N; // assert NN=N. checks for NN=N^M overall
-                NODE_LEAF<N> node_leaf(si, _so, x);
+                NODE_LEAF<N> node_leaf(g, si, _so, x);
             [] M > 1 ->
                 NODE_INT<M-1, N, mode> node_int(g,, x);
                 pint next_mode = (mode + 1) % 2;
@@ -244,7 +244,7 @@ namespace aer {
 
     namespace receiver {
         template <pint N>
-        defproc NODE_LEAF (bool xi[2], xo[2]; aMx1ofN<1,N> d) {
+        defproc NODE_LEAF (bool xi[N], xo[N]; aMx1ofN<1,N> d) {
             // leaf node of receiver tree
             // interleaved send, interleaved reset
             // N neurons
@@ -271,15 +271,12 @@ namespace aer {
             prs {
                 (: m : 1..M-1 :
                     (: n : N:
-                        d.m[0].n[n] & d.m[m].n[0] -> _x[n].m[m-1].n[0]-
-                        ~d.m[0].n[n] & ~d.m[m].n[0] -> _x[n].m[m-1].n[0]+
-
-                        d.m[0].n[n] & d.m[m].n[1] -> _x[n].m[m-1].n[1]-
-                        ~d.m[0].n[n] & ~d.m[m].n[1] -> _x[n].m[m-1].n[1]+
-
-                        // staticizers
-                        _x[n].m[m-1].n[0] => x[n].m[m-1].n[0]-
-                        _x[n].m[m-1].n[1] => x[n].m[m-1].n[1]-
+                        (: ni : N :
+                            d.m[0].n[n] & d.m[m].n[ni] -> _x[n].m[m-1].n[ni]-
+                            ~d.m[0].n[n] & ~d.m[m].n[ni] -> _x[n].m[m-1].n[ni]+
+                            // staticizers
+                            _x[n].m[m-1].n[ni] => x[n].m[m-1].n[ni]-
+                        )
                     )
                 )
             }

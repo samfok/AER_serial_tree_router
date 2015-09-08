@@ -21,29 +21,29 @@ N_ARB(N)\equiv
 
 \begin{figure}
   \centering
-  \includegraphics[width=.5\textwidth]{img/transmitter/n_arb_h_arb.pdf}
-  \caption{$N\!\_ARB$ decomposed as a binary tree of $H\!\_ARB$ cells. Here is an $N\!\_ARB$ instance servicing 4 children. The $P$ port of the top $H\!\_ARB$ cell is connected back to itself.}
-  \label{fig:n_arb_h_arb}
+  \includegraphics[width=.5\textwidth]{img/transmitter/n_arb_n_arb_.pdf}
+  \caption{$N\!\_ARB$ decomposed as a binary tree of $N\!\_ARB\_$ cells. Here is an $N\!\_ARB$ instance servicing 4 children. The $P$ port of the top $N\!\_ARB\_$ cell is connected back to itself.}
+  \label{fig:n_arb_n_arb_}
 \end{figure}
 
 In words, the children send requests at any time. When requests arrive, $N\!\_ARB$ selects one requesting child to proceed. The first $C_n$ communication indicates that the child should proceed, and the second $C_n$ communication confirms that the child has finished.
 
-We construct the $N\!\_ARB$ as a binary tree recursively (see Figure~\ref{fig:n_arb_h_arb}). 
+We construct the $N\!\_ARB$ as a binary tree of $N\!\_ARB\_$ cells recursively (see Figure~\ref{fig:n_arb_n_arb_}). 
 
 \begin{csp}
-N_ARB(N)\equiv
+N_ARB_(N)\equiv
   [ N=1 ->
     \mathrm{wire}
   [] N=2 ->
     H_ARB
   [] N>2 ->
-    N_ARB(N/2)\pll\!H_ARB\pll\!N_ARB(N\-N/2)
+    N_ARB_(N/2)\pll\!H_ARB\pll\!N_ARB_(N\-N/2)
   ]
 \end{csp}
 
-\noindent The recursion ends with $N=1$ or $N=2$ and produces a balanced tree. The top $H\_ARB$'s $P$ port is connected back to itself. 
+\noindent The recursion ends with $N=1$ or $N=2$ and produces a balanced tree. The top $N\_ARB\_$'s $P$ port is connected back to itself. 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Heirarchical arbiter $H\_ARB$}
 
 $H\!\_ARB$ coordinates with its parent (another $H\!\_ARB$ instance) and arbitrates between two children. 
@@ -90,7 +90,7 @@ H\_ARB\equiv\!CTRL\pll\!C_ARB\pll\!C_ARB
 
 \noindent Bubble reshuffling $CTRL$ and $C\_ARB$ yields the $H\!\_ARB$ shown in Figure~\ref{fig:h_arb_bubbled}.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%
 \subsubsection{Control cell $CTRL$}
 $CTRL$ sequences communications with the parent of $H\!\_ARB$ and the child arbiters.
 $CTRL$ has ports
@@ -145,18 +145,22 @@ CTRL\equiv
 \begin{prs2}
 (c0i | c1i) & y -> po+
 ~s1i & x & ~y -> po-
+\end{prs2}
 
-~x & y -> s0o+
-x | ~y -> s0o-
-
-~s0i & ~x & ~y -> s1o+
-x -> s1o-
-
+\begin{prs2}
 s1i & ~y -> x+
 pi & y -> x-
 
 ~pi -> y+
 s0i -> y-
+\end{prs2}
+
+\begin{prs2}
+~x & y -> s0o+
+x | ~y -> s0o-
+
+~s0i & ~x & ~y -> s1o+
+x -> s1o-
 \end{prs2}
 
 \noindent after bubble reshuffling
@@ -165,12 +169,19 @@ s0i -> y-
 (~_c0i | ~_c1i) & ~_y -> po+
 _s1i & x & _y -> po-
 
+po -> _po-
+~po -> _po+
+\end{prs2}
+
+\begin{prs2}
 ~x & ~_y -> s0o+
 x | _y -> s0o-
 
 ~s0i & ~x & ~y -> s1o+
 x -> s1o-
+\end{prs2}
 
+\begin{prs2}
 ~_s1i & ~y -> x+
 pi & y -> x-
 
@@ -178,7 +189,9 @@ pi & y -> x-
 s0i -> y-
 \end{prs2}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Including staticizers, $CTRL$ contains 32 transistors.
+
+%%%%%%%%%%%%%%%%
 \subsubsection{Child Arbiter ($C\!\_ARB$)}
 $C\!\_ARB$ determines whether or not a child's request is present when called upon by $CTRL$.
 
@@ -280,11 +293,13 @@ requests from $CTRL$, $\overline{S}$. If a child request is present, the arbiter
 c & si & ~sso -> cso+
 ~c -> cso-
 
-~si & cso -> co+
-si | ~cso -> co-
-
 s & ~co -> sso+
 ~s | co -> sso-
+\end{prs2}
+
+\begin{prs2}
+~si & cso -> co+
+si | ~cso -> co-
 
 cso | sso -> so+
 ~cso & ~sso -> so-
@@ -296,17 +311,35 @@ cso | sso -> so+
 ~_c & ~_si & ~sso -> cso+
 _c -> cso-
 
+~_s & ~co -> sso+
+_s | co -> sso-
+\end{prs2}
+
+\begin{prs2}
 _si & cso -> _co-
 ~_si | ~cso -> _co+
 
-~_s & ~co -> sso+
-_s | co -> sso-
+_co -> co-
+~_co -> co+
 
 cso | sso -> _so-
 ~cso & ~sso -> _so+
 \end{prs2}
 
-\noindent where $\_s$ and $\_c$ come from an active-low 2-input arbiter with inputs $\_s_i$ and $\_c_i$.
+\noindent where $\_s$ and $\_c$ come from an active-low 2-input arbiter with inputs $\_s_i$ and $\_c_i$. 
+
+\noindent Including staticizers, $C\_ARB$ requires 22 transistors.
+
+%%%%%%%%%%%%%%%%
+\subsubsection{$H\_ARB$ Accounting}
+
+$H\_ARB$ includes 2 $C\_ARB$ circuits and 1 $CTRL$ circuit with 3 additional inverters. Therefore, $H\_ARB$ requires 82 transistors.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{$N\_ARB$ Accounting}
+
+$N\_ARB$ will be constructed from $N-1$ $H\_ARB$ instances. We will also require $N$ inverters to connect with the client's input. Therefore, $N\_ARB$ requires $82(N-1)+2N$ transistors.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \end{document}
