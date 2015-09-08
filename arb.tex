@@ -328,7 +328,7 @@ cso | sso -> _so-
 
 \noindent where $\_s$ and $\_c$ come from an active-low 2-input arbiter with inputs $\_s_i$ and $\_c_i$. 
 
-\noindent Including staticizers, $C\_ARB$ requires 36 transistors.
+\noindent Including staticizers, $C\_ARB$ requires 34 transistors.
 
 %%%%%%%%%%%%%%%%
 \subsubsection{$H\_ARB$ Accounting}
@@ -338,7 +338,7 @@ $H\_ARB$ includes 2 $C\_ARB$ circuits and 1 $CTRL$ circuit with 3 additional inv
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{$N\_ARB$ Accounting}
 
-$N\_ARB$ will be constructed from $N-1$ $H\_ARB$ instances. We will also require $N$ inverters to connect with the client's input and 1 inverter to connect the top of the tree back to itself. Therefore, $N\_ARB$ requires $114(N-1)+2N+2=116(N-1)+4$ transistors.
+$N\_ARB$ will be constructed from $N-1$ $H\_ARB$ instances. We will also require $N$ inverters to connect with the client's input and 1 inverter to connect the top of the tree back to itself. Therefore, $N\_ARB$ requires $110(N-1)+2N+2=112(N-1)+4$ transistors.
 
 \begin{table}
   \centering
@@ -346,7 +346,7 @@ $N\_ARB$ will be constructed from $N-1$ $H\_ARB$ instances. We will also require
     \hline
     $N$ & 2 & 3 & 4 & 8 & 16 & 32 & 64 & 128 & 256 \\
     \hline
-    transistors & 120 & 236 & 352 & 816 & 1744 & 3600 & 7312 & 14736 & 29584 \\
+    transistors & 116 & 228 & 340 & 788 & 1684 & 3476 & 7060 & 14228 & 28564 \\
     \hline
   \end{tabular}
   \caption{\label{tab:n_arb_cost}Transistor count for common sizes of $N\_ARB$. Note that the basic, 2-input arbiter only requires 12 transistors, tenfold less than a 2-input $N\_ARB$.}

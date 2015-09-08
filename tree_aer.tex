@@ -196,23 +196,7 @@ For 4096 neurons, the transmitter requires 335,172 transistors, or 82 transistor
     per neuron & 82 & \multicolumn{11}{}{} \\ \cline{1-2}
     Area per neuron & 16.4 $\mu\textrm{m}^2$ & \multicolumn{11}{}{} \\ \cline{1-2}
   \end{tabular}
-  \caption{\label{tab:aext_cost}Transmitter requirements for 4096 neurons. Each node has 2 VN detectors. VN detector transistor requirements are in Table~\ref{tab:vn_cost}. A 2-input arbiter requires $12$ transistors. There are 4096 inverters (8192 transistors) at the interface with the neurons. Area calculation assumes 2$\mu\textrm{m}^2$ per 10 transistors in 28nm technology.}
-\end{table}
-
-\begin{table}
-  \centering
-  \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|}
-    \hline
-    \multicolumn{12}{|c|}{VN detector scaling} \\
-    \hline
-    1-of-2 Groups & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 \\
-    \hline
-    Gates & 1 & 3 & 5 & 7 & 9 & 11 & 13 & 15 & 17 & 19 & 21 \\
-    \hline
-    Transistors & 6 & 18 & 30 & 42 & 54 & 66 & 78 & 90 & 102 & 114 & 126 \\
-    \hline
-  \end{tabular}
-  \caption{\label{tab:vn_cost} Cost of 1-of-2 VN detectors. For $M$ 1-of-2 groups, we use $M$ OR-gates followed by a tree of $M-1$ C-elements. Each OR-gate can be effectively implemented by a NOR-gate and inverting the output of the C-element tree.}
+  \caption{\label{tab:aext_cost}Transmitter requirements for 4096 neurons. Each non-leaf node has 2 VN detectors. VN detector transistor requirements are in Table~\ref{tab:vn_cost}. A 2-input arbiter requires 12 transistors. There are 4096 inverters (8192 transistors) at the interface with the neurons. Area calculation assumes 2$\mu\textrm{m}^2$ per 10 transistors in 28nm technology.}
 \end{table}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -305,19 +289,19 @@ d`{01} -> x1o+
 \noindent \textbf{Intermediate nodes...route lower order bits to next lower level}
 
 \begin{prs2}
-d`{00} & d`{m0} -> _x0`{(m\-1)0}+
-~d`{00} & ~d`{m0} -> _x0`{(m\-1)0}-
+d`{00} & d`{m0} -> _x0`{(m\-1)0}-
+~d`{00} & ~d`{m0} -> _x0`{(m\-1)0}+
 
-d`{01} & d`{m0} -> _x1`{(m\-1)0}+
-~d`{01} & ~d`{m0} -> _x1`{(m\-1)0}-
+d`{01} & d`{m0} -> _x1`{(m\-1)0}-
+~d`{01} & ~d`{m0} -> _x1`{(m\-1)0}+
 \end{prs2}
 
 \begin{prs2}
-d`{00} & d`{m1} -> _x0`{(m\-1)1}+
-~d`{00} & ~d`{m1} -> _x0`{(m\-1)1}-
+d`{00} & d`{m1} -> _x0`{(m\-1)1}-
+~d`{00} & ~d`{m1} -> _x0`{(m\-1)1}+
 
-d`{01} & d`{m0} -> _x1`{(m\-1)1}+
-~d`{01} & ~d`{m0} -> _x1`{(m\-1)1}-
+d`{01} & d`{m0} -> _x1`{(m\-1)1}-
+~d`{01} & ~d`{m0} -> _x1`{(m\-1)1}+
 \end{prs2}
 
 
@@ -381,6 +365,64 @@ For 4096 neurons, the receiver requires 147,036 transistors, or 36 transistors p
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Appendix}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Radix-4: Transmitter/Receiver}
+
+Switching to Radix-4 and 1-of-4 encoding would cut the number of levels in half. How would this change the transistor count and area requirements?
+
+For 4096 neurons, the transmitter requires 335,172 transistors, or 82 transistors per neuron, or 16.4$\mu\textrm{m}^2$ per neuron (See Table~\ref{tab:aext_cost}).
+
+\begin{table}
+  \centering
+  \begin{tabular}{|r|c|c|c|c|c|c|}
+    \hline
+    Level & 0 & 1 & 2 & 3 & 4 & 5 \\ \hline
+    Nodes & 1024 & 256 & 64 & 16 & 4 & 1 \\ \hline \hline
+    \multicolumn{7}{|c|}{Transistors} \\ \hline
+    VN & 0 & 12288 & 8192 & 3328 & 1152 & 368 \\ \hline
+    Arbiter & 348160 & 87040 & 21760 & 5440 & 1360 & 340 \\ \hline
+    Merge & 32768 & 32768 & 14336 & 5120 & 1664 & 512 \\ \hline
+    Total & 631196 & \multicolumn{3}{}{} \\ \cline{1-2}
+    per neuron & 154 & \multicolumn{3}{}{} \\ \cline{1-2}
+    Area per neuron & 30.8 $\mu\textrm{m}^2$ & \multicolumn{3}{}{} \\ \cline{1-2}
+  \end{tabular}
+  \caption{\label{tab:aext_r4_cost}Radix-4 transmitter requirements for 4096 neurons. Each non-leaf node has 4 VN detectors. VN detector transistor requirements are in Table~\ref{tab:vn_cost}. A 4-input arbiter requires 340 transistors. This is way higher than a 2-input arbiter and dominates the cost. There are 4096 inverters (8192 transistors) at the interface with the neurons. Area calculation assumes 2$\mu\textrm{m}^2$ per 10 transistors in 28nm technology.}
+\end{table}
+
+the receiver requires 147,036 transistors, or 36 transistors per neuron, or 7.2$\mu\textrm{m}^2$ per neuron (See Table~\ref{tab:aerv_cost}).
+
+\begin{table}
+  \centering
+  \begin{tabular}{|r|c|c|c|c|c|c|}
+    \hline
+    Level & 0 & 1 & 2 & 3 & 4 & 5 \\ \hline
+    Nodes & 1024 & 256 & 64 & 16 & 4 & 1 \\ \hline \hline
+    \multicolumn{7}{|c|}{Transistors} \\ \hline
+    Split & 0 & 16384 & 8192 & 3072 & 1024 & 320 \\ \hline
+    Ack & 12288 & 3072 & 768 & 192 & 48 & 12 \\ \hline  
+    Total & 45372 & \multicolumn{3}{}{} \\ \cline{1-2}
+    per neuron & 11.1 & \multicolumn{3}{}{} \\ \cline{1-2}
+    Area per neuron & 2.2 $\mu\textrm{m}^2$ & \multicolumn{3}{}{} \\ \cline{1-2}
+  \end{tabular}
+  \caption{\label{tab:aerv_r4_cost}Radix-4 receiver requirements for 4096 neurons. Area calculation assumes 2$\mu\textrm{m}^2$ per 10 transistors in 28nm technology.}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{VN Cost}
+
+The cost of the valid/neutral detector is listed in Table~\ref{tab:vn_cost}.
+
+\begin{table}[!ht]
+  \centering
+  \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+    \hline
+    \multicolumn{12}{|c|}{VN detector scaling} \\ \hline
+    Groups & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 \\ \hline
+    1-of-2 & 6 & 18 & 30 & 42 & 54 & 66 & 78 & 90 & 102 & 114 & 126 \\ \hline
+    1-of-4 & 12 & 32 & 52 & 72 & 92 & 112 & 132 & 152 & 172 & 192 & 212 \\ \hline
+  \end{tabular}
+  \caption{\label{tab:vn_cost} Cost of VN detectors. For $M$ 1-of-$N$ groups, we use $M$ $N$-input OR-gates followed by a tree of $M-1$ C-elements. The OR-gates required by 1-of-2 encoding can be effectively implemented by using NOR-gates and inverting the output of the C-element tree.}
+\end{table}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Transmitter ordering: $D;X;X;D$}
 
