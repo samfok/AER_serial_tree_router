@@ -1,1 +1,1 @@
-Describes the asynchronous logic of the transmitter
+Describes the asynchronous logic of the transmitter/receiver
