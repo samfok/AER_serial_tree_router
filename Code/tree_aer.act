@@ -14,7 +14,7 @@ namespace aer {
             // N neurons
             bool a[N], xi;
             xi = _x.a;
-            ::arbiter::N_ARB<N> arb(g, di, a);
+            ::arbiter::N_ARB_C<N> arb(g, di, a);
 
             prs { // transmit up the tree
                 a[0] & (& : n : 1..N-1: _do[n]) => _x.m[0].n[0]-
@@ -56,7 +56,7 @@ namespace aer {
                 bool _xi = x.a;
                 (; n : N : do[n] = d[n].a;) // for convenience
 
-                ::arbiter::_N_ARB<N> _arb(g,, _a);
+                ::arbiter::_N_ARB_C<N> _arb(g,, _a);
 
                 _VN<M,N> _vn[N];
                 (; n : N : _vn[n]._d = _d[n].m;)
@@ -104,7 +104,7 @@ namespace aer {
                 bool xi = _x.a;
                 (; n : N : _do[n] = d[n].a;)
 
-                ::arbiter::N_ARB<N> arb(g,, a);
+                ::arbiter::N_ARB_C<N> arb(g,, a);
 
                 VN<M,N> vn[N];
                 (; n : N : vn[n].d = d[n].m;)

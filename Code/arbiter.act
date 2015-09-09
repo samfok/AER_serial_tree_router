@@ -210,16 +210,19 @@ namespace arbiter {
         ]
     }
 
-    template <pint N, mode>
+    template <pint N, mode, int_mode>
     defproc N_ARB_C_ (globals g; bool i[N], o[N], pi, po) {
         // utility for N_ARB_C
+        // N neurons
+        // mode alternates at each level of the tree
+        // int_mode indicates whether the client interfaces are active high/low
         [ N = 1 ->
-            [ mode = 0 ->
+            [ mode = 0 & int_mode = 1 | mode = 1 & int_mode = 0 ->
                 o[0] = pi;
                 prs {
                     i[0] => po-
                 }
-            [] mode = 1 ->
+            [] mode = 1 & int_mode = 1 | mode = 0 & int_mode = 0 ->
                 i[0] = po;
                 prs {
                     pi => o[0]-
@@ -227,8 +230,10 @@ namespace arbiter {
             ]
         [] N > 1 ->
             pint next_mode = (mode+1) % 2;
-            N_ARB_C_<N/2, next_mode> n_arb0(g, i[0..N/2-1], o[0..N/2-1],,);
-            N_ARB_C_<N-N/2, next_mode> n_arb1(g, i[N/2..N-1], o[N/2..N-1],,);
+            N_ARB_C_<N/2, next_mode, int_mode> n_arb0(
+                g, i[0..N/2-1], o[0..N/2-1],,);
+            N_ARB_C_<N-N/2, next_mode, int_mode> n_arb1(
+                g, i[N/2..N-1], o[N/2..N-1],,);
     
             [ mode = 0 ->
                 bool ai[2], a[2], _ao[2];
@@ -274,11 +279,30 @@ namespace arbiter {
     template <pint N>
     defproc N_ARB_C (globals g; bool i[N], o[N]) {
         // cheap N-way arbiter
-        pint mode_0 = 0;
-        N_ARB_C_<N, mode_0> _(g, i, o,,);
-        prs {
-            _.po => _.pi-
-        }
+        [ N = 2 ->
+            ARB arb(i, o);
+        [] N = 1 | N > 2 ->
+            pint mode_0 = 0;
+            N_ARB_C_<N, mode_0, 1> _(g, i, o,,);
+            prs {
+                _.po => _.pi-
+            }
+        ]
+    }
+
+    export
+    template <pint N>
+    defproc _N_ARB_C (globals g; bool _i[N], _o[N]) {
+        // cheap N-way arbiter
+        [ N = 2 ->
+            _ARB _arb(_i, _o);
+        [] N = 1 | N > 2 ->
+            pint mode_0 = 0;
+            N_ARB_C_<N, mode_0, 0> _(g, _i, _o,,);
+            prs {
+                _.po => _.pi-
+            }
+        ]
     }
 
     namespace test {
@@ -440,6 +464,14 @@ namespace arbiter {
             //tests N_ARB_C
             active_handshaker<N> c(g,,);
             N_ARB_C<N> n_arb(g, c.o, c.i);
+        }
+
+        export
+        template <pint N>
+        defproc TEST__N_ARB_C (globals g) {
+            //tests _N_ARB_C
+            _active_handshaker<N> _c(g,,);
+            _N_ARB_C<N> _n_arb(g, _c._o, _c._i);
         }
     } // end namespace test
 } // end namespace arbiter
