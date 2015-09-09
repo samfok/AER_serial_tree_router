@@ -210,6 +210,77 @@ namespace arbiter {
         ]
     }
 
+    template <pint N, mode>
+    defproc N_ARB_C_ (globals g; bool i[N], o[N], pi, po) {
+        // utility for N_ARB_C
+        [ N = 1 ->
+            [ mode = 0 ->
+                o[0] = pi;
+                prs {
+                    i[0] => po-
+                }
+            [] mode = 1 ->
+                i[0] = po;
+                prs {
+                    pi => o[0]-
+                }
+            ]
+        [] N > 1 ->
+            pint next_mode = (mode+1) % 2;
+            N_ARB_C_<N/2, next_mode> n_arb0(g, i[0..N/2-1], o[0..N/2-1],,);
+            N_ARB_C_<N-N/2, next_mode> n_arb1(g, i[N/2..N-1], o[N/2..N-1],,);
+    
+            [ mode = 0 ->
+                bool ai[2], a[2], _ao[2];
+                bool _po = po;
+                ai[0] = n_arb0.po;
+                ai[1] = n_arb1.po;
+                _ao[0] = n_arb0.pi;
+                _ao[1] = n_arb1.pi;
+                ::arbiter::ARB arb(ai, a);
+                prs <g.Vdd,g.GND> {
+                    a[0] & _ao[1] | a[1] & _ao[0] -> _po-
+                    g.pReset | ~a[0] & ~_ao[0] | ~a[1] & ~_ao[1] -> _po+
+    
+                    pi & a[0] & _ao[1] -> _ao[0]-
+                    ~pi -> _ao[0]+
+    
+                    pi & a[1] & _ao[0] -> _ao[1]-
+                    ~pi -> _ao[1]+
+                }
+            [] mode = 1 ->
+                bool _ai[2], _a[2], ao[2];
+                bool _pi = pi;
+                _ai[0] = n_arb0.po;
+                _ai[1] = n_arb1.po;
+                ao[0] = n_arb0.pi;
+                ao[1] = n_arb1.pi;
+                ::arbiter::_ARB _arb(_ai, _a);
+                prs <g.Vdd,g.GND> {
+                    ~_a[0] & ~ao[1] | ~_a[1] & ~ao[0] -> po+
+                    g.pReset | _a[0] & ao[0] | _a[1] & ao[1] -> po-
+    
+                    ~_pi & ~_a[0] & ~ao[1] -> ao[0]+
+                    _pi -> ao[0]-
+    
+                    ~_pi & ~_a[1] & ~ao[0] -> ao[1]+
+                    _pi -> ao[1]-
+                }
+            ]
+        ]
+    }
+    
+    export
+    template <pint N>
+    defproc N_ARB_C (globals g; bool i[N], o[N]) {
+        // cheap N-way arbiter
+        pint mode_0 = 0;
+        N_ARB_C_<N, mode_0> _(g, i, o,,);
+        prs {
+            _.po => _.pi-
+        }
+    }
+
     namespace test {
         export
         defproc TEST_CTRL_TEST (globals g) {
@@ -363,5 +434,12 @@ namespace arbiter {
             _c._i = _n_arb._o;
         }
 
+        export
+        template <pint N>
+        defproc TEST_N_ARB_C (globals g) {
+            //tests N_ARB_C
+            active_handshaker<N> c(g,,);
+            N_ARB_C<N> n_arb(g, c.o, c.i);
+        }
     } // end namespace test
 } // end namespace arbiter

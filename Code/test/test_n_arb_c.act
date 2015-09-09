@@ -1,0 +1,6 @@
+// import "ref_arbiter.act";
+import "arbiter.act";
+
+pint N=8;
+globals g;
+arbiter::test::TEST_N_ARB_C<N> test(g);

@@ -1,0 +1,7 @@
+mode reset
+set g.Vdd 1
+set g.GND 0
+set g._sReset 0
+set g.sReset 1
+set g._pReset 1
+set g.pReset 0

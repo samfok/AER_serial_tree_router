@@ -1,29 +1,9 @@
-initialize
-random
-break-on-warn
-
-mode reset
-set g.Vdd 1
-set g.GND 0
-set g._sReset 0
-set g.sReset 1
-set g._pReset 1
-set g.pReset 0
-
+source init.scr
+source reset0.scr
 cycle
-
-set g._pReset 0
-set g.pReset 1
-
+source reset1.scr
 cycle
-
-set g._pReset 1
-set g.pReset 0
-
+source reset2.scr
 cycle
-
-set g._sReset 1
-set g.sReset 0
-
-mode run
+source reset3.scr
 status X

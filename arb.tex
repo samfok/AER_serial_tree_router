@@ -101,7 +101,7 @@ $S_0$ & child arbiter 0 port \\
 $S_1$ & child arbiter 1 port \\
 \end{tabular} \\
 
-\paragraph{CHP}\mbox{}\\
+\noindent \\ \textbf{CHP}
 
 \begin{csp}
 CTRL\equiv
@@ -118,7 +118,7 @@ CTRL\equiv
   $S_1$ & communicates with the child 1 arbiter \\
 \end{tabular} \\ \\
 
-\paragraph{HSE}\mbox{}\\
+\noindent \\ \textbf{HSE}
 
 \noindent Directly translating the CHP,
 
@@ -140,7 +140,7 @@ CTRL\equiv
     po-;[~pi];y+]
 \end{hse}
 
-\paragraph{PRS}\mbox{}\\
+\noindent \\ \textbf{PRS}
 
 \begin{prs2}
 (c0i | c1i) & y -> po+
@@ -195,7 +195,7 @@ Including staticizers, $CTRL$ contains 36 transistors.
 \subsubsection{Child Arbiter ($C\!\_ARB$)}
 $C\!\_ARB$ determines whether or not a child's request is present when called upon by $CTRL$.
 
-\paragraph{CHP}\mbox{}\\
+\noindent \\ \textbf{CHP}
 
 \begin{csp}
 C_ARB\equiv
@@ -231,7 +231,7 @@ requests from $CTRL$, $\overline{S}$. If a child request is present, the arbiter
 
 \noindent which is a simple 4-phase handshake. Note that $S$ is shared between the two branches.
 
-\paragraph{HSE}\mbox{}\\
+\noindent \\ \textbf{HSE}
 
 \noindent Directly translating the CHP,
 
@@ -285,7 +285,7 @@ requests from $CTRL$, $\overline{S}$. If a child request is present, the arbiter
   []sso->so+;[~sso];so-]
 \end{hse}
 
-\paragraph{PRS}\mbox{}\\
+\noindent \\ \textbf{PRS}
 
 \noindent $s_i$ and $c_i$ are inputs to a standard 2-input arbiter, which outputs $s$ and $c$.
 
@@ -338,7 +338,7 @@ $H\_ARB$ includes 2 $C\_ARB$ circuits and 1 $CTRL$ circuit with 3 additional inv
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{$N\_ARB$ Accounting}
 
-$N\_ARB$ will be constructed from $N-1$ $H\_ARB$ instances. We will also require $N$ inverters to connect with the client's input and 1 inverter to connect the top of the tree back to itself. Therefore, $N\_ARB$ requires $110(N-1)+2N+2=112(N-1)+4$ transistors.
+$N\_ARB$ will be constructed from $N-1$ $H\_ARB$ instances. We will also require $N$ inverters to connect with the client's input and 1 inverter to connect the top of the tree back to itself. Therefore, $N\_ARB$ requires $110(N-1)+2N+2=112(N-1)+4$ transistors (See Table~\ref{tab:n_arb_cost}).
 
 \begin{table}
   \centering
@@ -353,5 +353,102 @@ $N\_ARB$ will be constructed from $N-1$ $H\_ARB$ instances. We will also require
 \end{table}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Cheap $N$-way Arbiter ($N\!\_ARB\_C$)}
 
+Pipelining the $N$-way arbiter requires a lot of transistors. We can implement a cheaper $N$-way arbiter without pipelining.
+
+\begin{csp}
+N_ARB_C_(N)\equiv
+  [ N=1 ->
+    \mathrm{wire}
+  [] N>1 ->
+    N_ARB_C_(N/2)\pll\!CTRL\pll\!N_ARB_C_(N\-N/2)
+  ]
+\end{csp}
+
+\noindent \\ \textbf{CHP}
+
+\begin{csp}
+CTRL\equiv
+  *[[A0\star\!P;A0\star\!P
+    \|A1\star\!P;A1\star\!P]]
+\end{csp}
+
+\noindent \\ \textbf{HSE}
+
+\begin{hse}
+CTRL\equiv
+*[[a0i->a0+;[~a0i];a0-
+  \|a1i->a1+;[~a1i];a1-]]
+*[[a0->po+;[pi];a0o+;[~a0];po-;[~pi];a0o-
+  []a1->po+;[pi];a1o+;[~a1];po-;[~pi];a1o-]]
+\end{hse}
+
+\noindent \\ \textbf{PRS}
+
+\begin{prs2}
+a0 & ~a1o | a1 & ~a0o -> po+
+~a0 & a0o | ~a1 & a1o -> po-
+\end{prs2}
+
+\begin{prs2}
+pi & a0 & ~a1o -> a0o+
+~pi -> a0o-
+
+pi & a1 & ~a0o -> a1o+
+~pi -> a1o-
+\end{prs2}
+
+\noindent \\ \textbf{CMOS-implementable PRS version 0}
+
+\noindent A standard arbiter takes in $a0_i$ and $a1_i$ to generate $a0$ and $a1$.
+
+\begin{prs2}
+a0 & _a1o | a1 & _a0o -> _po-
+~a0 & ~_a0o | ~a1 & ~_a1o -> _po+
+\end{prs2}
+
+\begin{prs2}
+pi & a0 & _a1o -> _a0o-
+~pi -> _a0o+
+
+pi & a1 & _a0o -> _a1o-
+~pi -> _a1o+
+\end{prs2}
+
+\noindent \\ \textbf{CMOS-implementable PRS version 1}
+
+\noindent An active-low arbiter takes in $\_a0_i$ and $\_a1_i$ to generate $\_a0$ and $\_a1$.
+
+\begin{prs2}
+~_a0 & ~a1o | ~_a1 & ~a0o -> po+
+_a0 & a0o | _a1 & a1o -> po-
+\end{prs2}
+
+\begin{prs2}
+~_pi & ~_a0 & ~a1o -> a0o+
+_pi -> a0o-
+
+~_pi & ~_a1 & ~a0o -> a1o+
+_pi -> a1o-
+\end{prs2}
+
+The leaf nodes will use version 0, though this is arbitrary, and subsequent levels will alternate versions. Their outputs will be passed through inverters to their children.
+
+\subsection{$N\_ARB\_C$ Accounting}
+
+$N\_ARB\_C$ will be constructed from $N-1$ $N\_ARB\_C\_$ instances. With staticizers, $CTRL$ costs 40 transistors. We require $N$ inverters to interface with the clients. Overall, $N\_ARB\_C$ costs $28(N-1)+2N$ transistors (See Table~\ref{tab:cheap_n_arb_cost}).
+
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{|r|c|c|c|c|c|c|c|c|c|}
+    \hline
+    $N$ & 2 & 3 & 4 & 8 & 16 & 32 & 64 & 128 & 256 \\
+    \hline
+    transistors & 44 & 86 & 128 & 296 & 632 & 1304 & 2648 & 5336 & 10712 \\
+    \hline
+  \end{tabular}
+  \caption{\label{tab:cheap_n_arb_cost}Transistor count for common sizes of $N\_ARB\_C$}
+\end{table}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \end{document}

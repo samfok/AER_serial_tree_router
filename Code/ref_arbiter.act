@@ -120,12 +120,53 @@ namespace arbiter {
         ]
     }
 
+    template <pint N>
+    defproc N_ARB_C_ (globals g; bool i[N], o[N], pi, po) {
+        // utility for N_ARB_C
+        [ N = 1 ->
+            i[0] = po;
+            o[0] = pi;
+        [] N > 1 ->
+            N_ARB_C_<N/2> n_arb0(g, i[0..N/2-1], o[0..N/2-1],,);
+            N_ARB_C_<N-N/2> n_arb1(g, i[N/2..N-1], o[N/2..N-1],,);
+    
+            bool ai[2], ao[2];
+            ai[0] = n_arb0.po;
+            ai[1] = n_arb1.po;
+            ao[0] = n_arb0.pi;
+            ao[1] = n_arb1.pi;
+            bool a[2];
+            ::arbiter::ARB arb(ai, a);
+    
+            prs <g.Vdd,g.GND> {
+                a[0] & ~ao[1] | a[1] & ~ao[0] -> po+
+                g.pReset | ~a[0] & ao[0] | ~a[1] & ao[1] -> po-
+    
+                pi & a[0] & ~ao[1] -> ao[0]+
+                ~pi -> ao[0]-
+    
+                pi & a[1] & ~ao[0] -> ao[1]+
+                ~pi -> ao[1]-
+            }
+        ]
+    }
+    
+    export
+    template <pint N>
+    defproc N_ARB_C (globals g; bool i[N], o[N]) {
+        // cheap N-way arbiter
+        N_ARB_C_<N> _(g, i, o,,);
+        prs {
+            _.po => _.pi+
+        }
+    }
+
     namespace test {
         export
         defproc TEST_ARB (globals g) {
             // tests ARB
             active_handshaker<2> c(g,,);
-            ARB arb(g,,);
+            ARB arb(,);
             
             c.o = arb.ai;
             c.i = arb.ao;
@@ -139,6 +180,14 @@ namespace arbiter {
             active_handshaker<N> c(g,,);
             c.o = n_arb.ci;
             c.i = n_arb.co;
+        }
+
+        export
+        template <pint N>
+        defproc TEST_N_ARB_C (globals g) {
+            //tests N_ARB_C
+            active_handshaker<N> c(g,,);
+            N_ARB_C<N> n_arb(g, c.o, c.i);
         }
     }
 }
