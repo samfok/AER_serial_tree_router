@@ -1,0 +1,275 @@
+\documentclass{article}
+\usepackage{mystyle}
+
+\begin{document}
+\title{Serialized Tree AER}
+\author{Sam Fok}
+\maketitle
+
+The neuron address is encoded serially in a series of 1-of-N groups. We use an additional line (making the data lines 1-of-(N+1)) to indicate the completion of a address.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Transmitter ($AEXT$)}
+
+The leaf node merely outputs a tail word to get the party started.
+
+\begin{csp}
+LEAF\equiv
+  *[C\star\!P!\textrm{tail};C\star\!P!\textrm{tail}]
+\end{csp}
+
+reference
+\begin{hse}
+*[[ci];{po}`t+;[pi]co+;
+  [~ci];{po}`t-;[~pi];co-]
+\end{hse}
+
+\begin{prs2}
+ci -> {po}`t+
+~ci -> {po}`t-
+
+pi -> co+
+~pi -> co-
+\end{prs2}
+
+\noindent which are just wires...
+
+We move on to the tree...
+
+\begin{csp}
+h:=true;
+*[[h->
+    [#{C0}->s:=0,P!(0);
+    \|#{C1}->s:=1,P!(1)];
+    h:=false
+  []~h->
+    [s=0->C0?x;P!x
+    []s=1->C1?x;P!x
+    ];h:=x.tail
+ ]]
+\end{csp}
+
+There are 2 state variables to sequence the actions: $h$ and $s$.
+
+Divide into FWD and MERGE processes.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{MERGE}
+
+\begin{csp}
+MERGE\equiv
+l:=false
+r:=false
+*[[~l&~r->
+    [#{L}->l:=true
+    \|#{R}->r:=true
+    ]
+  []l|r->
+    [l->O!(L?)
+    []r->O!(R?)
+  ]
+]
+\end{csp}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{FWD}
+
+\begin{csp}
+FWD\equiv
+  h:=true;
+  *[[h&#{X}->Y!(\textrm{header});h-
+    []~h&#{X}->Y!(X?)\*[X=t->h+];
+    ]
+   ]
+\end{csp}
+
+\begin{hse}
+h:=true;
+*[[h&(x0|x1|xt)->yn+;[yi];q+;yn-;[~yi];h-;q-
+  []~h&x0->y0+;xo+;[yi];y0-;[~x0];xo-;[~yi]
+  []~h&x1->y1+;xo+;[yi];y1-;[~x1];xo-;[~yi]
+  []~h&xt->yt+;xo+;[yi];h+;yt-;[~xt];xo-;[~yi]
+\end{hse}
+
+\begin{prs2}
+h & yi & yn -> q+
+~h & ~yi -> q-
+
+yt & xo & yi -> h+
+q & ~yi -> h-
+\end{prs2}
+
+\begin{prs2}
+~h & (y0 | y1 | yt) -> xo+
+~x0 & ~x1 & ~xt & ~y0 & ~y1 & ~yt -> xo-
+\end{prs2}
+
+\begin{prs2}
+h & ~q & ~yi & ~xo & (x0 | xi | xt) -> yn+
+q -> yn-
+\end{prs2}
+
+\begin{prs2}
+~h & ~q & ~yi & x0 &  -> y0+
+yi & xo -> y0-
+
+~h & ~q & ~yi & x1 &  -> y1+
+yi & xo -> y1-
+\end{prs2}
+
+\begin{prs2}
+~h & ~q & ~yi & xt &  -> yt+
+h & xo -> yt-
+\end{prs2}
+
+%%%%%%%%%%%%%%%%
+% \subsubsection{Leaf node}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Receiver ($AERV$)}
+
+\begin{csp}
+AERV\equiv
+  h:=true, s0=0, s1=0;
+  *[
+      [h->P?s;h-
+      []~h&s=0->C0!(P?)\*[P=t->h+]
+      []~h&s=1->C1!(P?)\*[P=t->h+]
+      ] 
+   ]
+\end{csp}
+
+\begin{hse}
+AERV\equiv
+  h:=true;
+  *[
+      [h&pi0->s0+[]h&pi1->s1+];po+;[~pi0&~pi1];h-;po-
+      []~h&s0&pit->c0ot+;po+;s0-;h+;[c0i];c0ot-;[~pit];po-;[~c0i]
+      []~h&s1&pit->c1ot+;po+;s1-;h+;[c1i];c1ot-;[~pit];po-;[~c1i]
+      ]
+   ]
+\end{hse}
+
+\begin{prs2}
+h & pi0 -> s0+
+c0ot & po -> s0-
+
+h & pi1 -> s1+
+c1ot & po -> s1-
+\end{prs2}
+
+\begin{prs2}
+~so & c0ot | ~s1 & c1ot -> h+
+(s0 | s1) & ~pi0 & ~pi1 -> h-
+\end{prs2}
+
+\begin{prs2}
+(s0 | s1) & h | c0ot | c1ot -> po+
+~h & ~pi0 & ~pi1 | ~c0ot & ~c1ot & ~pit -> po-
+\end{prs2}
+
+\begin{prs2}
+~c0i & ~c1i & s0 & pit -> co0t+
+c0i & h -> co0t-
+
+~c0i & ~c1i & s1 & pit -> co1t+
+c1i & h -> co1t-
+\end{prs2}
+
+% \begin{hse}
+% AERV\equiv
+%   h:=true;
+%   *[
+%       [h&pi0->s0+[]h&pi1->s1+];po+;[~pi0&~pi1];h-;po-
+%       []~h&s0&pi0->c0o0+;po+;[~pi0];po-;[c0i];c0o0-;[~c0i]
+%       []~h&s0&pi1->c0o1+;po+;[~pi1];po-;[c0i];c0o1-;[~c0i]
+%       []~h&s0&pit->c0ot+;po+,s0-;h+;[~pit];po-;[c0i];c0ot-;[~c0i]
+%       []~h&s1&pi0->c1o0+;po+;[~pi0];po-;[c1i];c1o0-;[~c1i]
+%       []~h&s1&pi1->c1o1+;po+;[~pi1];po-;[c1i];c1o1-;[~c1i]
+%       []~h&s1&pit->c1ot+;po+,s1-;h+;[~pit];po-;[c1i];c1ot-;[~c1i]
+%       ]
+%    ]
+% \end{hse}
+
+% \begin{hse}
+% AERV\equiv
+%   h:=true;
+%   *[
+%       [h&p0i->s0+,s1-[]h&p1i->s0-,s1+];h-
+%       []~h->[s=0->C0!(P?)
+%             []s=1->C1!(P?)]; 
+%             [P=t->h+]
+%       ]
+%    ]
+% \end{hse}
+
+\begin{csp}
+AERV\equiv
+  h:=true;
+  *[P?x;
+    [h->
+      s:=x;
+    []~h->
+      [s=0->C0!x
+      []s=1->C1!x
+      ]
+    ];h:=x.tail
+   ]
+\end{csp}
+
+We decompose $AERV$ into control and data processes.
+Control
+\begin{csp}
+CTRL\equiv
+  h:=true;
+  *[R';
+    [h->S'
+    []~h->C'
+    ]; h=x.tail
+   ]
+\end{csp}
+
+\begin{hse}
+CTRL\equiv
+  *[[cri];cro+;[~cri];cro-;
+      [h->cxo+;[cxi];cxo-;[~cxi]
+      []~h->cco+;[cci];cco-;[~cci]];
+    [xt->h+[]~xt->h-]
+   ]
+\end{hse}
+
+Reading in
+\begin{hse}
+READ\equiv
+  *[[{pi}`0|{pi}`1|{pi}`t];cro+;
+      [cri&{pi}`0->x0+
+      []cri&{pi}`1->x1+
+      []cri&{pi}`t->xt+];
+    po+;[~p0&~pi&~pt];cro-;[~cri];po-]
+\end{hse}
+
+Assigning X to S
+\begin{hse}
+AXS\equiv
+  *[[csi];[x0->s0+[]x1->s1+];cso+;[~csi];cso-]
+\end{hse}
+
+Forwarding words to children
+\begin{hse}
+COUT\equiv
+  *[[cci];
+      [s0&x0->{c0o}`0+
+      []s0&x1->{c0o}`1+
+      []s0&xt->{c0o}`t+
+      []s1&x0->{c1o}`0+
+      []s1&x1->{c1o}`1+
+      []s1&xt->{c1o}`t+
+      ];
+    [c0i|c1i];cco+;
+    [~cci];c0o\!\Downarrow,c1o\!\Downarrow;
+    [~c0i&~c1i];cco-]
+    ]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}

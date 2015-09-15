@@ -1,0 +1,95 @@
+// This file defines a serialized tree tranceiver
+import "lib/globals.act";
+import "channel.act";
+import "arbiter.act";
+import "logic.act";
+
+namespace aer {
+    namespace transmitter {
+        export
+        template <pint N>
+        defproc INT (globals g; bool ci, co; a1of<N+1> p) {
+            // interface with the neuron
+            // N for 1-of-N encoding. + tail word line
+            pint t = N;
+            ci = p.m.n[t];
+            co = p.a;
+            (; n : N : g.GND = p.m.n[n];)
+        }
+
+        export
+        template <pint N, n>
+        defproc FWD (globals g; a1of<N+1> x, y) {
+            // prepends head word and fowards packet
+            // N for 1-of-N encoding. + tail word line
+            // n word prepended to each packet
+            bool yi = y.a;
+            bool xo = x.a;
+            bool yt = y.m.n[N];
+            bool xt = x.m.n[N];
+            bool h, q;
+            prs<g.Vdd, g.GND> {
+                h & yi & y.m.n[n] -> q+
+                g.pReset | ~h & ~yi -> q-
+
+                g.pReset | yt & xo & yi -> h+
+                q & ~yi -> h-
+                
+                ~h & (y.m.n[0] | y.m.n[1] | yt) -> xo+
+                ~x.m.n[0] & ~x.m.n[1] & ~xt & ~y.m.n[0] & ~y.m.n[1] & ~yt -> xo-
+
+                h & ~q & ~yi & ~xo & (x.m.n[0] | x.m.n[1] | xt) -> y.m.n[n]+
+                q -> y.m.n[n]-
+
+                ~h & ~q & ~yi & x.m.n[0] -> y.m.n[0]+
+                g.pReset | yi & xo -> y.m.n[0]-
+
+                ~h & ~q & ~yi & x.m.n[1] -> y.m.n[1]+
+                g.pReset | yi & xo -> y.m.n[1]-
+
+                ~h & ~q & ~yi & xt -> yt+
+                g.pReset | h & xo -> yt-
+            }
+        }
+
+        template <pint N>
+        defproc MERGE (globals g; a1of<N+1> c[N], p) {
+            // merges serialized packet streams
+            // N for 1-of-N encoding. + tail word line
+        }
+
+        export
+        template <pint N, NN>
+        defproc AEXT (globals g; a1of<N+1> y) {
+            // Serial transmitter
+            // N for 1-of-N encoding. + tail word line
+        }
+
+        namespace test {
+            export
+            template <pint N>
+            defproc TEST_FWD (globals g) {
+                // N for 1-of-N encoding
+                // M number of FWD processes to chain
+                // n words to prepend for each process
+                active_handshaker<1> a(g,,);
+                INT<N> a_int(g, a.o[0], a.i[0],);
+                FWD<N, 0> fwd_0(g, a_int.p,);
+                VN<1, N+1> vn(, fwd_0.y.a);
+                vn.d[0] = fwd_0.y.m;
+            }
+        } // namespace test
+    } // namespace transmitter
+
+    namespace receiver {
+        export
+        template <pint N, NN>
+        defproc AERV (globals g; a1of<N+1> x) {
+            // Serial receiver
+            // N for 1-of-N encoding
+        }
+
+        namespace test {
+        } // namespace test
+    } // namespace receiver
+} // namespace aer

@@ -1,0 +1,5 @@
+import "serial_aer.act";
+
+pint N=2;
+globals g;
+aer::transmitter::test::TEST_FWD<N> test(g);

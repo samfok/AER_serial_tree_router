@@ -1,0 +1,17 @@
+set_principal test.fwd_0.xt
+set_principal test.fwd_0.xo
+set_principal test.fwd_0.y.m.n[0]
+set_principal test.fwd_0.y.m.n[1]
+set_principal test.fwd_0.yt
+set_principal test.fwd_0.yi
+
+source reset.scr
+
+watch test.fwd_0.h
+watch test.fwd_0.q
+watch test.fwd_0.xt
+watch test.fwd_0.xo
+watch test.fwd_0.y.m.n[0]
+watch test.fwd_0.y.m.n[1]
+watch test.fwd_0.yt
+watch test.fwd_0.yi

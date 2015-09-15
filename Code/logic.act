@@ -223,7 +223,6 @@ defproc VN (c1of<N> d[M]; bool o) {
     ]
 }
 
-
 export
 template <pint M, N>
 defproc _VN (c1of<N> _d[M]; bool _o) {
