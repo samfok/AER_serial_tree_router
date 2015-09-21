@@ -6,38 +6,16 @@
 \author{Sam Fok}
 \maketitle
 
-The neuron address is encoded serially in a series of 1-of-N groups. We use an additional line (making the data lines 1-of-(N+1)) to indicate the completion of a address.
+The neuron address packet is serialized as a series of 1-of-N words. 
+We use an additional line (making the total data lines 1-of-(N+1)) to indicate the completion of a packet.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Transmitter ($AEXT$)}
 
-The leaf node merely outputs a tail word to get the party started.
+The transmitter is organized as a tree. Packets travel from the leaves of the tree to the root. At each node, incoming packet streams are merged into a single output stream. Each packet is prepended with a word indicating which branch it came from. To merge the streams, incoming packets from different branches are output one after the other. 
 
 \begin{csp}
-LEAF\equiv
-  *[C\star\!P!\textrm{tail};C\star\!P!\textrm{tail}]
-\end{csp}
-
-reference
-\begin{hse}
-*[[ci];{po}`t+;[pi]co+;
-  [~ci];{po}`t-;[~pi];co-]
-\end{hse}
-
-\begin{prs2}
-ci -> {po}`t+
-~ci -> {po}`t-
-
-pi -> co+
-~pi -> co-
-\end{prs2}
-
-\noindent which are just wires...
-
-We move on to the tree...
-
-\begin{csp}
-h:=true;
+NODE\equiv
 *[[h->
     [#{C0}->s:=0,P!(0);
     \|#{C1}->s:=1,P!(1)];
@@ -49,30 +27,17 @@ h:=true;
  ]]
 \end{csp}
 
-There are 2 state variables to sequence the actions: $h$ and $s$.
-
-Divide into FWD and MERGE processes.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{MERGE}
-
-\begin{csp}
-MERGE\equiv
-l:=false
-r:=false
-*[[~l&~r->
-    [#{L}->l:=true
-    \|#{R}->r:=true
-    ]
-  []l|r->
-    [l->O!(L?)
-    []r->O!(R?)
-  ]
-]
-\end{csp}
+We divide NODE into FWD and MERGE processes. 
+FWD prepends a word to the packet indicating which branch the packet is coming from.
+MERGE arbitrates between incoming packet streams and outputs them one at a time.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{FWD}
+\subsection{FWD version 1}
+
+This version has fewer state variables than version 2, but the pull-up and pull-down chains are too long.
+
+%%%%%%%%%%%%%%%
+\subsubsection*{CHP}
 
 \begin{csp}
 FWD\equiv
@@ -83,17 +48,23 @@ FWD\equiv
    ]
 \end{csp}
 
+%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
+
 \begin{hse}
 h:=true;
-*[[h&(x0|x1|xt)->yn+;[yi];q+;yn-;[~yi];h-;q-
+*[h&(x0|x1|xt)->yn+;[yi];q+;yn-;[~yi];h-;q-
   []~h&x0->y0+;xo+;[yi];y0-;[~x0];xo-;[~yi]
   []~h&x1->y1+;xo+;[yi];y1-;[~x1];xo-;[~yi]
   []~h&xt->yt+;xo+;[yi];h+;yt-;[~xt];xo-;[~yi]
 \end{hse}
 
+%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
+
 \begin{prs2}
 h & yi & yn -> q+
-~h & ~yi -> q-
+~h -> q-
 
 yt & xo & yi -> h+
 q & ~yi -> h-
@@ -110,20 +81,147 @@ q -> yn-
 \end{prs2}
 
 \begin{prs2}
-~h & ~q & ~yi & x0 &  -> y0+
+~h & ~q & ~yi & x0 & ~xo -> y0+
 yi & xo -> y0-
 
-~h & ~q & ~yi & x1 &  -> y1+
+~h & ~q & ~yi & x1 & ~xo -> y1+
 yi & xo -> y1-
 \end{prs2}
 
 \begin{prs2}
-~h & ~q & ~yi & xt &  -> yt+
+~h & ~q & ~yi & xt & ~xo -> yt+
 h & xo -> yt-
 \end{prs2}
 
-%%%%%%%%%%%%%%%%
-% \subsubsection{Leaf node}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{FWD version 2}
+
+This version has more state variables than version 1, but has reasonable pull-up and pull-down chains.
+
+%%%%%%%%%%%%%%%
+\subsubsection*{CHP}
+
+\begin{csp}
+FWD\equiv
+  *[[h&#{X}->Y!(\textrm{header});h-
+    []~h&#{X}->X?u\*Y!u,[u=t->h+]
+    ]
+   ]
+\end{csp}
+
+%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
+
+\begin{hse}
+*[[h&(x0|x1|xt)->yn+;[yi];h-;yn-;[~yi]
+  []~h&x0->u0+;(xo+;[~x0]),(y0+;[yi]);u0-;(y0-;[~yi]),xo-
+  []~h&x1->u1+;(xo+;[~x1]),(y1+;[yi]);u1-;(y1-;[~yi]),xo-
+  []~h&xt->ut+;(xo+;[~xt]),(yt+;h+;[yi]);ut-;(yt-;[~yi]),xo-
+\end{hse}
+
+\begin{hse}
+*[[h&(x0|x1|xt)->yn+;[yi];h-;yn-;[~yi]
+  []~h&x0->u0+;[~x0&yi];u0-;[~yi]
+  []~h&x1->u1+;[~x1&yi];u1-;[~yi]
+  []~h&xt->ut+;[~xt&h&yi];ut-;[~yi]
+
+*[u0->xo+,y0+;[~u0];y0-,xo-
+  []u1->xo+,y1+;[~u1];y1-,xo-
+  []ut->xo+,(yt+;h+);[ut-];yt-,xo-
+\end{hse}
+
+%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
+
+\begin{prs2}
+yt -> h+
+yn & yi -> h-
+\end{prs2}
+
+\begin{prs2}
+h & (x0 | x1 | xt) & ~yi & ~yt -> yn+
+~h & yi & ~un -> yn-
+\end{prs2}
+
+\begin{prs2}
+u0 | u1 | ut -> xo+
+~u0 & ~u1 & ~ut -> xo-
+\end{prs2}
+
+\begin{prs2}
+~h & x0 & ~yi -> u0+
+~x0 & yi -> u0-
+
+~h & x1 & ~yi -> u1+
+~x1 & yi -> u1-
+\end{prs2}
+
+\begin{prs2}
+~h & xt & ~yi -> ut+
+h & ~xt & yi -> ut-
+\end{prs2}
+
+\begin{prs2}
+u0 -> y0+
+~h & ~u0 -> y0-
+
+u1 -> y1+
+~h & ~u1 -> y1-
+\end{prs2}
+
+\begin{prs2}
+ut -> yt+
+~ut -> yt-
+\end{prs2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Leaf interface LEAF\_INT}
+
+LEAF\_INT interfaces with the neuron and outputs a tail word to get the party started.
+
+%%%%%%%%%%%%%%%
+\subsubsection*{CHP}
+\begin{csp}
+LEAF_INT\equiv
+  *[C\star\!P!\textrm{tail};C\star\!P!\textrm{tail}]
+\end{csp}
+
+%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
+\begin{hse}
+*[[ci];{po}`t+;[pi]co+;
+  [~ci];{po}`t-;[~pi];co-]
+\end{hse}
+
+%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
+\begin{prs2}
+ci -> {po}`t+
+~ci -> {po}`t-
+
+pi -> co+
+~pi -> co-
+\end{prs2}
+
+\noindent These are just wires...
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{MERGE}
+
+MERGE sequences between outputting two serialized packet streams.
+
+\begin{csp}
+MERGE\equiv
+  *[[~l&~r->
+      [#{L}->l:=true
+      \|#{R}->r:=true
+      ]
+    []l|r->
+      [l->O!(L?)
+      []r->O!(R?)
+    ]
+  ]
+\end{csp}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Receiver ($AERV$)}

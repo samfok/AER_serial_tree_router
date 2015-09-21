@@ -1,0 +1,4 @@
+import "serial_aer.act";
+
+globals g;
+aer::transmitter::test::TEST_MERGE test(g);

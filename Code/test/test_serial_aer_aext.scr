@@ -1,0 +1,44 @@
+# #################### default ################################################
+
+# source reset.scr
+
+# #################### M2 watch out ###########################################
+
+source reset.scr
+vector y test.aext.y.m.n[0] test.aext.y.m.n[1] test.aext.yt
+vwatch y
+step 100000
+
+# #################### M4 watch out ###########################################
+
+# source reset.scr
+# vector y test.aext.y.m.n[0] test.aext.y.m.n[1] test.aext.y.m.n[2] test.aext.y.m.n[3] test.aext.yt
+# vwatch y
+# step 100000
+
+# #################### M2N2 ###################################################
+
+# set_principal test.aext.y.m.n[0]
+# set_principal test.aext.y.m.n[1]
+# set_principal test.aext.yt
+# set_principal test.aext.merge.c[0].m.n[0]
+# set_principal test.aext.merge.c[0].m.n[1]
+# set_principal test.aext.merge.ct[0]
+# set_principal test.aext.merge.c[1].m.n[0]
+# set_principal test.aext.merge.c[1].m.n[1]
+# set_principal test.aext.merge.ct[1]
+# set_principal test.aext.aext.merge.c[0].m.n[0]
+# set_principal test.aext.aext.merge.c[0].m.n[1]
+# set_principal test.aext.aext.merge.ct[0]
+# set_principal test.aext.aext.merge.c[1].m.n[0]
+# set_principal test.aext.aext.merge.c[1].m.n[1]
+# set_principal test.aext.aext.merge.ct[1]
+
+# source reset.scr
+# 
+# vector y test.aext.y.m.n[0] test.aext.y.m.n[1] test.aext.yt
+# vector x0 test.aext.merge.c[0].m.n[0] test.aext.merge.c[0].m.n[1] test.aext.merge.ct[0]
+# vector x1 test.aext.merge.c[1].m.n[0] test.aext.merge.c[1].m.n[1] test.aext.merge.ct[1]
+# vwatch y
+# vwatch x0
+# vwatch x1

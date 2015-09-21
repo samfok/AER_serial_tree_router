@@ -8,13 +8,12 @@ namespace aer {
     namespace transmitter {
         export
         template <pint N>
-        defproc INT (globals g; bool ci, co; a1of<N+1> p) {
+        defproc INT (globals g; bool xi, xo; a1of<N+1> y) {
             // interface with the neuron
             // N for 1-of-N encoding. + tail word line
-            pint t = N;
-            ci = p.m.n[t];
-            co = p.a;
-            (; n : N : g.GND = p.m.n[n];)
+            xi = y.m.n[N];
+            xo = y.a;
+            (; n : N : g.GND = y.m.n[n];)
         }
 
         export
@@ -27,56 +26,210 @@ namespace aer {
             bool xo = x.a;
             bool yt = y.m.n[N];
             bool xt = x.m.n[N];
-            bool h, q;
+
+            /*--------------------------- version 1 -------------------------*/
+            // bool h, q;
+            // prs<g.Vdd, g.GND> {
+            //     h & yi & y.m.n[n] -> q+
+            //     g.pReset | ~h -> q-
+
+            //     g.pReset | yt & xo & yi -> h+
+            //     q & ~yi -> h-
+            //     
+            //     ~h & (y.m.n[0] | y.m.n[1] | yt) -> xo+
+            //     ~x.m.n[0] & ~x.m.n[1] & ~xt & ~y.m.n[0] & ~y.m.n[1] & ~yt -> xo-
+
+            //     h & ~q & ~yi & ~xo & (x.m.n[0] | x.m.n[1] | xt) -> y.m.n[n]+
+            //     q -> y.m.n[n]-
+
+            //     ~h & x.m.n[0] & ~q & ~yi & ~xo -> y.m.n[0]+
+            //     g.pReset | yi & xo -> y.m.n[0]-
+
+            //     ~h & x.m.n[1] & ~q & ~yi & ~xo -> y.m.n[1]+
+            //     g.pReset | yi & xo -> y.m.n[1]-
+
+            //     ~h & xt & ~q & ~yi & ~xo -> yt+
+            //     g.pReset | h & xo -> yt-
+            // }
+
+            /*--------------------------- version 2 -------------------------*/
+            bool h;
+            bool u[2], ut;
             prs<g.Vdd, g.GND> {
-                h & yi & y.m.n[n] -> q+
-                g.pReset | ~h & ~yi -> q-
-
-                g.pReset | yt & xo & yi -> h+
-                q & ~yi -> h-
+                g.pReset | yt -> h+
+                y.m.n[n] & yi -> h-
                 
-                ~h & (y.m.n[0] | y.m.n[1] | yt) -> xo+
-                ~x.m.n[0] & ~x.m.n[1] & ~xt & ~y.m.n[0] & ~y.m.n[1] & ~yt -> xo-
+                h & (x.m.n[0] | x.m.n[1] | xt) & ~yi & ~yt -> y.m.n[n]+
+                ~h & yi & ~u[n] -> y.m.n[n]-
 
-                h & ~q & ~yi & ~xo & (x.m.n[0] | x.m.n[1] | xt) -> y.m.n[n]+
-                q -> y.m.n[n]-
+                (u[0] | u[1] | ut) => xo+
 
-                ~h & ~q & ~yi & x.m.n[0] -> y.m.n[0]+
-                g.pReset | yi & xo -> y.m.n[0]-
+                ~h & x.m.n[0] & ~yi -> u[0]+
+                g.pReset | ~x.m.n[0] & yi -> u[0]-
 
-                ~h & ~q & ~yi & x.m.n[1] -> y.m.n[1]+
-                g.pReset | yi & xo -> y.m.n[1]-
+                ~h & x.m.n[1] & ~yi -> u[1]+
+                g.pReset | ~x.m.n[1] & yi -> u[1]-
 
-                ~h & ~q & ~yi & xt -> yt+
-                g.pReset | h & xo -> yt-
+                ~h & xt & ~yi -> ut+
+                g.pReset | h & ~xt & yi -> ut-
+
+                u[0] -> y.m.n[0]+
+                g.pReset | ~h & ~u[0] -> y.m.n[0]-
+
+                u[1] -> y.m.n[1]+
+                g.pReset | ~h & ~u[1] -> y.m.n[1]-
+
+                ut -> yt+
+                ~ut  -> yt-
             }
         }
 
+        template <pint N, n>
+        defproc FWD_ARR (globals g; a1of<N+1> x[N], y[N]) {
+            // utility for building an array of FWD processes
+            [ n < N ->
+                FWD<N, n> fwd(g, x[n], y[n]);
+                FWD_ARR<N, n+1> _(g, x, y);
+            ]
+        }
+
+        export
         template <pint N>
         defproc MERGE (globals g; a1of<N+1> c[N], p) {
             // merges serialized packet streams
             // N for 1-of-N encoding. + tail word line
+            bool a[N], _a[N], u[N+1], ct[N], co[N];
+            bool ut = u[N];
+            bool pt = p.m.n[N];
+            bool pi = p.a;
+            (; n : N :
+                ct[n] = c[n].m.n[N];
+                co[n] = c[n].a;
+            )
+
+            ::arbiter::N_ARB<N> arb(g,,);
+
+            prs<g.Vdd, g.GND> {
+                // arbitration
+                (: n : N :
+                    ~a[n] & ((| : nc : N : c[n].m.n[nc]) | ct[n]) -> arb.i[n]+
+                    g.pReset | a[n] -> arb.i[n]-
+                )
+
+                arb.o[0] & (& : n : 1..N-1 : ~a[n] & ~co[n]) & ~pi -> a[0]+
+                (: n : 1..N-2 :
+                    arb.o[n] & 
+                    (& : na : 0..n-1 : ~a[na] & ~co[na]) &
+                    (& : nb : n+1..N-1 : ~a[nb] & ~co[nb]) &
+                    ~pi -> a[n]+
+                )
+                arb.o[N-1] & (& : n : N-1 : ~a[n] & ~co[n]) & ~pi -> a[N-1]+
+
+                (: n : N :
+                    g.pReset | ~arb.o[n] & pi & pt & ~ct[n] -> a[n]-
+
+                    a[n] => _a[n]-
+                )
+
+                // routing state
+                (: n : N :
+                    ~pi & (| : nc : N : a[nc] & c[nc].m.n[n]) -> u[n]+
+                    g.pReset | pi & (| : nc : N : ~_a[nc] & ~c[nc].m.n[n]) -> u[n]-
+                )
+                // tail bit state
+                ~pi & (| : n : N : a[n] & ct[n]) -> ut+
+                g.pReset | (& : n : N : _a[n]) -> ut-
+
+                // state comm
+                (: n : N : u[n] => p.m.n[n]+)
+                // tail comm
+                ut => pt+
+                // child comm
+                (: n : N :
+                    a[n] & ((| : nc : N : u[nc]) | ut) -> co[n]+
+                    (& : nc : N : ~u[nc]) & ~ut -> co[n]-
+                )
+            }
         }
 
         export
-        template <pint N, NN>
-        defproc AEXT (globals g; a1of<N+1> y) {
+        template <pint N, M, NN>
+        defproc AEXT (globals g; bool xi[NN], xo[NN]; a1of<N+1> y) {
             // Serial transmitter
             // N for 1-of-N encoding. + tail word line
+            // M layers in the tree
+            // NN = N^M neurons
+            [ M = 0 ->
+                NN = 1; // check that NN = N^M
+                INT<N> n_int(g, xi[0], xo[0], y);
+            [] M > 0 ->
+                bool yt = y.m.n[N];
+                pint k = NN/N;
+                AEXT<N, M-1, k> aext[N];
+                MERGE<N> merge(g,,y);
+                FWD_ARR<N, 0> fwd_arr(g,, merge.c);
+                (; n : N :
+                    aext[n].g = g;
+                    aext[n].y = fwd_arr.x[n];
+                )
+                (; n : N-1 :
+                    aext[n].xi = xi[n*k..(n+1)*k-1];
+                    aext[n].xo = xo[n*k..(n+1)*k-1];
+                )
+                aext[N-1].xi = xi[(N-1)*k..NN-1];
+                aext[N-1].xo = xo[(N-1)*k..NN-1];
+            ]
         }
 
         namespace test {
+            template <pint N, M; pint n[M]>
+            defproc FWD_CHAIN_ (globals g; a1of<N+1> y) {
+                // utility for TEST_FWD
+                [ M = 1 ->
+                    active_handshaker<1> a(g,,);
+                    INT<N> a_int(g, a.o[0], a.i[0],);
+                    FWD<N, n[0]> fwd(g, a_int.y, y);
+                [] M > 1 ->
+                    FWD_CHAIN_<N, M-1, n[1..M-1]> _(g,);
+                    FWD<N, n[0]> fwd(g, _.y, y);
+                ]
+            }
+
             export
-            template <pint N>
+            template <pint N, M; pint n[M]>
             defproc TEST_FWD (globals g) {
+                // tests a chain of FWD blocks
                 // N for 1-of-N encoding
                 // M number of FWD processes to chain
-                // n words to prepend for each process
-                active_handshaker<1> a(g,,);
-                INT<N> a_int(g, a.o[0], a.i[0],);
-                FWD<N, 0> fwd_0(g, a_int.p,);
-                VN<1, N+1> vn(, fwd_0.y.a);
-                vn.d[0] = fwd_0.y.m;
+                // n array of words to prepend.
+                FWD_CHAIN_<N, M, n> _(g,);
+                VN<1, N+1> vn(, _.y.a);
+                vn.d[0] = _.y.m;
+            }
+
+            export
+            template <pint N>
+            defproc TEST_MERGE (globals g) {
+                pint M=2; // depth of foward chains
+                pint n[N][M];
+                (; nn : N : (; m : M : n[nn][m] = nn;))
+
+                FWD_CHAIN_<N, M, n[0][0..M-1]> c0(g,);
+                FWD_CHAIN_<N, M, n[1][0..M-1]> c1(g,);
+                MERGE<N> merge(g,,);
+                VN<1, N+1> vn(, merge.p.a);
+                vn.d[0] = merge.p.m;
+                merge.c[0] = c0.y;
+                merge.c[1] = c1.y;
+            }
+
+            export
+            template <pint N, M, NN>
+            defproc TEST_AEXT (globals g) {
+                active_handshaker<NN> a(g,,);
+                AEXT<N, M, NN> aext(g, a.o, a.i,);
+                VN<1, N+1> vn(, aext.y.a);
+                vn.d[0] = aext.y.m;
             }
         } // namespace test
     } // namespace transmitter

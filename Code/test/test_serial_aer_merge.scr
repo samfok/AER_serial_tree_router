@@ -1,0 +1,83 @@
+# #################### default ################################################
+
+# source reset.scr
+
+# #################### 1 merge ################################################
+
+set_principal test.merge.c[0].m.n[0]
+set_principal test.merge.c[0].m.n[1]
+set_principal test.merge.ct[0]
+set_principal test.merge.c[1].m.n[0]
+set_principal test.merge.c[1].m.n[1]
+set_principal test.merge.ct[1]
+set_principal test.merge.p.m.n[0]
+set_principal test.merge.p.m.n[1]
+set_principal test.merge.pt
+
+source reset.scr
+
+watch test.merge.c[0].m.n[0]
+watch test.merge.c[0].m.n[1]
+watch test.merge.ct[0]
+watch test.merge.c[1].m.n[0]
+watch test.merge.c[1].m.n[1]
+watch test.merge.ct[1]
+watch test.merge.p.m.n[0]
+watch test.merge.p.m.n[1]
+watch test.merge.pt
+
+vector c0 test.merge.c[0].m.n[0] test.merge.c[0].m.n[1] test.merge.ct[0]
+vector c1 test.merge.c[1].m.n[0] test.merge.c[1].m.n[1] test.merge.ct[1]
+vector p test.merge.p.m.n[0] test.merge.p.m.n[1] test.merge.pt
+vwatch c0
+vwatch c1
+vwatch p
+
+# #################### debug ##################################################
+
+# set_principal test.merge.c[0].m.n[0]
+# set_principal test.merge.c[0].m.n[1]
+# set_principal test.merge.ct[0]
+# set_principal test.merge.co[0]
+# set_principal test.merge.c[1].m.n[0]
+# set_principal test.merge.c[1].m.n[1]
+# set_principal test.merge.ct[1]
+# set_principal test.merge.co[1]
+# set_principal test.merge.p.m.n[0]
+# set_principal test.merge.p.m.n[1]
+# set_principal test.merge.pt
+# set_principal test.merge.pi
+# set_principal test.merge.arb.i[0]
+# set_principal test.merge.arb.i[1]
+# set_principal test.merge.arb.o[0]
+# set_principal test.merge.arb.o[1]
+# 
+# source reset.scr
+# 
+# watch test.merge.c[0].m.n[0]
+# watch test.merge.c[0].m.n[1]
+# watch test.merge.ct[0]
+# watch test.merge.co[0]
+# watch test.merge.c[1].m.n[0]
+# watch test.merge.c[1].m.n[1]
+# watch test.merge.ct[1]
+# watch test.merge.co[1]
+# watch test.merge.p.m.n[0]
+# watch test.merge.p.m.n[1]
+# watch test.merge.pt
+# watch test.merge.pi
+# watch test.merge.arb.i[0]
+# watch test.merge.arb.i[1]
+# watch test.merge.arb.o[0]
+# watch test.merge.arb.o[1]
+# 
+# watch test.merge.u[0]
+# watch test.merge.u[1]
+# watch test.merge.ut
+# watch test.merge.a[0]
+# watch test.merge.a[1]
+# 
+# vector c0 test.merge.c[0].m.n[0] test.merge.c[0].m.n[1] test.merge.ct[0]
+# vector c1 test.merge.c[1].m.n[0] test.merge.c[1].m.n[1] test.merge.ct[1]
+# vwatch c0
+# vwatch c1

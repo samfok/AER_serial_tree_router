@@ -1,17 +1,111 @@
-set_principal test.fwd_0.xt
-set_principal test.fwd_0.xo
-set_principal test.fwd_0.y.m.n[0]
-set_principal test.fwd_0.y.m.n[1]
-set_principal test.fwd_0.yt
-set_principal test.fwd_0.yi
+# #################### default ################################################
 
 source reset.scr
 
-watch test.fwd_0.h
-watch test.fwd_0.q
-watch test.fwd_0.xt
-watch test.fwd_0.xo
-watch test.fwd_0.y.m.n[0]
-watch test.fwd_0.y.m.n[1]
-watch test.fwd_0.yt
-watch test.fwd_0.yi
+# #################### 5 #################################################
+vector x3 test._.y.m.n[0] test._.y.m.n[1] test._.y.m.n[2]
+vector x2 test._._.y.m.n[0] test._._.y.m.n[1] test._._.y.m.n[2]
+vector x1 test._._._.y.m.n[0] test._._._.y.m.n[1] test._._._.y.m.n[2]
+vector x0 test._._._._.y.m.n[0] test._._._._.y.m.n[1] test._._._._.y.m.n[2]
+
+vwatch x3
+vwatch x2
+vwatch x1
+vwatch x0
+# #################### 1u dbg #################################################
+
+# set_principal test.fwd_0.xt
+# set_principal test.fwd_0.xo
+# set_principal test.fwd_0.y.m.n[0]
+# set_principal test.fwd_0.y.m.n[1]
+# set_principal test.fwd_0.yt
+# set_principal test.fwd_0.yi
+# 
+# source reset.scr
+# 
+# watch test.fwd_0.h
+# watch test.fwd_0.u[0]
+# watch test.fwd_0.u[1]
+# watch test.fwd_0.ut
+# watch test.fwd_0.xt
+# watch test.fwd_0.xo
+# watch test.fwd_0.y.m.n[0]
+# watch test.fwd_0.y.m.n[1]
+# watch test.fwd_0.yt
+# watch test.fwd_0.yi
+
+# #################### 1 dbg ##################################################
+
+# set_principal test.fwd_0.xt
+# set_principal test.fwd_0.xo
+# set_principal test.fwd_0.y.m.n[0]
+# set_principal test.fwd_0.y.m.n[1]
+# set_principal test.fwd_0.yt
+# set_principal test.fwd_0.yi
+# 
+# source reset.scr
+# 
+# watch test.fwd_0.h
+# watch test.fwd_0.q
+# watch test.fwd_0.xt
+# watch test.fwd_0.xo
+# watch test.fwd_0.y.m.n[0]
+# watch test.fwd_0.y.m.n[1]
+# watch test.fwd_0.yt
+# watch test.fwd_0.yi
+
+# #################### 2 dbg ##################################################
+
+# set_principal test.fwd_0.xt
+# set_principal test.fwd_0.xo
+# set_principal test.fwd_0.y.m.n[0]
+# set_principal test.fwd_0.y.m.n[1]
+# set_principal test.fwd_0.yt
+# set_principal test.fwd_0.yi
+# set_principal test.fwd_1.y.m.n[0]
+# set_principal test.fwd_1.y.m.n[1]
+# set_principal test.fwd_1.yt
+# set_principal test.fwd_1.yi
+# 
+# source reset.scr
+# 
+# watch test.fwd_0.h
+# watch test.fwd_0.q
+# watch test.fwd_0.xt
+# watch test.fwd_0.xo
+# watch test.fwd_0.y.m.n[0]
+# watch test.fwd_0.y.m.n[1]
+# watch test.fwd_0.yt
+# watch test.fwd_0.yi
+# watch test.fwd_1.h
+# watch test.fwd_1.q
+# watch test.fwd_1.y.m.n[0]
+# watch test.fwd_1.y.m.n[1]
+# watch test.fwd_1.yt
+# watch test.fwd_1.yi
+
+# #################### 3 ######################################################
+
+# set_principal test.fwd_0.xt
+# set_principal test.fwd_0.y.m.n[0]
+# set_principal test.fwd_0.y.m.n[1]
+# set_principal test.fwd_0.yt
+# set_principal test.fwd_1.y.m.n[0]
+# set_principal test.fwd_1.y.m.n[1]
+# set_principal test.fwd_1.yt
+# set_principal test.fwd_2.y.m.n[0]
+# set_principal test.fwd_2.y.m.n[1]
+# set_principal test.fwd_2.yt
+# 
+# source reset.scr
+# 
+# watch test.fwd_0.xt
+# watch test.fwd_0.y.m.n[0]
+# watch test.fwd_0.y.m.n[1]
+# watch test.fwd_0.yt
+# watch test.fwd_1.y.m.n[0]
+# watch test.fwd_1.y.m.n[1]
+# watch test.fwd_1.yt
+# watch test.fwd_2.y.m.n[0]
+# watch test.fwd_2.y.m.n[1]
+# watch test.fwd_2.yt
