@@ -1,13 +1,17 @@
 # #################### default ################################################
 
-# source reset.scr
+source reset.scr
 
 # #################### M2 watch out ###########################################
 
-source reset.scr
-vector y test.aext.y.m.n[0] test.aext.y.m.n[1] test.aext.yt
-vwatch y
-step 100000
+# set_principal test.aext.y.m.n[0] 
+# set_principal test.aext.y.m.n[1] 
+# set_principal test.aext.yt
+# 
+# source reset.scr
+# 
+# vector y :1ofN 3 test.aext.y.m.n[0] test.aext.y.m.n[1] test.aext.yt
+# vwatch y
 
 # #################### M4 watch out ###########################################
 
@@ -18,27 +22,42 @@ step 100000
 
 # #################### M2N2 ###################################################
 
-# set_principal test.aext.y.m.n[0]
-# set_principal test.aext.y.m.n[1]
-# set_principal test.aext.yt
+# set_principal test.aext.merge.p.m.n[0]
+# set_principal test.aext.merge.p.m.n[1]
+# set_principal test.aext.merge.pt
 # set_principal test.aext.merge.c[0].m.n[0]
 # set_principal test.aext.merge.c[0].m.n[1]
 # set_principal test.aext.merge.ct[0]
 # set_principal test.aext.merge.c[1].m.n[0]
 # set_principal test.aext.merge.c[1].m.n[1]
 # set_principal test.aext.merge.ct[1]
-# set_principal test.aext.aext.merge.c[0].m.n[0]
-# set_principal test.aext.aext.merge.c[0].m.n[1]
-# set_principal test.aext.aext.merge.ct[0]
-# set_principal test.aext.aext.merge.c[1].m.n[0]
-# set_principal test.aext.aext.merge.c[1].m.n[1]
-# set_principal test.aext.aext.merge.ct[1]
-
+# set_principal test.aext.aext[0].merge.p.m.n[0]
+# set_principal test.aext.aext[0].merge.p.m.n[1]
+# set_principal test.aext.aext[0].merge.pt
+# set_principal test.aext.aext[1].merge.p.m.n[0]
+# set_principal test.aext.aext[1].merge.p.m.n[1]
+# set_principal test.aext.aext[1].merge.pt
+# 
+# set_principal test.aext.merge.co[0]
+# set_principal test.aext.merge.co[1]
+# set_principal test.aext.merge.pi
+# 
 # source reset.scr
 # 
-# vector y test.aext.y.m.n[0] test.aext.y.m.n[1] test.aext.yt
-# vector x0 test.aext.merge.c[0].m.n[0] test.aext.merge.c[0].m.n[1] test.aext.merge.ct[0]
-# vector x1 test.aext.merge.c[1].m.n[0] test.aext.merge.c[1].m.n[1] test.aext.merge.ct[1]
-# vwatch y
-# vwatch x0
-# vwatch x1
+# watch test.aext.merge.co[0]
+# watch test.aext.merge.co[1]
+# watch test.aext.merge.pi
+# watch test.aext.merge.a[0]
+# watch test.aext.merge.a[1]
+# watch test.aext.merge.h
+# 
+# vector mp :1ofN 3 test.aext.merge.p.m.n[0] test.aext.merge.p.m.n[1] test.aext.merge.pt
+# vector mc0 :1ofN 3 test.aext.merge.c[0].m.n[0] test.aext.merge.c[0].m.n[1] test.aext.merge.ct[0]
+# vector mc1 :1ofN 3 test.aext.merge.c[1].m.n[0] test.aext.merge.c[1].m.n[1] test.aext.merge.ct[1]
+# vector m0mp :1ofN 3 test.aext.aext[0].merge.p.m.n[0] test.aext.aext[0].merge.p.m.n[1] test.aext.aext[0].merge.pt
+# vector m1mp :1ofN 3 test.aext.aext[1].merge.p.m.n[0] test.aext.aext[1].merge.p.m.n[1] test.aext.aext[1].merge.pt
+# vwatch mp
+# vwatch mc0
+# vwatch mc1
+# vwatch m0mp
+# vwatch m1mp

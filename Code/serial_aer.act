@@ -98,58 +98,88 @@ namespace aer {
         defproc MERGE (globals g; a1of<N+1> c[N], p) {
             // merges serialized packet streams
             // N for 1-of-N encoding. + tail word line
-            bool a[N], _a[N], u[N+1], ct[N], co[N];
-            bool ut = u[N];
+            bool a[N], ct[N], co[N];
             bool pt = p.m.n[N];
             bool pi = p.a;
             (; n : N :
                 ct[n] = c[n].m.n[N];
                 co[n] = c[n].a;
             )
-
             ::arbiter::N_ARB<N> arb(g,,);
+            /*--------------------------- version 0 -------------------------*/
+            // /*
+                bool _a[N];
+                prs<g.Vdd, g.GND> {
+                    // arbitration
+                    (: n : N :
+                        ~a[n] & ((| : nc : N : c[n].m.n[nc]) | ct[n]) -> arb.i[n]+
+                        g.pReset | a[n] -> arb.i[n]-
+                    )
 
-            prs<g.Vdd, g.GND> {
-                // arbitration
-                (: n : N :
-                    ~a[n] & ((| : nc : N : c[n].m.n[nc]) | ct[n]) -> arb.i[n]+
-                    g.pReset | a[n] -> arb.i[n]-
-                )
+                    arb.o[0] & (& : n : 1..N-1 : ~a[n] & ~co[n]) & ~pi -> a[0]+
+                    (: n : 1..N-2 :
+                        arb.o[n] & 
+                        (& : na : 0..n-1 : ~a[na] & ~co[na]) &
+                        (& : nb : n+1..N-1 : ~a[nb] & ~co[nb]) &
+                        ~pi -> a[n]+
+                    )
+                    arb.o[N-1] & (& : n : N-1 : ~a[n] & ~co[n]) & ~pi -> a[N-1]+
 
-                arb.o[0] & (& : n : 1..N-1 : ~a[n] & ~co[n]) & ~pi -> a[0]+
-                (: n : 1..N-2 :
-                    arb.o[n] & 
-                    (& : na : 0..n-1 : ~a[na] & ~co[na]) &
-                    (& : nb : n+1..N-1 : ~a[nb] & ~co[nb]) &
-                    ~pi -> a[n]+
-                )
-                arb.o[N-1] & (& : n : N-1 : ~a[n] & ~co[n]) & ~pi -> a[N-1]+
+                    (: n : N :
+                        g.pReset | ~arb.o[n] & pi & pt & ~ct[n] -> a[n]-
 
-                (: n : N :
-                    g.pReset | ~arb.o[n] & pi & pt & ~ct[n] -> a[n]-
+                        a[n] => _a[n]-
+                    )
 
-                    a[n] => _a[n]-
-                )
+                    // routing state
+                    (: n : N :
+                        ~pi & (| : nc : N : a[nc] & c[nc].m.n[n]) -> p.m.n[n]+
+                        g.pReset | pi & (| : nc : N : ~_a[nc] & ~c[nc].m.n[n]) -> p.m.n[n]-
+                    )
+                    // tail bit state
+                    ~pi & (| : n : N : a[n] & ct[n]) -> pt+
+                    g.pReset | (& : n : N : _a[n]) -> pt-
 
-                // routing state
-                (: n : N :
-                    ~pi & (| : nc : N : a[nc] & c[nc].m.n[n]) -> u[n]+
-                    g.pReset | pi & (| : nc : N : ~_a[nc] & ~c[nc].m.n[n]) -> u[n]-
-                )
-                // tail bit state
-                ~pi & (| : n : N : a[n] & ct[n]) -> ut+
-                g.pReset | (& : n : N : _a[n]) -> ut-
+                    // child comm
+                    (: n : N :
+                        a[n] & ((| : nc : N : p.m.n[nc]) | pt) -> co[n]+
+                        (& : nc : N : ~p.m.n[nc]) & ~pt -> co[n]-
+                    )
+                }
+            // */
+            /*--------------------------- version 1 -------------------------*/
+            /*
+                bool h;
+                prs<g.Vdd, g.GND> {
+                    (: n : N :
+                        ((| : nc : N : c[n].m.n[nc]) | ct[n]) & ~a[n] -> arb.i[n]+
+                        g.pReset | ~h & a[n] -> arb.i[n]-
+                    )
 
-                // state comm
-                (: n : N : u[n] => p.m.n[n]+)
-                // tail comm
-                ut => pt+
-                // child comm
-                (: n : N :
-                    a[n] & ((| : nc : N : u[nc]) | ut) -> co[n]+
-                    (& : nc : N : ~u[nc]) & ~ut -> co[n]-
-                )
-            }
+                    ( : n : N :
+                        h & arb.o[n] & ~pi -> a[n]+
+                        g.pReset | pt & pi & co[n] & ~ct[n] & ~arb.o[n] -> a[n]-
+                    )
+
+                    // head word state
+                    (& : n : N : ~a[n]) -> h+
+                    (| : n : N : a[n]) & (& : n : N : ~co[n]) -> h-
+
+                    // parent comm
+                    (: n : N :
+                        ~pi & (| : nc : N : a[nc] & c[nc].m.n[n]) & ~h -> p.m.n[n]+
+                        g.pReset | pi & (| : nc : N : a[nc] & ~c[nc].m.n[n]) -> p.m.n[n]-
+                    )
+                    ~pi & (| : n : N : a[n] & ct[n]) -> pt+
+                    (& : n : N : ~a[n])  -> pt-
+
+                    // child comm
+                    (: n : N :
+                        a[n] & ((| : nc : N : p.m.n[nc]) | pt) -> co[n]+
+                        (& : nc : N : ~p.m.n[nc]) & ~pt -> co[n]-
+                    )
+                }
+            */
         }
 
         export
@@ -212,10 +242,14 @@ namespace aer {
             defproc TEST_MERGE (globals g) {
                 pint M=2; // depth of foward chains
                 pint n[N][M];
-                (; nn : N : (; m : M : n[nn][m] = nn;))
+                pint n0[M], n1[M];
+                (; m : M : 
+                    n0[m] = 0;
+                    n1[m] = 1;
+                )
 
-                FWD_CHAIN_<N, M, n[0][0..M-1]> c0(g,);
-                FWD_CHAIN_<N, M, n[1][0..M-1]> c1(g,);
+                FWD_CHAIN_<N, M, n0> c0(g,);
+                FWD_CHAIN_<N, M, n1> c1(g,);
                 MERGE<N> merge(g,,);
                 VN<1, N+1> vn(, merge.p.a);
                 vn.d[0] = merge.p.m;
