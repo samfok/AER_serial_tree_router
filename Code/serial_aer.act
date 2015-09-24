@@ -212,27 +212,31 @@ namespace aer {
         }
 
         namespace test {
-            template <pint N, M; pint n[M]>
+            export
+            template <pint N, M; pint nm[M]>
             defproc FWD_CHAIN_ (globals g; a1of<N+1> y) {
                 // utility for TEST_FWD
+                // N for 1-of-N encoding
+                // M nodes in chain
+                // nm words to prepend at each node
                 [ M = 1 ->
                     active_handshaker<1> a(g,,);
                     INT<N> a_int(g, a.o[0], a.i[0],);
-                    FWD<N, n[0]> fwd(g, a_int.y, y);
+                    FWD<N, nm[0]> fwd(g, a_int.y, y);
                 [] M > 1 ->
-                    FWD_CHAIN_<N, M-1, n[1..M-1]> _(g,);
-                    FWD<N, n[0]> fwd(g, _.y, y);
+                    FWD_CHAIN_<N, M-1, nm[1..M-1]> _(g,);
+                    FWD<N, nm[0]> fwd(g, _.y, y);
                 ]
             }
 
             export
-            template <pint N, M; pint n[M]>
+            template <pint N, M; pint nm[M]>
             defproc TEST_FWD (globals g) {
                 // tests a chain of FWD blocks
                 // N for 1-of-N encoding
                 // M number of FWD processes to chain
                 // n array of words to prepend.
-                FWD_CHAIN_<N, M, n> _(g,);
+                FWD_CHAIN_<N, M, nm> _(g,);
                 VN<1, N+1> vn(, _.y.a);
                 vn.d[0] = _.y.m;
             }
@@ -242,14 +246,14 @@ namespace aer {
             defproc TEST_MERGE (globals g) {
                 pint M=2; // depth of foward chains
                 pint n[N][M];
-                pint n0[M], n1[M];
+                pint nm0[M], nm1[M];
                 (; m : M : 
-                    n0[m] = 0;
-                    n1[m] = 1;
+                    nm0[m] = 0;
+                    nm1[m] = 1;
                 )
 
-                FWD_CHAIN_<N, M, n0> c0(g,);
-                FWD_CHAIN_<N, M, n1> c1(g,);
+                FWD_CHAIN_<N, M, nm0> c0(g,);
+                FWD_CHAIN_<N, M, nm1> c1(g,);
                 MERGE<N> merge(g,,);
                 VN<1, N+1> vn(, merge.p.a);
                 vn.d[0] = merge.p.m;
@@ -270,13 +274,112 @@ namespace aer {
 
     namespace receiver {
         export
-        template <pint N, NN>
-        defproc AERV (globals g; a1of<N+1> x) {
+        template <pint N> 
+        defproc BCAST (globals g; a1of<N+1> p, c[N]) {
+            // broadcasts incoming words from parent to children
+            // N for 1-of-N encoding
+            bool po = p.a;
+            bool pt = p.m.n[N];
+            bool ci[N], ct[N];
+            (; n : N : 
+                ci[n] = c[n].a;
+                ct[n] = c[n].m.n[N];
+            )
+
+            /* version cppc pipelined parallelized --------------------------*/
+            /* version unpipelined ------------------------------------------*/
+            // /*
+                prs {
+                    (: n : N+1 :
+                        (: nc : N :
+                            p.m.n[n] => c[nc].m.n[n]+
+                        )
+                    )
+                    (& : n : N : ci[n]) -> po+
+                    (& : n : N : ~ci[n]) -> po-
+                }
+            // */
+
+        }
+
+        template <pint N, n>
+        defproc FILTER (globals g; a1of<N+1> x, y) {
+            // N for 1-of-N encoding
+            // n if first packet word is n, pass rest of packet. else filter.
+        }
+
+        template <pint N>
+        defproc FILTER_ARR (globals g; a1of<N+1> x[N], y[N]) {
+            // N for 1-of-N encoding
+        }
+
+        export
+        template <pint N, M, NN>
+        defproc AERV (globals g; a1of<N+1> x; bool yi[NN], yo[NN]) {
             // Serial receiver
             // N for 1-of-N encoding
         }
 
         namespace test {
+            export
+            template <pint N>
+            defproc TEST_BCAST (globals g) {
+                pint M=3;
+                pint nm[M];
+                (; m : M : nm[m] = 0;)
+                ::aer::transmitter::test::FWD_CHAIN_<N, M, nm> fwd(g,);
+                BCAST<N> bcast(g, fwd.y,);
+                VN<1, N+1> vn[N];
+                (; n : N :
+                    bcast.c[n].m = vn[n].d[0];
+                    bcast.c[n].a = vn[n].o;
+                )
+            }
+
         } // namespace test
     } // namespace receiver
+
+    export
+    template <pint N, M, NN>
+    defproc AER (globals g; bool xi[NN], xo[NN], yi[NN], yo[NN]) {
+        // address-event representation tranceiver
+        // packets are serialized 
+        // Uses M 1-of-N encoding
+        // M groups
+        // N items per group
+        // NN=N^M
+    }
+
+    namespace test {
+        export
+        template <pint N, M, NN>
+        defproc TEST_AER (globals g) {
+            // M groups
+            // N items per group
+            // NN neurons. NN=N^M
+            active_handshaker<NN> x(g,,);
+            passive_handshaker<NN> y(,);
+            AER<M, N, NN> aer(g, x.o, x.i, y.o, y.i);
+        }
+
+        export
+        template <pint M, N, NN>
+        defproc TEST_AER1 (globals g) {
+            // Tests AER with 1 neuron
+            // M groups
+            // N items per group
+            // NN neuron ports. NN=N^M
+            active_handshaker<1> x(g,,);
+            passive_handshaker<1> y(,);
+            AER<M, N, NN> aer(g,,,,);
+            aer.xi[0] = x.o[0];
+            aer.xo[0] = x.i[0];
+            aer.yi[0] = y.o[0];
+            aer.yo[0] = y.i[0];
+            (; nn : 1..NN-1 :
+                aer.xi[nn] = g.GND;
+                aer.yi[nn] = g.GND;
+            )
+        }
+    } // namespace test
 } // namespace aer

@@ -1,0 +1,63 @@
+# default #####################################################################
+
+# source reset.scr
+
+# N2 ##########################################################################
+
+set_principal test.bcast.p.m.n[0]
+set_principal test.bcast.p.m.n[1]
+set_principal test.bcast.pt
+set_principal test.bcast.c[0].m.n[0]
+set_principal test.bcast.c[0].m.n[1]
+set_principal test.bcast.ct[0]
+set_principal test.bcast.c[1].m.n[0]
+set_principal test.bcast.c[1].m.n[1]
+set_principal test.bcast.ct[1]
+
+source reset.scr
+
+vector p :1ofN 3 test.bcast.p.m.n[0] test.bcast.p.m.n[1] test.bcast.pt
+vector c0 :1ofN 3 test.bcast.c[0].m.n[0] test.bcast.c[0].m.n[1] test.bcast.ct[0]
+vector c1 :1ofN 3 test.bcast.c[1].m.n[0] test.bcast.c[1].m.n[1] test.bcast.ct[1]
+vwatch p
+vwatch c0
+vwatch c1
+
+# step 1000
+
+# N2 debug ####################################################################
+
+# set_principal test.bcast.p.m.n[0]
+# set_principal test.bcast.p.m.n[1]
+# set_principal test.bcast.pt
+# set_principal test.bcast.po
+# set_principal test.bcast.c[0].m.n[0]
+# set_principal test.bcast.c[0].m.n[1]
+# set_principal test.bcast.ct[0]
+# set_principal test.bcast.ci[0]
+# set_principal test.bcast.c[1].m.n[0]
+# set_principal test.bcast.c[1].m.n[1]
+# set_principal test.bcast.ct[1]
+# set_principal test.bcast.ci[1]
+# 
+# source reset.scr
+# 
+# watch test.bcast.p.m.n[0]
+# watch test.bcast.p.m.n[1]
+# watch test.bcast.pt
+# watch test.bcast.po
+# watch test.bcast.c[0].m.n[0]
+# watch test.bcast.c[0].m.n[1]
+# watch test.bcast.ct[0]
+# watch test.bcast.ci[0]
+# watch test.bcast.c[1].m.n[0]
+# watch test.bcast.c[1].m.n[1]
+# watch test.bcast.ct[1]
+# watch test.bcast.ci[1]
+# 
+# vector p :1ofN 3 test.bcast.p.m.n[0] test.bcast.p.m.n[1] test.bcast.pt
+# vector c0 :1ofN 3 test.bcast.c[0].m.n[0] test.bcast.c[0].m.n[1] test.bcast.ct[0]
+# vector c1 :1ofN 3 test.bcast.c[1].m.n[0] test.bcast.c[1].m.n[1] test.bcast.ct[1]
+# vwatch p
+# vwatch c0
+# vwatch c1
