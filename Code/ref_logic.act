@@ -39,6 +39,15 @@ defproc OR (bool i[N], o) {
 
 export
 template <pint N>
+defproc NOR (bool i[N], o) {
+    OR<N> or(i,);
+    prs {
+        or.o => o-
+    }
+}
+
+export
+template <pint N>
 defproc C_TREE (bool i[N], o) {
     [ N=1 ->
         i[0] = o;
