@@ -18,7 +18,7 @@ namespace aer {
 
         export
         template <pint N, n>
-        defproc FWD (globals g; a1of<N+1> x, y) {
+        defproc PFWD (globals g; a1of<N+1> x, y) {
             // prepends head word and fowards packet
             // N for 1-of-N encoding. + tail word line
             // n word prepended to each packet
@@ -85,11 +85,11 @@ namespace aer {
         }
 
         template <pint N, n>
-        defproc FWD_ARR (globals g; a1of<N+1> x[N], y[N]) {
-            // utility for building an array of FWD processes
+        defproc PFWD_ARR (globals g; a1of<N+1> x[N], y[N]) {
+            // utility for building an array of PFWD processes
             [ n < N ->
-                FWD<N, n> fwd(g, x[n], y[n]);
-                FWD_ARR<N, n+1> _(g, x, y);
+                PFWD<N, n> pfwd(g, x[n], y[n]);
+                PFWD_ARR<N, n+1> _(g, x, y);
             ]
         }
 
@@ -197,10 +197,10 @@ namespace aer {
                 pint k = NN/N;
                 AEXT<N, M-1, k> aext[N];
                 MERGE<N> merge(g,,y);
-                FWD_ARR<N, 0> fwd_arr(g,, merge.c);
+                PFWD_ARR<N, 0> pfwd_arr(g,, merge.c);
                 (; n : N :
                     aext[n].g = g;
-                    aext[n].y = fwd_arr.x[n];
+                    aext[n].y = pfwd_arr.x[n];
                 )
                 (; n : N-1 :
                     aext[n].xi = xi[n*k..(n+1)*k-1];
@@ -214,7 +214,7 @@ namespace aer {
         namespace test {
             export
             template <pint N, M; pint nm[M]>
-            defproc FWD_CHAIN_ (globals g; a1of<N+1> y) {
+            defproc PFWD_CHAIN_ (globals g; a1of<N+1> y) {
                 // utility for TEST_FWD
                 // N for 1-of-N encoding
                 // M nodes in chain
@@ -222,21 +222,21 @@ namespace aer {
                 [ M = 1 ->
                     active_handshaker<1> a(g,,);
                     INT<N> a_int(g, a.o[0], a.i[0],);
-                    FWD<N, nm[0]> fwd(g, a_int.y, y);
+                    PFWD<N, nm[0]> pfwd(g, a_int.y, y);
                 [] M > 1 ->
-                    FWD_CHAIN_<N, M-1, nm[1..M-1]> _(g,);
-                    FWD<N, nm[0]> fwd(g, _.y, y);
+                    PFWD_CHAIN_<N, M-1, nm[1..M-1]> _(g,);
+                    PFWD<N, nm[0]> pfwd(g, _.y, y);
                 ]
             }
 
             export
             template <pint N, M; pint nm[M]>
             defproc TEST_FWD (globals g) {
-                // tests a chain of FWD blocks
+                // tests a chain of PFWD blocks
                 // N for 1-of-N encoding
-                // M number of FWD processes to chain
+                // M number of PFWD processes to chain
                 // n array of words to prepend.
-                FWD_CHAIN_<N, M, nm> _(g,);
+                PFWD_CHAIN_<N, M, nm> _(g,);
                 VN<1, N+1> vn(, _.y.a);
                 vn.d[0] = _.y.m;
             }
@@ -252,8 +252,8 @@ namespace aer {
                     nm1[m] = 1;
                 )
 
-                FWD_CHAIN_<N, M, nm0> c0(g,);
-                FWD_CHAIN_<N, M, nm1> c1(g,);
+                PFWD_CHAIN_<N, M, nm0> c0(g,);
+                PFWD_CHAIN_<N, M, nm1> c1(g,);
                 MERGE<N> merge(g,,);
                 VN<1, N+1> vn(, merge.p.a);
                 vn.d[0] = merge.p.m;
@@ -286,9 +286,36 @@ namespace aer {
                 ct[n] = c[n].m.n[N];
             )
 
-            /* version cppc pipelined parallelized --------------------------*/
-            /* version unpipelined ------------------------------------------*/
+            /* version cpcp pipelined strict --------------------------------*/
+            /*
+             VN <N, N+1> vn(,);
+             (; n : N : c[n].m = vn.d[n];)
+             po = vn.o;
+             bool q[N+1];
+             prs<g.Vdd, g.GND> {
+                 (: n : N+1 :
+                     (& : nc : N : ~ci[nc]) & p.m.n[n] -> q[n]+
+                     g.pReset | (& : nc : N : ci[nc]) & ~p.m.n[n] -> q[n]-
+                     (: nc : N : q[n] => c[nc].m.n[n]+)
+                 )
+             }
+            */
+            /* version cpcp pipelined parallelized --------------------------*/
             // /*
+             VN <N, N+1> vn(,);
+             (; n : N : c[n].m = vn.d[n];)
+             po = vn.o;
+             prs<g.Vdd, g.GND> {
+                 (: nc : N :
+                     (: n : N+1 :
+                         ~ci[nc] & p.m.n[n] -> c[nc].m.n[n]+
+                         g.pReset | ci[nc] & ~p.m.n[n] -> c[nc].m.n[n]-
+                     )
+                 )
+             }
+            // */
+            /* version unpipelined ------------------------------------------*/
+            /*
                 prs {
                     (: n : N+1 :
                         (: nc : N :
@@ -298,8 +325,7 @@ namespace aer {
                     (& : n : N : ci[n]) -> po+
                     (& : n : N : ~ci[n]) -> po-
                 }
-            // */
-
+            */
         }
 
         template <pint N, n>
@@ -327,8 +353,8 @@ namespace aer {
                 pint M=3;
                 pint nm[M];
                 (; m : M : nm[m] = 0;)
-                ::aer::transmitter::test::FWD_CHAIN_<N, M, nm> fwd(g,);
-                BCAST<N> bcast(g, fwd.y,);
+                ::aer::transmitter::test::PFWD_CHAIN_<N, M, nm> pfwd(g,);
+                BCAST<N> bcast(g, pfwd.y,);
                 VN<1, N+1> vn[N];
                 (; n : N :
                     bcast.c[n].m = vn[n].d[0];

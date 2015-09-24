@@ -23,7 +23,7 @@ vwatch p
 vwatch c0
 vwatch c1
 
-# step 1000
+step 1000
 
 # N2 debug ####################################################################
 
@@ -61,3 +61,5 @@ vwatch c1
 # vwatch p
 # vwatch c0
 # vwatch c1
+# 
+# step 100

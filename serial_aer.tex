@@ -356,160 +356,204 @@ a1 & (p0 | p1 | pt) -> c1o+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Receiver ($AERV$)}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{version 0}
+We'll used the decomposed into BCAST and FILTER version for now.
 
-%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{BCAST pipelined}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection*{CHP}
 
-\begin{csp}
-AERV\equiv
-  h:=true, s0=0, s1=0;
-  *[
-      [h->P?s;h-
-      []~h&s=0->C0!(P?)\*[P=t->h+]
-      []~h&s=1->C1!(P?)\*[P=t->h+]
-      ] 
-   ]
-\end{csp}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
 
-%%%%%%%%%%%%%%%
-\subsubsection*{CHP}
+strict cpcp
 
 \begin{hse}
-AERV\equiv
-  h:=true;
-  *[
-      [h&pi0->s0+[]h&pi1->s1+];po+;[~pi0&~pi1];h-;po-
-      []~h&s0&pit->c0ot+;po+;s0-;h+;[c0i];c0ot-;[~pit];po-;[~c0i]
-      []~h&s1&pit->c1ot+;po+;s1-;h+;[c1i];c1ot-;[~pit];po-;[~c1i]
-      ]
-   ]
+BCAST\equiv
+*[[ p0->c00+,c10+;po+;[c0i&c1i&~p0];c00-,c10-;po-;[~c0i&~c1i];
+  []p1->c01+,c11+;po+;[c0i&c1i&~p1];c01-,c11-;po-;[~c0i&~c1i];
+  []pt->c0t+,c1t+;po+;[c0i&c1i&~pt];c0t-,c1t-;po-;[~c0i&~c1i];
+ ]]
 \end{hse}
 
-%%%%%%%%%%%%%%%
+\begin{hse}
+BCAST\equiv
+*[[ p0->q0+;c00+,c10+;po+;[c0i&c1i&~p0];q0-;c00-,c10-;po-;[~c0i&~c1i]
+  []p1->q1+;c01+,c11+;po+;[c0i&c1i&~p1];q1-;c01-,c11-;po-;[~c0i&~c1i]
+  []pt->qt+;c0t+,c1t+;po+;[c0i&c1i&~pt];qt-;c0t-,c1t-;po-;[~c0i&~c1i]
+ ]]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection*{PRS}
 
 \begin{prs2}
-h & pi0 -> s0+
-c0ot & po -> s0-
+q0 -> c00+
+~q0 -> c00-
 
-h & pi1 -> s1+
-c1ot & po -> s1-
+q1 -> c01+
+~q1 -> c01-
+
+qt -> c0t+
+~qt -> c0t-
+
+q0 -> c10+
+~q0 -> c10-
+
+q1 -> c11+
+~q1 -> c11-
+
+qt -> c1t+
+~qt -> c1t-
 \end{prs2}
 
 \begin{prs2}
-~so & c0ot | ~s1 & c1ot -> h+
-(s0 | s1) & ~pi0 & ~pi1 -> h-
+~c0i & ~c1i & p0 -> q0+
+c0i & c1i & ~p0 -> q0-
+
+~c0i & ~c1i & p1 -> q1+
+c0i & c1i & ~p1 -> q1-
+
+~c0i & ~c1i & pt -> qt+
+c0i & c1i & ~pt -> qt-
+\end{prs2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
+
+output ordering cpcp
+parallelized
+
+\begin{hse}
+BCAST\equiv
+*[[ p0->([~c0i];c00+),([~c1i];c10+);po+;[~p0];([c0i];c00-),([c1i];c10-);po-;
+  []p1->([~c0i];c01+),([~c1i];c11+);po+;[~p1];([c0i];c01-),([c1i];c11-);po-;
+  []pt->([~c0i];c0t+),([~c1i];c1t+);po+;[~pt];([c0i];c0t-),([c1i];c1t-);po-;
+ ]]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
+
+\begin{prs2}
+~c0i & p0 -> c00+
+c0i & ~p0 -> c00-
+
+~c0i & p1 -> c01+
+c0i & ~p1 -> c01-
+
+~c0i & pt -> c0t+
+c0i & ~pt -> c0t-
+
+~c1i & p0 -> c10+
+c1i & ~p0 -> c10-
+
+~c1i & p1 -> c11+
+c1i & ~p1 -> c11-
+
+~c1i & pt -> c1t+
+c1i & ~pt -> c1t-
 \end{prs2}
 
 \begin{prs2}
-(s0 | s1) & h | c0ot | c1ot -> po+
-~h & ~pi0 & ~pi1 | ~c0ot & ~c1ot & ~pit -> po-
+VN(C) -> po+
+~VN(C) -> po-
+\end{prs2}
+
+po is the output of a VN detector
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
+
+swap ordering of p and c in reset
+output ordering cppc
+parallelized
+
+\begin{hse}
+BCAST\equiv
+*[[ p0->([~c0i];c00+),([~c1i];c10+);(po+;[~p0];po-);([c0i];c00-),([c1i];c10-)
+  []p1->([~c0i];c01+),([~c1i];c11+);(po+;[~p1];po-);([c0i];c01-),([c1i];c11-)
+  []pt->([~c0i];c0t+),([~c1i];c1t+);(po+;[~pt];po-);([c0i];c0t-),([c1i];c1t-)
+ ]]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
+
+\begin{prs2}
+~c0i & p0 -> c00+
+c0i & ~p0 & ~po -> c00-
+
+~c0i & p1 -> c01+
+c0i & ~p1 & ~po -> c01-
+
+~c0i & pt -> c0t+
+c0i & ~pt & ~po -> c0t-
+
+~c1i & p0 -> c10+
+c1i & ~p0 & ~po -> c10-
+
+~c1i & p1 -> c11+
+c1i & ~p1 & ~po -> c11-
+
+~c1i & pt -> c1t+
+c1i & ~pt & ~po -> c1t-
 \end{prs2}
 
 \begin{prs2}
-~c0i & ~c1i & s0 & pit -> co0t+
-c0i & h -> co0t-
-
-~c0i & ~c1i & s1 & pit -> co1t+
-c1i & h -> co1t-
+(c00 & c10 | c01 & c11 | c0t & c1t) & (p0 | p1 | pt) -> po+
+~p0 & ~p1 & ~pt -> po-
 \end{prs2}
 
-% \begin{hse}
-% AERV\equiv
-%   h:=true;
-%   *[
-%       [h&pi0->s0+[]h&pi1->s1+];po+;[~pi0&~pi1];h-;po-
-%       []~h&s0&pi0->c0o0+;po+;[~pi0];po-;[c0i];c0o0-;[~c0i]
-%       []~h&s0&pi1->c0o1+;po+;[~pi1];po-;[c0i];c0o1-;[~c0i]
-%       []~h&s0&pit->c0ot+;po+,s0-;h+;[~pit];po-;[c0i];c0ot-;[~c0i]
-%       []~h&s1&pi0->c1o0+;po+;[~pi0];po-;[c1i];c1o0-;[~c1i]
-%       []~h&s1&pi1->c1o1+;po+;[~pi1];po-;[c1i];c1o1-;[~c1i]
-%       []~h&s1&pit->c1ot+;po+,s1-;h+;[~pit];po-;[c1i];c1ot-;[~c1i]
-%       ]
-%    ]
-% \end{hse}
+instability on down phases of c because p input can rise at anytime
+Could probably fix with state variables.
 
-% \begin{hse}
-% AERV\equiv
-%   h:=true;
-%   *[
-%       [h&p0i->s0+,s1-[]h&p1i->s0-,s1+];h-
-%       []~h->[s=0->C0!(P?)
-%             []s=1->C1!(P?)]; 
-%             [P=t->h+]
-%       ]
-%    ]
-% \end{hse}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{BCAST unpipelined}
 
-\begin{csp}
-AERV\equiv
-  h:=true;
-  *[P?x;
-    [h->
-      s:=x;
-    []~h->
-      [s=0->C0!x
-      []s=1->C1!x
-      ]
-    ];h:=x.tail
-   ]
-\end{csp}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{CHP}
 
-We decompose $AERV$ into control and data processes.
-Control
-\begin{csp}
-CTRL\equiv
-  h:=true;
-  *[R';
-    [h->S'
-    []~h->C'
-    ]; h=x.tail
-   ]
-\end{csp}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
 
 \begin{hse}
-CTRL\equiv
-  *[[cri];cro+;[~cri];cro-;
-      [h->cxo+;[cxi];cxo-;[~cxi]
-      []~h->cco+;[cci];cco-;[~cci]];
-    [xt->h+[]~xt->h-]
-   ]
+BCAST\equiv
+*[[ p0->c00+,c10+;[c0i&c1i];po+;[~p0];c00-,c10-;[~c0i&~c1i];po-
+  []p1->c01+,c11+;[c0i&c1i];po+;[~p1];c01-,c11-;[~c0i&~c1i];po-
+  []pt->c0t+,c1t+;[c0i&c1i];po+;[~pt];c0t-,c1t-;[~c0i&~c1i];po-
+ ]]
 \end{hse}
 
-Reading in
-\begin{hse}
-READ\equiv
-  *[[{pi}`0|{pi}`1|{pi}`t];cro+;
-      [cri&{pi}`0->x0+
-      []cri&{pi}`1->x1+
-      []cri&{pi}`t->xt+];
-    po+;[~p0&~pi&~pt];cro-;[~cri];po-]
-\end{hse}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
 
-Assigning X to S
-\begin{hse}
-AXS\equiv
-  *[[csi];[x0->s0+[]x1->s1+];cso+;[~csi];cso-]
-\end{hse}
+\begin{prs2}
+p0 -> c00+
+~p0 -> c00-
 
-Forwarding words to children
-\begin{hse}
-COUT\equiv
-  *[[cci];
-      [s0&x0->{c0o}`0+
-      []s0&x1->{c0o}`1+
-      []s0&xt->{c0o}`t+
-      []s1&x0->{c1o}`0+
-      []s1&x1->{c1o}`1+
-      []s1&xt->{c1o}`t+
-      ];
-    [c0i|c1i];cco+;
-    [~cci];c0o\!\Downarrow,c1o\!\Downarrow;
-    [~c0i&~c1i];cco-]
-    ]
-\end{hse}
+p1 -> c01+
+~p1 -> c01-
+
+pt -> c0t+
+~pt -> c0t-
+
+p0 -> c10+
+~p0 -> c10-
+
+p1 -> c11+
+~p1 -> c11-
+
+pt -> c1t+
+~pt -> c1t-
+\end{prs2}
+
+\begin{prs2}
+c0i & c1i -> po+
+~c0i & ~c1i -> po-
+\end{prs2}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \end{document}
