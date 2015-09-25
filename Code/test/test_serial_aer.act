@@ -1,11 +1,9 @@
-// Tests the tree AER system
-// import "ref_tree_aer.act";
-import "tree_aer.act";
-import "lib/globals.act";
+// Tests the serial tree AER system
+import "serial_aer.act";
 
-pint M=6; // data encoded in M 1-of-N groups
 pint N=2;
-pint NN=64; // NN=N^M
+pint M=1;
+pint NN=2; // NN=N^M
 
 globals g;
 aer::test::TEST_AER<M, N, NN> test(g);

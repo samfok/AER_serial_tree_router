@@ -32,7 +32,7 @@ FWD prepends a word to the packet indicating which branch the packet is coming f
 MERGE arbitrates between incoming packet streams and outputs them one at a time.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{FWD version 1}
+\subsection{FWD version hq}
 
 This version has fewer state variables than version 2, but the pull-up and pull-down chains are too long.
 
@@ -94,7 +94,7 @@ h & xo -> yt-
 \end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{FWD version 2}
+\subsection{FWD version hu}
 
 This version has more state variables than version 1, but has reasonable pull-up and pull-down chains.
 
@@ -224,7 +224,7 @@ MERGE\equiv
 \end{csp}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{MERGE version 0}
+\subsection{MERGE version a\_a}
 
 I don't like this version because the pullup chains for the state variables
 are too long and won't scale to higher radix encoding.
@@ -292,7 +292,7 @@ a1 & (p0 | p1 | pt) -> c1o+
 \end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{MERGE version 1}
+\subsection{MERGE version ah}
 
 This one has acceptable pullup/pulldown chains, but I'm worried about making it CMOS implementable
 

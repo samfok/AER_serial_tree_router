@@ -1,0 +1,10 @@
+// Tests the serial AER system DECIDE process
+import "serial_aer.act";
+
+pint N=2;
+pint M=2;
+pint NN=4; // NN=N^M
+pint w=1;
+
+globals g;
+aer::receiver::test::TEST_DECIDE<N, M, NN, w> test(g);

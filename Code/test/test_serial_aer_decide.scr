@@ -1,0 +1,24 @@
+# default #####################################################################
+
+# source reset.scr
+
+# N2 M1 NN2 ###################################################################
+
+set_principal test.decide.x.m.n[0]
+set_principal test.decide.x.m.n[1]
+set_principal test.decide.xt
+set_principal test.decide.xo
+
+source reset.scr
+
+watch test.decide.x.m.n[0]
+watch test.decide.x.m.n[1]
+watch test.decide.xt
+watch test.decide.xo
+watch test.decide.st
+watch test.decide.sf
+watch test.decide.u
+watch test.decide.v
+
+vector x :1ofN 3 test.decide.x.m.n[0] test.decide.x.m.n[1] test.decide.xt
+vwatch x

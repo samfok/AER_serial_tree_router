@@ -27,7 +27,7 @@ namespace aer {
             bool yt = y.m.n[N];
             bool xt = x.m.n[N];
 
-            /*--------------------------- version 1 -------------------------*/
+            /* version hq ---------------------------------------------------*/
             // bool h, q;
             // prs<g.Vdd, g.GND> {
             //     h & yi & y.m.n[n] -> q+
@@ -52,7 +52,7 @@ namespace aer {
             //     g.pReset | h & xo -> yt-
             // }
 
-            /*--------------------------- version 2 -------------------------*/
+            /* version hu ---------------------------------------------------*/
             bool h;
             bool u[2], ut;
             prs<g.Vdd, g.GND> {
@@ -86,7 +86,9 @@ namespace aer {
 
         template <pint N, n>
         defproc PFWD_ARR (globals g; a1of<N+1> x[N], y[N]) {
-            // utility for building an array of PFWD processes
+            // utility to build array of PFWD
+            // N for 1-of-N encoding
+            // n which word to prepend. Initialize with 0
             [ n < N ->
                 PFWD<N, n> pfwd(g, x[n], y[n]);
                 PFWD_ARR<N, n+1> _(g, x, y);
@@ -106,7 +108,7 @@ namespace aer {
                 co[n] = c[n].a;
             )
             ::arbiter::N_ARB<N> arb(g,,);
-            /*--------------------------- version 0 -------------------------*/
+            /* version a_a --------------------------------------------------*/
             // /*
                 bool _a[N];
                 prs<g.Vdd, g.GND> {
@@ -147,7 +149,7 @@ namespace aer {
                     )
                 }
             // */
-            /*--------------------------- version 1 -------------------------*/
+            /* version ah ---------------------------------------------------*/
             /*
                 bool h;
                 prs<g.Vdd, g.GND> {
@@ -189,6 +191,7 @@ namespace aer {
             // N for 1-of-N encoding. + tail word line
             // M layers in the tree
             // NN = N^M neurons
+            bool yi = y.a;
             [ M = 0 ->
                 NN = 1; // check that NN = N^M
                 INT<N> n_int(g, xi[0], xo[0], y);
@@ -274,6 +277,15 @@ namespace aer {
 
     namespace receiver {
         export
+        template <pint N>
+        defproc INT (a1of<N+1> x; bool yi, yo) {
+            // interface with the neuron
+            // N for 1-of-N encoding. + tail word line
+            x.m.n[N] = yo;
+            x.a = yi;
+        }
+
+        export
         template <pint N> 
         defproc BCAST (globals g; a1of<N+1> p, c[N]) {
             // broadcasts incoming words from parent to children
@@ -331,12 +343,147 @@ namespace aer {
         template <pint N, n>
         defproc FILTER (globals g; a1of<N+1> x, y) {
             // N for 1-of-N encoding
-            // n if first packet word is n, pass rest of packet. else filter.
+            // n : if first word is n, pass packet, else filter
+            bool xt = x.m.n[N];
+            bool yt = y.m.n[N];
+            bool xo = x.a;
+            bool yi = y.a;
+
+            bool st, sf;
+            /* version pipelined --------------------------------------------*/
+            /*
+                bool ht, hf, tf;
+                prs<g.Vdd, g.GND> {
+                    ~yi & ht & ~x.m.n[n] -> st+
+                    yt & yi & ~xt & ~xo -> st-
+
+                    ~yi & hf & ~x.m.n[] -> sf+ // any other element of x except for tail
+                    tf & ~xt -> sf-
+                }
+
+                prs<g.Vdd, g.GND> {
+                    ~st & ~sf & ~tf & x.m.n[n] & ~yi -> ht+
+                    st & ~xo -> ht-
+
+                    ~st & ~sf & ~tf & x.m.n[] & ~yi -> hf+
+                    sf & ~xo -> hf-
+
+                    sf & xt -> tf+
+                    sf & ~xo -> tf-
+                }
+                
+                prs<g.Vdd, g.GND> {
+                    (: n : N :
+                        ~yi & ~ht & ~st & x.m.n[n] -> y.m.n[n]+
+                        yi & ~x.m.n[n] & ~xo -> y.m.n[n]-
+                    )
+                    ~yi & ~ht & st & xt -> yt+
+                    ~st -> yt-
+                }
+
+                prs<g.Vdd, g.GND> {
+                    sf & ((| : n : N : x.m.n[n]) | tf & xt) | 
+                    st & (| : n : N+1 : y.m.n[n]) -> xo+
+                    (& : n : N+1 : ~x.m.n[n]) -> xo-
+                }
+            */
+            /* version unpipelined ------------------------------------------*/
+            // /*
+                bool q, t;
+                prs {
+                    st | sf => q-
+
+                    sf & xt -> t+
+                    ~sf -> t-
+
+                }
+                prs<g.Vdd, g.GND> {
+                    q & x.m.n[n] & ~t -> st+
+                    g.pReset | yt & ~xt -> st-
+                }
+
+                [ n = 0 ->
+                    prs {
+                        q & (| : nn : 1..N-1 : x.m.n[nn]) & ~t -> sf+
+                    }
+                [] n = (N-1) ->
+                    prs {
+                        q & (| : nn : 0..N-2 : x.m.n[nn]) & ~t -> sf+
+                    }
+                [] n > 0 & n < (N-1) ->
+                    prs {
+                        q & ((| : nn : 0..n-1 : x.m.n[nn])
+                            |(| : nn : n+1..N-1 : x.m.n[nn])) & ~t -> sf+
+                    }
+                ]
+                prs<g.Vdd, g.GND> {
+                    g.pReset | t & ~xt & ~xo -> sf-
+                }
+                prs<g.Vdd, g.GND> {
+                    sf & ((| : nn : N : x.m.n[nn]) | xt & t) | yi -> xo+
+                    (& : nn : N+1 : ~x.m.n[nn]) & ~yi -> xo-
+                }
+                prs<g.Vdd, g.GND> {
+                    (: nn : N :
+                        st & x.m.n[nn] -> y.m.n[nn]+
+                        ~x.m.n[nn] -> y.m.n[nn]-
+                    )
+                    st & xt -> yt+
+                    ~st -> yt-
+                }
+            // */
         }
 
-        template <pint N>
+        template <pint N, n>
         defproc FILTER_ARR (globals g; a1of<N+1> x[N], y[N]) {
+            // utility to build array of FILTER
             // N for 1-of-N encoding
+            // n which first word to check for. Initialize with 0
+            [ n < N ->
+                FILTER<N, n> filter(g, x[n], y[n]);
+                FILTER_ARR<N, n+1> _(g, x, y);
+            ]
+        }
+
+        export
+        template <pint N, w>
+        defproc DECIDE (globals g; a1of<N+1> x; bool st, sf) {
+            // N for 1-of-N encoding
+            // w : if first word is w, raise st. else raise sf.
+            bool xt = x.m.n[N];
+            bool xo = x.a;
+
+            bool u, v;
+            prs {
+                (st | sf) & ~u -> v+
+                ~st & ~sf | u -> v-
+
+                ~st & ~sf & ~v -> u+
+                st | sf | v -> u-
+
+                v & (st | sf) & (| : n : N : x.m.n[n]) | u & xt -> xo+
+                (& : n : N+1 : ~x.m.n[n]) -> xo-
+            }
+
+            [ w = 0 ->
+                prs {
+                    u & (| : nn : 1..N-1 : x.m.n[nn]) -> sf+
+                }
+            [] w = (N-1) ->
+                prs {
+                    u & (| : nn : 0..N-2 : x.m.n[nn]) -> sf+
+                }
+            [] w > 0 & w < (N-1) ->
+                prs {
+                    u & ((| : n : 0..w-1 : x.m.n[n])
+                        |(| : n : w+1..N-1 : x.m.n[n])) -> sf+
+                }
+            ]
+            prs <g.Vdd, g.GND> {
+                u & x.m.n[w] -> st+
+                g.pReset | v & xt -> st-
+                g.pReset | v & xt -> sf-
+            }
         }
 
         export
@@ -344,6 +491,28 @@ namespace aer {
         defproc AERV (globals g; a1of<N+1> x; bool yi[NN], yo[NN]) {
             // Serial receiver
             // N for 1-of-N encoding
+            // M layers in the tree
+            // NN = N^M neurons
+            [ M = 0 ->
+                NN = 1; // check that NN = N^M
+                INT<N> n_int(x, yi[0], yo[0]);
+            [] M > 0 ->
+                bool xt = x.m.n[N];
+                pint k = NN/N;
+                AERV<N, M-1, k> aerv[N];
+                BCAST<N> bcast(g, x,);
+                FILTER_ARR<N, 0> filter_arr(g, bcast.c,);
+                (; n : N :
+                    aerv[n].g = g;
+                    aerv[n].x = filter_arr.y[n];
+                )
+                (; n : N-1 :
+                    aerv[n].yi = yi[n*k..(n+1)*k-1];
+                    aerv[n].yo = yo[n*k..(n+1)*k-1];
+                )
+                aerv[N-1].yi = yi[(N-1)*k..NN-1];
+                aerv[N-1].yo = yo[(N-1)*k..NN-1];
+            ]
         }
 
         namespace test {
@@ -362,6 +531,13 @@ namespace aer {
                 )
             }
 
+            export
+            template <pint N, M, NN, w>
+            defproc TEST_DECIDE (globals g) {
+                active_handshaker<NN> x(g,,);
+                ::aer::transmitter::AEXT<N, M, NN> aext(g, x.o, x.i,);
+                DECIDE<N, w> decide(g, aext.y,,);
+            }
         } // namespace test
     } // namespace receiver
 
@@ -374,6 +550,9 @@ namespace aer {
         // M groups
         // N items per group
         // NN=N^M
+        transmitter::AEXT<N, M, NN> aext(g, xi, xo,);
+        receiver::AERV<N, M, NN> aerv(g,, yi, yo);
+        aext.y = aerv.x;
     }
 
     namespace test {
