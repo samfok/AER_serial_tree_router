@@ -3,6 +3,7 @@ import "lib/globals.act";
 import "channel.act";
 import "arbiter.act";
 import "logic.act";
+import "comm.act";
 import "test.act";
 
 namespace aer {
@@ -107,8 +108,8 @@ namespace aer {
                 ::arbiter::N_ARB_C<N> arb(g,, a);
 
                 VN<M,N> vn[N];
-                (; n : N : vn[n].d = d[n].m;)
-                (; n : N : vn[n].o = arb.i[n];)
+                (; n : N : vn[n].d.m = d[n].m;)
+                (; n : N : vn[n].d.a = arb.i[n];)
 
                 prs { // transmit new highest bit
                     a[0] & (& : n : 1..N-1 : _do[n]) => _x.m[0].n[0]-
@@ -214,11 +215,9 @@ namespace aer {
                 // NN neurons. NN=N^M
                 active_handshaker<NN> s(g,,);
                 AEXT<M, N, NN> aext(g,,,);
-                VN<M, N> vn(,);
+                VN<M, N> vn(aext.x);
                 aext.si = s.o;
                 aext.so = s.i;
-                aext.x.m = vn.d;
-                aext.x.a = vn.o;
             }
 
             export
@@ -230,11 +229,9 @@ namespace aer {
                 // NN neuron ports. NN=N^M
                 active_handshaker<1> s(g,,);
                 AEXT<M, N, NN> aext(g,,,);
-                VN<M, N> vn(,);
+                VN<M, N> vn(aext.x);
                 aext.si[0] = s.o[0];
                 aext.so[0] = s.i[0];
-                aext.x.m = vn.d;
-                aext.x.a = vn.o;
                 (; nn : 1..NN-1 :
                     aext.si[nn] = g.GND;
                 )

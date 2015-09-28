@@ -3,6 +3,7 @@ import "lib/globals.act";
 import "channel.act";
 import "arbiter.act";
 import "logic.act";
+import "comm.act";
 
 namespace aer {
     namespace transmitter {
@@ -28,60 +29,64 @@ namespace aer {
             bool xt = x.m.n[N];
 
             /* version hq ---------------------------------------------------*/
-            // bool h, q;
-            // prs<g.Vdd, g.GND> {
-            //     h & yi & y.m.n[n] -> q+
-            //     g.pReset | ~h -> q-
+            // /*
+                bool h, q;
+                prs<g.Vdd, g.GND> {
+                    h & yi & y.m.n[n] -> q+
+                    g.pReset | ~h -> q-
 
-            //     g.pReset | yt & xo & yi -> h+
-            //     q & ~yi -> h-
-            //     
-            //     ~h & (y.m.n[0] | y.m.n[1] | yt) -> xo+
-            //     ~x.m.n[0] & ~x.m.n[1] & ~xt & ~y.m.n[0] & ~y.m.n[1] & ~yt -> xo-
+                    g.pReset | yt & xo & yi -> h+
+                    q & ~yi -> h-
+                    
+                    ~h & (y.m.n[0] | y.m.n[1] | yt) -> xo+
+                    ~x.m.n[0] & ~x.m.n[1] & ~xt & ~y.m.n[0] & ~y.m.n[1] & ~yt -> xo-
 
-            //     h & ~q & ~yi & ~xo & (x.m.n[0] | x.m.n[1] | xt) -> y.m.n[n]+
-            //     q -> y.m.n[n]-
+                    h & ~q & ~yi & ~xo & (x.m.n[0] | x.m.n[1] | xt) -> y.m.n[n]+
+                    q -> y.m.n[n]-
 
-            //     ~h & x.m.n[0] & ~q & ~yi & ~xo -> y.m.n[0]+
-            //     g.pReset | yi & xo -> y.m.n[0]-
+                    ~h & x.m.n[0] & ~q & ~yi & ~xo -> y.m.n[0]+
+                    g.pReset | yi & xo -> y.m.n[0]-
 
-            //     ~h & x.m.n[1] & ~q & ~yi & ~xo -> y.m.n[1]+
-            //     g.pReset | yi & xo -> y.m.n[1]-
+                    ~h & x.m.n[1] & ~q & ~yi & ~xo -> y.m.n[1]+
+                    g.pReset | yi & xo -> y.m.n[1]-
 
-            //     ~h & xt & ~q & ~yi & ~xo -> yt+
-            //     g.pReset | h & xo -> yt-
-            // }
+                    ~h & xt & ~q & ~yi & ~xo -> yt+
+                    g.pReset | h & xo -> yt-
+                }
+            // */
 
             /* version hu ---------------------------------------------------*/
-            bool h;
-            bool u[2], ut;
-            prs<g.Vdd, g.GND> {
-                g.pReset | yt -> h+
-                y.m.n[n] & yi -> h-
-                
-                h & (x.m.n[0] | x.m.n[1] | xt) & ~yi & ~yt -> y.m.n[n]+
-                ~h & yi & ~u[n] -> y.m.n[n]-
+            /* 
+                bool h;
+                bool u[2], ut;
+                prs<g.Vdd, g.GND> {
+                    g.pReset | yt -> h+
+                    y.m.n[n] & yi -> h-
+                    
+                    h & (x.m.n[0] | x.m.n[1] | xt) & ~yi & ~yt -> y.m.n[n]+
+                    ~h & yi & ~u[n] -> y.m.n[n]-
 
-                (u[0] | u[1] | ut) => xo+
+                    (u[0] | u[1] | ut) => xo+
 
-                ~h & x.m.n[0] & ~yi -> u[0]+
-                g.pReset | ~x.m.n[0] & yi -> u[0]-
+                    ~h & x.m.n[0] & ~yi -> u[0]+
+                    g.pReset | ~x.m.n[0] & yi -> u[0]-
 
-                ~h & x.m.n[1] & ~yi -> u[1]+
-                g.pReset | ~x.m.n[1] & yi -> u[1]-
+                    ~h & x.m.n[1] & ~yi -> u[1]+
+                    g.pReset | ~x.m.n[1] & yi -> u[1]-
 
-                ~h & xt & ~yi -> ut+
-                g.pReset | h & ~xt & yi -> ut-
+                    ~h & xt & ~yi -> ut+
+                    g.pReset | h & ~xt & yi -> ut-
 
-                u[0] -> y.m.n[0]+
-                g.pReset | ~h & ~u[0] -> y.m.n[0]-
+                    u[0] -> y.m.n[0]+
+                    g.pReset | ~h & ~u[0] -> y.m.n[0]-
 
-                u[1] -> y.m.n[1]+
-                g.pReset | ~h & ~u[1] -> y.m.n[1]-
+                    u[1] -> y.m.n[1]+
+                    g.pReset | ~h & ~u[1] -> y.m.n[1]-
 
-                ut -> yt+
-                ~ut  -> yt-
-            }
+                    ut -> yt+
+                    ~ut  -> yt-
+                }
+            */
         }
 
         template <pint N, n>
@@ -240,8 +245,9 @@ namespace aer {
                 // M number of PFWD processes to chain
                 // n array of words to prepend.
                 PFWD_CHAIN_<N, M, nm> _(g,);
-                VN<1, N+1> vn(, _.y.a);
-                vn.d[0] = _.y.m;
+                VN<1, N+1> vn();
+                vn.d.m[0] = _.y.m;
+                vn.d.a = _.y.a;
             }
 
             export
@@ -258,8 +264,9 @@ namespace aer {
                 PFWD_CHAIN_<N, M, nm0> c0(g,);
                 PFWD_CHAIN_<N, M, nm1> c1(g,);
                 MERGE<N> merge(g,,);
-                VN<1, N+1> vn(, merge.p.a);
-                vn.d[0] = merge.p.m;
+                VN<1, N+1> vn();
+                vn.d.m[0] = merge.p.m;
+                vn.d.a = merge.p.a;
                 merge.c[0] = c0.y;
                 merge.c[1] = c1.y;
             }
@@ -267,10 +274,17 @@ namespace aer {
             export
             template <pint N, M, NN>
             defproc TEST_AEXT (globals g) {
+                // N for 1-of-N encoding. + tail word line
+                // M layers in the tree
+                // NN = N^M neurons
                 active_handshaker<NN> a(g,,);
                 AEXT<N, M, NN> aext(g, a.o, a.i,);
-                VN<1, N+1> vn(, aext.y.a);
-                vn.d[0] = aext.y.m;
+                A_TO_E<1, N+1> atoe(,);
+                aext.y.m = atoe.i.m[0];
+                aext.y.a = atoe.i.a;
+                VN_A<1, N+1> vn(atoe.o);
+                // VN<1, N+1> vn(, aext.y.a);
+                // vn.d[0] = aext.y.m;
             }
         } // namespace test
     } // namespace transmitter
@@ -314,9 +328,9 @@ namespace aer {
             */
             /* version cpcp pipelined parallelized --------------------------*/
             // /*
-             VN <N, N+1> vn(,);
-             (; n : N : c[n].m = vn.d[n];)
-             po = vn.o;
+             VN <N, N+1> vn();
+             (; n : N : c[n].m = vn.d.m[n];)
+             po = vn.d.a;
              prs<g.Vdd, g.GND> {
                  (: nc : N :
                      (: n : N+1 :
@@ -446,47 +460,6 @@ namespace aer {
         }
 
         export
-        template <pint N, w>
-        defproc DECIDE (globals g; a1of<N+1> x; bool st, sf) {
-            // N for 1-of-N encoding
-            // w : if first word is w, raise st. else raise sf.
-            bool xt = x.m.n[N];
-            bool xo = x.a;
-
-            bool u, v;
-            prs {
-                (st | sf) & ~u -> v+
-                ~st & ~sf | u -> v-
-
-                ~st & ~sf & ~v -> u+
-                st | sf | v -> u-
-
-                v & (st | sf) & (| : n : N : x.m.n[n]) | u & xt -> xo+
-                (& : n : N+1 : ~x.m.n[n]) -> xo-
-            }
-
-            [ w = 0 ->
-                prs {
-                    u & (| : nn : 1..N-1 : x.m.n[nn]) -> sf+
-                }
-            [] w = (N-1) ->
-                prs {
-                    u & (| : nn : 0..N-2 : x.m.n[nn]) -> sf+
-                }
-            [] w > 0 & w < (N-1) ->
-                prs {
-                    u & ((| : n : 0..w-1 : x.m.n[n])
-                        |(| : n : w+1..N-1 : x.m.n[n])) -> sf+
-                }
-            ]
-            prs <g.Vdd, g.GND> {
-                u & x.m.n[w] -> st+
-                g.pReset | v & xt -> st-
-                g.pReset | v & xt -> sf-
-            }
-        }
-
-        export
         template <pint N, M, NN>
         defproc AERV (globals g; a1of<N+1> x; bool yi[NN], yo[NN]) {
             // Serial receiver
@@ -526,17 +499,9 @@ namespace aer {
                 BCAST<N> bcast(g, pfwd.y,);
                 VN<1, N+1> vn[N];
                 (; n : N :
-                    bcast.c[n].m = vn[n].d[0];
-                    bcast.c[n].a = vn[n].o;
+                    bcast.c[n].m = vn[n].d.m[0];
+                    bcast.c[n].a = vn[n].d.a;
                 )
-            }
-
-            export
-            template <pint N, M, NN, w>
-            defproc TEST_DECIDE (globals g) {
-                active_handshaker<NN> x(g,,);
-                ::aer::transmitter::AEXT<N, M, NN> aext(g, x.o, x.i,);
-                DECIDE<N, w> decide(g, aext.y,,);
             }
         } // namespace test
     } // namespace receiver

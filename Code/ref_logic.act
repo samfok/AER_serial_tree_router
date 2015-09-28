@@ -1,5 +1,5 @@
 // Defines N input logic gates
-// Unbubble-reshuffled version of logic.act for ref
+// Unbubble-reshuffled version of logic.act for reference
 
 export
 template <pint N>
@@ -64,22 +64,4 @@ defproc C_TREE (bool i[N], o) {
             ~c_tree0.o & ~c_tree1.o -> o-
         }
     ]
-}
-
-export
-template <pint M,N>
-defproc VN (c1of<N> d[M]; bool o) {
-    // detects valid/neutral data on d
-    OR<N> or[M];
-    (; m : M :
-        (; n : N :
-            or[m].i[n] = d[m].n[n];
-        )
-    )
-
-    C_TREE<M> c_tree(,o);
-
-    (; k : M :
-        or[k].o = c_tree.i[k];
-    )
 }

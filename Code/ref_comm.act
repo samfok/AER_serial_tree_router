@@ -1,0 +1,58 @@
+// Defines processes used in data communication
+// Unbubble-reshuffled version of comm.act for reference
+import "channel.act";
+import "ref_logic.act";
+
+export
+template <pint M, N>
+defproc VN (aMx1ofN <M, N> d) {
+    // detects valid/neutral data on d
+    // [V(d.m)];d.a+;[~V(d.m)];d.a-
+    OR<N> or[M];
+    (; m : M :
+        (; n : N :
+            or[m].i[n] = d.m[m].n[n];
+        )
+    )
+
+    C_TREE<M> c_tree(,d.a);
+    (; k : M :
+        or[k].o = c_tree.i[k];
+    )
+}
+
+export
+template <pint M, N>
+defproc VN_A (eMx1ofN<M, N> d) {
+    // active version of VN
+    // d.e+;[V(d.m)];d.e-;[~V(d.m)]
+    OR<N> or[M];
+    (; m : M :
+        (; n : N :
+            or[m].i[n] = d.m[m].n[n];
+        )
+    )
+
+    C_TREE<M> c_tree(,);
+    (; k : M :
+        or[k].o = c_tree.i[k];
+    )
+
+    prs {
+        c_tree.o => d.e-
+    }
+}
+
+export
+template <pint M, N>
+defproc A_TO_E (aMx1ofN<M, N> i; eMx1ofN<M, N> o) {
+    // converts aMx1ofN to eMx1ofN
+    prs {
+        (: m : M :
+            (: n : N :
+                i.m[m].n[n] => o.m[m].n[n]+ // wires. prs to test delays
+            )
+        )
+        o.e => i.a-
+    }
+}

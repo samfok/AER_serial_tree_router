@@ -3,6 +3,7 @@ import "lib/globals.act";
 import "channel.act";
 import "arbiter.act";
 import "logic.act";
+import "comm.act";
 import "test.act";
 
 namespace aer {
@@ -91,13 +92,13 @@ namespace aer {
             CTRL<NN> ctrl(g, ci, co,,);
             ENC_XMIT<NN> enc_xmit(,, d.a,);
             ENC_FBLK<M, N, NN> enc_fblk(,,d);
-            VN<1, NN> vn(,);
+            VN<1, NN> vn();
 
             ctrl.si = enc_xmit.so;
             ctrl.so = enc_xmit.si;
             enc_xmit.xo = enc_fblk.xi;
-            enc_xmit.xo = vn.d[0];
-            enc_fblk.vi = vn.o;
+            enc_xmit.xo = vn.d.m[0];
+            enc_fblk.vi = vn.d.a;
         }
 
         namespace test {
@@ -109,9 +110,7 @@ namespace aer {
                 aext.ci = s.o;
                 aext.co = s.i;
 
-                VN<M, N> vn(,);
-                vn.d = aext.d.m;
-                vn.o = aext.d.a;
+                VN<M, N> vn(aext.d);
             }
 
             export
@@ -129,9 +128,7 @@ namespace aer {
                     ]
                 )
 
-                VN<M, N> vn(,);
-                vn.d = aext.d.m;
-                vn.o = aext.d.a;
+                VN<M, N> vn(aext.d);
             }
         } // namespace test
     } // namespace transmitter
@@ -201,8 +198,9 @@ namespace aer {
             // transmision portion of decoder
             // N neurons
             c1of<N> do;
-            VN<1,N> dvn(, da);
-            dvn.d[0] = do;
+            VN<1,N> dvn();
+            dvn.d.m[0] = do;
+            dvn.d.a = da;
             prs {
                 (: n : N :
                     xi.n[n] -> co[n]+
@@ -222,10 +220,11 @@ namespace aer {
             // N neurons per group
             // NN = N^M total neurons
             DEC_FBLK<M, N, NN> dec_fblk(,d.m,);
-            VN<M,N> vn(d.m,);
+            VN<M,N> vn();
             DEC_XMIT<NN> dec_xmit(g,,,,);
 
-            dec_fblk.vi = vn.o;
+            vn.d.m = d.m;
+            dec_fblk.vi = vn.d.a;
             dec_fblk.xo = dec_xmit.xi;
             dec_xmit.da = d.a;
             dec_xmit.ci = ri;

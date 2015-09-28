@@ -7,11 +7,21 @@ source reset.scr
 # set_principal test.aext.y.m.n[0] 
 # set_principal test.aext.y.m.n[1] 
 # set_principal test.aext.yt
+# set_principal test.aext.y.a
+# set_principal test.atoe.o.m[0].n[0] 
+# set_principal test.atoe.o.m[0].n[1] 
+# set_principal test.atoe.o.m[0].n[2]
+# set_principal test.atoe.o.e
 # 
 # source reset.scr
 # 
+# watch test.aext.y.a
+# watch test.atoe.o.e
+# 
 # vector y :1ofN 3 test.aext.y.m.n[0] test.aext.y.m.n[1] test.aext.yt
+# vector o :1ofN 3 test.atoe.o.m[0].n[0] test.atoe.o.m[0].n[1] test.atoe.o.m[0].n[2]
 # vwatch y
+# vwatch o
 
 # #################### M4 watch out ###########################################
 
