@@ -105,6 +105,7 @@ export
 template <pint M, N>
 defproc A_TO_E (aMx1ofN<M, N> i; eMx1ofN<M, N> o) {
     // converts aMx1ofN to eMx1ofN
+    // [o.e];i.a-;[I];O+;[~o.e];i.a+;[~I];O-
     prs {
         (: m : M :
             (: n : N :
