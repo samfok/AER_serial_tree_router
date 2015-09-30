@@ -2,8 +2,8 @@
 import "serial_aer.act";
 
 pint N=2;
-pint M=1;
-pint NN=2; // NN=N^M
+pint M=3;
+pint NN=8; // NN=N^M
 
 globals g;
 aer::test::TEST_AER<M, N, NN> test(g);

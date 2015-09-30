@@ -203,19 +203,19 @@ namespace aer {
             [] M > 0 ->
                 bool yt = y.m.n[N];
                 pint k = NN/N;
-                AEXT_<N, M-1, k> aext[N];
+                AEXT_<N, M-1, k> _[N];
                 MERGE<N> merge(g,,y);
                 PFWD_ARR<N, 0> pfwd_arr(g,, merge.c);
                 (; n : N :
-                    aext[n].g = g;
-                    aext[n].y = pfwd_arr.x[n];
+                    _[n].g = g;
+                    _[n].y = pfwd_arr.x[n];
                 )
                 (; n : N-1 :
-                    aext[n].xi = xi[n*k..(n+1)*k-1];
-                    aext[n].xo = xo[n*k..(n+1)*k-1];
+                    _[n].xi = xi[n*k..(n+1)*k-1];
+                    _[n].xo = xo[n*k..(n+1)*k-1];
                 )
-                aext[N-1].xi = xi[(N-1)*k..NN-1];
-                aext[N-1].xo = xo[(N-1)*k..NN-1];
+                _[N-1].xi = xi[(N-1)*k..NN-1];
+                _[N-1].xo = xo[(N-1)*k..NN-1];
             ]
         }
 
@@ -298,15 +298,90 @@ namespace aer {
     } // namespace transmitter
 
     namespace receiver {
-        export
         template <pint N>
         defproc INT (e1of<N+1> x; bool yi, yo) {
             // interface with the neuron
             // N for 1-of-N encoding. + tail word line
+            yi = x.e;
+            x.m.n[N] = yo;
+        }
+
+        template <pint N, NC>
+        defproc ROUTE (globals g; e1of<N+1> p, c[NC]) {
+            // routes parent data to requesting child
+            // assumes child requests are mutually exclusive
+            // N for 1-of-N encoding. + tail word line
+            // NC children
             prs {
-                yi => x.e+
-                x.m.n[N] => yo+
+                (| : n : N : c[n].e) => p.e+
+                
+                (: n : N+1 :
+                    (: nc : N :
+                        p.m.n[n] & c[nc].e -> c[nc].m.n[n]+
+                        ~p.m.n[n] -> c[nc].m.n[n]-
+                    )
+                )
             }
+        }
+
+        template <pint N>
+        defproc READ_HEAD (globals g; e1of<N+1> x; bool si, s[N]) {
+            // reads the head of a packet to determine the routing direction
+            // N for 1-of-N encoding. + tail word line
+            bool u[N];
+
+            /* version [si];xe+;[xi];u+;xe-;[~xi];so+;[~si];u-;so- ----------*/
+            // /*
+                prs<g.Vdd, g.GND> {
+                    si & (& : n : N : ~u[n] & ~s[n]) -> x.e+
+                    (| : n : N : u[n]) -> x.e-
+
+                    (: n : N :
+                        x.m.n[n] -> u[n]+
+                        g.pReset | ~si -> u[n]-
+                    )
+
+                    (: n : N :
+                        u[n] & ~x.m.n[n] -> s[n]+
+                        g.pReset | ~u[n] & ~si -> s[n]-
+                    )
+                }
+            // */
+        }
+
+        template <pint N>
+        defproc FWD_BODY (globals g; e1of<N+1> p, c[N]; bool s[N], so) {
+            // forwards the body of a packet to a child
+            // N for 1-of-N encoding. + tail word line
+            bool q;
+            OR<(N+1)*N> or(, q);
+            (; nc : N : (; n : N+1 : or.i[nc*(N+1)+n] = c[nc].m.n[n];))
+
+            prs<g.Vdd, g.GND> {
+                (| : n : N : s[n]) & ~q -> p.e+
+                g.pReset | q -> p.e-
+
+                ~q -> so+
+                ~p.m.n[N] & (| : n : N : ~c[n].e & c[n].m.n[N]) -> so-
+
+                (: nc : N :
+                    (: n : N :
+                        p.m.n[n] & s[nc] & c[nc].e -> c[nc].m.n[n]+
+                        g.pReset | ~p.m.n[n] & ~c[nc].e -> c[nc].m.n[n]-
+                    )
+                    p.m.n[N] & s[nc] & c[nc].e -> c[nc].m.n[N]+ // tail
+                    g.pReset | ~s[nc] -> c[nc].m.n[N]-
+                )
+            }
+        }
+
+        template <pint N>
+        defproc NODE (globals g; e1of<N+1> p, c[N]) {
+            // node in receiver tree
+            // N for 1-of-N encoding. + tail word line
+            ROUTE<N, 2> route(g, p,);
+            READ_HEAD<N> head(g, route.c[0],,);
+            FWD_BODY<N> fwd(g, route.c[1], c, head.s, head.si);
         }
 
         export
@@ -322,14 +397,17 @@ namespace aer {
             [] M > 0 ->
                 bool xt = x.m.n[N];
                 pint k = NN/N;
-                AERV<N, M-1, k> aerv[N];
+                NODE<N> node(g, x,);
+                AERV<N, M-1, k> _[N];
 
+                (; n : N : g = _[n].g;)
+                (; n : N : node.c[n] = _[n].x;)
                 (; n : N-1 :
-                    aerv[n].yi = yi[n*k..(n+1)*k-1];
-                    aerv[n].yo = yo[n*k..(n+1)*k-1];
+                    _[n].yi = yi[n*k..(n+1)*k-1];
+                    _[n].yo = yo[n*k..(n+1)*k-1];
                 )
-                aerv[N-1].yi = yi[(N-1)*k..NN-1];
-                aerv[N-1].yo = yo[(N-1)*k..NN-1];
+                _[N-1].yi = yi[(N-1)*k..NN-1];
+                _[N-1].yo = yo[(N-1)*k..NN-1];
             ]
         }
 
