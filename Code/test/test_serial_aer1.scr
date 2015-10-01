@@ -1,68 +1,17 @@
-# #################### default ################################################
+# default #####################################################################
 
 # source reset.scr
-# watchall
 
-# #################### M1 NN2 #################################################
+# M2N2 ########################################################################
 
-# set_principal test.aer.si[0]
-# set_principal test.aer.so[0]
-# set_principal test.aer.aext.x.m[0].n[0]
-# set_principal test.aer.aext.x.m[0].n[1]
-# set_principal test.aer.aext.xi
-# 
-# source reset.scr
-# 
-# watch test.aer.si[0]
-# watch test.aer.so[0]
-# watch test.aer.aext.x.m[0].n[0]
-# watch test.aer.aext.x.m[0].n[1]
-# watch test.aer.aext.xi
-
-# #################### M2 NN4 debug ###########################################
-
-set_principal test.aer.si[0]
-set_principal test.aer.so[0]
-set_principal test.aer.aext.aext[0].x.m[0].n[0]
-set_principal test.aer.aext.aext[0].x.m[0].n[1]
-set_principal test.aer.aext.aext[0].xi
-set_principal test.aer.aext.aext[1].x.m[0].n[0]
-set_principal test.aer.aext.aext[1].x.m[0].n[1]
-set_principal test.aer.aext.aext[1].xi
-
-set_principal test.aer.aext.x.m[0].n[0]
-set_principal test.aer.aext.x.m[0].n[1]
-set_principal test.aer.aext.x.m[1].n[0]
-set_principal test.aer.aext.x.m[1].n[1]
-set_principal test.aer.aext.xi
-
-set_principal test.aer.ri[0]
-set_principal test.aer.ro[0]
-set_principal test.aer.aerv.node_int.x[0].m[0].n[0]
-set_principal test.aer.aerv.node_int.x[0].m[0].n[1]
-set_principal test.aer.aerv.node_int.x[1].m[0].n[0]
-set_principal test.aer.aerv.node_int.x[1].m[0].n[1]
+set_principal test.aer.xi[0]
+set_principal test.aer.xo[0]
+set_principal test.aer.yi[0]
+set_principal test.aer.yo[0]
 
 source reset.scr
 
-watch test.aer.si[0]
-watch test.aer.so[0]
-watch test.aer.aext.aext[0].x.m[0].n[0]
-watch test.aer.aext.aext[0].x.m[0].n[1]
-watch test.aer.aext.aext[0].xi
-watch test.aer.aext.aext[1].x.m[0].n[0]
-watch test.aer.aext.aext[1].x.m[0].n[1]
-watch test.aer.aext.aext[1].xi
-
-watch test.aer.aext.x.m[0].n[0]
-watch test.aer.aext.x.m[0].n[1]
-watch test.aer.aext.x.m[1].n[0]
-watch test.aer.aext.x.m[1].n[1]
-watch test.aer.aext.xi
-
-watch test.aer.ri[0]
-watch test.aer.ro[0]
-watch test.aer.aerv.node_int.x[0].m[0].n[0]
-watch test.aer.aerv.node_int.x[0].m[0].n[1]
-watch test.aer.aerv.node_int.x[1].m[0].n[0]
-watch test.aer.aerv.node_int.x[1].m[0].n[1]
+watch test.aer.xi[0]
+watch test.aer.xo[0]
+watch test.aer.yi[0]
+watch test.aer.yo[0]

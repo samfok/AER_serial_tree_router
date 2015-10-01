@@ -2,42 +2,112 @@
 
 # source reset.scr
 
+# M2N2 ########################################################################
+
+# source reset.scr
+# 
+# vector x :1ofN 3 test.aer.aext._.y.m.n[0] test.aer.aext._.y.m.n[1] test.aer.aext._.y.m.n[2]
+# vector x0 :1ofN 3 test.aer.aext._._[0].y.m.n[0] test.aer.aext._._[0].y.m.n[1] test.aer.aext._._[0].y.m.n[2]
+# vector x1 :1ofN 3 test.aer.aext._._[1].y.m.n[0] test.aer.aext._._[1].y.m.n[1] test.aer.aext._._[1].y.m.n[2]
+# vector x00 :1ofN 3 test.aer.aext._._[0]._[0].y.m.n[0] test.aer.aext._._[0]._[0].y.m.n[1] test.aer.aext._._[0]._[0].y.m.n[2]
+# vector x01 :1ofN 3 test.aer.aext._._[0]._[1].y.m.n[0] test.aer.aext._._[0]._[1].y.m.n[1] test.aer.aext._._[0]._[1].y.m.n[2]
+# vector x10 :1ofN 3 test.aer.aext._._[1]._[0].y.m.n[0] test.aer.aext._._[1]._[0].y.m.n[1] test.aer.aext._._[1]._[0].y.m.n[2]
+# vector x11 :1ofN 3 test.aer.aext._._[1]._[1].y.m.n[0] test.aer.aext._._[1]._[1].y.m.n[1] test.aer.aext._._[1]._[1].y.m.n[2]
+# 
+# vector r :1ofN 3 test.aer.aerv.x.m.n[0] test.aer.aerv.x.m.n[1] test.aer.aerv.x.m.n[2]
+# vector r0 :1ofN 3 test.aer.aerv._[0].x.m.n[0] test.aer.aerv._[0].x.m.n[1] test.aer.aerv._[0].x.m.n[2]
+# vector r1 :1ofN 3 test.aer.aerv._[1].x.m.n[0] test.aer.aerv._[1].x.m.n[1] test.aer.aerv._[1].x.m.n[2]
+# vector r00 :1ofN 3 test.aer.aerv._[0]._[0].x.m.n[0] test.aer.aerv._[0]._[0].x.m.n[1] test.aer.aerv._[0]._[0].x.m.n[2]
+# vector r01 :1ofN 3 test.aer.aerv._[0]._[1].x.m.n[0] test.aer.aerv._[0]._[1].x.m.n[1] test.aer.aerv._[0]._[1].x.m.n[2]
+# vector r10 :1ofN 3 test.aer.aerv._[1]._[0].x.m.n[0] test.aer.aerv._[1]._[0].x.m.n[1] test.aer.aerv._[1]._[0].x.m.n[2]
+# vector r11 :1ofN 3 test.aer.aerv._[1]._[1].x.m.n[0] test.aer.aerv._[1]._[1].x.m.n[1] test.aer.aerv._[1]._[1].x.m.n[2]
+# 
+# vwatch x
+# vwatch x0
+# vwatch x1
+# vwatch x00
+# vwatch x01
+# vwatch x10
+# vwatch x11
+# vwatch r
+# vwatch r0
+# vwatch r1
+# vwatch r00
+# vwatch r01
+# vwatch r10
+# vwatch r11
+# 
+# step 300
+
 # M3N2 ########################################################################
 
 source reset.scr
 
-vector xt :1ofN 3 test.aer.aext._.y.m.n[0] test.aer.aext._.y.m.n[1] test.aer.aext._.y.m.n[2]
-vector xt0 :1ofN 3 test.aer.aext._._[0].y.m.n[0] test.aer.aext._._[0].y.m.n[1] test.aer.aext._._[0].y.m.n[2]
-vector xt1 :1ofN 3 test.aer.aext._._[1].y.m.n[0] test.aer.aext._._[1].y.m.n[1] test.aer.aext._._[1].y.m.n[2]
-vector xt00 :1ofN 3 test.aer.aext._._[0]._[0].y.m.n[0] test.aer.aext._._[0]._[0].y.m.n[1] test.aer.aext._._[0]._[0].y.m.n[2]
-vector xt01 :1ofN 3 test.aer.aext._._[0]._[1].y.m.n[0] test.aer.aext._._[0]._[1].y.m.n[1] test.aer.aext._._[0]._[1].y.m.n[2]
-vector xt10 :1ofN 3 test.aer.aext._._[1]._[0].y.m.n[0] test.aer.aext._._[1]._[0].y.m.n[1] test.aer.aext._._[1]._[0].y.m.n[2]
-vector xt11 :1ofN 3 test.aer.aext._._[1]._[1].y.m.n[0] test.aer.aext._._[1]._[1].y.m.n[1] test.aer.aext._._[1]._[1].y.m.n[2]
+# vector x :1ofN 3 test.aer.aext._.y.m.n[0] test.aer.aext._.y.m.n[1] test.aer.aext._.y.m.n[2]
+# vector x0 :1ofN 3 test.aer.aext._._[0].y.m.n[0] test.aer.aext._._[0].y.m.n[1] test.aer.aext._._[0].y.m.n[2]
+# vector x1 :1ofN 3 test.aer.aext._._[1].y.m.n[0] test.aer.aext._._[1].y.m.n[1] test.aer.aext._._[1].y.m.n[2]
+# vector x00 :1ofN 3 test.aer.aext._._[0]._[0].y.m.n[0] test.aer.aext._._[0]._[0].y.m.n[1] test.aer.aext._._[0]._[0].y.m.n[2]
+# vector x01 :1ofN 3 test.aer.aext._._[0]._[1].y.m.n[0] test.aer.aext._._[0]._[1].y.m.n[1] test.aer.aext._._[0]._[1].y.m.n[2]
+# vector x10 :1ofN 3 test.aer.aext._._[1]._[0].y.m.n[0] test.aer.aext._._[1]._[0].y.m.n[1] test.aer.aext._._[1]._[0].y.m.n[2]
+# vector x11 :1ofN 3 test.aer.aext._._[1]._[1].y.m.n[0] test.aer.aext._._[1]._[1].y.m.n[1] test.aer.aext._._[1]._[1].y.m.n[2]
+# vector x000 :1ofN 3 test.aer.aext._._[0]._[0]._[0].y.m.n[0] test.aer.aext._._[0]._[0]._[0].y.m.n[1] test.aer.aext._._[0]._[0]._[0].y.m.n[2]
+# vector x001 :1ofN 3 test.aer.aext._._[0]._[0]._[1].y.m.n[0] test.aer.aext._._[0]._[0]._[1].y.m.n[1] test.aer.aext._._[0]._[0]._[1].y.m.n[2]
+# vector x010 :1ofN 3 test.aer.aext._._[0]._[1]._[0].y.m.n[0] test.aer.aext._._[0]._[1]._[0].y.m.n[1] test.aer.aext._._[0]._[1]._[0].y.m.n[2]
+# vector x011 :1ofN 3 test.aer.aext._._[0]._[1]._[1].y.m.n[0] test.aer.aext._._[0]._[1]._[1].y.m.n[1] test.aer.aext._._[0]._[1]._[1].y.m.n[2]
+# vector x100 :1ofN 3 test.aer.aext._._[1]._[0]._[0].y.m.n[0] test.aer.aext._._[1]._[0]._[0].y.m.n[1] test.aer.aext._._[1]._[0]._[0].y.m.n[2]
+# vector x101 :1ofN 3 test.aer.aext._._[1]._[0]._[1].y.m.n[0] test.aer.aext._._[1]._[0]._[1].y.m.n[1] test.aer.aext._._[1]._[0]._[1].y.m.n[2]
+# vector x110 :1ofN 3 test.aer.aext._._[1]._[1]._[0].y.m.n[0] test.aer.aext._._[1]._[1]._[0].y.m.n[1] test.aer.aext._._[1]._[1]._[0].y.m.n[2]
+# vector x111 :1ofN 3 test.aer.aext._._[1]._[1]._[1].y.m.n[0] test.aer.aext._._[1]._[1]._[1].y.m.n[1] test.aer.aext._._[1]._[1]._[1].y.m.n[2]
 
-vector rv :1ofN 3 test.aer.aerv.x.m.n[0] test.aer.aerv.x.m.n[1] test.aer.aerv.x.m.n[2]
-vector rv0 :1ofN 3 test.aer.aerv._[0].x.m.n[0] test.aer.aerv._[0].x.m.n[1] test.aer.aerv._[0].x.m.n[2]
-vector rv1 :1ofN 3 test.aer.aerv._[1].x.m.n[0] test.aer.aerv._[1].x.m.n[1] test.aer.aerv._[1].x.m.n[2]
-vector rv00 :1ofN 3 test.aer.aerv._[0]._[0].x.m.n[0] test.aer.aerv._[0]._[0].x.m.n[1] test.aer.aerv._[0]._[0].x.m.n[2]
-vector rv01 :1ofN 3 test.aer.aerv._[0]._[1].x.m.n[0] test.aer.aerv._[0]._[1].x.m.n[1] test.aer.aerv._[0]._[1].x.m.n[2]
-vector rv10 :1ofN 3 test.aer.aerv._[1]._[0].x.m.n[0] test.aer.aerv._[1]._[0].x.m.n[1] test.aer.aerv._[1]._[0].x.m.n[2]
-vector rv11 :1ofN 3 test.aer.aerv._[1]._[1].x.m.n[0] test.aer.aerv._[1]._[1].x.m.n[1] test.aer.aerv._[1]._[1].x.m.n[2]
+vector r :1ofN 3 test.aer.aerv.x.m.n[0] test.aer.aerv.x.m.n[1] test.aer.aerv.x.m.n[2]
+vector r0 :1ofN 3 test.aer.aerv._[0].x.m.n[0] test.aer.aerv._[0].x.m.n[1] test.aer.aerv._[0].x.m.n[2]
+vector r1 :1ofN 3 test.aer.aerv._[1].x.m.n[0] test.aer.aerv._[1].x.m.n[1] test.aer.aerv._[1].x.m.n[2]
+vector r00 :1ofN 3 test.aer.aerv._[0]._[0].x.m.n[0] test.aer.aerv._[0]._[0].x.m.n[1] test.aer.aerv._[0]._[0].x.m.n[2]
+vector r01 :1ofN 3 test.aer.aerv._[0]._[1].x.m.n[0] test.aer.aerv._[0]._[1].x.m.n[1] test.aer.aerv._[0]._[1].x.m.n[2]
+vector r10 :1ofN 3 test.aer.aerv._[1]._[0].x.m.n[0] test.aer.aerv._[1]._[0].x.m.n[1] test.aer.aerv._[1]._[0].x.m.n[2]
+vector r11 :1ofN 3 test.aer.aerv._[1]._[1].x.m.n[0] test.aer.aerv._[1]._[1].x.m.n[1] test.aer.aerv._[1]._[1].x.m.n[2]
+vector r000 :1ofN 3 test.aer.aerv._[0]._[0]._[0].x.m.n[0] test.aer.aerv._[0]._[0]._[0].x.m.n[1] test.aer.aerv._[0]._[0]._[0].x.m.n[2]
+vector r001 :1ofN 3 test.aer.aerv._[0]._[0]._[1].x.m.n[0] test.aer.aerv._[0]._[0]._[1].x.m.n[1] test.aer.aerv._[0]._[0]._[1].x.m.n[2]
+vector r010 :1ofN 3 test.aer.aerv._[0]._[1]._[0].x.m.n[0] test.aer.aerv._[0]._[1]._[0].x.m.n[1] test.aer.aerv._[0]._[1]._[0].x.m.n[2]
+vector r011 :1ofN 3 test.aer.aerv._[0]._[1]._[1].x.m.n[0] test.aer.aerv._[0]._[1]._[1].x.m.n[1] test.aer.aerv._[0]._[1]._[1].x.m.n[2]
+vector r100 :1ofN 3 test.aer.aerv._[1]._[0]._[0].x.m.n[0] test.aer.aerv._[1]._[0]._[0].x.m.n[1] test.aer.aerv._[1]._[0]._[0].x.m.n[2]
+vector r101 :1ofN 3 test.aer.aerv._[1]._[0]._[1].x.m.n[0] test.aer.aerv._[1]._[0]._[1].x.m.n[1] test.aer.aerv._[1]._[0]._[1].x.m.n[2]
+vector r110 :1ofN 3 test.aer.aerv._[1]._[1]._[0].x.m.n[0] test.aer.aerv._[1]._[1]._[0].x.m.n[1] test.aer.aerv._[1]._[1]._[0].x.m.n[2]
+vector r111 :1ofN 3 test.aer.aerv._[1]._[1]._[1].x.m.n[0] test.aer.aerv._[1]._[1]._[1].x.m.n[1] test.aer.aerv._[1]._[1]._[1].x.m.n[2]
 
-vwatch xt
-vwatch xt0
-vwatch xt1
-vwatch xt00
-vwatch xt01
-vwatch xt10
-vwatch xt11
-vwatch rv
-vwatch rv0
-vwatch rv1
-vwatch rv00
-vwatch rv01
-vwatch rv10
-vwatch rv11
+# vwatch x
+# vwatch x0
+# vwatch x1
+# vwatch x00
+# vwatch x01
+# vwatch x10
+# vwatch x11
+# vwatch x000
+# vwatch x001
+# vwatch x010
+# vwatch x011
+# vwatch x100
+# vwatch x101
+# vwatch x110
+# vwatch x111
 
-step 1000
+vwatch r
+vwatch r0
+vwatch r1
+vwatch r00
+vwatch r01
+vwatch r10
+vwatch r11
+vwatch r000
+vwatch r001
+vwatch r010
+vwatch r011
+vwatch r100
+vwatch r101
+vwatch r110
+vwatch r111
+
+step 600
 
 # debug #######################################################################
 

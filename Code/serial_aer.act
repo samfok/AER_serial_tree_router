@@ -12,9 +12,15 @@ namespace aer {
         defproc INT (globals g; bool xi, xo; a1of<N+1> y) {
             // interface with the neuron
             // N for 1-of-N encoding. + tail word line
-            xi = y.m.n[N];
-            xo = y.a;
-            (; n : N : g.GND = y.m.n[n];)
+            // xi = y.m.n[N];
+            // xo = y.a;
+            // (; n : N : g.GND = y.m.n[n];)
+
+            prs<g.Vdd, g.GND> { // so different from GND node
+                xi => y.m.n[N]+
+                y.a => xo+
+                (: n : N : g.GND => y.m.n[n]+)
+            }
         }
 
         export
@@ -449,7 +455,7 @@ namespace aer {
             // N items per group
             // NN neuron ports. NN=N^M
             active_handshaker<1> x(g,,);
-            passive_handshaker<1> y(,);
+            active_handshaker<1> y(g,,);
             AER<M, N, NN> aer(g,,,,);
             aer.xi[0] = x.o[0];
             aer.xo[0] = x.i[0];

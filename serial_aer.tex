@@ -356,204 +356,192 @@ a1 & (p0 | p1 | pt) -> c1o+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Receiver ($AERV$)}
 
-We'll used the decomposed into BCAST and FILTER version for now.
+We'll decompose the node into ROUTE, READ\_HEAD, and FWD_BODY.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{ROUTE}
+
+ROUTE sends a parent's signal to one of its children depending on which child requests. Assumes requests are mutually exclusive.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{BCAST pipelined}
+\subsection{ROUTE_unpipelined}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection*{CHP}
 
+\begin{csp}
+*[[#{C0!};C0!(P?)
+  []#{C1!};C1!(P?)]
+ ]
+\end{csp}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection*{HSE}
 
-strict cpcp
-
+% [[ci];pe+;[pi];co+;[~ci];pe-;[~pi];co-]
 \begin{hse}
-BCAST\equiv
-*[[ p0->c00+,c10+;po+;[c0i&c1i&~p0];c00-,c10-;po-;[~c0i&~c1i];
-  []p1->c01+,c11+;po+;[c0i&c1i&~p1];c01-,c11-;po-;[~c0i&~c1i];
-  []pt->c0t+,c1t+;po+;[c0i&c1i&~pt];c0t-,c1t-;po-;[~c0i&~c1i];
- ]]
-\end{hse}
-
-\begin{hse}
-BCAST\equiv
-*[[ p0->q0+;c00+,c10+;po+;[c0i&c1i&~p0];q0-;c00-,c10-;po-;[~c0i&~c1i]
-  []p1->q1+;c01+,c11+;po+;[c0i&c1i&~p1];q1-;c01-,c11-;po-;[~c0i&~c1i]
-  []pt->qt+;c0t+,c1t+;po+;[c0i&c1i&~pt];qt-;c0t-,c1t-;po-;[~c0i&~c1i]
- ]]
+*[[c0e|c1e];pe+
+    [ p0&c0e->c00+;[~c0e];pe-;[~p0];c00-
+    []p1&c0e->c01+;[~c0e];pe-;[~p1];c01-
+    []pt&c0e->c0t+;[~c0e];pe-;[~pt];c0t-
+    []p0&c1e->c10+;[~c1e];pe-;[~p0];c10-
+    []p1&c1e->c11+;[~c1e];pe-;[~p1];c11-
+    []pt&c1e->c1t+;[~c1e];pe-;[~pt];c1t-
+    ]
+ ]
 \end{hse}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection*{PRS}
 
 \begin{prs2}
-q0 -> c00+
-~q0 -> c00-
-
-q1 -> c01+
-~q1 -> c01-
-
-qt -> c0t+
-~qt -> c0t-
-
-q0 -> c10+
-~q0 -> c10-
-
-q1 -> c11+
-~q1 -> c11-
-
-qt -> c1t+
-~qt -> c1t-
+c0e | c1e -> pe+
+~c0e & ~c1e -> pe-
 \end{prs2}
 
 \begin{prs2}
-~c0i & ~c1i & p0 -> q0+
-c0i & c1i & ~p0 -> q0-
-
-~c0i & ~c1i & p1 -> q1+
-c0i & c1i & ~p1 -> q1-
-
-~c0i & ~c1i & pt -> qt+
-c0i & c1i & ~pt -> qt-
-\end{prs2}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection*{HSE}
-
-output ordering cpcp
-parallelized
-
-\begin{hse}
-BCAST\equiv
-*[[ p0->([~c0i];c00+),([~c1i];c10+);po+;[~p0];([c0i];c00-),([c1i];c10-);po-;
-  []p1->([~c0i];c01+),([~c1i];c11+);po+;[~p1];([c0i];c01-),([c1i];c11-);po-;
-  []pt->([~c0i];c0t+),([~c1i];c1t+);po+;[~pt];([c0i];c0t-),([c1i];c1t-);po-;
- ]]
-\end{hse}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection*{PRS}
-
-\begin{prs2}
-~c0i & p0 -> c00+
-c0i & ~p0 -> c00-
-
-~c0i & p1 -> c01+
-c0i & ~p1 -> c01-
-
-~c0i & pt -> c0t+
-c0i & ~pt -> c0t-
-
-~c1i & p0 -> c10+
-c1i & ~p0 -> c10-
-
-~c1i & p1 -> c11+
-c1i & ~p1 -> c11-
-
-~c1i & pt -> c1t+
-c1i & ~pt -> c1t-
-\end{prs2}
-
-\begin{prs2}
-VN(C) -> po+
-~VN(C) -> po-
-\end{prs2}
-
-po is the output of a VN detector
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection*{HSE}
-
-swap ordering of p and c in reset
-output ordering cppc
-parallelized
-
-\begin{hse}
-BCAST\equiv
-*[[ p0->([~c0i];c00+),([~c1i];c10+);(po+;[~p0];po-);([c0i];c00-),([c1i];c10-)
-  []p1->([~c0i];c01+),([~c1i];c11+);(po+;[~p1];po-);([c0i];c01-),([c1i];c11-)
-  []pt->([~c0i];c0t+),([~c1i];c1t+);(po+;[~pt];po-);([c0i];c0t-),([c1i];c1t-)
- ]]
-\end{hse}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection*{PRS}
-
-\begin{prs2}
-~c0i & p0 -> c00+
-c0i & ~p0 & ~po -> c00-
-
-~c0i & p1 -> c01+
-c0i & ~p1 & ~po -> c01-
-
-~c0i & pt -> c0t+
-c0i & ~pt & ~po -> c0t-
-
-~c1i & p0 -> c10+
-c1i & ~p0 & ~po -> c10-
-
-~c1i & p1 -> c11+
-c1i & ~p1 & ~po -> c11-
-
-~c1i & pt -> c1t+
-c1i & ~pt & ~po -> c1t-
-\end{prs2}
-
-\begin{prs2}
-(c00 & c10 | c01 & c11 | c0t & c1t) & (p0 | p1 | pt) -> po+
-~p0 & ~p1 & ~pt -> po-
-\end{prs2}
-
-instability on down phases of c because p input can rise at anytime
-Could probably fix with state variables.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{BCAST unpipelined}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection*{CHP}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection*{HSE}
-
-\begin{hse}
-BCAST\equiv
-*[[ p0->c00+,c10+;[c0i&c1i];po+;[~p0];c00-,c10-;[~c0i&~c1i];po-
-  []p1->c01+,c11+;[c0i&c1i];po+;[~p1];c01-,c11-;[~c0i&~c1i];po-
-  []pt->c0t+,c1t+;[c0i&c1i];po+;[~pt];c0t-,c1t-;[~c0i&~c1i];po-
- ]]
-\end{hse}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection*{PRS}
-
-\begin{prs2}
-p0 -> c00+
+p0 & c0e -> c00+
 ~p0 -> c00-
 
-p1 -> c01+
+p1 & c0e -> c01+
 ~p1 -> c01-
 
-pt -> c0t+
+pt & c0e -> c0t+
 ~pt -> c0t-
 
-p0 -> c10+
+p0 & c1e -> c10+
 ~p0 -> c10-
 
-p1 -> c11+
+p1 & c1e -> c11+
 ~p1 -> c11-
 
-pt -> c1t+
+pt & c1e -> c1t+
 ~pt -> c1t-
 \end{prs2}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{ROUTE_pipelined}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
+
+% [pe+;[pi&ci];co+;pe-;[~pi&~ci];co-] % P;C;P;C
+\begin{hse}
+*[pe+;
+    [ p0&c0e->c00+;pe-;[~p0&~c0e];c00-
+    []p1&c0e->c01+;pe-;[~p1&~c0e];c01-
+    []pt&c0e->c0t+;pe-;[~pt&~c0e];c0t-
+    []p0&c1e->c10+;pe-;[~p0&~c0e];c10-
+    []p1&c1e->c11+;pe-;[~p1&~c0e];c11-
+    []pt&c1e->c1t+;pe-;[~pt&~c0e];c1t-
+    ]
+ ]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{READ_HEAD}
+
+READ_HEAD reads the head word and signals FWD_BODY which way 
+to forward the body packet
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{CHP}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
+
+% [[si];xe+;[xi];u+;xe-;[~xi];so+;[~si];u-;so-]
+\begin{hse}
+*[[si];xe+;
+    [ x0->u0+;xe-;[~x0];s0+;[~si];u0-;s0-
+    []x1->u1+;xe-;[~x1];s1+;[~si];u1-;s1-
+    ]
+ ]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
+
 \begin{prs2}
-c0i & c1i -> po+
-~c0i & ~c1i -> po-
+si & ~u0 & ~u1 -> xe+
+u0 | u1 -> xe-
 \end{prs2}
 
+\begin{prs2}
+x0 -> u0+
+~si -> u0-
+
+x1 -> u1+
+~si -> u1-
+
+u0 & ~x0 -> s0+
+~u0 & ~si -> s0-
+
+u1 & ~x1 -> s1+
+~u1 & ~si -> s1-
+\end{prs2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{FWD_BODY}
+
+FWD_BODY forwards words to the children based on command from DEC
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{CHP}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
+
+% [so+;[si];pe+;[pi&ci];co+;pe-;[~pe&~ci];co-]
+\begin{hse}
+*[so+;[s0|s1];pe+;
+    [ p0&s0&c0e->c00+;pe-;[~p0&~c0e];c00-
+    []p1&s0&c0e->c01+;pe-;[~p1&~c0e];c01-
+    []pt&s0&c0e->c0t+;pe-;[~pt&~c0e];so-;[~s0];c0t-
+    []p0&s1&c1e->c10+;pe-;[~p0&~c1e];c10-
+    []p1&s1&c1e->c11+;pe-;[~p1&~c1e];c11-
+    []pt&s1&c1e->c1t+;pe-;[~pt&~c1e];so-;[~s1];c1t-
+    ]
+ ]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
+
+\begin{prs2}
+s0 | s1 & ~q -> pe+
+q -> pe-
+
+~q -> so+
+~pt & (~c0e & c0t | ~c1e & c1t)-> so-
+
+c00 | c01 | c0t | c10 | c11 | c1t -> q+
+~c00 & ~c01 & ~c0t & ~c10 & ~c11 & ~c1t -> q-
+\end{prs2}
+
+\begin{prs2}
+p0 & s0 & c0e -> c00+
+~p0 & ~c0e -> c00-
+
+p1 & s0 & c0e -> c01+
+~p1 & ~c0e -> c01-
+
+pt & s0 & c0e -> c0t+
+~s0 -> c0t-
+
+p0 & s1 & c1e -> c10+
+~p0 & ~c0e -> c10-
+
+p1 & s1 & c1e -> c11+
+~p1 & ~c0e -> c11-
+
+pt & s1 & c1e -> c1t+
+~s1 -> c1t-
+\end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \end{document}
