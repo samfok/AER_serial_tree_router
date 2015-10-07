@@ -313,25 +313,39 @@ namespace aer {
         }
 
         template <pint N, NC>
-        defproc ROUTE (globals g; e1of<N+1> p, c[NC]) {
+        defproc ROUTE (globals g; e1of<N+1> p, c[NC]; e1of<N> h) {
             // routes parent data to requesting child
             // assumes child requests are mutually exclusive
+            //
+            // parameters
+            // ----------
             // N for 1-of-N encoding. + tail word line
             // NC children
+            // 
+            // ports
+            // -----
+            // p parent, active
+            // c children, passive
+            // h read_head, passive
             prs {
-                (| : n : N : c[n].e) => p.e+
+                (| : nc : NC : c[nc].e) | h.e => p.e+
                 
-                (: n : N+1 :
-                    (: nc : N :
+                (: nc : NC :
+                    (: n : N+1 :
                         p.m.n[n] & c[nc].e -> c[nc].m.n[n]+
                         ~p.m.n[n] -> c[nc].m.n[n]-
                     )
+                )
+
+                (: n : N :
+                    p.m.n[n] & h.e -> h.m.n[n]+
+                    ~p.m.n[n] -> h.m.n[n]-
                 )
             }
         }
 
         template <pint N>
-        defproc READ_HEAD (globals g; e1of<N+1> x; bool si, s[N]) {
+        defproc READ_HEAD (globals g; e1of<N> x; bool si, s[N]) {
             // reads the head of a packet to determine the routing direction
             // N for 1-of-N encoding. + tail word line
             bool u[N];
@@ -406,9 +420,9 @@ namespace aer {
         defproc NODE (globals g; e1of<N+1> p, c[N]) {
             // node in receiver tree
             // N for 1-of-N encoding. + tail word line
-            ROUTE<N, 2> route(g, p,);
-            READ_HEAD<N> head(g, route.c[0],,);
-            FWD_BODY<N> fwd(g, route.c[1], c, head.s, head.si);
+            ROUTE<N, 1> route(g, p,,);
+            READ_HEAD<N> head(g, route.h,,);
+            FWD_BODY<N> fwd(g, route.c[0], c, head.s, head.si);
         }
 
         export
