@@ -335,11 +335,10 @@ namespace aer {
             // reads the head of a packet to determine the routing direction
             // N for 1-of-N encoding. + tail word line
             bool u[N];
-
             /* version [si];xe+;[xi];u+;xe-;[~xi];so+;[~si];u-;so- ----------*/
             // /*
                 prs<g.Vdd, g.GND> {
-                    si & (& : n : N : ~u[n] & ~s[n]) -> x.e+
+                    si & (& : n : N : ~u[n]) -> x.e+
                     (| : n : N : u[n]) -> x.e-
 
                     (: n : N :
@@ -349,7 +348,7 @@ namespace aer {
 
                     (: n : N :
                         u[n] & ~x.m.n[n] -> s[n]+
-                        g.pReset | ~u[n] & ~si -> s[n]-
+                        g.pReset | ~u[n] | x.m.n[n] -> s[n]-
                     )
                 }
             // */

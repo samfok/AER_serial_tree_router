@@ -1,0 +1,978 @@
+\documentclass{article}
+\usepackage{mystyle}
+\usepackage[ampersand]{easylist}
+
+\begin{document}
+\title{Serialized Tree AER Design Space}
+\author{Sam Fok}
+\maketitle
+
+This document maps out the explored design space of the serialized-tree AER system.
+The system uses an address-event representation and transmitters/receivers with tree architectures.
+
+\noindent Design parametrizations:
+
+\begin{easylist}
+\ListProperties(Progressive=1em, Hide=100, Style*=- )
+    & N for 1-of-N encoding
+\end{easylist}
+
+\noindent We'll want to make sure that the designs can scale at least to 1-of-4 encoding
+
+\noindent Transmitter (AEXT) design space:
+\begin{easylist}
+    & active sender, passive receiver (ASPR)
+    && monolithic NODE
+    && decomposed into PFWD and MERGE
+    &&& PFWD
+	&&&& unpipelined
+	&&&& pipelined 
+	&&&&& \textbf{hq}
+	&&&&& \textbf{hu}
+    &&&& decomposed into PREPEND, FWD, and SIMPLE\_MERGE
+    &&&&& PREPEND
+    &&&&& FWD
+    &&&&& MERGE
+    &&& MERGE
+    &&&& unpipelined
+    &&&& pipelined
+	&&&&& \textbf{a\_a}
+	&&&&& \textbf{ah}
+    & passive sender, active receiver (ASPR)
+\end{easylist}
+
+\noindent Receiver (AERV) design space:
+\begin{easylist}
+    & active sender, passive receiver (ASPR)
+    && monolithic NODE
+    && decomposed into BCAST and FILTER
+    &&& BCAST
+    &&&& unpipelined
+    &&&& pipelined
+    &&&&& \textbf{strict}
+    &&&&& parallelized
+    &&&&&& \textbf{cpcp} 
+    &&&&&& cppc
+    &&& FILTER 
+    &&&& monolith
+    &&&&& unpipelined
+    &&&&& pipelined
+    &&&& decomposed into BCAST, DECIDE, S\_FILTER
+    &&&&& BCAST
+    &&&&&& \textbf{unpipelined}
+    &&&&& DECIDE
+    &&&&&&  unpipelined?
+    &&&&& S\_FILTER
+    &&&&&& unpipelined
+    & passive sender, active receiver (PSAR)
+    && monolithic NODE
+    && decomposed into ROUTE, READ\_HEAD, FWD\_BODY
+    &&& ROUTE
+    &&&& \textbf{unpipelined}
+    &&& \textbf{READ\_HEAD}
+    &&& FWD\_BODY
+    &&&& unpipelined
+    &&&& \textbf{pipelined}
+    && decomposed into ROUTE, PULL\_CTRL, PULL
+    &&& \textbf{ROUTE}
+    &&& PULL\_CTRL
+    &&& PULL
+\end{easylist}
+                
+We also need the following interfaces:
+
+\begin{easylist}
+    & serial to parallel converter
+    & parallel to serial converter
+    & leaf interface
+\end{easylist}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{AEXT ASPR NODE}
+
+\begin{csp}
+NODE\equiv
+*[[h->
+    [#{C0}->s:=0,P!(0);
+    \|#{C1}->s:=1,P!(1)];
+    h:=false
+  []~h->
+    [s=0->C0?x;P!x
+    []s=1->C1?x;P!x
+    ];h:=x.tail
+ ]]
+\end{csp}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{AEXT ASPR PFWD/MERGE}
+
+PFWD prepends a word to the packet indicating which branch the packet is coming from.
+MERGE arbitrates between incoming packet streams and outputs them one at a time.
+
+\begin{csp}
+PFWD\equiv
+  h:=true;
+  *[[h&#{X}->Y!(\textrm{header});h-
+    []~h&#{X}->Y!(X?)\*[X=t->h+];
+    ]
+   ]
+\end{csp}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{AEXT ASPR PFWD unpipelined}
+
+Perhaps this will be cheaper than pipelineing
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{CHP}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
+
+\begin{hse}
+*[h&(x0|x1|xt)->q+;yp+;[yi];h-;yp-;[~yi];q-
+  []~h&~q&x0->y0+;[yi];xo+;[~x0];y0-;[~yi];xo-
+  []~h&~q&x1->y1+;[yi];xo+;[~x1];y1-;[~yi];xo-
+  []~h&~q&xt->yt+;[yi];xo+;[~xt];h+;yt-;[~yi];xo-]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
+
+\begin{prs2}
+~xt & yt -> h+
+q & yi -> h-
+
+h & (x0 | x1 | xt) -> q+
+~h & ~yi -> q-
+\end{prs2}
+
+\begin{prs2}
+~q & yi -> xo+
+~yi -> xo-
+\end{prs2}
+
+\begin{prs2}
+q -> yp+
+q & yi -> yp-
+\end{prs2}
+
+\begin{prs2}
+~h & ~q & x0 -> y0+
+~q & ~x0 -> y0-
+
+~h & ~q & x1 -> y1+
+~q & ~x1 -> y1-
+
+~h & ~q & xt -> yt+
+h -> yt-
+\end{prs2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{AEXT ASPR PFWD hq}
+
+This version has fewer state variables than AEXT PFWD hu, but the pull-up and pull-down chains are too long.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{CHP}
+
+\begin{csp}
+PFWD\equiv
+  h:=true;
+  *[[h&#{X}->Y!(\textrm{header});h-
+    []~h&#{X}->Y!(X?)\*[X=t->h+];
+    ]
+   ]
+\end{csp}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
+
+\begin{hse}
+*[h&(x0|x1|xt)->yp+;[yi];q+;yp-;[~yi];h-;q-
+  []~h&x0->y0+;xo+;[yi];y0-;[~x0];xo-;[~yi]
+  []~h&x1->y1+;xo+;[yi];y1-;[~x1];xo-;[~yi]
+  []~h&xt->yt+;xo+;[yi];h+;yt-;[~xt];xo-;[~yi]]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
+
+\begin{prs2}
+h & yi & yp -> q+
+~h -> q-
+
+yt & xo & yi -> h+
+q & ~yi -> h-
+\end{prs2}
+
+\begin{prs2}
+~h & (y0 | y1 | yt) -> xo+
+~x0 & ~x1 & ~xt & ~y0 & ~y1 & ~yt -> xo-
+\end{prs2}
+
+\begin{prs2}
+h & ~q & ~yi & ~xo & (x0 | xi | xt) -> yp+
+q -> yp-
+\end{prs2}
+
+\begin{prs2}
+~h & ~q & ~yi & x0 & ~xo -> y0+
+yi & xo -> y0-
+
+~h & ~q & ~yi & x1 & ~xo -> y1+
+yi & xo -> y1-
+\end{prs2}
+
+\begin{prs2}
+~h & ~q & ~yi & xt & ~xo -> yt+
+h & xo -> yt-
+\end{prs2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{AEXT ASPR PFWD hu}
+
+This version has more state variables than AEXT PFWD hq, but has reasonable pull-up and pull-down chains.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{CHP}
+
+\begin{csp}
+PFWD\equiv
+  *[[h&#{X}->Y!(\textrm{header});h-
+    []~h&#{X}->X?u\*Y!u,[u=t->h+]
+    ]
+   ]
+\end{csp}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
+
+\begin{hse}
+*[[h&(x0|x1|xt)->yp+;[yi];h-;yp-;[~yi]
+  []~h&x0->u0+;(xo+;[~x0]),(y0+;[yi]);u0-;(y0-;[~yi]),xo-
+  []~h&x1->u1+;(xo+;[~x1]),(y1+;[yi]);u1-;(y1-;[~yi]),xo-
+  []~h&xt->ut+;(xo+;[~xt]),(yt+;h+;[yi]);ut-;(yt-;[~yi]),xo-
+  ]
+ ]
+\end{hse}
+
+\begin{hse}
+*[[h&(x0|x1|xt)->yp+;[yi];h-;yp-;[~yi]
+  []~h&x0->u0+;[~x0&yi];u0-;[~yi]
+  []~h&x1->u1+;[~x1&yi];u1-;[~yi]
+  []~h&xt->ut+;[~xt&h&yi];ut-;[~yi]
+  ]
+ ]
+
+*[u0->xo+,y0+;[~u0];y0-,xo-
+  []u1->xo+,y1+;[~u1];y1-,xo-
+  []ut->xo+,(yt+;h+);[ut-];yt-,xo-
+  ]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
+
+\begin{prs2}
+yt -> h+
+yp & yi -> h-
+\end{prs2}
+
+\begin{prs2}
+h & (x0 | x1 | xt) & ~yi & ~yt -> yp+
+~h & yi & ~un -> yp-
+\end{prs2}
+
+\begin{prs2}
+u0 | u1 | ut -> xo+
+~u0 & ~u1 & ~ut -> xo-
+\end{prs2}
+
+\begin{prs2}
+~h & x0 & ~yi -> u0+
+~x0 & yi -> u0-
+
+~h & x1 & ~yi -> u1+
+~x1 & yi -> u1-
+\end{prs2}
+
+\begin{prs2}
+~h & xt & ~yi -> ut+
+h & ~xt & yi -> ut-
+\end{prs2}
+
+\begin{prs2}
+u0 -> y0+
+~h & ~u0 -> y0-
+
+u1 -> y1+
+~h & ~u1 -> y1-
+\end{prs2}
+
+\begin{prs2}
+ut -> yt+
+~ut -> yt-
+\end{prs2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{AEXT ASPR PFWD PREPEND/FWD/SIMPLE\_MERGE}
+
+PREPEND and FWD are
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{AEXT ASPR PFWD PREPEND}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{CHP}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
+\begin{hse}
+*[[si];yp+;[yi];yp-;[~yi];so+;[~si];so-]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{AEXT PFWD FWD}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{CHP}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
+
+\begin{hse}
+*[[x0|x1|xt];so+;[si];so-;[~si];
+  [x0->y0+;[yi];y0-;[~yi]
+  []x1->y1+;[yi];y1-;[~yi]
+  []xt->yt+;[yi];yt-;[~yi]
+ ]]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{AEXT ASPR PFWD SIMPLE\_MERGE}
+
+Assumes that its inputs are mutually exclusive
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{CHP}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
+
+\begin{hse}
+*[[c00->p0+;[pi];c0o+;[~c00];p0-;[~pi];c0o-
+  []c01->p1+;[pi];c0o+;[~c01];p1-;[~pi];c0o-
+  []c0t->pt+;[pi];c0o+;[~c0t];pt-;[~pi];c0o-
+  []c10->p0+;[pi];c1o+;[~c00];p0-;[~pi];c1o-
+  []c11->p1+;[pi];c1o+;[~c01];p1-;[~pi];c1o-
+  []c1t->pt+;[pi];c1o+;[~c0t];pt-;[~pi];c1o-
+ ]]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
+
+\begin{prs2}
+c00 | c10 -> p0+
+~c00 & ~c10 -> p0-
+
+c01 | c11 -> p1+
+~c01 & ~c11 -> p1-
+
+c0t | c1t -> pt+
+~c0t & ~c1t -> pt-
+\end{prs2}
+
+\begin{prs2}
+pi & (c00 | c01 | c0t) -> c0o+
+~pi -> c0o-
+
+pi & (c10 | c11 | c1t) -> c1o+
+~pi -> c1o-
+\end{prs2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{AEXT ASPR MERGE}
+
+MERGE sequences between outputting two serialized packet streams.
+
+\begin{csp}
+MERGE\equiv
+  *[[~l&~r->
+      [#{L}->l:=true
+      \|#{R}->r:=true
+      ]
+    []l|r->
+      [l->O!(L?)
+      []r->O!(R?)
+    ]]
+  ]
+\end{csp}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{AEXT MERGE pipelined a\_a}
+
+I don't like this version because the pullup chains for the state variables
+are too long and won't scale to higher radix encoding.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{CHP}
+
+\begin{csp}
+MERGE\equiv
+  *[[h->[#{C0}->a:=0\|#{C1}->a:=1];h-
+    []~h&a=0->P!(C0?)
+    []~h&a=0->P!(C1?)
+    ]]
+\end{csp}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
+
+\begin{hse}
+*[[~ao&~a1&(c00|c01|c0t)->a0+
+  \|~a0&~a1&(c10|c11|c1t)->a1+]]
+
+*[[ a0&c00->p0+;c0o+;[pi&~c00];p0-;c0o-;[~pi]
+  []a0&c01->p1+;c0o+;[pi&~c01];p1-;c0o-;[~pi]
+  []a0&c0t->pt+;c0o+;[pi&~c0t];a0-;pt-;c0o-;[~pi]
+  []a1&c10->p0+;c1o+;[pi&~c10];p0-;c1o-;[~pi]
+  []a1&c11->p1+;c1o+;[pi&~c11];p1-;c1o-;[~pi]
+  []a1&c1t->pt+;c1o+;[pi&~c1t];a1-;pt-;c1o-;[~pi]
+  ]]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
+
+\begin{prs2}
+~a0 & (c00 | c01| c0t) & ~c0o -> a0i+
+a0 -> a0i-
+
+~a1 & (c10 | c11| c1t) & ~c1o -> a1i+
+a1 -> a1i-
+
+a0o & ~a1 & ~c1o & ~pi -> a0+ % uhoh will depend on other a's
+~a0o & pi & pt & ~c0t -> a0-
+
+a1o & ~a0 & ~c0o & ~pi -> a1+
+~a1o & pi & pt & ~c1t -> a1-
+\end{prs2}
+
+\begin{prs2}
+~pi & (a0 & c00 | a1 & c10) -> p0+
+pi & (~_a0 & ~c00 | ~_a1 & ~c10) -> p0-
+
+~pi & (a0 & c01 | a1 & c11) -> p1+
+pi & (~_a0 & ~c01 | ~_a1 & ~c11) -> p1-
+
+~pi & (a0 & c0t | a1 & c1t) -> pt+
+_a0 & _a1 -> pt-
+\end{prs2}
+
+\begin{prs2}
+a0 & (p0 | p1 | pt) -> c0o+
+~p0 & ~p1 & ~pt -> c0o-
+
+a1 & (p0 | p1 | pt) -> c1o+
+~p0 & ~p1 & ~pt -> c1o-
+\end{prs2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{AEXT ASPR MERGE pipelined ah}
+
+This one has acceptable pullup/pulldown chains, but I'm worried about making it CMOS implementable
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
+
+\begin{hse}
+*[[~a0&(c00|c01|c0t)->a0+;h-;[~a0];h+
+  \|~a1&(c10|c11|c1t)->a1+;h-;[~a1];h+]]
+
+*[[ a0&c00->p0+;c0o+;[pi&~c00];p0-;c0o-;[~pi]
+  []a0&c01->p1+;c0o+;[pi&~c01];p1-;c0o-;[~pi]
+  []a0&c0t->pt+;c0o+;[pi&~c0t];a0-;pt-;c0o-;[~pi]
+  []a1&c10->p0+;c1o+;[pi&~c10];p0-;c1o-;[~pi]
+  []a1&c11->p1+;c1o+;[pi&~c11];p1-;c1o-;[~pi]
+  []a1&c1t->pt+;c1o+;[pi&~c1t];a1-;pt-;c1o-;[~pi]
+  ]]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
+
+\begin{prs2}
+(c00 | c01| c0t) & ~a0 -> a0i+
+~h & a0 -> a0i-
+
+(c10 | c11| c1t) & ~a1-> a1i+
+~h & a1 -> a1i-
+
+h & a0o & ~pi -> a0+
+pt & pi & c0o & ~c0t & ~a0o -> a0-
+
+h & a1o & ~pi -> a1+
+pt & pi & c1o & ~c1t & ~a1o -> a1-
+\end{prs2}
+
+\begin{prs2}
+~a0 & ~a1 -> h+
+a0 | a1 & ~c0o & ~c1o-> h-
+\end{prs2}
+
+\begin{prs2}
+~pi & (a0 & c00 | a1 & c10) & ~h -> p0+
+pi & (a0 & ~c00 | a1 & ~c10) -> p0-
+
+~pi & (a0 & c01 | a1 & c11) & ~h -> p1+
+pi & (a0 & ~c01 | a1 & ~c11) -> p1-
+
+~pi & (a0 & c0t | a1 & c1t) & ~h -> pt+
+~a0 & ~a1 -> pt-
+\end{prs2}
+
+\begin{prs2}
+a0 & (p0 | p1 | pt) -> c0o+
+~p0 & ~p1 & ~pt -> c0o-
+
+a1 & (p0 | p1 | pt) -> c1o+
+~p0 & ~p1 & ~pt -> c1o-
+\end{prs2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{AERV ASPR BCAST pipelined}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{CHP}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
+
+strict cpcp
+
+\begin{hse}
+BCAST\equiv
+*[[ p0->c00+,c10+;po+;[c0i&c1i&~p0];c00-,c10-;po-;[~c0i&~c1i];
+  []p1->c01+,c11+;po+;[c0i&c1i&~p1];c01-,c11-;po-;[~c0i&~c1i];
+  []pt->c0t+,c1t+;po+;[c0i&c1i&~pt];c0t-,c1t-;po-;[~c0i&~c1i];
+ ]]
+\end{hse}
+
+\begin{hse}
+BCAST\equiv
+*[[ p0->q0+;c00+,c10+;po+;[c0i&c1i&~p0];q0-;c00-,c10-;po-;[~c0i&~c1i]
+  []p1->q1+;c01+,c11+;po+;[c0i&c1i&~p1];q1-;c01-,c11-;po-;[~c0i&~c1i]
+  []pt->qt+;c0t+,c1t+;po+;[c0i&c1i&~pt];qt-;c0t-,c1t-;po-;[~c0i&~c1i]
+ ]]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
+
+\begin{prs2}
+q0 -> c00+
+~q0 -> c00-
+
+q1 -> c01+
+~q1 -> c01-
+
+qt -> c0t+
+~qt -> c0t-
+
+q0 -> c10+
+~q0 -> c10-
+
+q1 -> c11+
+~q1 -> c11-
+
+qt -> c1t+
+~qt -> c1t-
+\end{prs2}
+
+\begin{prs2}
+~c0i & ~c1i & p0 -> q0+
+c0i & c1i & ~p0 -> q0-
+
+~c0i & ~c1i & p1 -> q1+
+c0i & c1i & ~p1 -> q1-
+
+~c0i & ~c1i & pt -> qt+
+c0i & c1i & ~pt -> qt-
+\end{prs2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
+
+output ordering cpcp
+parallelized
+
+\begin{hse}
+BCAST\equiv
+*[[ p0->([~c0i];c00+),([~c1i];c10+);po+;[~p0];([c0i];c00-),([c1i];c10-);po-;
+  []p1->([~c0i];c01+),([~c1i];c11+);po+;[~p1];([c0i];c01-),([c1i];c11-);po-;
+  []pt->([~c0i];c0t+),([~c1i];c1t+);po+;[~pt];([c0i];c0t-),([c1i];c1t-);po-;
+ ]]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
+
+\begin{prs2}
+~c0i & p0 -> c00+
+c0i & ~p0 -> c00-
+
+~c0i & p1 -> c01+
+c0i & ~p1 -> c01-
+
+~c0i & pt -> c0t+
+c0i & ~pt -> c0t-
+
+~c1i & p0 -> c10+
+c1i & ~p0 -> c10-
+
+~c1i & p1 -> c11+
+c1i & ~p1 -> c11-
+
+~c1i & pt -> c1t+
+c1i & ~pt -> c1t-
+\end{prs2}
+
+\begin{prs2}
+VN(C) -> po+
+~VN(C) -> po-
+\end{prs2}
+
+po is the output of a VN detector
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
+
+swap ordering of p and c in reset
+output ordering cppc
+parallelized
+
+\begin{hse}
+BCAST\equiv
+*[[ p0->([~c0i];c00+),([~c1i];c10+);(po+;[~p0];po-);([c0i];c00-),([c1i];c10-)
+  []p1->([~c0i];c01+),([~c1i];c11+);(po+;[~p1];po-);([c0i];c01-),([c1i];c11-)
+  []pt->([~c0i];c0t+),([~c1i];c1t+);(po+;[~pt];po-);([c0i];c0t-),([c1i];c1t-)
+ ]]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
+
+\begin{prs2}
+~c0i & p0 -> c00+
+c0i & ~p0 & ~po -> c00-
+
+~c0i & p1 -> c01+
+c0i & ~p1 & ~po -> c01-
+
+~c0i & pt -> c0t+
+c0i & ~pt & ~po -> c0t-
+
+~c1i & p0 -> c10+
+c1i & ~p0 & ~po -> c10-
+
+~c1i & p1 -> c11+
+c1i & ~p1 & ~po -> c11-
+
+~c1i & pt -> c1t+
+c1i & ~pt & ~po -> c1t-
+\end{prs2}
+
+\begin{prs2}
+(c00 & c10 | c01 & c11 | c0t & c1t) & (p0 | p1 | pt) -> po+
+~p0 & ~p1 & ~pt -> po-
+\end{prs2}
+
+instability on down phases of c because p input can rise at anytime
+Could probably fix with state variables.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{AERV ASPR BCAST unpipelined}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{CHP}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
+
+\begin{hse}
+BCAST\equiv
+*[[ p0->c00+,c10+;[c0i&c1i];po+;[~p0];c00-,c10-;[~c0i&~c1i];po-
+  []p1->c01+,c11+;[c0i&c1i];po+;[~p1];c01-,c11-;[~c0i&~c1i];po-
+  []pt->c0t+,c1t+;[c0i&c1i];po+;[~pt];c0t-,c1t-;[~c0i&~c1i];po-
+ ]]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
+
+\begin{prs2}
+p0 -> c00+
+~p0 -> c00-
+
+p1 -> c01+
+~p1 -> c01-
+
+pt -> c0t+
+~pt -> c0t-
+
+p0 -> c10+
+~p0 -> c10-
+
+p1 -> c11+
+~p1 -> c11-
+
+pt -> c1t+
+~pt -> c1t-
+\end{prs2}
+
+\begin{prs2}
+c0i & c1i -> po+
+~c0i & ~c1i -> po-
+\end{prs2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{AERV PSAR}
+
+This makes the circuitry much simpler
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{AERV PSAR ROUTE, READ\_HEAD, FWD\_BODY}
+
+ROUTE sends a parent's signal to one of its children depending on which child requests. Assumes requests are mutually exclusive.
+
+READ\_HEAD reads the head word and signals FWD\_BODY which way 
+to forward the body packet
+
+FWD\_BODY forwards words to the children based on command from DEC
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{AERV PSAR ROUTE unpipelined}
+
+Note that when communicating with READ\_HEAD, ROUTE does not need to send the tail bit; READ\_HEAD should never see a tail bit.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{CHP}
+
+\begin{csp}
+*[[#{C0!};C0!(P?)
+  []#{C1!};C1!(P?)]
+ ]
+\end{csp}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
+
+% [[ci];pe+;[pi];co+;[~ci];pe-;[~pi];co-]
+\begin{hse}
+*[[c0e|c1e];pe+
+    [ p0&c0e->c00+;[~c0e];pe-;[~p0];c00-
+    []p1&c0e->c01+;[~c0e];pe-;[~p1];c01-
+    []pt&c0e->c0t+;[~c0e];pe-;[~pt];c0t-
+    []p0&c1e->c10+;[~c1e];pe-;[~p0];c10-
+    []p1&c1e->c11+;[~c1e];pe-;[~p1];c11-
+    []pt&c1e->c1t+;[~c1e];pe-;[~pt];c1t-
+    ]
+ ]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
+
+\begin{prs2}
+c0e | c1e -> pe+
+~c0e & ~c1e -> pe-
+\end{prs2}
+
+\begin{prs2}
+p0 & c0e -> c00+
+~p0 -> c00-
+
+p1 & c0e -> c01+
+~p1 -> c01-
+
+pt & c0e -> c0t+
+~pt -> c0t-
+
+p0 & c1e -> c10+
+~p0 -> c10-
+
+p1 & c1e -> c11+
+~p1 -> c11-
+
+pt & c1e -> c1t+
+~pt -> c1t-
+\end{prs2}
+
+Radix 2 transistor count: 46
+
+Radix 4 transistor count: 152
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{AERV PSAR READ\_HEAD}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{CHP}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
+
+% [[si];xe+;[xi];u+;xe-;[~xi];so+;[~si];u-;so-]
+\begin{hse}
+*[[si];xe+;
+    [ x0->u0+;xe-;[~x0];s0+;[~si];u0-;s0-
+    []x1->u1+;xe-;[~x1];s1+;[~si];u1-;s1-
+    ]
+ ]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
+
+\begin{prs2}
+si & ~u0 & ~u1 -> xe+
+u0 | u1 -> xe-
+\end{prs2}
+
+\begin{prs2}
+x0 -> u0+
+~si -> u0-
+
+x1 -> u1+
+~si -> u1-
+
+u0 & ~x0 -> s0+
+~u0 | x0 -> s0-
+
+u1 & ~x1 -> s1+
+~u1 | x1 -> s1-
+\end{prs2}
+
+Radix 2 transistor count: 25
+
+Radix 4 transistor count: 45
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{AERV PSAR FWD\_BODY pipelined}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{CHP}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
+
+% [so+;[si];pe+;[pi&ci];co+;pe-;[~pe&~ci];co-]
+\begin{hse}
+*[so+;[s0|s1];pe+;
+    [ p0&s0&c0e->c00+;pe-;[~p0&~c0e];c00-
+    []p1&s0&c0e->c01+;pe-;[~p1&~c0e];c01-
+    []pt&s0&c0e->c0t+;pe-;[~pt&~c0e];so-;[~s0];c0t-
+    []p0&s1&c1e->c10+;pe-;[~p0&~c1e];c10-
+    []p1&s1&c1e->c11+;pe-;[~p1&~c1e];c11-
+    []pt&s1&c1e->c1t+;pe-;[~pt&~c1e];so-;[~s1];c1t-
+    ]
+ ]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
+
+\begin{prs2}
+s0 | s1 & ~q -> pe+
+q -> pe-
+
+~q -> so+
+~pt & (~c0e & c0t | ~c1e & c1t)-> so-
+
+c00 | c01 | c0t | c10 | c11 | c1t -> q+
+~c00 & ~c01 & ~c0t & ~c10 & ~c11 & ~c1t -> q-
+\end{prs2}
+
+\begin{prs2}
+p0 & s0 & c0e -> c00+
+~p0 & ~c0e -> c00-
+
+p1 & s0 & c0e -> c01+
+~p1 & ~c0e -> c01-
+
+pt & s0 & c0e -> c0t+
+~s0 -> c0t-
+
+p0 & s1 & c1e -> c10+
+~p0 & ~c0e -> c10-
+
+p1 & s1 & c1e -> c11+
+~p1 & ~c0e -> c11-
+
+pt & s1 & c1e -> c1t+
+~s1 -> c1t-
+\end{prs2}
+
+Radix 2 transistor count: 90
+
+Radix 4 transistor count: 262
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{AERV PSAR ROUTE PULL\_CTRL PULL}
+
+This decomposition reuses ROUTE above. For radix 2, ROUTE splits traffic 3 ways -- to PULL\_CTRL and 2 instances of PULL.
+PULL\_CTRL reads the head word and indicates which PULL should ping ROUTE for data.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{AERV PSAR PULL\_CTRL}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{CHP}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
+
+\begin{hse}
+*[[s0i&s1i];xe+;
+  [ x0->u0+;xe-;[~x0];s0o+;[~s0i];u0-;s0o-
+  []x1->u1+;xe-;[~x1];s1o+;[~s0i];u1-;s0o-
+  ]]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
+
+\begin{prs2}
+s0i & s1i -> xe+
+u0 | u1 -> xe-
+\end{prs2}
+
+\begin{prs2}
+x0 -> u0+
+~s0i -> u0-
+
+x1 -> u1+
+~s1i -> u1-
+\end{prs2}
+
+\begin{prs2}
+u0 & ~x0 -> s0o+
+~u0 -> s0o-
+
+u1 & ~x1 -> s1o+
+~u1 -> s1o-
+\end{prs2}
+
+Radix 2 transistor count: 
+
+Radix 4 transistor count: 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}
