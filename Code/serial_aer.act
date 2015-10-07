@@ -24,11 +24,11 @@ namespace aer {
         }
 
         export
-        template <pint N, n>
+        template <pint N, p>
         defproc PFWD (globals g; a1of<N+1> x, y) {
             // prepends head word and fowards packet
             // N for 1-of-N encoding. + tail word line
-            // n word prepended to each packet
+            // p word prepended to each packet
             bool yi = y.a;
             bool xo = x.a;
             bool yt = y.m.n[N];
@@ -38,7 +38,7 @@ namespace aer {
             // /*
                 bool h, q;
                 prs<g.Vdd, g.GND> {
-                    h & yi & y.m.n[n] -> q+
+                    h & yi & y.m.n[p] -> q+
                     g.pReset | ~h -> q-
 
                     g.pReset | yt & xo & yi -> h+
@@ -47,8 +47,8 @@ namespace aer {
                     ~h & (y.m.n[0] | y.m.n[1] | yt) -> xo+
                     ~x.m.n[0] & ~x.m.n[1] & ~xt & ~y.m.n[0] & ~y.m.n[1] & ~yt -> xo-
 
-                    h & ~q & ~yi & ~xo & (x.m.n[0] | x.m.n[1] | xt) -> y.m.n[n]+
-                    q -> y.m.n[n]-
+                    h & ~q & ~yi & ~xo & (x.m.n[0] | x.m.n[1] | xt) -> y.m.n[p]+
+                    q -> y.m.n[p]-
 
                     ~h & x.m.n[0] & ~q & ~yi & ~xo -> y.m.n[0]+
                     g.pReset | yi & xo -> y.m.n[0]-
@@ -67,10 +67,10 @@ namespace aer {
                 bool u[2], ut;
                 prs<g.Vdd, g.GND> {
                     g.pReset | yt -> h+
-                    y.m.n[n] & yi -> h-
+                    y.m.n[p] & yi -> h-
                     
-                    h & (x.m.n[0] | x.m.n[1] | xt) & ~yi & ~yt -> y.m.n[n]+
-                    ~h & yi & ~u[n] -> y.m.n[n]-
+                    h & (x.m.n[0] | x.m.n[1] | xt) & ~yi & ~yt -> y.m.n[p]+
+                    ~h & yi & ~u[p] -> y.m.n[p]-
 
                     (u[0] | u[1] | ut) => xo+
 
