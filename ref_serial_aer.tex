@@ -71,12 +71,13 @@ The system uses an address-event representation and transmitters/receivers with 
     &&&& \textbf{unpipelined}
     &&& \textbf{READ\_HEAD}
     &&& FWD\_BODY
-    &&&& unpipelined
+    &&&& \textbf{unpipelined}
     &&&& \textbf{pipelined}
     && decomposed into ROUTE, PULL\_CTRL, PULL
     &&& \textbf{ROUTE}
     &&& PULL\_CTRL
     &&& PULL
+    &&&& unpipelined
 \end{easylist}
                 
 We also need the following interfaces:
@@ -816,9 +817,9 @@ pt & c1e -> c1t+
 ~pt -> c1t-
 \end{prs2}
 
-Radix 2 transistor count: 46
+\noindent Radix 2 transistor count: 39
 
-Radix 4 transistor count: 152
+\noindent Radix 4 transistor count: 67
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{AERV PSAR READ\_HEAD}
@@ -863,6 +864,67 @@ u1 & ~x1 -> s1+
 Radix 2 transistor count: 25
 
 Radix 4 transistor count: 45
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{AERV PSAR FWD\_BODY unpipelined}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{CHP}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
+
+% [so+;[si&ci];pe+;[pi];co+;[~ci];pe-;[~pe];co-]
+\begin{hse}
+*[[~s0&~s1->so+;
+  []s0->[c0e];pe+;
+    [ p0->c00+;[~c0e];pe-;[~p0];c00-
+    []p1->c01+;[~c0e];pe-;[~p1];c01-
+    []pt->c0t+;[~c0e];pe-;[~pt];so-;[~s0];c0t-
+    ]
+  []s1->[c1e];pe+;
+    [ p0->c10+;[~c1e];pe-;[~p0];c10-
+    []p1->c11+;[~c1e];pe-;[~p1];c11-
+    []pt->c1t+;[~c1e];pe-;[~pt];so-;[~s1];c1t-
+    ]
+   ]
+ ]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
+
+\begin{prs2}
+s0 & c0e | s1 & c1e -> pe+
+s0 & ~c0e | s1 & ~c1e -> pe-
+
+~c0t & ~c1t -> so+
+~pt & (c0t | c1t) -> so-
+\end{prs2}
+
+\begin{prs2}
+p0 & s0 -> c00+
+~p0 | ~s0 -> c00-
+
+p1 & s0 -> c01+
+~p1 | ~s0 -> c01-
+
+pt & s0 -> c0t+
+~s0 -> c0t-
+
+p0 & s1 -> c10+
+~p0 | ~s1 -> c10-
+
+p1 & s1 -> c11+
+~p1 | ~s1 -> c11-
+
+pt & s1 -> c1t+
+~s1 -> c1t-
+\end{prs2}
+
+Radix 2 transistor count: 51
+
+Radix 4 transistor count: 125
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{AERV PSAR FWD\_BODY pipelined}
@@ -974,5 +1036,45 @@ Radix 2 transistor count:
 
 Radix 4 transistor count: 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{AERV PSAR PULL unpipelined}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{CHP}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
+
+\begin{hse}
+*[~si->so+;
+ []si->[ye];xe+
+  [ x0->y0+;[~ye];xe-;[~x0];y0-
+  []x1->y1+;[~ye];xe-;[~x1];y1-
+  []xt->yt+;[~ye];xe-;[~xt];so-;yt-
+  ]
+ ]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
+
+\begin{prs2}
+~yt & ~si -> so+
+yt & ~xt -> so-
+
+si & ye -> xe+
+~ye -> xe-
+\end{prs2}
+
+\begin{prs2}
+x0 -> y0+
+~x0 -> y0-
+
+x1 -> y1+
+~x1 -> y1-
+
+xt -> yt+
+~so -> yt-
+\end{prs2}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \end{document}

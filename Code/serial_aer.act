@@ -358,26 +358,48 @@ namespace aer {
         defproc FWD_BODY (globals g; e1of<N+1> p, c[N]; bool s[N], so) {
             // forwards the body of a packet to a child
             // N for 1-of-N encoding. + tail word line
-            bool q;
-            OR<(N+1)*N> or(, q);
-            (; nc : N : (; n : N+1 : or.i[nc*(N+1)+n] = c[nc].m.n[n];))
+            /* version pipelined --------------------------------------------*/
+            /*
+                bool q;
+                OR<(N+1)*N> or(, q);
+                (; nc : N : (; n : N+1 : or.i[nc*(N+1)+n] = c[nc].m.n[n];))
 
-            prs<g.Vdd, g.GND> {
-                (| : n : N : s[n]) & ~q -> p.e+
-                g.pReset | q -> p.e-
+                prs<g.Vdd, g.GND> {
+                    (| : n : N : s[n]) & ~q -> p.e+
+                    g.pReset | q -> p.e-
 
-                ~q -> so+
-                ~p.m.n[N] & (| : n : N : ~c[n].e & c[n].m.n[N]) -> so-
+                    ~q -> so+
+                    ~p.m.n[N] & (| : n : N : ~c[n].e & c[n].m.n[N]) -> so-
 
-                (: nc : N :
-                    (: n : N :
-                        p.m.n[n] & s[nc] & c[nc].e -> c[nc].m.n[n]+
-                        g.pReset | ~p.m.n[n] & ~c[nc].e -> c[nc].m.n[n]-
+                    (: nc : N :
+                        (: n : N :
+                            p.m.n[n] & s[nc] & c[nc].e -> c[nc].m.n[n]+
+                            g.pReset | ~p.m.n[n] & ~c[nc].e -> c[nc].m.n[n]-
+                        )
+                        p.m.n[N] & s[nc] & c[nc].e -> c[nc].m.n[N]+ // tail
+                        g.pReset | ~s[nc] -> c[nc].m.n[N]-
                     )
-                    p.m.n[N] & s[nc] & c[nc].e -> c[nc].m.n[N]+ // tail
-                    g.pReset | ~s[nc] -> c[nc].m.n[N]-
-                )
-            }
+                }
+            */
+            /* version unpipelined ------------------------------------------*/
+            // /*
+                prs<g.Vdd, g.GND> {
+                    (| : n : N : s[n] & c[n].e) -> p.e+
+                    g.pReset | (| : n : N : s[n] & ~c[n].e) -> p.e-
+
+                    (& : n : N : ~c[n].m.n[N]) -> so+
+                    ~p.m.n[N] & (| : n : N : c[n].m.n[N]) -> so-
+
+                    (: nc : N :
+                        (: n : N :
+                            p.m.n[n] & s[nc] -> c[nc].m.n[n]+
+                            g.pReset | ~p.m.n[n] | ~s[nc] -> c[nc].m.n[n]-
+                        )
+                        p.m.n[N] & s[nc] -> c[nc].m.n[N]+
+                        g.pReset | ~s[nc] -> c[nc].m.n[N]-
+                    )
+                }
+            // */
         }
 
         template <pint N>

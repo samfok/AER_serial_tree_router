@@ -27,12 +27,12 @@ NODE\equiv
  ]]
 \end{csp}
 
-We divide NODE into FWD and MERGE processes. 
-FWD prepends a word to the packet indicating which branch the packet is coming from.
+We divide NODE into PFWD and MERGE processes. 
+PFWD prepends a word to the packet indicating which branch the packet is coming from.
 MERGE arbitrates between incoming packet streams and outputs them one at a time.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{FWD version hq}
+\subsection{PFWD version hq}
 
 This version has fewer state variables than version 2, but the pull-up and pull-down chains are too long.
 
@@ -40,7 +40,7 @@ This version has fewer state variables than version 2, but the pull-up and pull-
 \subsubsection*{CHP}
 
 \begin{csp}
-FWD\equiv
+PFWD\equiv
   h:=true;
   *[[h&#{X}->Y!(\textrm{header});h-
     []~h&#{X}->Y!(X?)\*[X=t->h+];
@@ -57,6 +57,7 @@ h:=true;
   []~h&x0->y0+;xo+;[yi];y0-;[~x0];xo-;[~yi]
   []~h&x1->y1+;xo+;[yi];y1-;[~x1];xo-;[~yi]
   []~h&xt->yt+;xo+;[yi];h+;yt-;[~xt];xo-;[~yi]
+ ]
 \end{hse}
 
 %%%%%%%%%%%%%%%
@@ -94,7 +95,7 @@ h & xo -> yt-
 \end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{FWD version hu}
+\subsection{PFWD version hu}
 
 This version has more state variables than version 1, but has reasonable pull-up and pull-down chains.
 
@@ -102,7 +103,7 @@ This version has more state variables than version 1, but has reasonable pull-up
 \subsubsection*{CHP}
 
 \begin{csp}
-FWD\equiv
+PFWD\equiv
   *[[h&#{X}->Y!(\textrm{header});h-
     []~h&#{X}->X?u\*Y!u,[u=t->h+]
     ]
@@ -117,6 +118,8 @@ FWD\equiv
   []~h&x0->u0+;(xo+;[~x0]),(y0+;[yi]);u0-;(y0-;[~yi]),xo-
   []~h&x1->u1+;(xo+;[~x1]),(y1+;[yi]);u1-;(y1-;[~yi]),xo-
   []~h&xt->ut+;(xo+;[~xt]),(yt+;h+;[yi]);ut-;(yt-;[~yi]),xo-
+  ]
+ ]
 \end{hse}
 
 \begin{hse}
@@ -124,10 +127,13 @@ FWD\equiv
   []~h&x0->u0+;[~x0&yi];u0-;[~yi]
   []~h&x1->u1+;[~x1&yi];u1-;[~yi]
   []~h&xt->ut+;[~xt&h&yi];ut-;[~yi]
+  ]
+ ]
 
 *[u0->xo+,y0+;[~u0];y0-,xo-
   []u1->xo+,y1+;[~u1];y1-,xo-
   []ut->xo+,(yt+;h+);[ut-];yt-,xo-
+ ]
 \end{hse}
 
 %%%%%%%%%%%%%%%
@@ -220,7 +226,7 @@ MERGE\equiv
       [l->O!(L?)
       []r->O!(R?)
     ]
-  ]
+  ]]
 \end{csp}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -356,7 +362,7 @@ a1 & (p0 | p1 | pt) -> c1o+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Receiver ($AERV$)}
 
-We'll decompose the node into ROUTE, READ\_HEAD, and FWD_BODY.
+We'll decompose the node into ROUTE, READ\_HEAD, and FWD\_BODY.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -365,7 +371,7 @@ We'll decompose the node into ROUTE, READ\_HEAD, and FWD_BODY.
 ROUTE sends a parent's signal to one of its children depending on which child requests. Assumes requests are mutually exclusive.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{ROUTE_unpipelined}
+\subsection{ROUTE\_unpipelined}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection*{CHP}
@@ -421,7 +427,7 @@ pt & c1e -> c1t+
 \end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{ROUTE_pipelined}
+\subsection{ROUTE\_pipelined}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection*{HSE}
@@ -443,9 +449,9 @@ pt & c1e -> c1t+
 \subsubsection*{PRS}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{READ_HEAD}
+\subsection{READ\_HEAD}
 
-READ_HEAD reads the head word and signals FWD_BODY which way 
+READ\_HEAD reads the head word and signals FWD\_BODY which way 
 to forward the body packet
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -486,9 +492,9 @@ u1 & ~x1 -> s1+
 \end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{FWD_BODY}
+\subsection{FWD\_BODY}
 
-FWD_BODY forwards words to the children based on command from DEC
+FWD\_BODY forwards words to the children based on command from DEC
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection*{CHP}

@@ -1,6 +1,6 @@
 # default #####################################################################
 
-# source reset.scr
+source reset.scr
 
 # M2N2 ########################################################################
 
@@ -41,7 +41,7 @@
 
 # M3N2 ########################################################################
 
-source reset.scr
+# source reset.scr
 
 # vector x :1ofN 3 test.aer.aext._.y.m.n[0] test.aer.aext._.y.m.n[1] test.aer.aext._.y.m.n[2]
 # vector x0 :1ofN 3 test.aer.aext._._[0].y.m.n[0] test.aer.aext._._[0].y.m.n[1] test.aer.aext._._[0].y.m.n[2]
@@ -59,21 +59,21 @@ source reset.scr
 # vector x110 :1ofN 3 test.aer.aext._._[1]._[1]._[0].y.m.n[0] test.aer.aext._._[1]._[1]._[0].y.m.n[1] test.aer.aext._._[1]._[1]._[0].y.m.n[2]
 # vector x111 :1ofN 3 test.aer.aext._._[1]._[1]._[1].y.m.n[0] test.aer.aext._._[1]._[1]._[1].y.m.n[1] test.aer.aext._._[1]._[1]._[1].y.m.n[2]
 
-vector r :1ofN 3 test.aer.aerv.x.m.n[0] test.aer.aerv.x.m.n[1] test.aer.aerv.x.m.n[2]
-vector r0 :1ofN 3 test.aer.aerv._[0].x.m.n[0] test.aer.aerv._[0].x.m.n[1] test.aer.aerv._[0].x.m.n[2]
-vector r1 :1ofN 3 test.aer.aerv._[1].x.m.n[0] test.aer.aerv._[1].x.m.n[1] test.aer.aerv._[1].x.m.n[2]
-vector r00 :1ofN 3 test.aer.aerv._[0]._[0].x.m.n[0] test.aer.aerv._[0]._[0].x.m.n[1] test.aer.aerv._[0]._[0].x.m.n[2]
-vector r01 :1ofN 3 test.aer.aerv._[0]._[1].x.m.n[0] test.aer.aerv._[0]._[1].x.m.n[1] test.aer.aerv._[0]._[1].x.m.n[2]
-vector r10 :1ofN 3 test.aer.aerv._[1]._[0].x.m.n[0] test.aer.aerv._[1]._[0].x.m.n[1] test.aer.aerv._[1]._[0].x.m.n[2]
-vector r11 :1ofN 3 test.aer.aerv._[1]._[1].x.m.n[0] test.aer.aerv._[1]._[1].x.m.n[1] test.aer.aerv._[1]._[1].x.m.n[2]
-vector r000 :1ofN 3 test.aer.aerv._[0]._[0]._[0].x.m.n[0] test.aer.aerv._[0]._[0]._[0].x.m.n[1] test.aer.aerv._[0]._[0]._[0].x.m.n[2]
-vector r001 :1ofN 3 test.aer.aerv._[0]._[0]._[1].x.m.n[0] test.aer.aerv._[0]._[0]._[1].x.m.n[1] test.aer.aerv._[0]._[0]._[1].x.m.n[2]
-vector r010 :1ofN 3 test.aer.aerv._[0]._[1]._[0].x.m.n[0] test.aer.aerv._[0]._[1]._[0].x.m.n[1] test.aer.aerv._[0]._[1]._[0].x.m.n[2]
-vector r011 :1ofN 3 test.aer.aerv._[0]._[1]._[1].x.m.n[0] test.aer.aerv._[0]._[1]._[1].x.m.n[1] test.aer.aerv._[0]._[1]._[1].x.m.n[2]
-vector r100 :1ofN 3 test.aer.aerv._[1]._[0]._[0].x.m.n[0] test.aer.aerv._[1]._[0]._[0].x.m.n[1] test.aer.aerv._[1]._[0]._[0].x.m.n[2]
-vector r101 :1ofN 3 test.aer.aerv._[1]._[0]._[1].x.m.n[0] test.aer.aerv._[1]._[0]._[1].x.m.n[1] test.aer.aerv._[1]._[0]._[1].x.m.n[2]
-vector r110 :1ofN 3 test.aer.aerv._[1]._[1]._[0].x.m.n[0] test.aer.aerv._[1]._[1]._[0].x.m.n[1] test.aer.aerv._[1]._[1]._[0].x.m.n[2]
-vector r111 :1ofN 3 test.aer.aerv._[1]._[1]._[1].x.m.n[0] test.aer.aerv._[1]._[1]._[1].x.m.n[1] test.aer.aerv._[1]._[1]._[1].x.m.n[2]
+# vector r :1ofN 3 test.aer.aerv.x.m.n[0] test.aer.aerv.x.m.n[1] test.aer.aerv.x.m.n[2]
+# vector r0 :1ofN 3 test.aer.aerv._[0].x.m.n[0] test.aer.aerv._[0].x.m.n[1] test.aer.aerv._[0].x.m.n[2]
+# vector r1 :1ofN 3 test.aer.aerv._[1].x.m.n[0] test.aer.aerv._[1].x.m.n[1] test.aer.aerv._[1].x.m.n[2]
+# vector r00 :1ofN 3 test.aer.aerv._[0]._[0].x.m.n[0] test.aer.aerv._[0]._[0].x.m.n[1] test.aer.aerv._[0]._[0].x.m.n[2]
+# vector r01 :1ofN 3 test.aer.aerv._[0]._[1].x.m.n[0] test.aer.aerv._[0]._[1].x.m.n[1] test.aer.aerv._[0]._[1].x.m.n[2]
+# vector r10 :1ofN 3 test.aer.aerv._[1]._[0].x.m.n[0] test.aer.aerv._[1]._[0].x.m.n[1] test.aer.aerv._[1]._[0].x.m.n[2]
+# vector r11 :1ofN 3 test.aer.aerv._[1]._[1].x.m.n[0] test.aer.aerv._[1]._[1].x.m.n[1] test.aer.aerv._[1]._[1].x.m.n[2]
+# vector r000 :1ofN 3 test.aer.aerv._[0]._[0]._[0].x.m.n[0] test.aer.aerv._[0]._[0]._[0].x.m.n[1] test.aer.aerv._[0]._[0]._[0].x.m.n[2]
+# vector r001 :1ofN 3 test.aer.aerv._[0]._[0]._[1].x.m.n[0] test.aer.aerv._[0]._[0]._[1].x.m.n[1] test.aer.aerv._[0]._[0]._[1].x.m.n[2]
+# vector r010 :1ofN 3 test.aer.aerv._[0]._[1]._[0].x.m.n[0] test.aer.aerv._[0]._[1]._[0].x.m.n[1] test.aer.aerv._[0]._[1]._[0].x.m.n[2]
+# vector r011 :1ofN 3 test.aer.aerv._[0]._[1]._[1].x.m.n[0] test.aer.aerv._[0]._[1]._[1].x.m.n[1] test.aer.aerv._[0]._[1]._[1].x.m.n[2]
+# vector r100 :1ofN 3 test.aer.aerv._[1]._[0]._[0].x.m.n[0] test.aer.aerv._[1]._[0]._[0].x.m.n[1] test.aer.aerv._[1]._[0]._[0].x.m.n[2]
+# vector r101 :1ofN 3 test.aer.aerv._[1]._[0]._[1].x.m.n[0] test.aer.aerv._[1]._[0]._[1].x.m.n[1] test.aer.aerv._[1]._[0]._[1].x.m.n[2]
+# vector r110 :1ofN 3 test.aer.aerv._[1]._[1]._[0].x.m.n[0] test.aer.aerv._[1]._[1]._[0].x.m.n[1] test.aer.aerv._[1]._[1]._[0].x.m.n[2]
+# vector r111 :1ofN 3 test.aer.aerv._[1]._[1]._[1].x.m.n[0] test.aer.aerv._[1]._[1]._[1].x.m.n[1] test.aer.aerv._[1]._[1]._[1].x.m.n[2]
 
 # vwatch x
 # vwatch x0
@@ -91,23 +91,85 @@ vector r111 :1ofN 3 test.aer.aerv._[1]._[1]._[1].x.m.n[0] test.aer.aerv._[1]._[1
 # vwatch x110
 # vwatch x111
 
-vwatch r
-vwatch r0
-vwatch r1
-vwatch r00
-vwatch r01
-vwatch r10
-vwatch r11
-vwatch r000
-vwatch r001
-vwatch r010
-vwatch r011
-vwatch r100
-vwatch r101
-vwatch r110
-vwatch r111
+# vwatch r
+# vwatch r0
+# vwatch r1
+# vwatch r00
+# vwatch r01
+# vwatch r10
+# vwatch r11
+# vwatch r000
+# vwatch r001
+# vwatch r010
+# vwatch r011
+# vwatch r100
+# vwatch r101
+# vwatch r110
+# vwatch r111
+# 
+# step 600
 
-step 600
+# debug #######################################################################
+
+# set_principal test.aer.aerv.node.route.p.m.n[0]
+# set_principal test.aer.aerv.node.route.p.m.n[1]
+# set_principal test.aer.aerv.node.route.p.m.n[2]
+# set_principal test.aer.aerv.node.route.p.e
+# set_principal test.aer.aerv.node.head.x.m.n[0]
+# set_principal test.aer.aerv.node.head.x.m.n[1]
+# set_principal test.aer.aerv.node.head.x.m.n[2]
+# set_principal test.aer.aerv.node.head.x.e
+# set_principal test.aer.aerv.node.fwd.p.m.n[0]
+# set_principal test.aer.aerv.node.fwd.p.m.n[1]
+# set_principal test.aer.aerv.node.fwd.p.m.n[2]
+# set_principal test.aer.aerv.node.fwd.p.e
+# set_principal test.aer.aerv.node.fwd.c[0].m.n[0]
+# set_principal test.aer.aerv.node.fwd.c[0].m.n[1]
+# set_principal test.aer.aerv.node.fwd.c[0].m.n[2]
+# set_principal test.aer.aerv.node.fwd.c[0].e
+# set_principal test.aer.aerv.node.fwd.c[1].m.n[0]
+# set_principal test.aer.aerv.node.fwd.c[1].m.n[1]
+# set_principal test.aer.aerv.node.fwd.c[1].m.n[2]
+# set_principal test.aer.aerv.node.fwd.c[1].e
+# 
+# set_principal test.aer.aerv.node.fwd.so
+# set_principal test.aer.aerv.node.fwd.s[0]
+# set_principal test.aer.aerv.node.fwd.s[1]
+# 
+# source reset.scr
+
+# watch test.aer.aerv.node.route.p.m.n[0]
+# watch test.aer.aerv.node.route.p.m.n[1]
+# watch test.aer.aerv.node.route.p.m.n[2]
+# watch test.aer.aerv.node.route.p.e
+# watch test.aer.aerv.node.head.x.m.n[0]
+# watch test.aer.aerv.node.head.x.m.n[1]
+# watch test.aer.aerv.node.head.x.m.n[2]
+# watch test.aer.aerv.node.head.x.e
+# watch test.aer.aerv.node.fwd.p.m.n[0]
+# watch test.aer.aerv.node.fwd.p.m.n[1]
+# watch test.aer.aerv.node.fwd.p.m.n[2]
+# watch test.aer.aerv.node.fwd.p.e
+# watch test.aer.aerv.node.fwd.c[0].m.n[0]
+# watch test.aer.aerv.node.fwd.c[0].m.n[1]
+# watch test.aer.aerv.node.fwd.c[0].m.n[2]
+# watch test.aer.aerv.node.fwd.c[0].e
+# watch test.aer.aerv.node.fwd.c[1].m.n[0]
+# watch test.aer.aerv.node.fwd.c[1].m.n[1]
+# watch test.aer.aerv.node.fwd.c[1].m.n[2]
+# watch test.aer.aerv.node.fwd.c[1].e
+# 
+# watch test.aer.aerv.node.fwd.so
+# watch test.aer.aerv.node.fwd.s[0]
+# watch test.aer.aerv.node.fwd.s[1]
+
+# watch test.aer.aerv.node.head.u[0]
+# watch test.aer.aerv.node.head.u[1]
+
+# vector r :1ofN 3 test.aer.aerv.x.m.n[0] test.aer.aerv.x.m.n[1] test.aer.aerv.x.m.n[2]
+# vwatch r
+
+# step 100
 
 # debug #######################################################################
 
@@ -174,154 +236,3 @@ step 600
 # vwatch r
 # vwatch rr0
 # vwatch rr1
-
-# debug reset #################################################################
-
-# set_principal test.aer.aerv.node.route.p.e
-# set_principal test.aer.aerv.node.route.p.m.n[0]
-# set_principal test.aer.aerv.node.route.p.m.n[1]
-# set_principal test.aer.aerv.node.route.p.m.n[2]
-# set_principal test.aer.aerv.node.route.c[0].e
-# set_principal test.aer.aerv.node.route.c[0].m.n[0]
-# set_principal test.aer.aerv.node.route.c[0].m.n[1]
-# set_principal test.aer.aerv.node.route.c[0].m.n[2]
-# set_principal test.aer.aerv.node.route.c[1].e
-# set_principal test.aer.aerv.node.route.c[1].m.n[0]
-# set_principal test.aer.aerv.node.route.c[1].m.n[1]
-# set_principal test.aer.aerv.node.route.c[1].m.n[2]
-# set_principal test.aer.aerv.node.head.si
-# set_principal test.aer.aerv.node.head.s[0]
-# set_principal test.aer.aerv.node.head.s[1]
-# set_principal test.aer.aerv.node.fwd.c[0].e
-# set_principal test.aer.aerv.node.fwd.c[0].m.n[0]
-# set_principal test.aer.aerv.node.fwd.c[0].m.n[1]
-# set_principal test.aer.aerv.node.fwd.c[0].m.n[2]
-# set_principal test.aer.aerv.node.fwd.c[1].e
-# set_principal test.aer.aerv.node.fwd.c[1].m.n[0]
-# set_principal test.aer.aerv.node.fwd.c[1].m.n[1]
-# set_principal test.aer.aerv.node.fwd.c[1].m.n[2]
-# 
-# set_principal test.aer.aerv.aerv[0].node.route.c[0].e
-# set_principal test.aer.aerv.aerv[0].node.route.c[0].m.n[0]
-# set_principal test.aer.aerv.aerv[0].node.route.c[0].m.n[1]
-# set_principal test.aer.aerv.aerv[0].node.route.c[0].m.n[2]
-# set_principal test.aer.aerv.aerv[0].node.route.c[1].e
-# set_principal test.aer.aerv.aerv[0].node.route.c[1].m.n[0]
-# set_principal test.aer.aerv.aerv[0].node.route.c[1].m.n[1]
-# set_principal test.aer.aerv.aerv[0].node.route.c[1].m.n[2]
-# set_principal test.aer.aerv.aerv[0].node.head.si
-# set_principal test.aer.aerv.aerv[0].node.head.s[0]
-# set_principal test.aer.aerv.aerv[0].node.head.s[1]
-# set_principal test.aer.aerv.aerv[0].node.fwd.c[0].e
-# set_principal test.aer.aerv.aerv[0].node.fwd.c[0].m.n[0]
-# set_principal test.aer.aerv.aerv[0].node.fwd.c[0].m.n[1]
-# set_principal test.aer.aerv.aerv[0].node.fwd.c[0].m.n[2]
-# set_principal test.aer.aerv.aerv[0].node.fwd.c[1].e
-# set_principal test.aer.aerv.aerv[0].node.fwd.c[1].m.n[0]
-# set_principal test.aer.aerv.aerv[0].node.fwd.c[1].m.n[1]
-# set_principal test.aer.aerv.aerv[0].node.fwd.c[1].m.n[2]
-# set_principal test.aer.aerv.aerv[1].node.route.c[0].e
-# set_principal test.aer.aerv.aerv[1].node.route.c[0].m.n[0]
-# set_principal test.aer.aerv.aerv[1].node.route.c[0].m.n[1]
-# set_principal test.aer.aerv.aerv[1].node.route.c[0].m.n[2]
-# set_principal test.aer.aerv.aerv[1].node.route.c[1].e
-# set_principal test.aer.aerv.aerv[1].node.route.c[1].m.n[0]
-# set_principal test.aer.aerv.aerv[1].node.route.c[1].m.n[1]
-# set_principal test.aer.aerv.aerv[1].node.route.c[1].m.n[2]
-# set_principal test.aer.aerv.aerv[1].node.head.si
-# set_principal test.aer.aerv.aerv[1].node.head.s[0]
-# set_principal test.aer.aerv.aerv[1].node.head.s[1]
-# set_principal test.aer.aerv.aerv[1].node.fwd.c[0].e
-# set_principal test.aer.aerv.aerv[1].node.fwd.c[0].m.n[0]
-# set_principal test.aer.aerv.aerv[1].node.fwd.c[0].m.n[1]
-# set_principal test.aer.aerv.aerv[1].node.fwd.c[0].m.n[2]
-# set_principal test.aer.aerv.aerv[1].node.fwd.c[1].e
-# set_principal test.aer.aerv.aerv[1].node.fwd.c[1].m.n[0]
-# set_principal test.aer.aerv.aerv[1].node.fwd.c[1].m.n[1]
-# set_principal test.aer.aerv.aerv[1].node.fwd.c[1].m.n[2]
-# 
-# set_principal test.aer.aerv.yi[0]
-# set_principal test.aer.aerv.yi[1]
-# set_principal test.aer.aerv.yi[2]
-# set_principal test.aer.aerv.yi[3]
-# set_principal test.aer.aerv.yo[0]
-# set_principal test.aer.aerv.yo[1]
-# set_principal test.aer.aerv.yo[2]
-# set_principal test.aer.aerv.yo[3]
-# 
-# source reset.scr
-# 
-# uget test.aer.aerv.node.route.p.e
-# uget test.aer.aerv.node.route.p.m.n[0]
-# uget test.aer.aerv.node.route.p.m.n[1]
-# uget test.aer.aerv.node.route.p.m.n[2]
-# uget test.aer.aerv.node.route.c[0].e
-# uget test.aer.aerv.node.route.c[0].m.n[0]
-# uget test.aer.aerv.node.route.c[0].m.n[1]
-# uget test.aer.aerv.node.route.c[0].m.n[2]
-# uget test.aer.aerv.node.route.c[1].e
-# uget test.aer.aerv.node.route.c[1].m.n[0]
-# uget test.aer.aerv.node.route.c[1].m.n[1]
-# uget test.aer.aerv.node.route.c[1].m.n[2]
-# uget test.aer.aerv.node.head.si
-# uget test.aer.aerv.node.head.s[0]
-# uget test.aer.aerv.node.head.s[1]
-# uget test.aer.aerv.node.fwd.c[0].e
-# uget test.aer.aerv.node.fwd.c[0].m.n[0]
-# uget test.aer.aerv.node.fwd.c[0].m.n[1]
-# uget test.aer.aerv.node.fwd.c[0].m.n[2]
-# uget test.aer.aerv.node.fwd.c[1].e
-# uget test.aer.aerv.node.fwd.c[1].m.n[0]
-# uget test.aer.aerv.node.fwd.c[1].m.n[1]
-# uget test.aer.aerv.node.fwd.c[1].m.n[2]
-# 
-# uget test.aer.aerv.node.head.u[0]
-# uget test.aer.aerv.node.head.u[1]
-# 
-# uget test.aer.aerv.aerv[0].node.route.c[0].e
-# uget test.aer.aerv.aerv[0].node.route.c[0].m.n[0]
-# uget test.aer.aerv.aerv[0].node.route.c[0].m.n[1]
-# uget test.aer.aerv.aerv[0].node.route.c[0].m.n[2]
-# uget test.aer.aerv.aerv[0].node.route.c[1].e
-# uget test.aer.aerv.aerv[0].node.route.c[1].m.n[0]
-# uget test.aer.aerv.aerv[0].node.route.c[1].m.n[1]
-# uget test.aer.aerv.aerv[0].node.route.c[1].m.n[2]
-# uget test.aer.aerv.aerv[0].node.head.si
-# uget test.aer.aerv.aerv[0].node.head.s[0]
-# uget test.aer.aerv.aerv[0].node.head.s[1]
-# uget test.aer.aerv.aerv[0].node.fwd.c[0].e
-# uget test.aer.aerv.aerv[0].node.fwd.c[0].m.n[0]
-# uget test.aer.aerv.aerv[0].node.fwd.c[0].m.n[1]
-# uget test.aer.aerv.aerv[0].node.fwd.c[0].m.n[2]
-# uget test.aer.aerv.aerv[0].node.fwd.c[1].e
-# uget test.aer.aerv.aerv[0].node.fwd.c[1].m.n[0]
-# uget test.aer.aerv.aerv[0].node.fwd.c[1].m.n[1]
-# uget test.aer.aerv.aerv[0].node.fwd.c[1].m.n[2]
-# uget test.aer.aerv.aerv[1].node.route.c[0].e
-# uget test.aer.aerv.aerv[1].node.route.c[0].m.n[0]
-# uget test.aer.aerv.aerv[1].node.route.c[0].m.n[1]
-# uget test.aer.aerv.aerv[1].node.route.c[0].m.n[2]
-# uget test.aer.aerv.aerv[1].node.route.c[1].e
-# uget test.aer.aerv.aerv[1].node.route.c[1].m.n[0]
-# uget test.aer.aerv.aerv[1].node.route.c[1].m.n[1]
-# uget test.aer.aerv.aerv[1].node.route.c[1].m.n[2]
-# uget test.aer.aerv.aerv[1].node.head.si
-# uget test.aer.aerv.aerv[1].node.head.s[0]
-# uget test.aer.aerv.aerv[1].node.head.s[1]
-# uget test.aer.aerv.aerv[1].node.fwd.c[0].e
-# uget test.aer.aerv.aerv[1].node.fwd.c[0].m.n[0]
-# uget test.aer.aerv.aerv[1].node.fwd.c[0].m.n[1]
-# uget test.aer.aerv.aerv[1].node.fwd.c[0].m.n[2]
-# uget test.aer.aerv.aerv[1].node.fwd.c[1].e
-# uget test.aer.aerv.aerv[1].node.fwd.c[1].m.n[0]
-# uget test.aer.aerv.aerv[1].node.fwd.c[1].m.n[1]
-# uget test.aer.aerv.aerv[1].node.fwd.c[1].m.n[2]
-# 
-# uget test.aer.aerv.yi[0]
-# uget test.aer.aerv.yi[1]
-# uget test.aer.aerv.yi[2]
-# uget test.aer.aerv.yi[3]
-# uget test.aer.aerv.yo[0]
-# uget test.aer.aerv.yo[1]
-# uget test.aer.aerv.yo[2]
-# uget test.aer.aerv.yo[3]
