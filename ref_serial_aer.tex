@@ -1012,8 +1012,11 @@ PULL\_CTRL reads the head word and indicates which PULL should ping ROUTE for da
 \subsubsection*{PRS}
 
 \begin{prs2}
-s0i & s1i -> xe+
-u0 | u1 -> xe-
+s0i & s1i & q -> xe+
+~q -> xe-
+
+~u0 & ~u1 -> q+
+u0 | u1 -> q-
 \end{prs2}
 
 \begin{prs2}
@@ -1026,10 +1029,10 @@ x1 -> u1+
 
 \begin{prs2}
 u0 & ~x0 -> s0o+
-~u0 -> s0o-
+~u0 | x0 -> s0o-
 
 u1 & ~x1 -> s1o+
-~u1 -> s1o-
+~u1 | x1-> s1o-
 \end{prs2}
 
 Radix 2 transistor count: 
@@ -1050,7 +1053,7 @@ Radix 4 transistor count:
  []si->[ye];xe+
   [ x0->y0+;[~ye];xe-;[~x0];y0-
   []x1->y1+;[~ye];xe-;[~x1];y1-
-  []xt->yt+;[~ye];xe-;[~xt];so-;yt-
+  []xt->yt+;[~ye];xe-;[~xt];so-;[~si];yt-
   ]
  ]
 \end{hse}
@@ -1074,7 +1077,12 @@ x1 -> y1+
 ~x1 -> y1-
 
 xt -> yt+
-~so -> yt-
+~si -> yt-
 \end{prs2}
+
+Radix 2 transistor count: 
+
+Radix 4 transistor count: 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \end{document}
