@@ -7,8 +7,9 @@
 \author{Sam Fok}
 \maketitle
 
-This document maps out the explored design space of the serialized-tree AER system.
+This document explores the design space of the serialized-tree AER system.
 The system uses an address-event representation and transmitters/receivers with tree architectures.
+The accounting is done assuming we're using an array of 4096 neurons.
 
 \noindent Design parametrizations:
 
@@ -17,9 +18,9 @@ The system uses an address-event representation and transmitters/receivers with 
     & N for 1-of-N encoding
 \end{easylist}
 
-\noindent We'll want to make sure that the designs can scale at least to 1-of-4 encoding
+\noindent We'll want to make sure that the designs can scale to 1-of-4 encoding.
 
-\noindent Transmitter (AEXT) design space:
+\noindent \textbf{Transmitter (AEXT) design space:}
 \begin{easylist}
     & active sender, passive receiver (ASPR)
     && monolithic NODE
@@ -41,7 +42,7 @@ The system uses an address-event representation and transmitters/receivers with 
     & passive sender, active receiver (ASPR)
 \end{easylist}
 
-\noindent Receiver (AERV) design space:
+\noindent \textbf{Receiver (AERV) design space:}
 \begin{easylist}
     & active sender, passive receiver (ASPR)
     && monolithic NODE
@@ -66,18 +67,18 @@ The system uses an address-event representation and transmitters/receivers with 
     &&&&&& unpipelined
     & passive sender, active receiver (PSAR)
     && monolithic NODE
-    && decomposed into ROUTE, READ\_HEAD, FWD\_BODY
+    && decomposed into ROUTE, READ\_HEAD, FWD\_BODY (Section~\ref{sec:AERV_PSAR_RHB})
     &&& ROUTE
-    &&&& \textbf{unpipelined}
-    &&& \textbf{READ\_HEAD}
+    &&&& \textbf{unpipelined} (Section~\ref{sec:AERV_PSAR_RHB_ROUTE_u})
+    &&& \textbf{READ\_HEAD} (Section~\ref{sec:AERV_PSAR_RHB_READ_HEAD})
     &&& FWD\_BODY
-    &&&& \textbf{unpipelined}
-    &&&& \textbf{pipelined}
-    && decomposed into ROUTE, PULL\_CTRL, PULL
-    &&& \textbf{ROUTE}
-    &&& PULL\_CTRL
+    &&&& \textbf{unpipelined} (Section~\ref{sec:AERV_PSAR_RHB_FWD_BODY_u})
+    &&&& \textbf{pipelined} (Section~\ref{sec:AERV_PSAR_RHB_FWD_BODY_p})
+    && decomposed into ROUTE, PULL\_CTRL, PULL (Section~\ref{sec:AERV_PSAR_RCP})
+    &&& \textbf{ROUTE} (Section~\ref{sec:AERV_PSAR_RCP_ROUTE})
+    &&& \textbf{PULL\_CTRL} (Section~\ref{sec:AERV_PSAR_RCP_PULL_CTRL})
     &&& PULL
-    &&&& unpipelined
+    &&&& \textbf{unpipelined} (Section~\ref{sec:AERV_PSAR_RCP_PULL_u})
 \end{easylist}
                 
 We also need the following interfaces:
@@ -750,7 +751,7 @@ c0i & c1i -> po+
 This makes the circuitry much simpler
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{AERV PSAR ROUTE, READ\_HEAD, FWD\_BODY}
+\section{AERV PSAR decomposed into ROUTE, READ\_HEAD, FWD\_BODY (RHB) \label{sec:AERV_PSAR_RHB}}
 
 ROUTE sends a parent's signal to one of its children depending on which child requests. Assumes requests are mutually exclusive.
 
@@ -759,8 +760,50 @@ to forward the body packet
 
 FWD\_BODY forwards words to the children based on command from DEC
 
+\noindent Radix 2 accounting (4095 nodes / 4096 neurons):
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|}
+    \hline
+    component & transistors/component & components/node & transistors/node \\ \hline
+    ROUTE & 39 & 1 & 39 \\ \hline
+    READ\_HEAD & 29 & 1 & 29 \\ \hline
+    FWD\_BODY & 51 & 1 & 51 \\ \hline \hline
+    \multicolumn{3}{|r|}{total transistors/node} & 119 \\ \hline
+    \end{tabular}
+\end{center}
+
+119 transistors/node * 4095 nodes / 4096 neurons = \textbf{119.0 transistors/neuron}
+
+\noindent Radix 4 transistor accounting (1365 nodes / 4096 neurons): 
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|}
+    \hline
+    component & transistors/component & components/node & transistors/node \\ \hline
+    ROUTE & 71 & 1 & 71 \\ \hline
+    READ\_HEAD & 53 & 1 & 53 \\ \hline
+    FWD\_BODY & 125 & 1 & 125 \\ \hline \hline
+    \multicolumn{3}{|r|}{total transistors/node} & 249 \\ \hline
+    \end{tabular}
+\end{center}
+
+249 transistors/node * 1365 nodes / 4096 neurons = \textbf{83.0 transistors/neuron}
+
+However, we can still send a payload to the neurons with 1-of-2 data instead of 1-of-4 data at the leaf nodes.
+There are 1024 leaf nodes. 
+This will simplify the leaf node ROUTE and FWD\_BODY components because their children only need to see the 1-bit payload and tail.
+Each leaf node ROUTE can lose 1 bit (i.e. 2 data lines or 2 asymmetric c-elements or 14 transistors).
+Each leaf node FWD\_BODY can lose 1 bit (i.e. 2 data lines or 2 AND-gates or 8 transistors) for each of 4 children.
+Therefore we can subtract 
+
+1024*(14+8*4) = 47104 transistors.
+
+\noindent Leaving out the high bit from the leaf nodes yields
+
+(249 transistors/node * 1365 nodes - 47104 transistors) / 4096 neurons = \textbf{71.5 transistors/neuron}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{AERV PSAR ROUTE unpipelined}
+\section{AERV PSAR RHB ROUTE unpipelined \label{sec:AERV_PSAR_RHB_ROUTE_u}}
 
 Note that when communicating with READ\_HEAD, ROUTE does not need to send the tail bit; READ\_HEAD should never see a tail bit.
 
@@ -769,7 +812,7 @@ Note that when communicating with READ\_HEAD, ROUTE does not need to send the ta
 
 \begin{csp}
 *[[#{C0!};C0!(P?)
-  []#{C1!};C1!(P?)]
+  []#{H!};H!(P?)]
  ]
 \end{csp}
 
@@ -778,13 +821,12 @@ Note that when communicating with READ\_HEAD, ROUTE does not need to send the ta
 
 % [[ci];pe+;[pi];co+;[~ci];pe-;[~pi];co-]
 \begin{hse}
-*[[c0e|c1e];pe+
+*[[c0e|he];pe+
     [ p0&c0e->c00+;[~c0e];pe-;[~p0];c00-
     []p1&c0e->c01+;[~c0e];pe-;[~p1];c01-
     []pt&c0e->c0t+;[~c0e];pe-;[~pt];c0t-
-    []p0&c1e->c10+;[~c1e];pe-;[~p0];c10-
-    []p1&c1e->c11+;[~c1e];pe-;[~p1];c11-
-    []pt&c1e->c1t+;[~c1e];pe-;[~pt];c1t-
+    []p0&he->h0+;[~he];pe-;[~p0];h0-
+    []p1&he->h1+;[~he];pe-;[~p1];h1-
     ]
  ]
 \end{hse}
@@ -793,8 +835,8 @@ Note that when communicating with READ\_HEAD, ROUTE does not need to send the ta
 \subsubsection*{PRS}
 
 \begin{prs2}
-c0e | c1e -> pe+
-~c0e & ~c1e -> pe-
+c0e | he -> pe+
+~c0e & ~he -> pe-
 \end{prs2}
 
 \begin{prs2}
@@ -807,22 +849,41 @@ p1 & c0e -> c01+
 pt & c0e -> c0t+
 ~pt -> c0t-
 
-p0 & c1e -> c10+
-~p0 -> c10-
+p0 & he -> h0+
+~p0 -> h0-
 
-p1 & c1e -> c11+
-~p1 -> c11-
-
-pt & c1e -> c1t+
-~pt -> c1t-
+p1 & he -> h1+
+~p1 -> h1-
 \end{prs2}
 
-\noindent Radix 2 transistor count: 39
+\noindent Radix 2 accounting:
 
-\noindent Radix 4 transistor count: 67
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $pe$ & 4 & \\ \hline
+    $c0[0,1,t]$ & 21 & \\ \hline
+    $h[0,1]$ & 14 & \\ \hline \hline
+    total & 39 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent Radix 4 transistor accounting: 
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $pe$ & 8 & \\ \hline
+    $c0[0,1,2,3,t]$ & 35 & \\ \hline
+    $h[0,1,2,3]$ & 28 & \\ \hline \hline
+    total & 71 & \\ \hline
+    \end{tabular}
+\end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{AERV PSAR READ\_HEAD}
+\section{AERV PSAR RHB READ\_HEAD \label{sec:AERV_PSAR_RHB_READ_HEAD}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection*{CHP}
@@ -861,12 +922,34 @@ u1 & ~x1 -> s1+
 ~u1 | x1 -> s1-
 \end{prs2}
 
-Radix 2 transistor count: 25
+\noindent Radix 2 accounting:
 
-Radix 4 transistor count: 45
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $xe$ & 9 & \\ \hline
+    $u[0,1]$ & 12 & \\ \hline
+    $s[0,1]$ & 8 & \\ \hline \hline
+    total & 29 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent Radix 4 transistor accounting: 
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $xe$ & 13 & \\ \hline
+    $u[0,1,2,3]$ & 24 & \\ \hline
+    $s[0,1,2,3]$ & 16 & \\ \hline \hline
+    total & 53 & \\ \hline
+    \end{tabular}
+\end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{AERV PSAR FWD\_BODY unpipelined}
+\section{AERV PSAR RHB FWD\_BODY unpipelined \label{sec:AERV_PSAR_RHB_FWD_BODY_u}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection*{CHP}
@@ -922,12 +1005,36 @@ pt & s1 -> c1t+
 ~s1 -> c1t-
 \end{prs2}
 
-Radix 2 transistor count: 51
+\noindent Radix 2 accounting:
 
-Radix 4 transistor count: 125
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $pe$ & 12 & \\ \hline
+    $s_o$ & 9 & \\ \hline
+    $c[0,1][0,1]$ & 16 & \\ \hline
+    $c[0,1]t$ & 14 & \\ \hline \hline
+    total & 51 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent Radix 4 transistor accounting: 
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $pe$ & 20 & \\ \hline
+    $s_o$ & 13 & \\ \hline
+    $c[0,1,2,3][0,1,2,3]$ & 64 & \\ \hline
+    $c[0,1,2,3]t$ & 28 & \\ \hline \hline
+    total & 125 & \\ \hline
+    \end{tabular}
+\end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{AERV PSAR FWD\_BODY pipelined}
+\section{AERV PSAR RHB FWD\_BODY pipelined \label{sec:AERV_PSAR_RHB_FWD_BODY_p}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection*{CHP}
@@ -982,18 +1089,108 @@ pt & s1 & c1e -> c1t+
 ~s1 -> c1t-
 \end{prs2}
 
-Radix 2 transistor count: 90
+\noindent Radix 2 accounting:
 
-Radix 4 transistor count: 262
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    total & 90 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent Radix 4 transistor accounting: 
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    total & 262 & \\ \hline
+    \end{tabular}
+\end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{AERV PSAR ROUTE PULL\_CTRL PULL}
+\section{AERV PSAR decomposed into ROUTE PULL\_CTRL PULL (RCP) \label{sec:AERV_PSAR_RCP}}
 
-This decomposition reuses ROUTE above. For radix 2, ROUTE splits traffic 3 ways -- to PULL\_CTRL and 2 instances of PULL.
-PULL\_CTRL reads the head word and indicates which PULL should ping ROUTE for data.
+ROUTE sends a parent's signal to one of its children depending on which child requests. Assumes requests are mutually exclusive. This is same ROUTE as above.
+
+PULL\_CTRL reads the head word and indicates which PULL should request data from ROUTE.
+
+PULL requests data from ROUTE and passes the data to the child.
+
+\noindent Radix 2 accounting (4095 nodes / 4096 neurons):
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|}
+    \hline
+    component & transistors/component & components/node & transistors/node \\ \hline
+    ROUTE & 62 & 1 & 62 \\ \hline
+    PULL\_CTRL & 28 & 1 & 28 \\ \hline
+    PULL & 14 & 2 & 28 \\ \hline \hline
+    \multicolumn{3}{|r|}{total transistors/node} & 118 \\ \hline
+    \end{tabular}
+\end{center}
+
+118 transistors/node * 4095 nodes / 4096 neurons = \textbf{118.0 transistors/neuron}
+
+\noindent Radix 4 transistor accounting (1365 nodes / 4096 neurons): 
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|}
+    \hline
+    component & transistors/component & components/node & transistors/node \\ \hline
+    ROUTE & 178 & 1 & 178 \\ \hline
+    PULL\_CTRL & 58 & 1 & 58 \\ \hline
+    PULL & 14 & 4 & 56 \\ \hline \hline
+    \multicolumn{3}{|r|}{total transistors/node} & 292 \\ \hline
+    \end{tabular}
+\end{center}
+
+292 transistors/node * 1365 nodes / 4096 neurons = \textbf{97.3 transistors/neuron}
+
+However, we can still send a payload to the neurons with 1-of-2 data instead of 1-of-4 data at the leaf nodes.
+There are 1024 leaf nodes. 
+This will simplify the leaf node ROUTE component because its children only need to see the 1-bit payload and tail.
+Each leaf node ROUTE can lose 1 bit (i.e. 2 data lines or 2 asymmetric c-elements or 14 transistors) for each of 4 children.
+Therefore we can subtract 1024*14*4 = 57344 transistors
+
+\noindent Leaving out the high bit from the leaf nodes yields
+
+(292 transistors/node * 1365 nodes - 57344 transistors)/ 4096 neurons = \textbf{83.3 transistors/neuron}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{AERV PSAR RCP ROUTE \label{sec:AERV_PSAR_RCP_ROUTE}}
+
+This decomposition largely reuses the unpipelined ROUTE in Section~\ref{sec:AERV_PSAR_RHB_ROUTE_u} above. 
+For this decomposition, ROUTE connects to [radix] instances of PULL and 1 instance of PULL\_CTRL.
+
+\noindent Radix 2 accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $pe$ & 6 & \\ \hline
+    $c[0,1][0,1,t]$ & 42 & \\ \hline
+    $h[0,1]$ & 14 & \\ \hline \hline
+    total & 62 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent Radix 4 transistor accounting: 
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $pe$ & 10 & \\ \hline
+    $c[0,1,2,3][0,1,2,3,t]$ & 140 & \\ \hline
+    $h[0,1,2,3]$ & 28 & \\ \hline \hline
+    total & 178 & \\ \hline
+    \end{tabular}
+\end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{AERV PSAR PULL\_CTRL}
+\section{AERV PSAR PULL\_CTRL \label{sec:AERV_PSAR_RCP_PULL_CTRL}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection*{CHP}
@@ -1013,7 +1210,7 @@ PULL\_CTRL reads the head word and indicates which PULL should ping ROUTE for da
 
 \begin{prs2}
 s0i & s1i & q -> xe+
-~q -> xe-
+~s0i | ~s1i | ~q -> xe-
 
 ~u0 & ~u1 -> q+
 u0 | u1 -> q-
@@ -1035,12 +1232,35 @@ u1 & ~x1 -> s1o+
 ~u1 | x1-> s1o-
 \end{prs2}
 
-Radix 2 transistor count: 
+\noindent Radix 2 accounting:
 
-Radix 4 transistor count: 
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $xe$ & 8 & no $q$ \\ \hline
+    $u[0,1]$ & 12 & \\ \hline
+    $s[0,1]_o$ & 8 & \\ \hline \hline
+    total & 28 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent Radix 4 transistor accounting: 
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $xe$ & 10 & \\ \hline
+    $q$ & 8 & \\ \hline
+    $u[0,1,2,3]$ & 24 & \\ \hline
+    $s[0,1,2,3]_o$ & 16 & \\ \hline \hline
+    total & 58 & \\ \hline
+    \end{tabular}
+\end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{AERV PSAR PULL unpipelined}
+\section{AERV PSAR RCP PULL unpipelined \label{sec:AERV_PSAR_RCP_PULL_u}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection*{CHP}
@@ -1066,7 +1286,7 @@ Radix 4 transistor count:
 yt & ~xt -> so-
 
 si & ye -> xe+
-~ye -> xe-
+~si | ~ye -> xe-
 \end{prs2}
 
 \begin{prs2}
@@ -1080,9 +1300,33 @@ xt -> yt+
 ~si -> yt-
 \end{prs2}
 
-Radix 2 transistor count: 
+\noindent Radix 2 transistor accounting: 
 
-Radix 4 transistor count: 
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $s_o$ & 4 & \\ \hline
+    $xe$ & 4 & \\ \hline
+    $y[0,1]$ & 0 & wires \\ \hline
+    $yt$ & 6 & \\ \hline \hline
+    total & 14 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent Radix 4 transistor accounting: 
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $s_o$ & 4 & \\ \hline
+    $xe$ & 4 & \\ \hline
+    $y[0,1,2,3]$ & 0 & wires \\ \hline
+    $yt$ & 6 & \\ \hline \hline
+    total & 14 & \\ \hline
+    \end{tabular}
+\end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \end{document}

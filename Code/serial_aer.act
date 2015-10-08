@@ -350,11 +350,9 @@ namespace aer {
             // N for 1-of-N encoding
             bool u[N], q;
                 prs<g.Vdd, g.GND> {
-                    (& : n : N : si[n]) & q -> x.e+
-                    g.pReset | ~q -> x.e-
+                    (& : n : N : si[n]) & q => x.e+
 
-                    (& : n : N : ~u[n]) -> q+
-                    (| : n : N : u[n]) -> q-
+                    (& : n : N : ~u[n]) => q+
 
                     (: n : N :
                         x.m.n[n] -> u[n]+
@@ -376,8 +374,7 @@ namespace aer {
                 ~g.sReset & ~y.m.n[N] & ~si -> so+
                 g.pReset | y.m.n[N] & ~x.m.n[N] -> so-
 
-                si & y.e -> x.e+
-                ~y.e -> x.e-
+                si & y.e => x.e+
 
                 x.m.n[N] -> y.m.n[N]+
                 ~si -> y.m.n[N]-
