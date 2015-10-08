@@ -29,68 +29,64 @@ namespace aer {
             // prepends head word and fowards packet
             // N for 1-of-N encoding. + tail word line
             // p word prepended to each packet
-            bool yi = y.a;
-            bool xo = x.a;
-            bool yt = y.m.n[N];
-            bool xt = x.m.n[N];
-
+            /* version unpipelined ------------------------------------------*/
+            /*
+                bool h, q;
+                prs<g.Vdd, g.GND> {
+                }
+            */
             /* version hq ---------------------------------------------------*/
             // /*
                 bool h, q;
                 prs<g.Vdd, g.GND> {
-                    h & yi & y.m.n[p] -> q+
+                    h & y.a & y.m.n[p] -> q+
                     g.pReset | ~h -> q-
 
-                    g.pReset | yt & xo & yi -> h+
-                    q & ~yi -> h-
+                    g.pReset | y.m.n[N] & x.a & y.a -> h+
+                    q & ~y.a -> h-
                     
-                    ~h & (y.m.n[0] | y.m.n[1] | yt) -> xo+
-                    ~x.m.n[0] & ~x.m.n[1] & ~xt & ~y.m.n[0] & ~y.m.n[1] & ~yt -> xo-
+                    // ~h & (y.m.n[0] | y.m.n[1] | y.m.n[N]) -> x.a+
+                    ~h & (| : n : N+1 : y.m.n[n]) -> x.a+
+                    // ~x.m.n[0] & ~x.m.n[1] & ~x.m.n[N] & ~y.m.n[0] & ~y.m.n[1] & ~y.m.n[N] -> x.a-
+                    (& : n : N+1 : ~x.m.n[n]) & (& : n : N+1 : ~y.m.n[n]) -> x.a-
 
-                    h & ~q & ~yi & ~xo & (x.m.n[0] | x.m.n[1] | xt) -> y.m.n[p]+
+                    // h & ~q & ~y.a & ~x.a & (x.m.n[0] | x.m.n[1] | x.m.n[N]) -> y.m.n[p]+
+                    h & ~q & ~y.a & ~x.a & (| : n : N+1 : x.m.n[n]) -> y.m.n[p]+
                     q -> y.m.n[p]-
 
-                    ~h & x.m.n[0] & ~q & ~yi & ~xo -> y.m.n[0]+
-                    g.pReset | yi & xo -> y.m.n[0]-
-
-                    ~h & x.m.n[1] & ~q & ~yi & ~xo -> y.m.n[1]+
-                    g.pReset | yi & xo -> y.m.n[1]-
-
-                    ~h & xt & ~q & ~yi & ~xo -> yt+
-                    g.pReset | h & xo -> yt-
+                    (: n : N :
+                        ~h & x.m.n[n] & ~q & ~y.a & ~x.a -> y.m.n[n]+
+                        g.pReset | y.a & x.a -> y.m.n[n]-
+                    )
+                    ~h & x.m.n[N] & ~q & ~y.a & ~x.a -> y.m.n[N]+
+                    g.pReset | h & x.a -> y.m.n[N]-
                 }
             // */
-
             /* version hu ---------------------------------------------------*/
             /* 
                 bool h;
-                bool u[2], ut;
+                bool u[N+1];
                 prs<g.Vdd, g.GND> {
-                    g.pReset | yt -> h+
-                    y.m.n[p] & yi -> h-
+                    g.pReset | y.m.n[N] -> h+
+                    y.m.n[p] & y.a -> h-
                     
-                    h & (x.m.n[0] | x.m.n[1] | xt) & ~yi & ~yt -> y.m.n[p]+
-                    ~h & yi & ~u[p] -> y.m.n[p]-
+                    h & (| : n : N+1 : x.m.n[n]) & ~y.a & ~y.m.n[N] -> y.m.n[p]+
+                    ~h & y.a & ~u[p] -> y.m.n[p]-
 
-                    (u[0] | u[1] | ut) => xo+
+                    (| : n : N+1 : u[n]) => x.a+
 
-                    ~h & x.m.n[0] & ~yi -> u[0]+
-                    g.pReset | ~x.m.n[0] & yi -> u[0]-
+                    (: n : N :
+                        ~h & x.m.n[n] & ~y.a -> u[n]+
+                        g.pReset | ~x.m.n[n] & y.a -> u[n]-
+                    )
+                    ~h & x.m.n[N] & ~y.a -> u[N]+
+                    g.pReset | h & ~x.m.n[N] & y.a -> u[N]-
 
-                    ~h & x.m.n[1] & ~yi -> u[1]+
-                    g.pReset | ~x.m.n[1] & yi -> u[1]-
-
-                    ~h & xt & ~yi -> ut+
-                    g.pReset | h & ~xt & yi -> ut-
-
-                    u[0] -> y.m.n[0]+
-                    g.pReset | ~h & ~u[0] -> y.m.n[0]-
-
-                    u[1] -> y.m.n[1]+
-                    g.pReset | ~h & ~u[1] -> y.m.n[1]-
-
-                    ut -> yt+
-                    ~ut  -> yt-
+                    (: n : N :
+                        u[n] -> y.m.n[n]+
+                        g.pReset | ~h & ~u[n] -> y.m.n[n]-
+                    )
+                    u[N] => y.m.n[N]+
                 }
             */
         }
