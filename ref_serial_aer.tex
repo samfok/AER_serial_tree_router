@@ -26,10 +26,10 @@ The accounting is done assuming we're using an array of 4096 neurons.
     && monolithic NODE
     && decomposed into PFWD and MERGE
     &&& PFWD
-	&&&& unpipelined
+	&&&& unpipelined (Section~\ref{sec:AEXT_ASPR_PM_PFWD_u})
 	&&&& pipelined 
-	&&&&& \textbf{hq}
-	&&&&& \textbf{hu}
+	&&&&& \textbf{hq} (Section~\ref{sec:AEXT_ASPR_PM_PFWD_p_hq})
+	&&&&& \textbf{hu} (Section~\ref{sec:AEXT_ASPR_PM_PFWD_p_hu})
     &&&& decomposed into PREPEND, FWD, and SIMPLE\_MERGE
     &&&&& PREPEND
     &&&&& FWD
@@ -37,8 +37,8 @@ The accounting is done assuming we're using an array of 4096 neurons.
     &&& MERGE
     &&&& unpipelined
     &&&& pipelined
-	&&&&& \textbf{a\_a}
-	&&&&& \textbf{ah}
+	&&&&& \textbf{a\_a} (Section~\ref{sec:AEXT_ASPR_PM_MERGE_p_a_a})
+	&&&&& \textbf{ah} (Section~\ref{sec:AEXT_ASPR_PM_MERGE_p_ah})
     & passive sender, active receiver (ASPR)
 \end{easylist}
 
@@ -89,6 +89,8 @@ We also need the following interfaces:
     & leaf interface
 \end{easylist}
 
+\noindent\makebox[\linewidth]{\rule{\textwidth}{1pt}}  
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{AEXT ASPR NODE}
 
@@ -106,7 +108,7 @@ NODE\equiv
 \end{csp}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{AEXT ASPR PFWD/MERGE}
+\section{AEXT ASPR PFWD/MERGE (PM)}
 
 PFWD prepends a word to the packet indicating which branch the packet is coming from.
 MERGE arbitrates between incoming packet streams and outputs them one at a time.
@@ -121,7 +123,7 @@ PFWD\equiv
 \end{csp}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{AEXT ASPR PFWD unpipelined}
+\section{AEXT ASPR PM PFWD unpipelined \label{sec:AEXT_ASPR_PM_PFWD_u}}
 
 Perhaps this will be cheaper than pipelineing
 
@@ -151,12 +153,12 @@ h & (x0 | x1 | xt) -> q+
 
 \begin{prs2}
 ~q & yi -> xo+
-~yi -> xo-
+q | ~yi -> xo-
 \end{prs2}
 
 \begin{prs2}
-q -> yp+
-q & yi -> yp-
+h & q -> yp+
+~h & q & yi -> yp-
 \end{prs2}
 
 \begin{prs2}
@@ -170,8 +172,40 @@ q & yi -> yp-
 h -> yt-
 \end{prs2}
 
+\noindent Radix 2 transistor accounting: 
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $h$ & 8 & \\ \hline
+    $q$ & 10 & \\ \hline
+    $x_o$ & 4 & \\ \hline
+    $yp$ & 5 & OR'ed with a $y$ rule below which also provides the staticizer \\ \hline
+    $y[0,1]$ & 18 & \\ \hline
+    $yt$ & 8 & \\ \hline
+    \hline total & 53 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent Radix 4 transistor accounting: 
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $h$ & 8 & \\ \hline
+    $q$ & 12 & \\ \hline
+    $x_o$ & 4 & \\ \hline
+    $yp$ & 5 & OR'ed with a $y$ rule below which also provides the staticizer \\ \hline
+    $y[0,1,2,3]$ & 36 & \\ \hline
+    $yt$ & 8 & \\ \hline
+    \hline total & 73 & \\ \hline
+    \end{tabular}
+\end{center}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{AEXT ASPR PFWD hq}
+\section{AEXT ASPR PM PFWD pipelined hq \label{sec:AEXT_ASPR_PM_PFWD_p_hq}}
 
 This version has fewer state variables than AEXT PFWD hu, but the pull-up and pull-down chains are too long.
 
@@ -231,8 +265,40 @@ yi & xo -> y1-
 h & xo -> yt-
 \end{prs2}
 
+\noindent Radix 2 transistor accounting: 
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $q$ & 8 & \\ \hline
+    $h$ & 9 & \\ \hline
+    $xo$ & 14 & \\ \hline
+    $yp$ & 8 & OR'ed with a $y$ rule below which also provides the staticizer \\ \hline
+    $y[0,1]$ & 22 & \\ \hline
+    $yt$ & 11 & \\ \hline
+    \hline total & 72 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent Radix 4 transistor accounting: 
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $q$ & 8 & \\ \hline
+    $h$ & 9 & \\ \hline
+    $xo$ & 20 & \\ \hline
+    $yp$ & 10 & OR'ed with a $y$ rule below which also provides the staticizer \\ \hline
+    $y[0,1,2,3]$ & 44 & \\ \hline
+    $yt$ & 11 & \\ \hline
+    \hline total & 102 & \\ \hline
+    \end{tabular}
+\end{center}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{AEXT ASPR PFWD hu}
+\section{AEXT ASPR PM PFWD hu \label{sec:AEXT_ASPR_PM_PFWD_p_hu}}
 
 This version has more state variables than AEXT PFWD hq, but has reasonable pull-up and pull-down chains.
 
@@ -316,6 +382,237 @@ u1 -> y1+
 ut -> yt+
 ~ut -> yt-
 \end{prs2}
+
+\noindent Radix 2 transistor accounting: 
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $h$ & 7 & \\ \hline
+    $yp$ & 9 & OR'ed with a $y$ rule below which also provides the staticizer \\ \hline
+    $xo$ & 6 & \\ \hline
+    $u[0,1]$ & 18 & \\ \hline
+    $ut$ & 10 & \\ \hline
+    $y[0,1]$ & 14 & \\ \hline
+    $yt$ & 6 & \\ \hline
+    \hline total & 70 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent Radix 4 transistor accounting: 
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $h$ & 7 & \\ \hline
+    $yp$ & 11 & OR'ed with a $y$ rule below which also provides the staticizer \\ \hline
+    $xo$ & 10 & \\ \hline
+    $u[0,1,2,3]$ & 36 & \\ \hline
+    $ut$ & 10 & \\ \hline
+    $y[0,1,2,3]$ & 28 & \\ \hline
+    $yt$ & 6 & \\ \hline
+    \hline total & 108 & \\ \hline
+    \end{tabular}
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{AEXT ASPR PM MERGE pipelined a\_a \label{sec:AEXT_ASPR_PM_MERGE_p_a_a}}
+
+I don't like this version because the pullup chains for the state variables
+are too long and won't scale to higher radix encoding.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{CHP}
+
+\begin{csp}
+MERGE\equiv
+  *[[h->[#{C0}->a:=0\|#{C1}->a:=1];h-
+    []~h&a=0->P!(C0?)
+    []~h&a=0->P!(C1?)
+    ]]
+\end{csp}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
+
+\begin{hse}
+*[[~ao&~a1&(c00|c01|c0t)->a0+
+  \|~a0&~a1&(c10|c11|c1t)->a1+]]
+
+*[[ a0&c00->p0+;c0o+;[pi&~c00];p0-;c0o-;[~pi]
+  []a0&c01->p1+;c0o+;[pi&~c01];p1-;c0o-;[~pi]
+  []a0&c0t->pt+;c0o+;[pi&~c0t];a0-;pt-;c0o-;[~pi]
+  []a1&c10->p0+;c1o+;[pi&~c10];p0-;c1o-;[~pi]
+  []a1&c11->p1+;c1o+;[pi&~c11];p1-;c1o-;[~pi]
+  []a1&c1t->pt+;c1o+;[pi&~c1t];a1-;pt-;c1o-;[~pi]
+  ]]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
+
+\begin{prs2}
+~a0 & (c00 | c01| c0t) & ~c0o -> a0i+
+a0 -> a0i-
+
+~a1 & (c10 | c11| c1t) & ~c1o -> a1i+
+a1 -> a1i-
+
+a0o & ~a1 & ~c1o & ~pi -> a0+
+~a0o & pi & pt & ~c0t -> a0-
+
+a1o & ~a0 & ~c0o & ~pi -> a1+
+~a1o & pi & pt & ~c1t -> a1-
+\end{prs2}
+
+\begin{prs2}
+~pi & (a0 & c00 | a1 & c10) -> p0+
+pi & (~_a0 & ~c00 | ~_a1 & ~c10) -> p0-
+
+~pi & (a0 & c01 | a1 & c11) -> p1+
+pi & (~_a0 & ~c01 | ~_a1 & ~c11) -> p1-
+
+~pi & (a0 & c0t | a1 & c1t) -> pt+
+_a0 & _a1 -> pt-
+\end{prs2}
+
+\begin{prs2}
+a0 & (p0 | p1 | pt) -> c0o+
+~p0 & ~p1 & ~pt -> c0o-
+
+a1 & (p0 | p1 | pt) -> c1o+
+~p0 & ~p1 & ~pt -> c1o-
+\end{prs2}
+
+\noindent Radix 2 transistor accounting: 
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $a[0,1]i$ & 20 & \\ \hline
+    $a[0,1]o$ & 12 & 2-way arbiter \\ \hline
+    $a[0,1]$ & 24 & \\ \hline
+    $p[0,1]$ & 28 & \\ \hline
+    $pt$ & 11 & \\ \hline
+    $c[0,1]o$ & 22 & \\ \hline
+    \hline total & 117 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent Radix 4 transistor accounting: 
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $a[0,1,2,3]i$ & 48 & \\ \hline
+    $a[0,1,2,3]o$ & 128 & 4-way unpipelined arbiter \\ \hline
+    $a[0,1,2,3]$ & 48 & \\ \hline
+    $p[0,1,2,3]$ & 88 & \\ \hline
+    $pt$ & 17 & \\ \hline
+    $c[0,1,2,3]o$ & 60 & \\ \hline
+    \hline total & 389 & \\ \hline
+    \end{tabular}
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{AEXT ASPR PM MERGE pipelined ah \label{sec:AEXT_ASPR_PM_MERGE_p_ah}}
+
+This one has acceptable pullup/pulldown chains, but I'm worried about making it CMOS implementable
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
+
+\begin{hse}
+*[[~a0&(c00|c01|c0t)->a0+;h-;[~a0];h+
+  \|~a1&(c10|c11|c1t)->a1+;h-;[~a1];h+]]
+
+*[[ a0&c00->p0+;c0o+;[pi&~c00];p0-;c0o-;[~pi]
+  []a0&c01->p1+;c0o+;[pi&~c01];p1-;c0o-;[~pi]
+  []a0&c0t->pt+;c0o+;[pi&~c0t];a0-;pt-;c0o-;[~pi]
+  []a1&c10->p0+;c1o+;[pi&~c10];p0-;c1o-;[~pi]
+  []a1&c11->p1+;c1o+;[pi&~c11];p1-;c1o-;[~pi]
+  []a1&c1t->pt+;c1o+;[pi&~c1t];a1-;pt-;c1o-;[~pi]
+  ]]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
+
+\begin{prs2}
+(c00 | c01| c0t) & ~a0 -> a0i+
+~h & a0 -> a0i-
+
+(c10 | c11| c1t) & ~a1-> a1i+
+~h & a1 -> a1i-
+
+h & a0o & ~pi -> a0+
+pt & pi & c0o & ~c0t & ~a0o -> a0-
+
+h & a1o & ~pi -> a1+
+pt & pi & c1o & ~c1t & ~a1o -> a1-
+\end{prs2}
+
+\begin{prs2}
+~a0 & ~a1 -> h+
+a0 | a1 & ~c0o & ~c1o-> h-
+\end{prs2}
+
+\begin{prs2}
+~pi & (a0 & c00 | a1 & c10) & ~h -> p0+
+pi & (a0 & ~c00 | a1 & ~c10) -> p0-
+
+~pi & (a0 & c01 | a1 & c11) & ~h -> p1+
+pi & (a0 & ~c01 | a1 & ~c11) -> p1-
+
+~pi & (a0 & c0t | a1 & c1t) & ~h -> pt+
+~a0 & ~a1 -> pt-
+\end{prs2}
+
+\begin{prs2}
+a0 & (p0 | p1 | pt) -> c0o+
+~p0 & ~p1 & ~pt -> c0o-
+
+a1 & (p0 | p1 | pt) -> c1o+
+~p0 & ~p1 & ~pt -> c1o-
+\end{prs2}
+
+\noindent Radix 2 transistor accounting: 
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $a[0,1]i$ & 20 & \\ \hline
+    $a[0,1]o$ & 12 & 2-way arbiter \\ \hline
+    $a[0,1]$ & 24 & \\ \hline
+    $h$ & 10 & \\ \hline
+    $p[0,1]$ & 30 & \\ \hline
+    $pt$ & 12 & \\ \hline
+    $c[0,1]o$ & 22 & \\ \hline
+    \hline total & 130 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent Radix 4 transistor accounting: 
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $a[0,1,2,3]i$ & 48 & \\ \hline
+    $a[0,1,2,3]o$ & 128 & 4-way unpipelined arbiter \\ \hline
+    $a[0,1,2,3]$ & 48 & \\ \hline
+    $h$ & 14 & \\ \hline
+    $p[0,1,2,3]$ & 52 & \\ \hline
+    $pt$ & 16 & \\ \hline
+    $c[0,1,2,3]o$ & 100 & \\ \hline
+    \hline total & 406 & \\ \hline
+    \end{tabular}
+\end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{AEXT ASPR PFWD PREPEND/FWD/SIMPLE\_MERGE}
@@ -418,136 +715,7 @@ MERGE\equiv
   ]
 \end{csp}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{AEXT MERGE pipelined a\_a}
-
-I don't like this version because the pullup chains for the state variables
-are too long and won't scale to higher radix encoding.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection*{CHP}
-
-\begin{csp}
-MERGE\equiv
-  *[[h->[#{C0}->a:=0\|#{C1}->a:=1];h-
-    []~h&a=0->P!(C0?)
-    []~h&a=0->P!(C1?)
-    ]]
-\end{csp}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection*{HSE}
-
-\begin{hse}
-*[[~ao&~a1&(c00|c01|c0t)->a0+
-  \|~a0&~a1&(c10|c11|c1t)->a1+]]
-
-*[[ a0&c00->p0+;c0o+;[pi&~c00];p0-;c0o-;[~pi]
-  []a0&c01->p1+;c0o+;[pi&~c01];p1-;c0o-;[~pi]
-  []a0&c0t->pt+;c0o+;[pi&~c0t];a0-;pt-;c0o-;[~pi]
-  []a1&c10->p0+;c1o+;[pi&~c10];p0-;c1o-;[~pi]
-  []a1&c11->p1+;c1o+;[pi&~c11];p1-;c1o-;[~pi]
-  []a1&c1t->pt+;c1o+;[pi&~c1t];a1-;pt-;c1o-;[~pi]
-  ]]
-\end{hse}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection*{PRS}
-
-\begin{prs2}
-~a0 & (c00 | c01| c0t) & ~c0o -> a0i+
-a0 -> a0i-
-
-~a1 & (c10 | c11| c1t) & ~c1o -> a1i+
-a1 -> a1i-
-
-a0o & ~a1 & ~c1o & ~pi -> a0+ % uhoh will depend on other a's
-~a0o & pi & pt & ~c0t -> a0-
-
-a1o & ~a0 & ~c0o & ~pi -> a1+
-~a1o & pi & pt & ~c1t -> a1-
-\end{prs2}
-
-\begin{prs2}
-~pi & (a0 & c00 | a1 & c10) -> p0+
-pi & (~_a0 & ~c00 | ~_a1 & ~c10) -> p0-
-
-~pi & (a0 & c01 | a1 & c11) -> p1+
-pi & (~_a0 & ~c01 | ~_a1 & ~c11) -> p1-
-
-~pi & (a0 & c0t | a1 & c1t) -> pt+
-_a0 & _a1 -> pt-
-\end{prs2}
-
-\begin{prs2}
-a0 & (p0 | p1 | pt) -> c0o+
-~p0 & ~p1 & ~pt -> c0o-
-
-a1 & (p0 | p1 | pt) -> c1o+
-~p0 & ~p1 & ~pt -> c1o-
-\end{prs2}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{AEXT ASPR MERGE pipelined ah}
-
-This one has acceptable pullup/pulldown chains, but I'm worried about making it CMOS implementable
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection*{HSE}
-
-\begin{hse}
-*[[~a0&(c00|c01|c0t)->a0+;h-;[~a0];h+
-  \|~a1&(c10|c11|c1t)->a1+;h-;[~a1];h+]]
-
-*[[ a0&c00->p0+;c0o+;[pi&~c00];p0-;c0o-;[~pi]
-  []a0&c01->p1+;c0o+;[pi&~c01];p1-;c0o-;[~pi]
-  []a0&c0t->pt+;c0o+;[pi&~c0t];a0-;pt-;c0o-;[~pi]
-  []a1&c10->p0+;c1o+;[pi&~c10];p0-;c1o-;[~pi]
-  []a1&c11->p1+;c1o+;[pi&~c11];p1-;c1o-;[~pi]
-  []a1&c1t->pt+;c1o+;[pi&~c1t];a1-;pt-;c1o-;[~pi]
-  ]]
-\end{hse}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection*{PRS}
-
-\begin{prs2}
-(c00 | c01| c0t) & ~a0 -> a0i+
-~h & a0 -> a0i-
-
-(c10 | c11| c1t) & ~a1-> a1i+
-~h & a1 -> a1i-
-
-h & a0o & ~pi -> a0+
-pt & pi & c0o & ~c0t & ~a0o -> a0-
-
-h & a1o & ~pi -> a1+
-pt & pi & c1o & ~c1t & ~a1o -> a1-
-\end{prs2}
-
-\begin{prs2}
-~a0 & ~a1 -> h+
-a0 | a1 & ~c0o & ~c1o-> h-
-\end{prs2}
-
-\begin{prs2}
-~pi & (a0 & c00 | a1 & c10) & ~h -> p0+
-pi & (a0 & ~c00 | a1 & ~c10) -> p0-
-
-~pi & (a0 & c01 | a1 & c11) & ~h -> p1+
-pi & (a0 & ~c01 | a1 & ~c11) -> p1-
-
-~pi & (a0 & c0t | a1 & c1t) & ~h -> pt+
-~a0 & ~a1 -> pt-
-\end{prs2}
-
-\begin{prs2}
-a0 & (p0 | p1 | pt) -> c0o+
-~p0 & ~p1 & ~pt -> c0o-
-
-a1 & (p0 | p1 | pt) -> c1o+
-~p0 & ~p1 & ~pt -> c1o-
-\end{prs2}
+\noindent\makebox[\linewidth]{\rule{\textwidth}{1pt}}  
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{AERV ASPR BCAST pipelined}

@@ -1,7 +1,7 @@
 import "serial_aer.act";
 
 pint N=2;
-pint M=1;
+pint M=2;
 pint pm[M];
 
 (; m : M : pm[m] = m % N;)

@@ -1,27 +1,94 @@
-# #################### default ################################################
+# default #####################################################################
 
-source reset.scr
-
-# #################### M2 watch out ###########################################
-
-# set_principal test.aext.y.m.n[0] 
-# set_principal test.aext.y.m.n[1] 
-# set_principal test.aext.yt
-# set_principal test.aext.y.a
-# set_principal test.atoe.o.m[0].n[0] 
-# set_principal test.atoe.o.m[0].n[1] 
-# set_principal test.atoe.o.m[0].n[2]
-# set_principal test.atoe.o.e
-# 
 # source reset.scr
+
+# debug M2 ####################################################################
+
+# set_principal test.aext._.pfwd_arr.pfwd.h
+# set_principal test.aext._.pfwd_arr.pfwd.q
+# set_principal test.aext._.pfwd_arr.pfwd.x.a
+# set_principal test.aext._.pfwd_arr.pfwd.x.m.n[0]
+# set_principal test.aext._.pfwd_arr.pfwd.x.m.n[1]
+# set_principal test.aext._.pfwd_arr.pfwd.x.m.n[2]
+# set_principal test.aext._.pfwd_arr.pfwd.y.a
+# set_principal test.aext._.pfwd_arr.pfwd.y.m.n[0]
+# set_principal test.aext._.pfwd_arr.pfwd.y.m.n[1]
+# set_principal test.aext._.pfwd_arr.pfwd.y.m.n[2]
 # 
-# watch test.aext.y.a
-# watch test.atoe.o.e
+# set_principal test.aext._.pfwd_arr._.pfwd.h
+# set_principal test.aext._.pfwd_arr._.pfwd.q
+# set_principal test.aext._.pfwd_arr._.pfwd.x.a
+# set_principal test.aext._.pfwd_arr._.pfwd.x.m.n[0]
+# set_principal test.aext._.pfwd_arr._.pfwd.x.m.n[1]
+# set_principal test.aext._.pfwd_arr._.pfwd.x.m.n[2]
+# set_principal test.aext._.pfwd_arr._.pfwd.y.a
+# set_principal test.aext._.pfwd_arr._.pfwd.y.m.n[0]
+# set_principal test.aext._.pfwd_arr._.pfwd.y.m.n[1]
+# set_principal test.aext._.pfwd_arr._.pfwd.y.m.n[2]
 # 
-# vector y :1ofN 3 test.aext.y.m.n[0] test.aext.y.m.n[1] test.aext.yt
-# vector o :1ofN 3 test.atoe.o.m[0].n[0] test.atoe.o.m[0].n[1] test.atoe.o.m[0].n[2]
-# vwatch y
-# vwatch o
+# source reset.scr 
+# 
+# watch test.aext._.pfwd_arr.pfwd.h
+# watch test.aext._.pfwd_arr.pfwd.q
+# watch test.aext._.pfwd_arr.pfwd.x.a
+# watch test.aext._.pfwd_arr.pfwd.x.m.n[0]
+# watch test.aext._.pfwd_arr.pfwd.x.m.n[1]
+# watch test.aext._.pfwd_arr.pfwd.x.m.n[2]
+# watch test.aext._.pfwd_arr.pfwd.y.a
+# watch test.aext._.pfwd_arr.pfwd.y.m.n[0]
+# watch test.aext._.pfwd_arr.pfwd.y.m.n[1]
+# watch test.aext._.pfwd_arr.pfwd.y.m.n[2]
+# 
+# watch test.aext._.pfwd_arr._.pfwd.h
+# watch test.aext._.pfwd_arr._.pfwd.q
+# watch test.aext._.pfwd_arr._.pfwd.x.a
+# watch test.aext._.pfwd_arr._.pfwd.x.m.n[0]
+# watch test.aext._.pfwd_arr._.pfwd.x.m.n[1]
+# watch test.aext._.pfwd_arr._.pfwd.x.m.n[2]
+# watch test.aext._.pfwd_arr._.pfwd.y.a
+# watch test.aext._.pfwd_arr._.pfwd.y.m.n[0]
+# watch test.aext._.pfwd_arr._.pfwd.y.m.n[1]
+# watch test.aext._.pfwd_arr._.pfwd.y.m.n[2]
+
+# debug M1 ####################################################################
+
+set_principal test.aext._.pfwd_arr.pfwd.h
+set_principal test.aext._.pfwd_arr.pfwd.q
+set_principal test.aext._.pfwd_arr.pfwd.x.a
+set_principal test.aext._.pfwd_arr.pfwd.x.m.n[2]
+set_principal test.aext._.pfwd_arr.pfwd.y.a
+set_principal test.aext._.pfwd_arr.pfwd.y.m.n[0]
+set_principal test.aext._.pfwd_arr.pfwd.y.m.n[1]
+set_principal test.aext._.pfwd_arr.pfwd.y.m.n[2]
+
+set_principal test.aext._.pfwd_arr._.pfwd.h
+set_principal test.aext._.pfwd_arr._.pfwd.q
+set_principal test.aext._.pfwd_arr._.pfwd.x.a
+set_principal test.aext._.pfwd_arr._.pfwd.x.m.n[2]
+set_principal test.aext._.pfwd_arr._.pfwd.y.a
+set_principal test.aext._.pfwd_arr._.pfwd.y.m.n[0]
+set_principal test.aext._.pfwd_arr._.pfwd.y.m.n[1]
+set_principal test.aext._.pfwd_arr._.pfwd.y.m.n[2]
+
+source reset.scr 
+
+watch test.aext._.pfwd_arr.pfwd.h
+watch test.aext._.pfwd_arr.pfwd.q
+watch test.aext._.pfwd_arr.pfwd.x.a
+watch test.aext._.pfwd_arr.pfwd.x.m.n[2]
+watch test.aext._.pfwd_arr.pfwd.y.a
+watch test.aext._.pfwd_arr.pfwd.y.m.n[0]
+watch test.aext._.pfwd_arr.pfwd.y.m.n[1]
+watch test.aext._.pfwd_arr.pfwd.y.m.n[2]
+
+watch test.aext._.pfwd_arr._.pfwd.h
+watch test.aext._.pfwd_arr._.pfwd.q
+watch test.aext._.pfwd_arr._.pfwd.x.a
+watch test.aext._.pfwd_arr._.pfwd.x.m.n[2]
+watch test.aext._.pfwd_arr._.pfwd.y.a
+watch test.aext._.pfwd_arr._.pfwd.y.m.n[0]
+watch test.aext._.pfwd_arr._.pfwd.y.m.n[1]
+watch test.aext._.pfwd_arr._.pfwd.y.m.n[2]
 
 # #################### M4 watch out ###########################################
 

@@ -16,20 +16,28 @@
 
 # #################### 1 dbg ##################################################
 
-set_principal test._.pfwd.xt
-set_principal test._.pfwd.xo
+set_principal test._.pfwd.h
+set_principal test._.pfwd.q
+set_principal test._.pfwd.x.m.n[0]
+set_principal test._.pfwd.x.m.n[1]
+set_principal test._.pfwd.x.m.n[2]
+set_principal test._.pfwd.x.a
 set_principal test._.pfwd.y.m.n[0]
 set_principal test._.pfwd.y.m.n[1]
-set_principal test._.pfwd.yt
-set_principal test._.pfwd.yi
+set_principal test._.pfwd.y.m.n[2]
+set_principal test._.pfwd.y.a
 
 source reset.scr
 
 watch test._.pfwd.h
 watch test._.pfwd.q
-watch test._.pfwd.xt
-watch test._.pfwd.xo
+watch test._.pfwd.x.m.n[0]
+watch test._.pfwd.x.m.n[1]
+watch test._.pfwd.x.m.n[2]
+watch test._.pfwd.x.a
 watch test._.pfwd.y.m.n[0]
 watch test._.pfwd.y.m.n[1]
-watch test._.pfwd.yt
-watch test._.pfwd.yi
+watch test._.pfwd.y.m.n[2]
+watch test._.pfwd.y.a
+
+# step 100

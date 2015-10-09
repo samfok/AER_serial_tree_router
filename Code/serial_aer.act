@@ -30,13 +30,31 @@ namespace aer {
             // N for 1-of-N encoding. + tail word line
             // p word prepended to each packet
             /* version unpipelined ------------------------------------------*/
-            /*
+            // /*
                 bool h, q;
                 prs<g.Vdd, g.GND> {
+                    g.pReset | ~x.m.n[N] & y.m.n[N] -> h+
+                    q & y.a -> h-
+
+                    h & (|: n : N+1 : x.m.n[n]) -> q+
+                    g.pReset | ~h & ~y.a -> q-
+
+                    ~q & y.a -> x.a+
+                    q | ~y.a -> x.a-
+
+                    h & q -> y.m.n[p]+
+                    ~h & q & y.a -> y.m.n[p]-
+
+                    (: n : N :
+                        ~h & ~q & x.m.n[n] -> y.m.n[n]+
+                        ~q & ~x.m.n[n] -> y.m.n[n]-
+                    )
+                    ~h & ~q & x.m.n[N] -> y.m.n[N]+
+                    h -> y.m.n[N]-
                 }
-            */
+            // */
             /* version hq ---------------------------------------------------*/
-            // /*
+            /*
                 bool h, q;
                 prs<g.Vdd, g.GND> {
                     h & y.a & y.m.n[p] -> q+
@@ -45,12 +63,9 @@ namespace aer {
                     g.pReset | y.m.n[N] & x.a & y.a -> h+
                     q & ~y.a -> h-
                     
-                    // ~h & (y.m.n[0] | y.m.n[1] | y.m.n[N]) -> x.a+
                     ~h & (| : n : N+1 : y.m.n[n]) -> x.a+
-                    // ~x.m.n[0] & ~x.m.n[1] & ~x.m.n[N] & ~y.m.n[0] & ~y.m.n[1] & ~y.m.n[N] -> x.a-
                     (& : n : N+1 : ~x.m.n[n]) & (& : n : N+1 : ~y.m.n[n]) -> x.a-
 
-                    // h & ~q & ~y.a & ~x.a & (x.m.n[0] | x.m.n[1] | x.m.n[N]) -> y.m.n[p]+
                     h & ~q & ~y.a & ~x.a & (| : n : N+1 : x.m.n[n]) -> y.m.n[p]+
                     q -> y.m.n[p]-
 
@@ -61,7 +76,7 @@ namespace aer {
                     ~h & x.m.n[N] & ~q & ~y.a & ~x.a -> y.m.n[N]+
                     g.pReset | h & x.a -> y.m.n[N]-
                 }
-            // */
+            */
             /* version hu ---------------------------------------------------*/
             /* 
                 bool h;
@@ -252,7 +267,7 @@ namespace aer {
 
             export
             template <pint N, M; pint nm[M]>
-            defproc TEST_FWD (globals g) {
+            defproc TEST_PFWD (globals g) {
                 // tests a chain of PFWD blocks
                 // N for 1-of-N encoding
                 // M number of PFWD processes to chain
