@@ -122,16 +122,10 @@ namespace aer {
         defproc MERGE (globals g; a1of<N+1> c[N], p) {
             // merges serialized packet streams
             // N for 1-of-N encoding. + tail word line
-            bool a[N], ct[N], co[N];
-            bool pt = p.m.n[N];
-            bool pi = p.a;
-            (; n : N :
-                ct[n] = c[n].m.n[N];
-                co[n] = c[n].a;
-            )
+            bool a[N];
             ::arbiter::N_ARB<N> arb(g,,);
-            /* version a_a --------------------------------------------------*/
-            // /*
+            /* version unpipelined ------------------------------------------*/
+            /*
                 bool _a[N];
                 prs<g.Vdd, g.GND> {
                     // arbitration
@@ -170,37 +164,78 @@ namespace aer {
                         (& : nc : N : ~p.m.n[nc]) & ~pt -> co[n]-
                     )
                 }
+            */
+            /* version a_a --------------------------------------------------*/
+            // /*
+                bool _a[N];
+                prs<g.Vdd, g.GND> {
+                    // arbitration
+                    (: nc : N :
+                        ~a[nc] & (| : n : N+1 : c[nc].m.n[n]) -> arb.i[nc]+
+                        g.pReset | a[nc] -> arb.i[nc]-
+                    )
+
+                    arb.o[0] & (& : n : 1..N-1 : ~a[n] & ~c[n].a) & ~p.a -> a[0]+
+                    (: n : 1..N-2 :
+                        arb.o[n] & 
+                        (& : na : 0..n-1 : ~a[na] & ~c[na].a) &
+                        (& : nb : n+1..N-1 : ~a[nb] & ~c[nb].a) &
+                        ~p.a -> a[n]+
+                    )
+                    arb.o[N-1] & (& : n : N-1 : ~a[n] & ~c[n].a) & ~p.a -> a[N-1]+
+
+                    (: n : N :
+                        g.pReset | ~arb.o[n] & p.a & p.m.n[N] & ~c[n].m.n[N] -> a[n]-
+
+                        a[n] => _a[n]-
+                    )
+
+                    // routing state
+                    (: n : N :
+                        ~p.a & (| : nc : N : a[nc] & c[nc].m.n[n]) -> p.m.n[n]+
+                        g.pReset | p.a & (| : nc : N : ~_a[nc] & ~c[nc].m.n[n]) -> p.m.n[n]-
+                    )
+                    // tail bit state
+                    ~p.a & (| : n : N : a[n] & c[n].m.n[N]) -> p.m.n[N]+
+                    g.pReset | (& : n : N : _a[n]) -> p.m.n[N]-
+
+                    // child c.amm
+                    (: n : N :
+                        a[n] & ((| : nc : N : p.m.n[nc]) | p.m.n[N]) -> c[n].a+
+                        (& : nc : N : ~p.m.n[nc]) & ~p.m.n[N] -> c[n].a-
+                    )
+                }
             // */
             /* version ah ---------------------------------------------------*/
             /*
                 bool h;
                 prs<g.Vdd, g.GND> {
-                    (: n : N :
-                        ((| : nc : N : c[n].m.n[nc]) | ct[n]) & ~a[n] -> arb.i[n]+
-                        g.pReset | ~h & a[n] -> arb.i[n]-
+                    (: nc : N :
+                        (| : n : N+1 : c[nc].m.n[n]) & ~a[nc] -> arb.i[nc]+
+                        g.pReset | ~h & a[nc] -> arb.i[nc]-
                     )
 
                     ( : n : N :
-                        h & arb.o[n] & ~pi -> a[n]+
-                        g.pReset | pt & pi & co[n] & ~ct[n] & ~arb.o[n] -> a[n]-
+                        h & arb.o[n] & ~p.a -> a[n]+
+                        g.pReset | p.m.n[N] & p.a & c[n].a & ~c[n].m.n[N] & ~arb.o[n] -> a[n]-
                     )
 
                     // head word state
                     (& : n : N : ~a[n]) -> h+
-                    (| : n : N : a[n]) & (& : n : N : ~co[n]) -> h-
+                    (| : n : N : a[n]) & (& : n : N : ~c[n].a) -> h-
 
                     // parent comm
                     (: n : N :
-                        ~pi & (| : nc : N : a[nc] & c[nc].m.n[n]) & ~h -> p.m.n[n]+
-                        g.pReset | pi & (| : nc : N : a[nc] & ~c[nc].m.n[n]) -> p.m.n[n]-
+                        ~p.a & (| : nc : N : a[nc] & c[nc].m.n[n]) & ~h -> p.m.n[n]+
+                        g.pReset | p.a & (| : nc : N : a[nc] & ~c[nc].m.n[n]) -> p.m.n[n]-
                     )
-                    ~pi & (| : n : N : a[n] & ct[n]) -> pt+
-                    (& : n : N : ~a[n])  -> pt-
+                    ~p.a & (| : n : N : a[n] & c[n].m.n[N]) -> p.m.n[N]+
+                    (& : n : N : ~a[n])  -> p.m.n[N]-
 
                     // child comm
                     (: n : N :
-                        a[n] & ((| : nc : N : p.m.n[nc]) | pt) -> co[n]+
-                        (& : nc : N : ~p.m.n[nc]) & ~pt -> co[n]-
+                        a[n] & ((| : nc : N : p.m.n[nc]) | p.m.n[N]) -> c[n].a+
+                        (& : nc : N : ~p.m.n[nc]) & ~p.m.n[N] -> c[n].a-
                     )
                 }
             */
