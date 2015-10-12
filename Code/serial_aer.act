@@ -125,48 +125,53 @@ namespace aer {
             bool a[N];
             ::arbiter::N_ARB<N> arb(g,,);
             /* version unpipelined ------------------------------------------*/
-            /*
+            // /*
                 bool _a[N];
+                [ N = 2 -> // radix 2 can make rule combinational
+                    prs<g.Vdd, g.GND> {
+                        (: nc : N :
+                            g.pReset | a[nc] | (& : n : N+1 : ~c[nc].m.n[n])-> arb.i[nc]-
+                        )
+                    }
+                [] N > 2 -> // radix 4 or more cheaper with staticizer
+                    prs<g.Vdd, g.GND> {
+                        (: nc : N : g.pReset | a[nc] -> arb.i[nc]-)
+                    }
+                ]
+
                 prs<g.Vdd, g.GND> {
-                    // arbitration
-                    (: n : N :
-                        ~a[n] & ((| : nc : N : c[n].m.n[nc]) | ct[n]) -> arb.i[n]+
-                        g.pReset | a[n] -> arb.i[n]-
+                    (: nc : N :
+                        ~a[nc] & (| : n : N+1 : c[nc].m.n[n]) -> arb.i[nc]+
                     )
 
-                    arb.o[0] & (& : n : 1..N-1 : ~a[n] & ~co[n]) & ~pi -> a[0]+
+                    arb.o[0] & (& : n : 1..N-1 : ~a[n]) & ~p.a -> a[0]+
                     (: n : 1..N-2 :
                         arb.o[n] & 
-                        (& : na : 0..n-1 : ~a[na] & ~co[na]) &
-                        (& : nb : n+1..N-1 : ~a[nb] & ~co[nb]) &
-                        ~pi -> a[n]+
+                            (& : na : 0..n-1 : ~a[na]) & 
+                            (& : nb : n+1..N-1 : ~a[nb]) &
+                            ~p.a -> a[n]+
                     )
-                    arb.o[N-1] & (& : n : N-1 : ~a[n] & ~co[n]) & ~pi -> a[N-1]+
+                    arb.o[N-1] & (& : n : 0..N-2 : ~a[n]) & ~p.a -> a[N-1]+
+                    (: n : N :
+                        g.pReset | ~arb.o[n] & p.m.n[N] & ~c[n].m.n[N] -> a[n]-
+                    )
 
                     (: n : N :
-                        g.pReset | ~arb.o[n] & pi & pt & ~ct[n] -> a[n]-
-
-                        a[n] => _a[n]-
+                        (| : nc : N : a[nc] & c[nc].m.n[n]) -> p.m.n[n]+
+                        g.pReset | (| : nc : N : a[nc] & ~c[nc].m.n[n]) -> p.m.n[n]-
                     )
-
-                    // routing state
-                    (: n : N :
-                        ~pi & (| : nc : N : a[nc] & c[nc].m.n[n]) -> p.m.n[n]+
-                        g.pReset | pi & (| : nc : N : ~_a[nc] & ~c[nc].m.n[n]) -> p.m.n[n]-
-                    )
-                    // tail bit state
-                    ~pi & (| : n : N : a[n] & ct[n]) -> pt+
-                    g.pReset | (& : n : N : _a[n]) -> pt-
+                    (| : nc : N : a[nc] & c[nc].m.n[N]) -> p.m.n[N]+
+                    g.pReset | (& : nc : N : ~a[nc]) -> p.m.n[N]-
 
                     // child comm
-                    (: n : N :
-                        a[n] & ((| : nc : N : p.m.n[nc]) | pt) -> co[n]+
-                        (& : nc : N : ~p.m.n[nc]) & ~pt -> co[n]-
+                    (: nc : N :
+                        a[nc] & p.a -> c[nc].a+
+                        ~a[nc] | ~p.a -> c[nc].a-
                     )
                 }
-            */
+            // */
             /* version a_a --------------------------------------------------*/
-            // /*
+            /*
                 bool _a[N];
                 prs<g.Vdd, g.GND> {
                     // arbitration
@@ -205,7 +210,7 @@ namespace aer {
                         (& : nc : N : ~p.m.n[nc]) & ~p.m.n[N] -> c[n].a-
                     )
                 }
-            // */
+            */
             /* version ah ---------------------------------------------------*/
             /*
                 bool h;

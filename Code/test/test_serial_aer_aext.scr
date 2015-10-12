@@ -1,6 +1,6 @@
 # default #####################################################################
 
-# source reset.scr
+source reset.scr
 
 # debug M2 ####################################################################
 
@@ -52,43 +52,39 @@
 
 # debug M1 ####################################################################
 
-set_principal test.aext._.pfwd_arr.pfwd.h
-set_principal test.aext._.pfwd_arr.pfwd.q
-set_principal test.aext._.pfwd_arr.pfwd.x.a
-set_principal test.aext._.pfwd_arr.pfwd.x.m.n[2]
-set_principal test.aext._.pfwd_arr.pfwd.y.a
-set_principal test.aext._.pfwd_arr.pfwd.y.m.n[0]
-set_principal test.aext._.pfwd_arr.pfwd.y.m.n[1]
-set_principal test.aext._.pfwd_arr.pfwd.y.m.n[2]
-
-set_principal test.aext._.pfwd_arr._.pfwd.h
-set_principal test.aext._.pfwd_arr._.pfwd.q
-set_principal test.aext._.pfwd_arr._.pfwd.x.a
-set_principal test.aext._.pfwd_arr._.pfwd.x.m.n[2]
-set_principal test.aext._.pfwd_arr._.pfwd.y.a
-set_principal test.aext._.pfwd_arr._.pfwd.y.m.n[0]
-set_principal test.aext._.pfwd_arr._.pfwd.y.m.n[1]
-set_principal test.aext._.pfwd_arr._.pfwd.y.m.n[2]
-
-source reset.scr 
-
-watch test.aext._.pfwd_arr.pfwd.h
-watch test.aext._.pfwd_arr.pfwd.q
-watch test.aext._.pfwd_arr.pfwd.x.a
-watch test.aext._.pfwd_arr.pfwd.x.m.n[2]
-watch test.aext._.pfwd_arr.pfwd.y.a
-watch test.aext._.pfwd_arr.pfwd.y.m.n[0]
-watch test.aext._.pfwd_arr.pfwd.y.m.n[1]
-watch test.aext._.pfwd_arr.pfwd.y.m.n[2]
-
-watch test.aext._.pfwd_arr._.pfwd.h
-watch test.aext._.pfwd_arr._.pfwd.q
-watch test.aext._.pfwd_arr._.pfwd.x.a
-watch test.aext._.pfwd_arr._.pfwd.x.m.n[2]
-watch test.aext._.pfwd_arr._.pfwd.y.a
-watch test.aext._.pfwd_arr._.pfwd.y.m.n[0]
-watch test.aext._.pfwd_arr._.pfwd.y.m.n[1]
-watch test.aext._.pfwd_arr._.pfwd.y.m.n[2]
+# set_principal test.aext._.merge.c[0].m.n[0]
+# set_principal test.aext._.merge.c[0].m.n[1]
+# set_principal test.aext._.merge.c[0].m.n[2]
+# set_principal test.aext._.merge.c[0].a
+# set_principal test.aext._.merge.c[1].m.n[0]
+# set_principal test.aext._.merge.c[1].m.n[1]
+# set_principal test.aext._.merge.c[1].m.n[2]
+# set_principal test.aext._.merge.c[1].a
+# set_principal test.aext._.merge.p.m.n[0]
+# set_principal test.aext._.merge.p.m.n[1]
+# set_principal test.aext._.merge.p.m.n[2]
+# set_principal test.aext._.merge.p.a
+# 
+# source reset.scr 
+# 
+# watch test.aext._.merge.c[0].m.n[0]
+# watch test.aext._.merge.c[0].m.n[1]
+# watch test.aext._.merge.c[0].m.n[2]
+# watch test.aext._.merge.c[0].a
+# watch test.aext._.merge.c[1].m.n[0]
+# watch test.aext._.merge.c[1].m.n[1]
+# watch test.aext._.merge.c[1].m.n[2]
+# watch test.aext._.merge.c[1].a
+# watch test.aext._.merge.arb.i[0]
+# watch test.aext._.merge.arb.i[1]
+# watch test.aext._.merge.arb.o[0]
+# watch test.aext._.merge.arb.o[1]
+# watch test.aext._.merge.a[0]
+# watch test.aext._.merge.a[1]
+# watch test.aext._.merge.p.m.n[0]
+# watch test.aext._.merge.p.m.n[1]
+# watch test.aext._.merge.p.m.n[2]
+# watch test.aext._.merge.p.a
 
 # #################### M4 watch out ###########################################
 

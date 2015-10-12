@@ -27,7 +27,7 @@ The accounting is done assuming we're using an array of 4096 neurons.
     && decomposed into PFWD and MERGE
     &&& PFWD
 	&&&& unpipelined (Section~\ref{sec:AEXT_ASPR_PM_PFWD_u})
-	&&&& pipelined 
+	&&&& \textbf{pipelined} (Section~\ref{sec:AEXT_ASPR_PM_PFWD_u})
 	&&&&& \textbf{hq} (Section~\ref{sec:AEXT_ASPR_PM_PFWD_p_hq})
 	&&&&& \textbf{hu} (Section~\ref{sec:AEXT_ASPR_PM_PFWD_p_hu})
     &&&& decomposed into PREPEND, FWD, and SIMPLE\_MERGE
@@ -122,10 +122,45 @@ PFWD\equiv
    ]
 \end{csp}
 
+\noindent Radix 2 accounting (4095 nodes / 4096 neurons):
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|}
+    \hline
+    component & transistors/component & components/node & transistors/node \\ \hline
+    PFWD & 53 & 2 & 106 \\ \hline
+    MERGE & 117 & 1 & 117 \\ \hline
+    \multicolumn{3}{|r|}{total transistors/node} & 223 \\ \hline
+    \end{tabular}
+\end{center}
+
+223 transistors/node * 4095 nodes / 4096 neurons = \textbf{223.0 transistors/neuron}
+
+The leaf node PFWDs only need to communicate the tail bit and their prepend bit and can leave off the other bit.
+This saves 2 production rules, or 14 transistors per node. With 2048 leaf nodes, this saves us 28672 transistors.
+
+(223 transistors/node * 4095 nodes - 28672) / 4096 neurons = \textbf{215.9 transistors/neuron}
+
+\noindent Radix 4 transistor accounting (1365 nodes / 4096 neurons): 
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|}
+    \hline
+    component & transistors/component & components/node & transistors/node \\ \hline
+    PFWD & 73 & 4 & 292 \\ \hline
+    MERGE & 406 & 1 & 406 \\ \hline
+    \multicolumn{3}{|r|}{total transistors/node} & 698 \\ \hline
+    \end{tabular}
+\end{center}
+
+698 transistors/node * 1365 nodes / 4096 neurons = \textbf{232.6 transistors/neuron}
+
+The leaf node PFWDs only need to communicate the tail bit and their prepend bit and can leave off the other bit.
+This saves 4 production rules, or 32 transistors per node. With 1024 leaf nodes, this saves us 32768 transistors.
+
+(698 transistors/node * 4095 nodes - 32768) / 4096 neurons = \textbf{224.6 transistors/neuron}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{AEXT ASPR PM PFWD unpipelined \label{sec:AEXT_ASPR_PM_PFWD_u}}
-
-Perhaps this will be cheaper than pipelineing
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection*{CHP}
@@ -418,6 +453,96 @@ ut -> yt+
 \end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{AEXT ASPR PM MERGE unpipelined \label{sec:AEXT_ASPR_PM_MERGE_u}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{CHP}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{HSE}
+
+\begin{hse}
+*[[~a0&~a1&(c00|c01|c0t)->a0+
+  \|~a0&~a1&(c10|c11|c1t)->a1+]]
+
+*[[ a0&c00->p0+;[pi];c0o+;[~c00];p0-;[~pi];c0o-
+  []a0&c01->p1+;[pi];c0o+;[~c01];p1-;[~pi];c0o-
+  []a0&c0t->pt+;[pi];c0o+;[~c0t];a0-;pt-;[~pi];c0o-
+  []a1&c10->p0+;[pi];c1o+;[~c10];p0-;[~pi];c1o-
+  []a1&c11->p1+;[pi];c1o+;[~c11];p1-;[~pi];c1o-
+  []a1&c1t->pt+;[pi];c1o+;[~c1t];a1-;pt-;[~pi];c1o-
+  ]]
+\end{hse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{PRS}
+
+\begin{prs2}
+(c00 | c01| c0t) & ~a0 -> a0i+
+a0 -> a0i-
+
+(c10 | c11| c1t) & ~a1-> a1i+
+a1 -> a1i-
+
+a0o & ~a1 & ~pi -> a0+
+~a0o & pt & ~c0t -> a0-
+
+a1o & ~a0 & ~pi -> a1+
+~a1o & pt & ~c1t -> a1-
+\end{prs2}
+
+\begin{prs2}
+(a0 & c00 | a1 & c10) -> p0+
+(a0 & ~c00 | a1 & ~c10) -> p0-
+
+(a0 & c00 | a1 & c10) -> p0+
+(a0 & ~c00 | a1 & ~c10) -> p0-
+
+(a0 & c0t | a1 & c1t) -> pt+
+~a0 & ~a1 -> pt-
+\end{prs2}
+
+\begin{prs2}
+a0 & pi -> c0o+
+~a0 | ~pi -> c0o-
+
+a1 & pi -> c1o+
+~a1 | ~pi -> c1o-
+\end{prs2}
+
+\noindent Radix 2 transistor accounting: 
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $a[0,1]i$ & 16 & can be combinational with radix 2 \\ \hline
+    $a[0,1]o$ & 12 & 2-way arbiter \\ \hline
+    $a[0,1]$ & 20 & \\ \hline
+    $p[0,1]$ & 24 & \\ \hline
+    $pt$ & 10 & \\ \hline
+    $c[0,1]o$ & 8 & \\ \hline
+    \hline total & 90 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent Radix 4 transistor accounting: 
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $a[0,1,2,3]i$ & 44 & \\ \hline
+    $a[0,1,2,3]o$ & 128 & 4-way unpipelined arbiter \\ \hline
+    $a[0,1,2,3]$ & 40 & \\ \hline
+    $p[0,1,2,3]$ & 80 & \\ \hline
+    $pt$ & 16 & \\ \hline
+    $c[0,1,2,3]o$ & 16 & \\ \hline
+    \hline total & 324 & \\ \hline
+    \end{tabular}
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{AEXT ASPR PM MERGE pipelined a\_a \label{sec:AEXT_ASPR_PM_MERGE_p_a_a}}
 
 I don't like this version because the pullup chains for the state variables
@@ -438,7 +563,7 @@ MERGE\equiv
 \subsubsection*{HSE}
 
 \begin{hse}
-*[[~ao&~a1&(c00|c01|c0t)->a0+
+*[[~a0&~a1&(c00|c01|c0t)->a0+
   \|~a0&~a1&(c10|c11|c1t)->a1+]]
 
 *[[ a0&c00->p0+;c0o+;[pi&~c00];p0-;c0o-;[~pi]
@@ -926,7 +1051,7 @@ ROUTE sends a parent's signal to one of its children depending on which child re
 READ\_HEAD reads the head word and signals FWD\_BODY which way 
 to forward the body packet
 
-FWD\_BODY forwards words to the children based on command from DEC
+FWD\_BODY forwards words to the children based on command from DEC \\ 
 
 \noindent Radix 2 accounting (4095 nodes / 4096 neurons):
 
@@ -1284,7 +1409,7 @@ ROUTE sends a parent's signal to one of its children depending on which child re
 
 PULL\_CTRL reads the head word and indicates which PULL should request data from ROUTE.
 
-PULL requests data from ROUTE and passes the data to the child.
+PULL requests data from ROUTE and passes the data to the child. \\
 
 \noindent Radix 2 accounting (4095 nodes / 4096 neurons):
 
