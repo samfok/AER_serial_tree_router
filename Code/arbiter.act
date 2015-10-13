@@ -210,68 +210,34 @@ namespace arbiter {
         ]
     }
 
-    template <pint N, mode, int_mode>
+    template <pint N>
     defproc N_ARB_C_ (globals g; bool i[N], o[N], pi, po) {
         // utility for N_ARB_C
         // N neurons
-        // mode alternates at each level of the tree
-        // int_mode indicates whether the client interfaces are active high/low
         [ N = 1 ->
-            [ mode = 0 & int_mode = 1 | mode = 1 & int_mode = 0 ->
-                o[0] = pi;
-                prs {
-                    i[0] => po-
-                }
-            [] mode = 1 & int_mode = 1 | mode = 0 & int_mode = 0 ->
-                i[0] = po;
-                prs {
-                    pi => o[0]-
-                }
-            ]
+            i[0] = po;
+            o[0] = pi;
         [] N > 1 ->
-            pint next_mode = (mode+1) % 2;
-            N_ARB_C_<N/2, next_mode, int_mode> n_arb0(
-                g, i[0..N/2-1], o[0..N/2-1],,);
-            N_ARB_C_<N-N/2, next_mode, int_mode> n_arb1(
-                g, i[N/2..N-1], o[N/2..N-1],,);
-    
-            [ mode = 0 ->
-                bool ai[2], a[2], _ao[2];
-                bool _po = po;
-                ai[0] = n_arb0.po;
-                ai[1] = n_arb1.po;
-                _ao[0] = n_arb0.pi;
-                _ao[1] = n_arb1.pi;
-                ::arbiter::ARB arb(ai, a);
-                prs <g.Vdd,g.GND> {
-                    a[0] & _ao[1] | a[1] & _ao[0] -> _po-
-                    g.pReset | ~a[0] & ~_ao[0] | ~a[1] & ~_ao[1] -> _po+
-    
-                    pi & a[0] & _ao[1] -> _ao[0]-
-                    ~pi -> _ao[0]+
-    
-                    pi & a[1] & _ao[0] -> _ao[1]-
-                    ~pi -> _ao[1]+
-                }
-            [] mode = 1 ->
-                bool _ai[2], _a[2], ao[2];
-                bool _pi = pi;
-                _ai[0] = n_arb0.po;
-                _ai[1] = n_arb1.po;
-                ao[0] = n_arb0.pi;
-                ao[1] = n_arb1.pi;
-                ::arbiter::_ARB _arb(_ai, _a);
-                prs <g.Vdd,g.GND> {
-                    ~_a[0] & ~ao[1] | ~_a[1] & ~ao[0] -> po+
-                    g.pReset | _a[0] & ao[0] | _a[1] & ao[1] -> po-
-    
-                    ~_pi & ~_a[0] & ~ao[1] -> ao[0]+
-                    _pi -> ao[0]-
-    
-                    ~_pi & ~_a[1] & ~ao[0] -> ao[1]+
-                    _pi -> ao[1]-
-                }
-            ]
+            bool ao[2], _ao[2], _po;
+            N_ARB_C_<N/2> n_arb0(g, i[0..N/2-1], o[0..N/2-1], ao[0],);
+            N_ARB_C_<N-N/2> n_arb1(g, i[N/2..N-1], o[N/2..N-1], ao[1],);
+            ARB arb(,);
+            arb.i[0] = n_arb0.po;
+            arb.i[1] = n_arb1.po;
+            prs<g.Vdd, g.GND> {
+               arb.o[0] & _ao[1] | arb.o[1] & _ao[0] -> _po-
+               g.pReset | ~arb.o[0] & ~_ao[0] | ~arb.o[1] & ~_ao[1] -> _po+
+
+               pi & arb.o[0] & _ao[1] -> _ao[0]-
+               ~pi -> _ao[0]+
+
+               pi & arb.o[1] & _ao[0] -> _ao[1]-
+               ~pi -> _ao[1]+
+
+               _po => po-
+               _ao[0] => ao[0]-
+               _ao[1] => ao[1]-
+            }
         ]
     }
     
@@ -279,29 +245,64 @@ namespace arbiter {
     template <pint N>
     defproc N_ARB_C (globals g; bool i[N], o[N]) {
         // cheap N-way arbiter
-        [ N = 2 ->
-            ARB arb(i, o);
-        [] N = 1 | N > 2 ->
-            pint mode_0 = 0;
-            N_ARB_C_<N, mode_0, 1> _(g, i, o,,);
-            prs {
-                _.po => _.pi-
-            }
+        [ N = 1 ->
+            i[0] = o[0];
+        [] N > 1 ->
+            N_ARB_C_<N/2> n_arb0(g, i[0..N/2-1], o[0..N/2-1],,);
+            N_ARB_C_<N-N/2> n_arb1(g, i[N/2..N-1], o[N/2..N-1],,);
+            ARB arb(,);
+            arb.i[0] = n_arb0.po;
+            arb.i[1] = n_arb1.po;
+            arb.o[0] = n_arb0.pi;
+            arb.o[1] = n_arb1.pi;
         ]
     }
 
+    template <pint N>
+    defproc _N_ARB_C_ (globals g; bool _i[N], _o[N], _pi, _po) {
+        // utility for _N_ARB_C
+        // N neurons
+        [ N = 1 ->
+            _i[0] = _po;
+            _o[0] = _pi;
+        [] N > 1 ->
+            bool _ao[2], ao[2], po;
+            _N_ARB_C_<N/2> _n_arb0(g, _i[0..N/2-1], _o[0..N/2-1], _ao[0],);
+            _N_ARB_C_<N-N/2> _n_arb1(g, _i[N/2..N-1], _o[N/2..N-1], _ao[1],);
+            _ARB _arb(,);
+            _arb._i[0] = _n_arb0._po;
+            _arb._i[1] = _n_arb1._po;
+            prs<g.Vdd, g.GND> {
+               ~_arb._o[0] & ~ao[1] | ~_arb._o[1] & ~ao[0] -> po+
+               g.pReset | _arb._o[0] & ao[0] | _arb._o[1] & ao[1] -> po-
+
+               ~_pi & ~_arb._o[0] & ~ao[1] -> ao[0]+
+               _pi -> ao[0]-
+
+               ~_pi & ~_arb._o[1] & ~ao[0] -> ao[1]+
+               _pi -> ao[1]-
+
+               po => _po-
+               ao[0] => _ao[0]-
+               ao[1] => _ao[1]-
+            }
+        ]
+    }
+    
     export
     template <pint N>
     defproc _N_ARB_C (globals g; bool _i[N], _o[N]) {
-        // cheap N-way arbiter
-        [ N = 2 ->
-            _ARB _arb(_i, _o);
-        [] N = 1 | N > 2 ->
-            pint mode_0 = 0;
-            N_ARB_C_<N, mode_0, 0> _(g, _i, _o,,);
-            prs {
-                _.po => _.pi-
-            }
+        // cheap active-low N-way arbiter
+        [ N = 1 ->
+            _i[0] = _o[0];
+        [] N > 1 ->
+            _N_ARB_C_<N/2> _n_arb0(g, _i[0..N/2-1], _o[0..N/2-1],,);
+            _N_ARB_C_<N-N/2> _n_arb1(g, _i[N/2..N-1], _o[N/2..N-1],,);
+            _ARB _arb(,);
+            _arb._i[0] = _n_arb0._po;
+            _arb._i[1] = _n_arb1._po;
+            _arb._o[0] = _n_arb0._pi;
+            _arb._o[1] = _n_arb1._pi;
         ]
     }
 

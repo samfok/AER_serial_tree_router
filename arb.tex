@@ -399,7 +399,7 @@ pi & a1 & ~a0o -> a1o+
 ~pi -> a1o-
 \end{prs2}
 
-\noindent \\ \textbf{CMOS-implementable PRS version 0}
+\noindent \\ \textbf{CMOS-implementable PRS}
 
 \noindent A standard arbiter takes in $a0_i$ and $a1_i$ to generate $a0$ and $a1$.
 
@@ -416,28 +416,35 @@ pi & a1 & _a0o -> _a1o-
 ~pi -> _a1o+
 \end{prs2}
 
-\noindent \\ \textbf{CMOS-implementable PRS version 1}
-
-\noindent An active-low arbiter takes in $\_a0_i$ and $\_a1_i$ to generate $\_a0$ and $\_a1$.
-
 \begin{prs2}
-~_a0 & ~a1o | ~_a1 & ~a0o -> po+
-_a0 & a0o | _a1 & a1o -> po-
+_po -> po-
+~_po -> po+
+
+_a0o -> a0o-
+~_a0o -> a0o+
+
+_a1o -> a1o-
+~_a1o -> a1o+
 \end{prs2}
 
-\begin{prs2}
-~_pi & ~_a0 & ~a1o -> a0o+
-_pi -> a0o-
+accounting:
 
-~_pi & ~_a1 & ~a0o -> a1o+
-_pi -> a1o-
-\end{prs2}
-
-The leaf nodes will use version 0, though this is arbitrary, and subsequent levels will alternate versions. Their outputs will be passed through inverters to their children.
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $\_p_o$ & 8 & \\ \hline
+    $a[0,1]$ & 12 & basic 2-way arbiter \\ \hline
+    $\_a[0,1]_o$ & 8 & \\ \hline
+    $p_o$ & 4 & staticizer \\ \hline
+    $a[0,1]_o$ & 8 & staticizer \\ \hline
+    \hline total & 40 & \\ \hline
+    \end{tabular}
+\end{center}
 
 \subsection{$N\_ARB\_C$ Accounting}
 
-$N\_ARB\_C$ will be constructed from $N-1$ $N\_ARB\_C\_$ instances. With staticizers, $CTRL$ costs 40 transistors. We require $N$ inverters to interface with the clients. Overall, $N\_ARB\_C$ costs $28(N-1)+2N$ transistors (See Table~\ref{tab:cheap_n_arb_cost}).
+$N\_ARB\_C$ is constructed as a tree with a 2-way arbiter at the root and $N-2$ instances of $N\_ARB\_C\_$. Overall, $N\_ARB\_C$ costs $40(N-2)+12$ transistors (See Table~\ref{tab:cheap_n_arb_cost}).
 
 \begin{table}[ht]
   \centering
@@ -445,10 +452,11 @@ $N\_ARB\_C$ will be constructed from $N-1$ $N\_ARB\_C\_$ instances. With statici
     \hline
     $N$ & 2 & 3 & 4 & 8 & 16 & 32 & 64 & 128 & 256 \\
     \hline
-    transistors & 44 & 86 & 128 & 296 & 632 & 1304 & 2648 & 5336 & 10712 \\
+    transistors & 12 & 52 & 92 & 252 & 572 & 1212 & 2492 & 5052 & 10172 \\
     \hline
   \end{tabular}
   \caption{\label{tab:cheap_n_arb_cost}Transistor count for common sizes of $N\_ARB\_C$}
 \end{table}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \end{document}
