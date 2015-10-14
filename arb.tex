@@ -353,6 +353,175 @@ $N\_ARB$ will be constructed from $N-1$ $H\_ARB$ instances. We will also require
 \end{table}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Standard $N$-way Arbiter ($N\!\_ARB\_S$)}
+
+This follows the development in Rajit's notes.
+Pipelining the $N$-way arbiter requires a lot of transistors. 
+We can implement a cheaper $N$-way arbiter without pipelining.
+
+\noindent \\ \textbf{CHP}
+
+\begin{csp}
+N_ARB_S\equiv
+*[[\langle\|n:0..N\-1:#{C`n}->C`n\rangle]]
+\end{csp}
+
+We implement this process as a tree of nodes that grant mutually exclusive access to a shared resource.
+
+\begin{csp}
+N_ARB_S_\equiv
+*[[#{C`0}->P;C`0
+  \|#{C`1}->P;C`1
+ ]]
+\end{csp}
+
+Child requests are directed up the tree and fulfilled once the parent grants permission.
+
+We decompose this into mutual exclusion granting and parent requesting processes.
+
+\begin{csp}
+*[[#{C`0}->Q`0;C`0
+  \|#{C`1}->Q`1;C`1
+ ]]
+ \pll
+*[[#{Q`0}->P;Q`0
+  []#{Q`1}->P;Q`1
+ ]]
+\end{csp}
+
+\noindent \\ \textbf{HSE}
+
+The mutual exclusion process expands to
+\begin{hse}
+*[[c0i->q0o+;[q0i];c0o+;[~c0i];q0o-;[~q0i];c0o-
+  \|c1i->q1o+;[q1i];c1o+;[~c1i];q1o-;[~q1i];c1o-
+ ]]
+\end{hse}
+
+We separate the arbitration from the mutual exclusion
+
+\begin{hse}
+*[[c0i->a0+;[~c0i];a0-
+  \|c1i->a1+;[~c1i];a1-
+ ]]
+*[[a0->q0o+;[q0i];c0o+;[~a0];q0o-;[~q0i];c0o-
+  []a1->q1o+;[q1i];c1o+;[~a1];q1o-;[~q1i];c1o-
+ ]]
+\end{hse}
+
+The parent requesting process expands to
+
+\begin{hse}
+*[[q0i->po+;[pi];q0o+;[~q0i];po-;[~pi];q0o-
+  []q1i->po+;[pi];q1o+;[~q1i];po-;[~pi];q1o-
+ ]]
+\end{hse}
+
+\noindent \\ \textbf{PRS}
+
+The mutual exclusion process:
+
+\begin{prs2}
+~c1o & a0 -> q0o+
+c1o | ~a0 -> q0o-
+
+~c0o & a1 -> q1o+
+c0o | ~a1 -> q1o-
+\end{prs2}
+
+\begin{prs2}
+q0i -> c0o+
+~q0i -> c0o-
+
+q1i -> c1o+
+~q1i -> c1o-
+\end{prs2}
+
+The parent request process:
+
+\begin{prs2}
+q0i | q1i -> po+
+~q0i & ~q1i -> po-
+\end{prs2}
+
+\begin{prs2}
+pi & q0i -> q0o+
+~pi -> q0o-
+
+pi & q1i -> q1o+
+~pi -> q1o-
+\end{prs2}
+
+\noindent \\ \textbf{CMOS-implementable PRS}
+
+The mutual exclusion process:
+
+\begin{prs2}
+_c1o & a0 -> _q0o-
+~_c1o | ~a0 -> _q0o+
+
+_c0o & a1 -> _q1o-
+~_c0o | ~a1 -> _q1o+
+\end{prs2}
+
+\begin{prs2}
+q0i -> _c0o-
+~q0i -> _c0o+
+
+q1i -> _c1o-
+~q1i -> _c1o+
+\end{prs2}
+
+The parent request process:
+
+\begin{prs2}
+~_q0i | ~_q1i -> po+
+_q0i & _q1i -> po-
+\end{prs2}
+
+\begin{prs2}
+~_pi & ~_q0i -> q0o+
+_pi -> q0o-
+
+~_pi & ~_q1i -> q1o+
+_pi -> q1o-
+\end{prs2}
+
+\noindent A standard arbiter takes in $a0_i$ and $a1_i$ to generate $a0$ and $a1$.
+
+accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $u,v$ & 12 & \\ \hline
+    $\_p_i$ & 4 & \\ \hline
+    $\_q_i$ & 4 & \\ \hline
+    $s_o$ & 4 & \\ \hline
+    $p_o$ & 3 & \\ \hline
+    $q_o$ & 3 & \\ \hline
+    $\_a_o$ & 4 & staticizer \\ \hline
+    $\_b_o$ & 4 & staticizer \\ \hline
+    \hline total & 36 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\subsection{$N\_ARB\_S$ Accounting}
+
+$N\_ARB\_S$ is constructed as a tree with a 2-way arbiter at the root and $N-2$ instances of $N\_ARB\_C\_$. Overall, $N\_ARB\_C$ costs $40(N-2)+12$ transistors.
+
+\begin{center}
+  \begin{tabular}{|r|c|c|c|c|c|c|c|c|c|}
+    \hline
+    $N$ & 2 & 3 & 4 & 8 & 16 & 32 & 64 & 128 & 256 \\
+    \hline
+    transistors & 12 & 52 & 92 & 252 & 572 & 1212 & 2492 & 5052 & 10172 \\
+    \hline
+  \end{tabular}
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Cheap $N$-way Arbiter ($N\!\_ARB\_C$)}
 
 Pipelining the $N$-way arbiter requires a lot of transistors. We can implement a cheaper $N$-way arbiter without pipelining.
