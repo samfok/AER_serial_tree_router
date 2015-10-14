@@ -1,43 +1,41 @@
 # default #####################################################################
 
-# source reset.scr
+source reset.scr
 
 # ########################## N8 ###############################################
 
-set_principal test.n_arb.i[0]
-set_principal test.n_arb.i[1]
-set_principal test.n_arb.i[2]
-set_principal test.n_arb.i[3]
-set_principal test.n_arb.i[4]
-set_principal test.n_arb.i[5]
-set_principal test.n_arb.i[6]
-set_principal test.n_arb.i[7]
-set_principal test.n_arb.o[0]
-set_principal test.n_arb.o[1]
-set_principal test.n_arb.o[2]
-set_principal test.n_arb.o[3]
-set_principal test.n_arb.o[4]
-set_principal test.n_arb.o[5]
-set_principal test.n_arb.o[6]
-set_principal test.n_arb.o[7]
-
-source reset.scr
-
-watch test.n_arb.i[0]
-watch test.n_arb.i[1]
-watch test.n_arb.i[2]
-watch test.n_arb.i[3]
-watch test.n_arb.i[4]
-watch test.n_arb.i[5]
-watch test.n_arb.i[6]
-watch test.n_arb.i[7]
-watch test.n_arb.o[0]
-watch test.n_arb.o[1]
-watch test.n_arb.o[2]
-watch test.n_arb.o[3]
-watch test.n_arb.o[4]
-watch test.n_arb.o[5]
-watch test.n_arb.o[6]
-watch test.n_arb.o[7]
-
-step 2000
+# set_principal test.n_arb.i[0]
+# set_principal test.n_arb.i[1]
+# set_principal test.n_arb.i[2]
+# set_principal test.n_arb.i[3]
+# set_principal test.n_arb.i[4]
+# set_principal test.n_arb.i[5]
+# set_principal test.n_arb.i[6]
+# set_principal test.n_arb.i[7]
+# set_principal test.n_arb.o[0]
+# set_principal test.n_arb.o[1]
+# set_principal test.n_arb.o[2]
+# set_principal test.n_arb.o[3]
+# set_principal test.n_arb.o[4]
+# set_principal test.n_arb.o[5]
+# set_principal test.n_arb.o[6]
+# set_principal test.n_arb.o[7]
+# 
+# source reset.scr
+# 
+# watch test.n_arb.i[0]
+# watch test.n_arb.i[1]
+# watch test.n_arb.i[2]
+# watch test.n_arb.i[3]
+# watch test.n_arb.i[4]
+# watch test.n_arb.i[5]
+# watch test.n_arb.i[6]
+# watch test.n_arb.i[7]
+# watch test.n_arb.o[0]
+# watch test.n_arb.o[1]
+# watch test.n_arb.o[2]
+# watch test.n_arb.o[3]
+# watch test.n_arb.o[4]
+# watch test.n_arb.o[5]
+# watch test.n_arb.o[6]
+# watch test.n_arb.o[7]

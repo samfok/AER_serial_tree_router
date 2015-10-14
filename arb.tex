@@ -338,10 +338,9 @@ $H\_ARB$ includes 2 $C\_ARB$ circuits and 1 $CTRL$ circuit with 3 additional inv
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{$N\_ARB$ Accounting}
 
-$N\_ARB$ will be constructed from $N-1$ $H\_ARB$ instances. We will also require $N$ inverters to connect with the client's input and 1 inverter to connect the top of the tree back to itself. Therefore, $N\_ARB$ requires $110(N-1)+2N+2=112(N-1)+4$ transistors (See Table~\ref{tab:n_arb_cost}).
+$N\_ARB$ will be constructed from $N-1$ $H\_ARB$ instances. We will also require $N$ inverters to connect with the client's input and 1 inverter to connect the top of the tree back to itself. Therefore, $N\_ARB$ requires $110(N-1)+2N+2=112(N-1)+4$ transistors.
 
-\begin{table}
-  \centering
+\begin{center}
   \begin{tabular}{|r|c|c|c|c|c|c|c|c|c|}
     \hline
     $N$ & 2 & 3 & 4 & 8 & 16 & 32 & 64 & 128 & 256 \\
@@ -349,8 +348,9 @@ $N\_ARB$ will be constructed from $N-1$ $H\_ARB$ instances. We will also require
     transistors & 116 & 228 & 340 & 788 & 1684 & 3476 & 7060 & 14228 & 28564 \\
     \hline
   \end{tabular}
-  \caption{\label{tab:n_arb_cost}Transistor count for common sizes of $N\_ARB$. Note that the basic, 2-input arbiter only requires 12 transistors, tenfold less than a 2-input $N\_ARB$.}
-\end{table}
+\end{center}
+
+Note that the basic, 2-input arbiter only requires 12 transistors, tenfold less than a 2-input $N\_ARB$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Standard $N$-way Arbiter ($N\!\_ARB\_S$)}
@@ -377,13 +377,16 @@ N_ARB_S_\equiv
 
 Child requests are directed up the tree and fulfilled once the parent grants permission.
 
-We decompose this into mutual exclusion granting and parent requesting processes.
+We decompose this into concurrent mutual exclusion (MU\_EX) and parent requesting (PREQ) processes.
 
 \begin{csp}
+MU_EX\equiv
 *[[#{C`0}->Q`0;C`0
   \|#{C`1}->Q`1;C`1
  ]]
- \pll
+\end{csp}
+\begin{csp}
+PREQ\equiv
 *[[#{Q`0}->P;Q`0
   []#{Q`1}->P;Q`1
  ]]
@@ -391,14 +394,14 @@ We decompose this into mutual exclusion granting and parent requesting processes
 
 \noindent \\ \textbf{HSE}
 
-The mutual exclusion process expands to
+MU\_EX expands to
 \begin{hse}
 *[[c0i->q0o+;[q0i];c0o+;[~c0i];q0o-;[~q0i];c0o-
   \|c1i->q1o+;[q1i];c1o+;[~c1i];q1o-;[~q1i];c1o-
  ]]
 \end{hse}
 
-We separate the arbitration from the mutual exclusion
+We break out the arbitration.
 
 \begin{hse}
 *[[c0i->a0+;[~c0i];a0-
@@ -409,7 +412,7 @@ We separate the arbitration from the mutual exclusion
  ]]
 \end{hse}
 
-The parent requesting process expands to
+PREQ expands to
 
 \begin{hse}
 *[[q0i->po+;[pi];q0o+;[~q0i];po-;[~pi];q0o-
@@ -419,7 +422,7 @@ The parent requesting process expands to
 
 \noindent \\ \textbf{PRS}
 
-The mutual exclusion process:
+MU\_EX:
 
 \begin{prs2}
 ~c1o & a0 -> q0o+
@@ -437,7 +440,7 @@ q1i -> c1o+
 ~q1i -> c1o-
 \end{prs2}
 
-The parent request process:
+PREQ:
 
 \begin{prs2}
 q0i | q1i -> po+
@@ -454,7 +457,7 @@ pi & q1i -> q1o+
 
 \noindent \\ \textbf{CMOS-implementable PRS}
 
-The mutual exclusion process:
+MU\_EX:
 
 \begin{prs2}
 _c1o & a0 -> _q0o-
@@ -472,7 +475,20 @@ q1i -> _c1o-
 ~q1i -> _c1o+
 \end{prs2}
 
-The parent request process:
+accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $a[0,1]$ & 12 & 2-way arbiter \\ \hline
+    $\_q[0,1]_o$ & 8 & \\ \hline
+    $\_c[0,1]_o$ & 4 & \\ \hline
+    \hline total & 24 & \\ \hline
+    \end{tabular}
+\end{center}
+
+PREQ:
 
 \begin{prs2}
 ~_q0i | ~_q1i -> po+
@@ -487,36 +503,54 @@ _pi -> q0o-
 _pi -> q1o-
 \end{prs2}
 
-\noindent A standard arbiter takes in $a0_i$ and $a1_i$ to generate $a0$ and $a1$.
-
 accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
     \hline
     rule & transistor count & comments \\ \hline
-    $u,v$ & 12 & \\ \hline
-    $\_p_i$ & 4 & \\ \hline
-    $\_q_i$ & 4 & \\ \hline
-    $s_o$ & 4 & \\ \hline
-    $p_o$ & 3 & \\ \hline
-    $q_o$ & 3 & \\ \hline
-    $\_a_o$ & 4 & staticizer \\ \hline
-    $\_b_o$ & 4 & staticizer \\ \hline
-    \hline total & 36 & \\ \hline
+    $p_o$ & 4 & \\ \hline
+    $\_q[0,1]_o$ & 10 & staticizers placed on MU\_EX $\_c[0,1]_o$ rules \\ \hline
+    \hline total & 14 & \\ \hline
     \end{tabular}
 \end{center}
 
-\subsection{$N\_ARB\_S$ Accounting}
+\subsection{N\_ARB\_S Accounting}
 
-$N\_ARB\_S$ is constructed as a tree with a 2-way arbiter at the root and $N-2$ instances of $N\_ARB\_C\_$. Overall, $N\_ARB\_C$ costs $40(N-2)+12$ transistors.
+N\_ARB\_S\_ accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|}
+    \hline
+    component & transistors/component & components/node & transistors/node \\ \hline
+    MU\_EX & 24 & 1 & 24 \\ \hline
+    PREQ & 14& 1 & 14 \\ \hline
+    \multicolumn{3}{|r|}{total transistors/node} & 38 \\ \hline
+    \end{tabular}
+\end{center}
+
+N\_ARB\_S is constructed as a tree with a 2-way arbiter at the root and $N-2$ instances of N\_ARB\_S\_. 
+Overall, N\_ARB\_S costs $38(N-2)+12$ transistors.
 
 \begin{center}
   \begin{tabular}{|r|c|c|c|c|c|c|c|c|c|}
     \hline
     $N$ & 2 & 3 & 4 & 8 & 16 & 32 & 64 & 128 & 256 \\
     \hline
-    transistors & 12 & 52 & 92 & 252 & 572 & 1212 & 2492 & 5052 & 10172 \\
+    transistors & 12 & 50 & 88 & 240 & 544 & 1152 & 2368 & 4800 & 9664 \\
+    \hline
+  \end{tabular}
+\end{center}
+
+If the clients expect active high inputs, we'll need $N$ inverters to convert the output of N\_ARB\_S to active high.
+In this case, N\_ARB\_S costs $38(N-2)+12+2N$ transistors for $N>2$.
+
+\begin{center}
+  \begin{tabular}{|r|c|c|c|c|c|c|c|c|c|}
+    \hline
+    $N$ & 2 & 3 & 4 & 8 & 16 & 32 & 64 & 128 & 256 \\
+    \hline
+    transistors & 12 & 56 & 96 & 256 & 576 & 1216 & 2496 & 5056 & 10176 \\
     \hline
   \end{tabular}
 \end{center}
