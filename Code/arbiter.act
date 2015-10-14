@@ -306,6 +306,62 @@ namespace arbiter {
         ]
     }
 
+    template <pint N>
+    defproc N_ARB_S_ (globals g; bool i[N], o[N], si, so) {
+        [ N = 1 ->
+            i[0] = so;
+            o[0] = si;
+            // prs {
+            //     si => o[0]-
+            // }
+        [] N > 1 ->
+            bool ai, ao, bi, bo, u, v, pi, po, qi, qo;
+            N_ARB_S_<N/2> n_arb0(g, i[0..N/2-1], o[0..N/2-1], ao,);
+            N_ARB_S_<N-N/2> n_arb1(g, i[N/2..N-1], o[N/2..N-1], bo,);
+            ARB arb(,);
+            arb.i[0] = n_arb0.so;
+            arb.i[1] = n_arb1.so;
+            arb.o[0] = u;
+            arb.o[1] = v;
+            prs<g.Vdd, g.GND> {
+                ~bo & u -> pi+
+                g.pReset | bo | ~u -> pi-
+
+                ~ao & v -> qi+
+                g.pReset | ao | ~v -> qi-
+
+                pi | qi -> so+
+                ~pi & ~qi -> so-
+
+                si & pi -> po+
+                ~si -> po-
+
+                si & qi -> qo+
+                ~si -> qo-
+
+                po => ao+
+
+                qo => bo+
+            }
+        ]
+    }
+
+    export
+    template <pint N>
+    defproc N_ARB_S (globals g; bool i[N], o[N]) {
+        [ N = 1 ->
+            i[0] = o[0];
+        [] N > 1 ->
+            N_ARB_S_<N/2> n_arb0(g, i[0..N/2-1], o[0..N/2-1],,);
+            N_ARB_S_<N-N/2> n_arb1(g, i[N/2..N-1], o[N/2..N-1],,);
+            ARB arb(,);
+            arb.i[0] = n_arb0.so;
+            arb.i[1] = n_arb1.so;
+            arb.o[0] = n_arb0.si;
+            arb.o[1] = n_arb1.si;
+        ]
+    }
+
     namespace test {
         export
         defproc TEST_CTRL_TEST (globals g) {
@@ -474,5 +530,14 @@ namespace arbiter {
             _active_handshaker<N> _c(g,,);
             _N_ARB_C<N> _n_arb(g, _c._o, _c._i);
         }
+
+        export
+        template <pint N>
+        defproc TEST_N_ARB_S (globals g) {
+            //tests N_ARB_S
+            active_handshaker<N> c(g,,);
+            N_ARB_S<N> n_arb(g, c.o, c.i);
+        }
+
     } // end namespace test
 } // end namespace arbiter
