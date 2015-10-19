@@ -4,4 +4,3 @@ import "arbiter.act";
 pint N=8;
 globals g;
 arbiter::n_arb_s::TEST_N_ARB_S<N> test(g);
-

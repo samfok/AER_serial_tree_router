@@ -311,12 +311,8 @@ namespace arbiter {
             // grants mutual exclusion between two requesting signals
             ARB arb(ci,);
             prs {
-                _co[1] & arb.o[0] -> _qo[0]-
-                ~_co[1] | ~arb.o[0] -> _qo[0]+
-
-                _co[0] & arb.o[1] -> _qo[1]-
-                ~_co[0] | ~arb.o[1] -> _qo[1]+
-
+                _co[1] & arb.o[0] => _qo[0]-
+                _co[0] & arb.o[1] => _qo[1]-
                 qi[0] => _co[0]-
                 qi[1] => _co[1]-
             }
