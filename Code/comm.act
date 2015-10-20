@@ -4,7 +4,7 @@ import "logic.act";
 
 export
 template <pint M, N>
-defproc VN (aMx1ofN<M, N> d) {
+defproc VN_aMx1ofN (aMx1ofN<M, N> d) {
     // detects data validity/neutrality on d
     // [V(d.m)];d.a+;[~V(d.m)];d.a-
     C_TREE<M> c_tree(,);
@@ -59,9 +59,20 @@ defproc _VN (c1of<N> _d[M]; bool _o) {
 }
 
 export
+template <pint N>
+defproc VN_e1ofN (e1of<N> d) {
+    // detects data validity/neutrality on d
+    // d.e+;[V(d.m)];d.e-;[~V(d.m)]
+    OR<N> or(d.m.n,);
+    prs {
+        or.o => d.e-
+    }
+}
+
+export
 template <pint M, N>
-defproc VN_A (eMx1ofN<M, N> d) {
-    // active version of VN
+defproc VN_eMx1ofN (eMx1ofN<M, N> d) {
+    // detects data validity/neutrality on d
     // d.e+;[V(d.m)];d.e-;[~V(d.m)]
     OR<N> or[M];
     (; m : M :
