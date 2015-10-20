@@ -20,9 +20,13 @@ namespace aer {
                 y.d[N] & ~x.e -> co+
                 ~y.d[N] | x.e -> co-
 
-                g._sReset & x.d[N] -> y.d[N]+
+                x.d[N] -> y.d[N]+
                 g.pReset | ~x.d[N] & ~ci -> y.d[N]-
             }
+        }
+
+        template <pint N>
+        defproc MERGE (globals g) {
         }
 
         export

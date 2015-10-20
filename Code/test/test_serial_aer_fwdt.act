@@ -1,0 +1,10 @@
+import "serial_aer.act";
+
+globals g;
+bool Reset = g.pReset;
+
+pint N = 2;
+aer::transmitter::test::TEST_FWDT<N> test(g,,);
+
+e1of<N+1> fwdt_x;
+fwdt_x = test.x;

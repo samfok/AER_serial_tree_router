@@ -1,0 +1,41 @@
+# default #####################################################################
+
+set test.fwdt.x.d[0] 0
+set test.fwdt.x.d[1] 0
+set test.fwdt.x.d[2] 0
+source reset.scr
+channel e1ofN 3 fwdt_x
+loop-injectfile fwdt_x test/test_serial_aer_fwdt.in
+
+# watching ####################################################################
+
+# set_principal test.fwdt.ci
+# set_principal test.fwdt.co
+# set_principal test.fwdt.x.e
+# set_principal test.fwdt.x.d[2]
+# set_principal test.fwdt.y.e
+# set_principal test.fwdt.y.d[0]
+# set_principal test.fwdt.y.d[1]
+# set_principal test.fwdt.y.d[2]
+# 
+# set test.fwdt.x.d[0] 0
+# set test.fwdt.x.d[1] 0
+# set test.fwdt.x.d[2] 0
+# source reset.scr
+# 
+# watch test.fwdt.ci
+# watch test.fwdt.co
+# watch test.fwdt.x.e
+# watch test.fwdt.x.d[2]
+# watch test.fwdt.y.e
+# watch test.fwdt.y.d[0]
+# watch test.fwdt.y.d[1]
+# watch test.fwdt.y.d[2]
+# 
+# vector y :1ofN 3 test.fwdt.y.d[0] test.fwdt.y.d[1] test.fwdt.y.d[2]
+# vwatch y
+# 
+# channel e1ofN 3 fwdt_x
+# loop-injectfile fwdt_x test/test_serial_aer_fwdt.in
+# 
+# step 100
