@@ -41,6 +41,22 @@ defproc VN_aMx1ofN (aMx1ofN<M, N> d) {
 }
 
 export
+template <pint N>
+defproc VN_a1ofN (a1of<N> d) {
+    // detects data validity/neutrality on d
+    // [V(d.m)];d.a+;[~V(d.m)];d.a-
+    [ N > 2 ->
+        OR<N> or(d.d, d.a);
+    [] N = 2 ->
+        bool _o;
+        NOR nor(d.d, _o);
+        prs {
+            _o => d.a-
+        }
+    ]
+}
+
+export
 template <pint M, N>
 defproc _VN (c1of<N> _d[M]; bool _o) {
     // active low version of VN
@@ -63,7 +79,7 @@ template <pint N>
 defproc VN_e1ofN (e1of<N> d) {
     // detects data validity/neutrality on d
     // d.e+;[V(d.m)];d.e-;[~V(d.m)]
-    OR<N> or(d.m.n,);
+    OR<N> or(d.d,);
     prs {
         or.o => d.e-
     }

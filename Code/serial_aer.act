@@ -313,9 +313,7 @@ namespace aer {
                 // M number of PFWD processes to chain
                 // n array of words to prepend.
                 PFWD_CHAIN_<N, M, nm> _(g,);
-                VN<1, N+1> vn();
-                vn.d.m[0] = _.y.m;
-                vn.d.a = _.y.a;
+                VN_a1ofN<N+1> vn(_.y);
             }
 
             export
@@ -332,9 +330,7 @@ namespace aer {
                 PFWD_CHAIN_<N, M, nm0> c0(g,);
                 PFWD_CHAIN_<N, M, nm1> c1(g,);
                 MERGE<N> merge(g,,);
-                VN<1, N+1> vn();
-                vn.d.m[0] = merge.p.m;
-                vn.d.a = merge.p.a;
+                VN_a1ofN<N+1> vn(merge.p);
                 merge.c[0] = c0.y;
                 merge.c[1] = c1.y;
             }
@@ -347,9 +343,7 @@ namespace aer {
                 // NN = N^M neurons
                 active_handshaker<NN> a(g,,);
                 AEXT<N, M, NN> aext(g, a.o, a.i,);
-                VN_A<1, N+1> vn();
-                aext.y.m = vn.d.m[0];
-                aext.y.e = vn.d.e;
+                VN_e1ofN<N+1> vn(aext.y);
             }
         } // namespace test
     } // namespace transmitter
