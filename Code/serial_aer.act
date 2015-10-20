@@ -9,337 +9,53 @@ namespace aer {
     namespace transmitter {
         export
         template <pint N>
-        defproc INT (globals g; bool xi, xo; a1of<N+1> y) {
-            // interface with the neuron
-            // N for 1-of-N encoding. + tail word line
-            // xi = y.m.n[N];
-            // xo = y.a;
-            // (; n : N : g.GND = y.m.n[n];)
+        defproc FWDT (globals g; bool ci, co; e1of<N+1> x, y) {
+            // Forward words and detect tail
+            // N for 1-of-N encoding. +1 tail word line
+            (; n : N : x.d[n] = y.d[n];)
+            prs {
+                ci & y.e -> x.e+
+                ~ci | ~y.e -> x.e-
 
-            prs<g.Vdd, g.GND> { // so different from GND node
-                xi => y.m.n[N]+
-                y.a => xo+
-                (: n : N : g.GND => y.m.n[n]+)
+                y.d[N] & ~x.e -> co+
+                ~y.d[N] | x.e -> co-
+
+                g._sReset & x.d[N] -> y.d[N]+
+                g.pReset | ~x.d[N] & ~ci -> y.d[N]-
             }
         }
 
         export
-        template <pint N, p>
-        defproc PFWD (globals g; a1of<N+1> x, y) {
-            // prepends head word and fowards packet
-            // N for 1-of-N encoding. + tail word line
-            // p word prepended to each packet
-            /* version unpipelined ------------------------------------------*/
-            // /*
-                bool h, q;
-                prs<g.Vdd, g.GND> {
-                    g.pReset | ~x.m.n[N] & y.m.n[N] -> h+
-                    q & y.a -> h-
-
-                    h & (|: n : N+1 : x.m.n[n]) -> q+
-                    g.pReset | ~h & ~y.a -> q-
-
-                    ~q & y.a -> x.a+
-                    q | ~y.a -> x.a-
-
-                    h & q -> y.m.n[p]+
-                    ~h & q & y.a -> y.m.n[p]-
-
-                    (: n : N :
-                        ~h & ~q & x.m.n[n] -> y.m.n[n]+
-                        ~q & ~x.m.n[n] -> y.m.n[n]-
-                    )
-                    ~h & ~q & x.m.n[N] -> y.m.n[N]+
-                    h -> y.m.n[N]-
-                }
-            // */
-            /* version hq ---------------------------------------------------*/
-            /*
-                bool h, q;
-                prs<g.Vdd, g.GND> {
-                    h & y.a & y.m.n[p] -> q+
-                    g.pReset | ~h -> q-
-
-                    g.pReset | y.m.n[N] & x.a & y.a -> h+
-                    q & ~y.a -> h-
-                    
-                    ~h & (| : n : N+1 : y.m.n[n]) -> x.a+
-                    (& : n : N+1 : ~x.m.n[n]) & (& : n : N+1 : ~y.m.n[n]) -> x.a-
-
-                    h & ~q & ~y.a & ~x.a & (| : n : N+1 : x.m.n[n]) -> y.m.n[p]+
-                    q -> y.m.n[p]-
-
-                    (: n : N :
-                        ~h & x.m.n[n] & ~q & ~y.a & ~x.a -> y.m.n[n]+
-                        g.pReset | y.a & x.a -> y.m.n[n]-
-                    )
-                    ~h & x.m.n[N] & ~q & ~y.a & ~x.a -> y.m.n[N]+
-                    g.pReset | h & x.a -> y.m.n[N]-
-                }
-            */
-            /* version hu ---------------------------------------------------*/
-            /* 
-                bool h;
-                bool u[N+1];
-                prs<g.Vdd, g.GND> {
-                    g.pReset | y.m.n[N] -> h+
-                    y.m.n[p] & y.a -> h-
-                    
-                    h & (| : n : N+1 : x.m.n[n]) & ~y.a & ~y.m.n[N] -> y.m.n[p]+
-                    ~h & y.a & ~u[p] -> y.m.n[p]-
-
-                    (| : n : N+1 : u[n]) => x.a+
-
-                    (: n : N :
-                        ~h & x.m.n[n] & ~y.a -> u[n]+
-                        g.pReset | ~x.m.n[n] & y.a -> u[n]-
-                    )
-                    ~h & x.m.n[N] & ~y.a -> u[N]+
-                    g.pReset | h & ~x.m.n[N] & y.a -> u[N]-
-
-                    (: n : N :
-                        u[n] -> y.m.n[n]+
-                        g.pReset | ~h & ~u[n] -> y.m.n[n]-
-                    )
-                    u[N] => y.m.n[N]+
-                }
-            */
-        }
-
-        template <pint N, n>
-        defproc PFWD_ARR (globals g; a1of<N+1> x[N], y[N]) {
-            // utility to build array of PFWD
-            // N for 1-of-N encoding
-            // n which word to prepend. Initialize with 0
-            [ n < N ->
-                PFWD<N, n> pfwd(g, x[n], y[n]);
-                PFWD_ARR<N, n+1> _(g, x, y);
-            ]
-        }
-
-        export
-        template <pint N>
-        defproc MERGE (globals g; a1of<N+1> c[N], p) {
-            // merges serialized packet streams
-            // N for 1-of-N encoding. + tail word line
-            bool a[N];
-            ::arbiter::N_ARB<N> arb(g,,);
-            /* version unpipelined ------------------------------------------*/
-            // /*
-                bool _a[N];
-                [ N = 2 -> // radix 2 can make rule combinational
-                    prs<g.Vdd, g.GND> {
-                        (: nc : N :
-                            g.pReset | a[nc] | (& : n : N+1 : ~c[nc].m.n[n])-> arb.i[nc]-
-                        )
-                    }
-                [] N > 2 -> // radix 4 or more cheaper with staticizer
-                    prs<g.Vdd, g.GND> {
-                        (: nc : N : g.pReset | a[nc] -> arb.i[nc]-)
-                    }
-                ]
-
-                prs<g.Vdd, g.GND> {
-                    (: nc : N :
-                        ~a[nc] & (| : n : N+1 : c[nc].m.n[n]) -> arb.i[nc]+
-                    )
-
-                    arb.o[0] & (& : n : 1..N-1 : ~a[n]) & ~p.a -> a[0]+
-                    (: n : 1..N-2 :
-                        arb.o[n] & 
-                            (& : na : 0..n-1 : ~a[na]) & 
-                            (& : nb : n+1..N-1 : ~a[nb]) &
-                            ~p.a -> a[n]+
-                    )
-                    arb.o[N-1] & (& : n : 0..N-2 : ~a[n]) & ~p.a -> a[N-1]+
-                    (: n : N :
-                        g.pReset | ~arb.o[n] & p.m.n[N] & ~c[n].m.n[N] -> a[n]-
-                    )
-
-                    (: n : N :
-                        (| : nc : N : a[nc] & c[nc].m.n[n]) -> p.m.n[n]+
-                        g.pReset | (| : nc : N : a[nc] & ~c[nc].m.n[n]) -> p.m.n[n]-
-                    )
-                    (| : nc : N : a[nc] & c[nc].m.n[N]) -> p.m.n[N]+
-                    g.pReset | (& : nc : N : ~a[nc]) -> p.m.n[N]-
-
-                    // child comm
-                    (: nc : N :
-                        a[nc] & p.a -> c[nc].a+
-                        ~a[nc] | ~p.a -> c[nc].a-
-                    )
-                }
-            // */
-            /* version a_a --------------------------------------------------*/
-            /*
-                bool _a[N];
-                prs<g.Vdd, g.GND> {
-                    // arbitration
-                    (: nc : N :
-                        ~a[nc] & (| : n : N+1 : c[nc].m.n[n]) -> arb.i[nc]+
-                        g.pReset | a[nc] -> arb.i[nc]-
-                    )
-
-                    arb.o[0] & (& : n : 1..N-1 : ~a[n] & ~c[n].a) & ~p.a -> a[0]+
-                    (: n : 1..N-2 :
-                        arb.o[n] & 
-                        (& : na : 0..n-1 : ~a[na] & ~c[na].a) &
-                        (& : nb : n+1..N-1 : ~a[nb] & ~c[nb].a) &
-                        ~p.a -> a[n]+
-                    )
-                    arb.o[N-1] & (& : n : N-1 : ~a[n] & ~c[n].a) & ~p.a -> a[N-1]+
-
-                    (: n : N :
-                        g.pReset | ~arb.o[n] & p.a & p.m.n[N] & ~c[n].m.n[N] -> a[n]-
-
-                        a[n] => _a[n]-
-                    )
-
-                    // routing state
-                    (: n : N :
-                        ~p.a & (| : nc : N : a[nc] & c[nc].m.n[n]) -> p.m.n[n]+
-                        g.pReset | p.a & (| : nc : N : ~_a[nc] & ~c[nc].m.n[n]) -> p.m.n[n]-
-                    )
-                    // tail bit state
-                    ~p.a & (| : n : N : a[n] & c[n].m.n[N]) -> p.m.n[N]+
-                    g.pReset | (& : n : N : _a[n]) -> p.m.n[N]-
-
-                    // child c.amm
-                    (: n : N :
-                        a[n] & ((| : nc : N : p.m.n[nc]) | p.m.n[N]) -> c[n].a+
-                        (& : nc : N : ~p.m.n[nc]) & ~p.m.n[N] -> c[n].a-
-                    )
-                }
-            */
-            /* version ah ---------------------------------------------------*/
-            /*
-                bool h;
-                prs<g.Vdd, g.GND> {
-                    (: nc : N :
-                        (| : n : N+1 : c[nc].m.n[n]) & ~a[nc] -> arb.i[nc]+
-                        g.pReset | ~h & a[nc] -> arb.i[nc]-
-                    )
-
-                    ( : n : N :
-                        h & arb.o[n] & ~p.a -> a[n]+
-                        g.pReset | p.m.n[N] & p.a & c[n].a & ~c[n].m.n[N] & ~arb.o[n] -> a[n]-
-                    )
-
-                    // head word state
-                    (& : n : N : ~a[n]) -> h+
-                    (| : n : N : a[n]) & (& : n : N : ~c[n].a) -> h-
-
-                    // parent comm
-                    (: n : N :
-                        ~p.a & (| : nc : N : a[nc] & c[nc].m.n[n]) & ~h -> p.m.n[n]+
-                        g.pReset | p.a & (| : nc : N : a[nc] & ~c[nc].m.n[n]) -> p.m.n[n]-
-                    )
-                    ~p.a & (| : n : N : a[n] & c[n].m.n[N]) -> p.m.n[N]+
-                    (& : n : N : ~a[n])  -> p.m.n[N]-
-
-                    // child comm
-                    (: n : N :
-                        a[n] & ((| : nc : N : p.m.n[nc]) | p.m.n[N]) -> c[n].a+
-                        (& : nc : N : ~p.m.n[nc]) & ~p.m.n[N] -> c[n].a-
-                    )
-                }
-            */
-        }
-
-        export
-        template <pint N, M, NN>
+        template <pint M, N, NN>
         defproc AEXT_ (globals g; bool xi[NN], xo[NN]; a1of<N+1> y) {
-            // Serial transmitter
-            // N for 1-of-N encoding. + tail word line
-            // M layers in the tree
-            // NN = N^M neurons
-            bool yi = y.a;
-            [ M = 0 ->
-                NN = 1; // check that NN = N^M
-                INT<N> n_int(g, xi[0], xo[0], y);
-            [] M > 0 ->
-                bool yt = y.m.n[N];
-                pint k = NN/N;
-                AEXT_<N, M-1, k> _[N];
-                MERGE<N> merge(g,,y);
-                PFWD_ARR<N, 0> pfwd_arr(g,, merge.c);
-                (; n : N :
-                    _[n].g = g;
-                    _[n].y = pfwd_arr.x[n];
-                )
-                (; n : N-1 :
-                    _[n].xi = xi[n*k..(n+1)*k-1];
-                    _[n].xo = xo[n*k..(n+1)*k-1];
-                )
-                _[N-1].xi = xi[(N-1)*k..NN-1];
-                _[N-1].xo = xo[(N-1)*k..NN-1];
-            ]
+            // utility for AEXT
         }
 
         export
         template <pint N, M, NN>
         defproc AEXT (globals g; bool xi[NN], xo[NN]; e1of<N+1> y) {
-            AEXT_<N, M, NN> _(g, xi, xo,);
-            A_TO_E<1, N+1> atoe(,);
-            atoe.i.m[0] = _.y.m;
-            atoe.i.a = _.y.a;
-            atoe.o.m[0] = y.m;
-            atoe.o.e = y.e;
+            // Serial transmitter
+            // M layers in the tree
+            // N for 1-of-N encoding. + tail word line
+            // NN = N^M neurons
         }
 
         namespace test {
             export
-            template <pint N, M; pint nm[M]>
-            defproc PFWD_CHAIN_ (globals g; a1of<N+1> y) {
-                // utility for TEST_FWD
-                // N for 1-of-N encoding
-                // M nodes in chain
-                // nm words to prepend at each node
-                [ M = 1 ->
-                    active_handshaker<1> a(g,,);
-                    INT<N> a_int(g, a.o[0], a.i[0],);
-                    PFWD<N, nm[0]> pfwd(g, a_int.y, y);
-                [] M > 1 ->
-                    PFWD_CHAIN_<N, M-1, nm[1..M-1]> _(g,);
-                    PFWD<N, nm[0]> pfwd(g, _.y, y);
-                ]
-            }
-
-            export
-            template <pint N, M; pint nm[M]>
-            defproc TEST_PFWD (globals g) {
-                // tests a chain of PFWD blocks
-                // N for 1-of-N encoding
-                // M number of PFWD processes to chain
-                // n array of words to prepend.
-                PFWD_CHAIN_<N, M, nm> _(g,);
-                VN_a1ofN<N+1> vn(_.y);
-            }
-
-            export
             template <pint N>
-            defproc TEST_MERGE (globals g) {
-                pint M=2; // depth of foward chains
-                pint n[N][M];
-                pint nm0[M], nm1[M];
-                (; m : M : 
-                    nm0[m] = 0;
-                    nm1[m] = 1;
-                )
-
-                PFWD_CHAIN_<N, M, nm0> c0(g,);
-                PFWD_CHAIN_<N, M, nm1> c1(g,);
-                MERGE<N> merge(g,,);
-                VN_a1ofN<N+1> vn(merge.p);
-                merge.c[0] = c0.y;
-                merge.c[1] = c1.y;
+            defproc TEST_FWDT (globals g; e1of<N+1> x,y) {
+                active_handshaker<1> c(g,,);
+                FWDT<N> fwdt(g, c.o[0], c.i[0],,);
+                VN_e1ofN<N+1> vn(fwdt.y);
+                x = fwdt.x;
+                y = fwdt.y;
             }
 
             export
-            template <pint N, M, NN>
+            template <pint M, N, NN>
             defproc TEST_AEXT (globals g) {
-                // N for 1-of-N encoding. + tail word line
                 // M layers in the tree
+                // N for 1-of-N encoding. + tail word line
                 // NN = N^M neurons
                 active_handshaker<NN> a(g,,);
                 AEXT<N, M, NN> aext(g, a.o, a.i,);
@@ -354,7 +70,7 @@ namespace aer {
             // interface with the neuron
             // N for 1-of-N encoding. + tail word line
             yi = x.e;
-            x.m.n[N] = yo;
+            x.d[N] = yo;
         }
 
         template <pint N, NC>
@@ -377,14 +93,14 @@ namespace aer {
                 
                 (: nc : NC :
                     (: n : N+1 :
-                        p.m.n[n] & c[nc].e -> c[nc].m.n[n]+
-                        ~p.m.n[n] -> c[nc].m.n[n]-
+                        p.d[n] & c[nc].e -> c[nc].d[n]+
+                        ~p.d[n] -> c[nc].d[n]-
                     )
                 )
 
                 (: n : N :
-                    p.m.n[n] & h.e -> h.m.n[n]+
-                    ~p.m.n[n] -> h.m.n[n]-
+                    p.d[n] & h.e -> h.d[n]+
+                    ~p.d[n] -> h.d[n]-
                 )
             }
         }
@@ -401,13 +117,13 @@ namespace aer {
                     (| : n : N : u[n]) -> x.e-
 
                     (: n : N :
-                        x.m.n[n] -> u[n]+
+                        x.d[n] -> u[n]+
                         g.pReset | ~si -> u[n]-
                     )
 
                     (: n : N :
-                        u[n] & ~x.m.n[n] -> s[n]+
-                        g.pReset | ~u[n] | x.m.n[n] -> s[n]-
+                        u[n] & ~x.d[n] -> s[n]+
+                        g.pReset | ~u[n] | x.d[n] -> s[n]-
                     )
                 }
             // */
@@ -421,22 +137,22 @@ namespace aer {
             /*
                 bool q;
                 OR<(N+1)*N> or(, q);
-                (; nc : N : (; n : N+1 : or.i[nc*(N+1)+n] = c[nc].m.n[n];))
+                (; nc : N : (; n : N+1 : or.i[nc*(N+1)+n] = c[nc].d[n];))
 
                 prs<g.Vdd, g.GND> {
                     (| : n : N : s[n]) & ~q -> p.e+
                     g.pReset | q -> p.e-
 
                     ~q -> so+
-                    ~p.m.n[N] & (| : n : N : ~c[n].e & c[n].m.n[N]) -> so-
+                    ~p.d[N] & (| : n : N : ~c[n].e & c[n].d[N]) -> so-
 
                     (: nc : N :
                         (: n : N :
-                            p.m.n[n] & s[nc] & c[nc].e -> c[nc].m.n[n]+
-                            g.pReset | ~p.m.n[n] & ~c[nc].e -> c[nc].m.n[n]-
+                            p.d[n] & s[nc] & c[nc].e -> c[nc].d[n]+
+                            g.pReset | ~p.d[n] & ~c[nc].e -> c[nc].d[n]-
                         )
-                        p.m.n[N] & s[nc] & c[nc].e -> c[nc].m.n[N]+ // tail
-                        g.pReset | ~s[nc] -> c[nc].m.n[N]-
+                        p.d[N] & s[nc] & c[nc].e -> c[nc].d[N]+ // tail
+                        g.pReset | ~s[nc] -> c[nc].d[N]-
                     )
                 }
             */
@@ -446,16 +162,16 @@ namespace aer {
                     (| : n : N : s[n] & c[n].e) -> p.e+
                     g.pReset | (| : n : N : s[n] & ~c[n].e) -> p.e-
 
-                    (& : n : N : ~c[n].m.n[N]) -> so+
-                    ~p.m.n[N] & (| : n : N : c[n].m.n[N]) -> so-
+                    (& : n : N : ~c[n].d[N]) -> so+
+                    ~p.d[N] & (| : n : N : c[n].d[N]) -> so-
 
                     (: nc : N :
                         (: n : N :
-                            p.m.n[n] & s[nc] -> c[nc].m.n[n]+
-                            g.pReset | ~p.m.n[n] | ~s[nc] -> c[nc].m.n[n]-
+                            p.d[n] & s[nc] -> c[nc].d[n]+
+                            g.pReset | ~p.d[n] | ~s[nc] -> c[nc].d[n]-
                         )
-                        p.m.n[N] & s[nc] -> c[nc].m.n[N]+
-                        g.pReset | ~s[nc] -> c[nc].m.n[N]-
+                        p.d[N] & s[nc] -> c[nc].d[N]+
+                        g.pReset | ~s[nc] -> c[nc].d[N]-
                     )
                 }
             // */
@@ -481,7 +197,7 @@ namespace aer {
                 NN = 1; // check that NN = N^M
                 INT<N> n_int(x, yi[0], yo[0]);
             [] M > 0 ->
-                bool xt = x.m.n[N];
+                bool xt = x.d[N];
                 pint k = NN/N;
                 NODE<N> node(g, x,);
                 AERV<N, M-1, k> _[N];
