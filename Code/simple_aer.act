@@ -1,6 +1,6 @@
 // This file contains PRS for a simple address event transmitter/receiver
 import "lib/globals.act";
-import "channel.act";
+import "lib/channel.act";
 import "arbiter.act";
 import "logic.act";
 import "comm.act";
@@ -92,12 +92,12 @@ namespace aer {
             CTRL<NN> ctrl(g, ci, co,,);
             ENC_XMIT<NN> enc_xmit(,, d.a,);
             ENC_FBLK<M, N, NN> enc_fblk(,,d);
-            VN<1, NN> vn();
+            VN_a1ofN<NN> vn();
 
             ctrl.si = enc_xmit.so;
             ctrl.so = enc_xmit.si;
             enc_xmit.xo = enc_fblk.xi;
-            enc_xmit.xo = vn.d.m[0];
+            enc_xmit.xo = vn.d.m;
             enc_fblk.vi = vn.d.a;
         }
 
@@ -110,7 +110,7 @@ namespace aer {
                 aext.ci = s.o;
                 aext.co = s.i;
 
-                VN<M, N> vn(aext.d);
+                VN_aMx1ofN<M, N> vn(aext.d);
             }
 
             export
@@ -128,7 +128,7 @@ namespace aer {
                     ]
                 )
 
-                VN<M, N> vn(aext.d);
+                VN_aMx1ofN<M, N> vn(aext.d);
             }
         } // namespace test
     } // namespace transmitter
@@ -198,8 +198,8 @@ namespace aer {
             // transmision portion of decoder
             // N neurons
             c1of<N> do;
-            VN<1,N> dvn();
-            dvn.d.m[0] = do;
+            VN_a1ofN<N> dvn();
+            dvn.d.m = do;
             dvn.d.a = da;
             prs {
                 (: n : N :
@@ -220,7 +220,7 @@ namespace aer {
             // N neurons per group
             // NN = N^M total neurons
             DEC_FBLK<M, N, NN> dec_fblk(,d.m,);
-            VN<M,N> vn();
+            VN_aMx1ofN<M,N> vn();
             DEC_XMIT<NN> dec_xmit(g,,,,);
 
             vn.d.m = d.m;

@@ -1,6 +1,6 @@
 // This file defines a feedfoward tree transceiver
 import "lib/globals.act";
-import "channel.act";
+import "lib/channel.act";
 import "arbiter.act";
 import "logic.act";
 import "comm.act";

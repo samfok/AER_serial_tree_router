@@ -1,5 +1,5 @@
 // Defines processes used in data communication
-import "channel.act";
+import "lib/channel.act";
 import "logic.act";
 
 export

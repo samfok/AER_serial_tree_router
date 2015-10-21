@@ -1,6 +1,6 @@
 // This file contains PRS for the arbiter circuits
 import "lib/globals.act";
-import "channel.act";
+import "lib/channel.act";
 import "test.act";
 
 namespace arbiter {
