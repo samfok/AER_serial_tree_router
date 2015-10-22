@@ -1,0 +1,46 @@
+# default #####################################################################
+
+# source reset.scr
+
+# debug #######################################################################
+
+set_principal test.ctrl.ci[0]
+set_principal test.ctrl.ci[1]
+set_principal test.ctrl.co[0]
+set_principal test.ctrl.co[1]
+set_principal test.ctrl.pi
+set_principal test.ctrl.po
+set_principal test.ctrl.m[0]
+set_principal test.ctrl.m[1]
+set_principal test.ctrl.mw
+set_principal test.ctrl.fi[0]
+set_principal test.ctrl.fi[1]
+set_principal test.ctrl.fo[0]
+set_principal test.ctrl.fo[1]
+set_principal test.ctrl.w.e
+set_principal test.ctrl.w.d[0]
+set_principal test.ctrl.w.d[1]
+
+source reset.scr
+
+watch test.ctrl.ci[0]
+watch test.ctrl.ci[1]
+watch test.ctrl.co[0]
+watch test.ctrl.co[1]
+watch test.ctrl.pi
+watch test.ctrl.po
+watch test.ctrl.m[0]
+watch test.ctrl.m[1]
+watch test.ctrl.mw
+watch test.ctrl.fi[0]
+watch test.ctrl.fi[1]
+watch test.ctrl.fo[0]
+watch test.ctrl.fo[1]
+watch test.ctrl.w.e
+watch test.ctrl.w.d[0]
+watch test.ctrl.w.d[1]
+
+watch test.ctrl.c[0]
+watch test.ctrl.c[1]
+
+step 100

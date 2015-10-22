@@ -10,7 +10,7 @@ namespace aer {
         export
         template <pint N>
         defproc FWDT (globals g; bool ci, co; e1of<N+1> x, y) {
-            // Forward words and detect tail
+            // forward words and detect tail
             // N for 1-of-N encoding. +1 tail word line
             (; n : N : x.d[n] = y.d[n];)
             prs {
@@ -20,13 +20,99 @@ namespace aer {
                 y.d[N] & ~x.e -> co+
                 ~y.d[N] | x.e -> co-
 
-                x.d[N] -> y.d[N]+
+                g._sReset & x.d[N] -> y.d[N]+
                 g.pReset | ~x.d[N] & ~ci -> y.d[N]-
             }
         }
 
         template <pint N>
-        defproc MERGE (globals g) {
+        defproc MERGE (globals g; bool m[N], mw; e1of<N+1> c[N], p; e1of<N> cw) {
+            // controlled merge
+            prs {
+                (: n : N : p.e & m[n] => c[n].e+)
+                p.e & mw => cw.e+
+
+                (: n : N : // data
+                    (| : nc : N : c[nc].d[n]) | cw.d[n] => p.d[n]+
+                )
+                (| : nc : N : c[nc].d[N]) => p.d[N]+ // tail
+            }
+        }
+
+        template <pint N>
+        defproc WORD (globals g; e1of<N> x, y) {
+            // injects a word
+            y = x;
+        }
+
+        export
+        template <pint N>
+        defproc CTRL (globals g; bool ci[N], co[N], pi, po,
+                      m[N], mw, fi[N], fo[N]; e1of<N> w) {
+            // AEXT tree NODE controller
+            bool c[N];
+            ::arbiter::N_ARB<N> arb(g, ci, c);
+
+            prs<g.Vdd, g.GND> {
+                c[0] & ~fi[0] & ~co[1] | c[1] & ~fi[1] & ~co[0] -> po+
+                g.pReset | fi[0] | fi[1] -> po-
+
+                pi & (& : n : N : ~m[n]) -> mw+
+                g.pReset | (| : n : N : m[n]) -> mw-
+                (: n : N :
+                    w.d[n] & ~w.e -> m[n]+
+                    ~pi -> m[n]-
+                )
+
+                (: n : N :
+                    c[n] & w.e & mw -> w.d[n]+
+                    ~mw -> w.d[n]-
+                )
+
+                (: n : N :
+                    m[n] & ~w.d[n] -> fo[n]+
+                    ~c[n] -> fo[n]-
+                )
+
+                (: n : N :
+                    fi[n] & ~m[n] -> co[n]+
+                    ~fi[n] | m[n] -> co[n]-
+                )
+            }
+        }
+
+        export
+        template <pint N>
+        defproc INT (globals g; bool ni, no, ci, co; e1of<N+1> d) {
+            // neuron interface to AEXT tree
+            (; n : N : d.d[n] = g.GND;)
+            prs<g.Vdd, g.GND> {
+                ni -> co+
+                ~ni -> co-
+
+                ni & d.e -> d.d[N]+
+                ~ni & ~d.e -> d.d[N]-
+
+                ci & d.d[N] -> no+
+                ~ci & ~d.d[N] -> no-
+            }
+        }
+
+        export
+        template <pint N>
+        defproc NODE (globals g; bool ci[N], co[N], pi, po; e1of<N+1> c[N], p) {
+            // node in the AEXT tree
+            CTRL<N> ctrl(g, ci, co, pi, po,,,,,);
+            WORD<N> word(g, ctrl.w,);
+            MERGE<N> merge(g, ctrl.m, ctrl.mw,, p, word.y);
+            FWDT<N> fwdt[N];
+            (; n : N :
+                fwdt[n].g = g;
+                fwdt[n].ci = ctrl.fo[n];
+                fwdt[n].co = ctrl.fi[n];
+                fwdt[n].x = c[n];
+                fwdt[n].y = merge.c[n];
+            )
         }
 
         export
@@ -53,6 +139,39 @@ namespace aer {
                 VN_e1ofN<N+1> vn(fwdt.y);
                 x = fwdt.x;
                 y = fwdt.y;
+            }
+
+            export
+            template <pint N>
+            defproc TEST_CTRL (globals g) {
+                CTRL<N> ctrl(g,,,,,,,,,);
+                active_handshaker<N> c(g, ctrl.co, ctrl.ci);
+                passive_handshaker<1> p(,);
+                p.i[0] = ctrl.po;
+                p.o[0] = ctrl.pi;
+                VN_e1ofN<N> w(ctrl.w);
+                passive_handshaker<N> fwdt(ctrl.fo, ctrl.fi);
+            }
+
+            export
+            template <pint N>
+            defproc TEST_NODE (globals g) {
+                NODE<N> node(g,,,,,,);
+                INT<N> nint[N];
+                active_handshaker<N> nrn(g,,);
+                passive_handshaker<1> p(,);
+                VN_e1ofN<N+1> vn(node.p);
+
+                (; n : N :
+                    nint[n].g = g;
+                    nint[n].ni = nrn.o[n];
+                    nint[n].no = nrn.i[n];
+                    node.ci[n] = nint[n].co;
+                    node.co[n] = nint[n].ci;
+                    node.c[n] = nint[n].d;
+                )
+                node.pi = p.o[0];
+                node.po = p.i[0];
             }
 
             export
