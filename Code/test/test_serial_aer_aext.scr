@@ -2,135 +2,308 @@
 
 source reset.scr
 
-# debug M2 ####################################################################
+# node 1 ######################################################################
 
-# set_principal test.aext._.pfwd_arr.pfwd.h
-# set_principal test.aext._.pfwd_arr.pfwd.q
-# set_principal test.aext._.pfwd_arr.pfwd.x.a
-# set_principal test.aext._.pfwd_arr.pfwd.x.m.n[0]
-# set_principal test.aext._.pfwd_arr.pfwd.x.m.n[1]
-# set_principal test.aext._.pfwd_arr.pfwd.x.m.n[2]
-# set_principal test.aext._.pfwd_arr.pfwd.y.a
-# set_principal test.aext._.pfwd_arr.pfwd.y.m.n[0]
-# set_principal test.aext._.pfwd_arr.pfwd.y.m.n[1]
-# set_principal test.aext._.pfwd_arr.pfwd.y.m.n[2]
+# set_principal test.aext._[1].node.ctrl.ci[0]
+# set_principal test.aext._[1].node.ctrl.ci[1]
+# set_principal test.aext._[1].node.ctrl.co[0]
+# set_principal test.aext._[1].node.ctrl.co[1]
+# set_principal test.aext._[1].node.ctrl.c[0]
+# set_principal test.aext._[1].node.ctrl.c[1]
+# set_principal test.aext._[1].node.ctrl.pi
+# set_principal test.aext._[1].node.ctrl.po
+# set_principal test.aext._[1].node.ctrl.m[0]
+# set_principal test.aext._[1].node.ctrl.m[1]
+# set_principal test.aext._[1].node.ctrl.mw
+# set_principal test.aext._[1].node.ctrl.fi[0]
+# set_principal test.aext._[1].node.ctrl.fo[0]
+# set_principal test.aext._[1].node.ctrl.fi[1]
+# set_principal test.aext._[1].node.ctrl.fo[1]
+# set_principal test.aext._[1].node.ctrl.w.e
+# set_principal test.aext._[1].node.ctrl.w.d[0]
+# set_principal test.aext._[1].node.ctrl.w.d[1]
 # 
-# set_principal test.aext._.pfwd_arr._.pfwd.h
-# set_principal test.aext._.pfwd_arr._.pfwd.q
-# set_principal test.aext._.pfwd_arr._.pfwd.x.a
-# set_principal test.aext._.pfwd_arr._.pfwd.x.m.n[0]
-# set_principal test.aext._.pfwd_arr._.pfwd.x.m.n[1]
-# set_principal test.aext._.pfwd_arr._.pfwd.x.m.n[2]
-# set_principal test.aext._.pfwd_arr._.pfwd.y.a
-# set_principal test.aext._.pfwd_arr._.pfwd.y.m.n[0]
-# set_principal test.aext._.pfwd_arr._.pfwd.y.m.n[1]
-# set_principal test.aext._.pfwd_arr._.pfwd.y.m.n[2]
+# set_principal test.aext._[1].node.fwdt[0].x.e
+# set_principal test.aext._[1].node.fwdt[0].x.d[2]
+# set_principal test.aext._[1].node.fwdt[0].y.e
+# set_principal test.aext._[1].node.fwdt[0].y.d[2]
+# set_principal test.aext._[1].node.fwdt[1].x.e
+# set_principal test.aext._[1].node.fwdt[1].x.d[2]
+# set_principal test.aext._[1].node.fwdt[1].y.e
+# set_principal test.aext._[1].node.fwdt[1].y.d[2]
 # 
 # source reset.scr 
 # 
-# watch test.aext._.pfwd_arr.pfwd.h
-# watch test.aext._.pfwd_arr.pfwd.q
-# watch test.aext._.pfwd_arr.pfwd.x.a
-# watch test.aext._.pfwd_arr.pfwd.x.m.n[0]
-# watch test.aext._.pfwd_arr.pfwd.x.m.n[1]
-# watch test.aext._.pfwd_arr.pfwd.x.m.n[2]
-# watch test.aext._.pfwd_arr.pfwd.y.a
-# watch test.aext._.pfwd_arr.pfwd.y.m.n[0]
-# watch test.aext._.pfwd_arr.pfwd.y.m.n[1]
-# watch test.aext._.pfwd_arr.pfwd.y.m.n[2]
+# watch test.aext._[1].node.ctrl.ci[0]
+# watch test.aext._[1].node.ctrl.ci[1]
+# watch test.aext._[1].node.ctrl.co[0]
+# watch test.aext._[1].node.ctrl.co[1]
+# watch test.aext._[1].node.ctrl.c[0]
+# watch test.aext._[1].node.ctrl.c[1]
+# watch test.aext._[1].node.ctrl.pi
+# watch test.aext._[1].node.ctrl.po
+# watch test.aext._[1].node.ctrl.m[0]
+# watch test.aext._[1].node.ctrl.m[1]
+# watch test.aext._[1].node.ctrl.mw
+# watch test.aext._[1].node.ctrl.fi[0]
+# watch test.aext._[1].node.ctrl.fo[0]
+# watch test.aext._[1].node.ctrl.fi[1]
+# watch test.aext._[1].node.ctrl.fo[1]
+# watch test.aext._[1].node.ctrl.w.e
+# watch test.aext._[1].node.ctrl.w.d[0]
+# watch test.aext._[1].node.ctrl.w.d[1]
+#                      
+# watch test.aext._[1].node.fwdt[0].x.e
+# watch test.aext._[1].node.fwdt[0].x.d[2]
+# watch test.aext._[1].node.fwdt[0].y.e
+# watch test.aext._[1].node.fwdt[0].y.d[2]
+# watch test.aext._[1].node.fwdt[1].x.e
+# watch test.aext._[1].node.fwdt[1].x.d[2]
+# watch test.aext._[1].node.fwdt[1].y.e
+# watch test.aext._[1].node.fwdt[1].y.d[2]
 # 
-# watch test.aext._.pfwd_arr._.pfwd.h
-# watch test.aext._.pfwd_arr._.pfwd.q
-# watch test.aext._.pfwd_arr._.pfwd.x.a
-# watch test.aext._.pfwd_arr._.pfwd.x.m.n[0]
-# watch test.aext._.pfwd_arr._.pfwd.x.m.n[1]
-# watch test.aext._.pfwd_arr._.pfwd.x.m.n[2]
-# watch test.aext._.pfwd_arr._.pfwd.y.a
-# watch test.aext._.pfwd_arr._.pfwd.y.m.n[0]
-# watch test.aext._.pfwd_arr._.pfwd.y.m.n[1]
-# watch test.aext._.pfwd_arr._.pfwd.y.m.n[2]
+# step 200
 
-# debug M1 ####################################################################
+# root node ###################################################################
 
-# set_principal test.aext._.merge.c[0].m.n[0]
-# set_principal test.aext._.merge.c[0].m.n[1]
-# set_principal test.aext._.merge.c[0].m.n[2]
-# set_principal test.aext._.merge.c[0].a
-# set_principal test.aext._.merge.c[1].m.n[0]
-# set_principal test.aext._.merge.c[1].m.n[1]
-# set_principal test.aext._.merge.c[1].m.n[2]
-# set_principal test.aext._.merge.c[1].a
-# set_principal test.aext._.merge.p.m.n[0]
-# set_principal test.aext._.merge.p.m.n[1]
-# set_principal test.aext._.merge.p.m.n[2]
-# set_principal test.aext._.merge.p.a
+# set_principal test.aext.node.ctrl.ci[0]
+# set_principal test.aext.node.ctrl.ci[1]
+# set_principal test.aext.node.ctrl.co[0]
+# set_principal test.aext.node.ctrl.co[1]
+# set_principal test.aext.node.ctrl.c[0]
+# set_principal test.aext.node.ctrl.c[1]
+# set_principal test.aext.node.ctrl.pi
+# set_principal test.aext.node.ctrl.po
+# set_principal test.aext.node.ctrl.m[0]
+# set_principal test.aext.node.ctrl.m[1]
+# set_principal test.aext.node.ctrl.mw
+# set_principal test.aext.node.ctrl.fi[0]
+# set_principal test.aext.node.ctrl.fo[0]
+# set_principal test.aext.node.ctrl.fi[1]
+# set_principal test.aext.node.ctrl.fo[1]
+# set_principal test.aext.node.ctrl.w.e
+# set_principal test.aext.node.ctrl.w.d[0]
+# set_principal test.aext.node.ctrl.w.d[1]
+# 
+# set_principal test.aext.node.fwdt[0].x.e
+# set_principal test.aext.node.fwdt[0].x.d[0]
+# set_principal test.aext.node.fwdt[0].x.d[1]
+# set_principal test.aext.node.fwdt[0].x.d[2]
+# set_principal test.aext.node.fwdt[0].y.e
+# set_principal test.aext.node.fwdt[0].y.d[2]
+# set_principal test.aext.node.fwdt[1].x.e
+# set_principal test.aext.node.fwdt[1].x.d[0]
+# set_principal test.aext.node.fwdt[1].x.d[1]
+# set_principal test.aext.node.fwdt[1].x.d[2]
+# set_principal test.aext.node.fwdt[1].y.e
+# set_principal test.aext.node.fwdt[1].y.d[2]
 # 
 # source reset.scr 
 # 
-# watch test.aext._.merge.c[0].m.n[0]
-# watch test.aext._.merge.c[0].m.n[1]
-# watch test.aext._.merge.c[0].m.n[2]
-# watch test.aext._.merge.c[0].a
-# watch test.aext._.merge.c[1].m.n[0]
-# watch test.aext._.merge.c[1].m.n[1]
-# watch test.aext._.merge.c[1].m.n[2]
-# watch test.aext._.merge.c[1].a
-# watch test.aext._.merge.arb.i[0]
-# watch test.aext._.merge.arb.i[1]
-# watch test.aext._.merge.arb.o[0]
-# watch test.aext._.merge.arb.o[1]
-# watch test.aext._.merge.a[0]
-# watch test.aext._.merge.a[1]
-# watch test.aext._.merge.p.m.n[0]
-# watch test.aext._.merge.p.m.n[1]
-# watch test.aext._.merge.p.m.n[2]
-# watch test.aext._.merge.p.a
-
-# #################### M4 watch out ###########################################
-
-# source reset.scr
-# vector y test.aext.y.m.n[0] test.aext.y.m.n[1] test.aext.y.m.n[2] test.aext.y.m.n[3] test.aext.yt
-# vwatch y
-# step 100000
-
-# #################### M2N2 ###################################################
-
-# set_principal test.aext.merge.p.m.n[0]
-# set_principal test.aext.merge.p.m.n[1]
-# set_principal test.aext.merge.pt
-# set_principal test.aext.merge.c[0].m.n[0]
-# set_principal test.aext.merge.c[0].m.n[1]
-# set_principal test.aext.merge.ct[0]
-# set_principal test.aext.merge.c[1].m.n[0]
-# set_principal test.aext.merge.c[1].m.n[1]
-# set_principal test.aext.merge.ct[1]
-# set_principal test.aext.aext[0].merge.p.m.n[0]
-# set_principal test.aext.aext[0].merge.p.m.n[1]
-# set_principal test.aext.aext[0].merge.pt
-# set_principal test.aext.aext[1].merge.p.m.n[0]
-# set_principal test.aext.aext[1].merge.p.m.n[1]
-# set_principal test.aext.aext[1].merge.pt
+# watch test.aext.node.ctrl.ci[0]
+# watch test.aext.node.ctrl.ci[1]
+# watch test.aext.node.ctrl.co[0]
+# watch test.aext.node.ctrl.co[1]
+# watch test.aext.node.ctrl.c[0]
+# watch test.aext.node.ctrl.c[1]
+# watch test.aext.node.ctrl.pi
+# watch test.aext.node.ctrl.po
+# watch test.aext.node.ctrl.m[0]
+# watch test.aext.node.ctrl.m[1]
+# watch test.aext.node.ctrl.mw
+# watch test.aext.node.ctrl.fi[0]
+# watch test.aext.node.ctrl.fo[0]
+# watch test.aext.node.ctrl.fi[1]
+# watch test.aext.node.ctrl.fo[1]
+# watch test.aext.node.ctrl.w.e
+# watch test.aext.node.ctrl.w.d[0]
+# watch test.aext.node.ctrl.w.d[1]
 # 
-# set_principal test.aext.merge.co[0]
-# set_principal test.aext.merge.co[1]
-# set_principal test.aext.merge.pi
+# watch test.aext.node.fwdt[0].x.e
+# watch test.aext.node.fwdt[0].x.d[0]
+# watch test.aext.node.fwdt[0].x.d[1]
+# watch test.aext.node.fwdt[0].x.d[2]
+# watch test.aext.node.fwdt[0].y.e
+# watch test.aext.node.fwdt[0].y.d[2]
+# watch test.aext.node.fwdt[1].x.e
+# watch test.aext.node.fwdt[1].x.d[0]
+# watch test.aext.node.fwdt[1].x.d[1]
+# watch test.aext.node.fwdt[1].x.d[2]
+# watch test.aext.node.fwdt[1].y.e
+# watch test.aext.node.fwdt[1].y.d[2]
 # 
-# source reset.scr
+# step 200
+
+# debug ctrl ##################################################################
+
+# set_principal test.aext.node.ctrl.c[0]
+# set_principal test.aext.node.ctrl.c[1]
+# set_principal test.aext.node.ctrl.pi
+# set_principal test.aext.node.ctrl.po
+# set_principal test.aext.node.ctrl.m[0]
+# set_principal test.aext.node.ctrl.m[1]
+# set_principal test.aext.node.ctrl.mw
+# set_principal test.aext.node.ctrl.fi[0]
+# set_principal test.aext.node.ctrl.fo[0]
+# set_principal test.aext.node.ctrl.fi[1]
+# set_principal test.aext.node.ctrl.fo[1]
+# set_principal test.aext.node.ctrl.w.e
+# set_principal test.aext.node.ctrl.w.d[0]
+# set_principal test.aext.node.ctrl.w.d[1]
 # 
-# watch test.aext.merge.co[0]
-# watch test.aext.merge.co[1]
-# watch test.aext.merge.pi
-# watch test.aext.merge.a[0]
-# watch test.aext.merge.a[1]
-# watch test.aext.merge.h
+# set_principal test.aext.node.fwdt[0].x.e
+# set_principal test.aext.node.fwdt[0].x.d[0]
+# set_principal test.aext.node.fwdt[0].x.d[1]
+# set_principal test.aext.node.fwdt[0].x.d[2]
+# set_principal test.aext.node.fwdt[0].y.e
+# set_principal test.aext.node.fwdt[0].y.d[2]
+# set_principal test.aext.node.fwdt[1].x.e
+# set_principal test.aext.node.fwdt[1].x.d[0]
+# set_principal test.aext.node.fwdt[1].x.d[1]
+# set_principal test.aext.node.fwdt[1].x.d[2]
+# set_principal test.aext.node.fwdt[1].y.e
+# set_principal test.aext.node.fwdt[1].y.d[2]
 # 
-# vector mp :1ofN 3 test.aext.merge.p.m.n[0] test.aext.merge.p.m.n[1] test.aext.merge.pt
-# vector mc0 :1ofN 3 test.aext.merge.c[0].m.n[0] test.aext.merge.c[0].m.n[1] test.aext.merge.ct[0]
-# vector mc1 :1ofN 3 test.aext.merge.c[1].m.n[0] test.aext.merge.c[1].m.n[1] test.aext.merge.ct[1]
-# vector m0mp :1ofN 3 test.aext.aext[0].merge.p.m.n[0] test.aext.aext[0].merge.p.m.n[1] test.aext.aext[0].merge.pt
-# vector m1mp :1ofN 3 test.aext.aext[1].merge.p.m.n[0] test.aext.aext[1].merge.p.m.n[1] test.aext.aext[1].merge.pt
-# vwatch mp
-# vwatch mc0
-# vwatch mc1
-# vwatch m0mp
-# vwatch m1mp
+# set_principal test.aext._[0].node.ctrl.ci[0]
+# set_principal test.aext._[0].node.ctrl.ci[1]
+# set_principal test.aext._[0].node.ctrl.co[0]
+# set_principal test.aext._[0].node.ctrl.co[1]
+# set_principal test.aext._[0].node.ctrl.c[0]
+# set_principal test.aext._[0].node.ctrl.c[1]
+# set_principal test.aext._[0].node.ctrl.pi
+# set_principal test.aext._[0].node.ctrl.po
+# set_principal test.aext._[0].node.ctrl.m[0]
+# set_principal test.aext._[0].node.ctrl.m[1]
+# set_principal test.aext._[0].node.ctrl.mw
+# set_principal test.aext._[0].node.ctrl.fi[0]
+# set_principal test.aext._[0].node.ctrl.fo[0]
+# set_principal test.aext._[0].node.ctrl.fi[1]
+# set_principal test.aext._[0].node.ctrl.fo[1]
+# set_principal test.aext._[0].node.ctrl.w.e
+# set_principal test.aext._[0].node.ctrl.w.d[0]
+# set_principal test.aext._[0].node.ctrl.w.d[1]
+# 
+# set_principal test.aext._[0].node.fwdt[0].x.e
+# set_principal test.aext._[0].node.fwdt[0].x.d[2]
+# set_principal test.aext._[0].node.fwdt[0].y.e
+# set_principal test.aext._[0].node.fwdt[0].y.d[2]
+# set_principal test.aext._[0].node.fwdt[1].x.e
+# set_principal test.aext._[0].node.fwdt[1].x.d[2]
+# set_principal test.aext._[0].node.fwdt[1].y.e
+# set_principal test.aext._[0].node.fwdt[1].y.d[2]
+# 
+# set_principal test.aext._[1].node.ctrl.ci[0]
+# set_principal test.aext._[1].node.ctrl.ci[1]
+# set_principal test.aext._[1].node.ctrl.co[0]
+# set_principal test.aext._[1].node.ctrl.co[1]
+# set_principal test.aext._[1].node.ctrl.c[0]
+# set_principal test.aext._[1].node.ctrl.c[1]
+# set_principal test.aext._[1].node.ctrl.pi
+# set_principal test.aext._[1].node.ctrl.po
+# set_principal test.aext._[1].node.ctrl.m[0]
+# set_principal test.aext._[1].node.ctrl.m[1]
+# set_principal test.aext._[1].node.ctrl.mw
+# set_principal test.aext._[1].node.ctrl.fi[0]
+# set_principal test.aext._[1].node.ctrl.fo[0]
+# set_principal test.aext._[1].node.ctrl.fi[1]
+# set_principal test.aext._[1].node.ctrl.fo[1]
+# set_principal test.aext._[1].node.ctrl.w.e
+# set_principal test.aext._[1].node.ctrl.w.d[0]
+# set_principal test.aext._[1].node.ctrl.w.d[1]
+# 
+# set_principal test.aext._[1].node.fwdt[0].x.e
+# set_principal test.aext._[1].node.fwdt[0].x.d[2]
+# set_principal test.aext._[1].node.fwdt[0].y.e
+# set_principal test.aext._[1].node.fwdt[0].y.d[2]
+# set_principal test.aext._[1].node.fwdt[1].x.e
+# set_principal test.aext._[1].node.fwdt[1].x.d[2]
+# set_principal test.aext._[1].node.fwdt[1].y.e
+# set_principal test.aext._[1].node.fwdt[1].y.d[2]
+# 
+# source reset.scr 
+# 
+# watch test.aext.node.ctrl.c[0]
+# watch test.aext.node.ctrl.c[1]
+# watch test.aext.node.ctrl.pi
+# watch test.aext.node.ctrl.po
+# watch test.aext.node.ctrl.m[0]
+# watch test.aext.node.ctrl.m[1]
+# watch test.aext.node.ctrl.mw
+# watch test.aext.node.ctrl.fi[0]
+# watch test.aext.node.ctrl.fo[0]
+# watch test.aext.node.ctrl.fi[1]
+# watch test.aext.node.ctrl.fo[1]
+# watch test.aext.node.ctrl.w.e
+# watch test.aext.node.ctrl.w.d[0]
+# watch test.aext.node.ctrl.w.d[1]
+# 
+# watch test.aext.node.fwdt[0].x.e
+# watch test.aext.node.fwdt[0].x.d[0]
+# watch test.aext.node.fwdt[0].x.d[1]
+# watch test.aext.node.fwdt[0].x.d[2]
+# watch test.aext.node.fwdt[0].y.e
+# watch test.aext.node.fwdt[0].y.d[2]
+# watch test.aext.node.fwdt[1].x.e
+# watch test.aext.node.fwdt[1].x.d[0]
+# watch test.aext.node.fwdt[1].x.d[1]
+# watch test.aext.node.fwdt[1].x.d[2]
+# watch test.aext.node.fwdt[1].y.e
+# watch test.aext.node.fwdt[1].y.d[2]
+# 
+# watch test.aext._[0].node.ctrl.ci[0]
+# watch test.aext._[0].node.ctrl.ci[1]
+# watch test.aext._[0].node.ctrl.co[0]
+# watch test.aext._[0].node.ctrl.co[1]
+# watch test.aext._[0].node.ctrl.c[0]
+# watch test.aext._[0].node.ctrl.c[1]
+# watch test.aext._[0].node.ctrl.pi
+# watch test.aext._[0].node.ctrl.po
+# watch test.aext._[0].node.ctrl.m[0]
+# watch test.aext._[0].node.ctrl.m[1]
+# watch test.aext._[0].node.ctrl.mw
+# watch test.aext._[0].node.ctrl.fi[0]
+# watch test.aext._[0].node.ctrl.fo[0]
+# watch test.aext._[0].node.ctrl.fi[1]
+# watch test.aext._[0].node.ctrl.fo[1]
+# watch test.aext._[0].node.ctrl.w.e
+# watch test.aext._[0].node.ctrl.w.d[0]
+# watch test.aext._[0].node.ctrl.w.d[1]
+# 
+# watch test.aext._[0].node.fwdt[0].x.e
+# watch test.aext._[0].node.fwdt[0].x.d[2]
+# watch test.aext._[0].node.fwdt[0].y.e
+# watch test.aext._[0].node.fwdt[0].y.d[2]
+# watch test.aext._[0].node.fwdt[1].x.e
+# watch test.aext._[0].node.fwdt[1].x.d[2]
+# watch test.aext._[0].node.fwdt[1].y.e
+# watch test.aext._[0].node.fwdt[1].y.d[2]
+# 
+# watch test.aext._[1].node.ctrl.ci[0]
+# watch test.aext._[1].node.ctrl.ci[1]
+# watch test.aext._[1].node.ctrl.co[0]
+# watch test.aext._[1].node.ctrl.co[1]
+# watch test.aext._[1].node.ctrl.c[0]
+# watch test.aext._[1].node.ctrl.c[1]
+# watch test.aext._[1].node.ctrl.pi
+# watch test.aext._[1].node.ctrl.po
+# watch test.aext._[1].node.ctrl.m[0]
+# watch test.aext._[1].node.ctrl.m[1]
+# watch test.aext._[1].node.ctrl.mw
+# watch test.aext._[1].node.ctrl.fi[0]
+# watch test.aext._[1].node.ctrl.fo[0]
+# watch test.aext._[1].node.ctrl.fi[1]
+# watch test.aext._[1].node.ctrl.fo[1]
+# watch test.aext._[1].node.ctrl.w.e
+# watch test.aext._[1].node.ctrl.w.d[0]
+# watch test.aext._[1].node.ctrl.w.d[1]
+# 
+# watch test.aext._[1].node.fwdt[0].x.e
+# watch test.aext._[1].node.fwdt[0].x.d[2]
+# watch test.aext._[1].node.fwdt[0].y.e
+# watch test.aext._[1].node.fwdt[0].y.d[2]
+# watch test.aext._[1].node.fwdt[1].x.e
+# watch test.aext._[1].node.fwdt[1].x.d[2]
+# watch test.aext._[1].node.fwdt[1].y.e
+# watch test.aext._[1].node.fwdt[1].y.d[2]
+# 
+# step 200

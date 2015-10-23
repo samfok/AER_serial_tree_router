@@ -4,4 +4,4 @@ pint N=2;
 pint M=3;
 pint NN=8; // NN=N^M
 globals g;
-aer::transmitter::test::TEST_AEXT<N, M, NN> test(g);
+aer::transmitter::test::TEST_AEXT<M, N, NN> test(g);
