@@ -352,11 +352,11 @@ namespace aer {
         }
 
         export
-        template <pint N, M, NN>
+        template <pint M, N, NN>
         defproc AERV (globals g; e1of<N+1> x; bool yi[NN], yo[NN]) {
             // Serial receiver
-            // N for 1-of-N encoding
             // M layers in the tree
+            // N for 1-of-N encoding
             // NN = N^M neurons
             [ M = 0 ->
                 NN = 1; // check that NN = N^M
@@ -365,7 +365,7 @@ namespace aer {
                 bool xt = x.d[N];
                 pint k = NN/N;
                 NODE<N> node(g, x,);
-                AERV<N, M-1, k> _[N];
+                AERV<M-1, N, k> _[N];
 
                 (; n : N : g = _[n].g;)
                 (; n : N : node.c[n] = _[n].x;)
@@ -383,7 +383,7 @@ namespace aer {
     } // namespace receiver
 
     export
-    template <pint N, M, NN>
+    template <pint M, N, NN>
     defproc AER (globals g; bool xi[NN], xo[NN], yi[NN], yo[NN]) {
         // address-event representation tranceiver
         // packets are serialized 
@@ -391,14 +391,14 @@ namespace aer {
         // M groups
         // N items per group
         // NN=N^M
-        transmitter::AEXT<N, M, NN> aext(g, xi, xo,);
-        receiver::AERV<N, M, NN> aerv(g,, yi, yo);
+        transmitter::AEXT<M, N, NN> aext(g, xi, xo,);
+        receiver::AERV<M, N, NN> aerv(g,, yi, yo);
         aext.y = aerv.x;
     }
 
     namespace test {
         export
-        template <pint N, M, NN>
+        template <pint M, N, NN>
         defproc TEST_AER (globals g) {
             // M groups
             // N items per group

@@ -1,8 +1,8 @@
 // Tests the serial tree AER system
 import "serial_aer.act";
 
-pint N=2;
 pint M=3;
+pint N=2;
 pint NN=8; // NN=N^M
 
 globals g;
