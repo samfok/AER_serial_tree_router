@@ -9,19 +9,37 @@ namespace aer {
     namespace transmitter {
         export
         template <pint N>
-        defproc FWDT (globals g; bool ci, co; e1of<N+1> x, y) {
-            // forward words and detect tail
-            // N for 1-of-N encoding. +1 tail word line
-            (; n : N : x.d[n] = y.d[n];)
-            prs {
-                ci & y.e -> x.e+
-                ~ci | ~y.e -> x.e-
+        defproc CTRL (globals g; bool ci[N], co[N], pi, po,
+                      m[N], mw, fi[N], fo[N]; e1of<N> w) {
+            // AEXT tree NODE controller
+            bool c[N];
+            ::arbiter::N_ARB<N> arb(g, ci, c);
 
-                y.d[N] & ~x.e -> co+
-                ~y.d[N] | x.e -> co-
+            prs<g.Vdd, g.GND> {
+                (c[0] | c[1]) & ~fi[0] & ~fi[1] -> po+
+                g.pReset | fi[0] | fi[1] -> po-
 
-                g._sReset & x.d[N] -> y.d[N]+
-                g.pReset | ~x.d[N] & ~ci -> y.d[N]-
+                pi & (& : n : N : ~m[n]) -> mw+
+                g.pReset | ~pi | (| : n : N : m[n]) -> mw-
+                (: n : N :
+                    w.d[n] & ~w.e -> m[n]+
+                    ~pi & ~c[n] -> m[n]-
+                )
+
+                (: n : N :
+                    co[n] & w.e -> w.d[n]+
+                    ~mw -> w.d[n]-
+                )
+
+                (: n : N :
+                    m[n] & ~w.d[n] -> fo[n]+
+                    ~m[n] | w.d[n]  -> fo[n]-
+                )
+
+                c[0] & pi & ~co[1] -> co[0]+
+                ~fo[0] & ~pi -> co[0]-
+                c[1] & pi & ~co[0] -> co[1]+
+                ~fo[1] & ~pi -> co[1]-
             }
         }
 
@@ -47,37 +65,19 @@ namespace aer {
 
         export
         template <pint N>
-        defproc CTRL (globals g; bool ci[N], co[N], pi, po,
-                      m[N], mw, fi[N], fo[N]; e1of<N> w) {
-            // AEXT tree NODE controller
-            bool c[N];
-            ::arbiter::N_ARB<N> arb(g, ci, c);
+        defproc FWDT (globals g; bool ci, co; e1of<N+1> x, y) {
+            // forward words and detect tail
+            // N for 1-of-N encoding. +1 tail word line
+            (; n : N : x.d[n] = y.d[n];)
+            prs {
+                ci & y.e -> x.e+
+                ~ci | ~y.e -> x.e-
 
-            prs<g.Vdd, g.GND> {
-                (c[0] & ~co[1] | c[1] & ~co[0]) -> po+
-                g.pReset | (~c[0] & co[0] | ~c[1] & co[1]) -> po-
+                y.d[N] & ~x.e -> co+
+                ~y.d[N] | x.e -> co-
 
-                po & (& : n : N : ~m[n]) -> mw+
-                g.pReset | (| : n : N : m[n]) -> mw-
-                (: n : N :
-                    c[n] & w.d[n] & ~w.e -> m[n]+
-                    ~c[n] & ~po -> m[n]-
-                )
-
-                (: n : N :
-                    c[n] & w.e & mw -> w.d[n]+
-                    ~mw -> w.d[n]-
-                )
-
-                (: n : N :
-                    m[n] & ~w.d[n] -> fo[n]+
-                    ~m[n] | w.d[n]  -> fo[n]-
-                )
-
-                (: n : N :
-                    pi & fi[n] -> co[n]+
-                    ~pi & ~fi[n] -> co[n]-
-                )
+                g._sReset & x.d[N] -> y.d[N]+
+                g.pReset | ~x.d[N] & ~ci -> y.d[N]-
             }
         }
 
@@ -86,15 +86,11 @@ namespace aer {
         defproc INT (globals g; bool ni, no, ci, co; e1of<N+1> d) {
             // neuron interface to AEXT tree
             (; n : N : d.d[n] = g.GND;)
+            ni = co;
+            d.d[N] = no;
             prs<g.Vdd, g.GND> {
-                ni -> co+
-                ~ni -> co-
-
-                ni & d.e -> d.d[N]+
-                ~ni & ~d.e -> d.d[N]-
-
-                ci & d.d[N] -> no+
-                ~ci & ~d.d[N] -> no-
+                ci & d.e -> d.d[N]+
+                ~ci & ~d.e -> d.d[N]-
             }
         }
 
