@@ -1,0 +1,8 @@
+import "serial_aer.act";
+
+pint M=3;
+pint N=2;
+pint NN=8; // NN=N^M
+pint nn=0;
+globals g;
+aer::transmitter::test::TEST_AEXT1<M, N, NN, nn> test(g);

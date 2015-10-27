@@ -10,20 +10,23 @@ namespace aer {
         export
         template <pint N>
         defproc CTRL (globals g; bool ci[N], co[N], pi, po,
-                      m[N], mw, fi[N], fo[N]; e1of<N> w) {
+                      m[N], mw; e1of<N> w) {
             // AEXT tree NODE controller
-            bool c[N];
+            bool c[N], q[N];
             ::arbiter::N_ARB<N> arb(g, ci, c);
 
             prs<g.Vdd, g.GND> {
-                (c[0] | c[1]) & ~fi[0] & ~fi[1] -> po+
-                g.pReset | fi[0] | fi[1] -> po-
+                c[0] & ~m[0] & ~co[1] -> q[0]+
+                g.pReset | ~c[0] & m[0] & ~w.d[0] -> q[0]-
+                c[1] & ~m[1] & ~co[0] -> q[1]+
+                g.pReset | ~c[1] & m[1] & ~w.d[1] -> q[1]-
 
-                pi & (& : n : N : ~m[n]) -> mw+
-                g.pReset | ~pi | (| : n : N : m[n]) -> mw-
+                (| : n : N : q[n]) -> po+
+                (& : n : N : ~q[n]) -> po-
+
                 (: n : N :
-                    w.d[n] & ~w.e -> m[n]+
-                    ~pi & ~c[n] -> m[n]-
+                    q[n] & mw -> co[n]+
+                    ~m[n] & ~pi -> co[n]-
                 )
 
                 (: n : N :
@@ -31,20 +34,18 @@ namespace aer {
                     ~mw -> w.d[n]-
                 )
 
-                (: n : N :
-                    m[n] & ~w.d[n] -> fo[n]+
-                    ~m[n] | w.d[n]  -> fo[n]-
-                )
+                pi & (& : n : N : ~m[n]) -> mw+
+                ~pi | (| : n : N : m[n]) -> mw-
 
-                c[0] & pi & ~co[1] -> co[0]+
-                ~fo[0] & ~pi -> co[0]-
-                c[1] & pi & ~co[0] -> co[1]+
-                ~fo[1] & ~pi -> co[1]-
+                (: n : N :
+                    w.d[n] & ~w.e -> m[n]+
+                    ~pi -> m[n]-
+                )
             }
         }
 
         template <pint N>
-        defproc MERGE (globals g; bool m[N], mw; e1of<N+1> c[N], p; e1of<N> cw) {
+        defproc MERGE (globals g; bool m[N], mw; e1of<N> c[N], p; e1of<N> cw) {
             // controlled merge
             prs {
                 (: n : N : p.e & m[n] => c[n].e+)
@@ -53,73 +54,53 @@ namespace aer {
                 (: n : N : // data
                     (| : nc : N : c[nc].d[n]) | cw.d[n] => p.d[n]+
                 )
-                (| : nc : N : c[nc].d[N]) => p.d[N]+ // tail
             }
         }
 
         template <pint N>
-        defproc WORD (globals g; e1of<N> x, y) {
-            // injects a word
-            y = x;
-        }
-
-        export
-        template <pint N>
-        defproc FWDT (globals g; bool ci, co; e1of<N+1> x, y) {
-            // forward words and detect tail
-            // N for 1-of-N encoding. +1 tail word line
-            (; n : N : x.d[n] = y.d[n];)
-            prs {
-                ci & y.e -> x.e+
-                ~ci | ~y.e -> x.e-
-
-                y.d[N] & ~x.e -> co+
-                ~y.d[N] | x.e -> co-
-
-                g._sReset & x.d[N] -> y.d[N]+
-                g.pReset | ~x.d[N] & ~ci -> y.d[N]-
-            }
-        }
-
-        export
-        template <pint N>
-        defproc INT (globals g; bool ni, no, ci, co; e1of<N+1> d) {
-            // neuron interface to AEXT tree
-            (; n : N : d.d[n] = g.GND;)
-            ni = co;
-            d.d[N] = no;
-            prs<g.Vdd, g.GND> {
-                ci & d.e -> d.d[N]+
-                ~ci & ~d.e -> d.d[N]-
-            }
-        }
-
-        export
-        template <pint N>
-        defproc NODE (globals g; bool ci[N], co[N], pi, po; e1of<N+1> c[N], p) {
+        defproc NODE (globals g; bool ci[N], co[N], pi, po; e1of<N> c[N], p) {
             // node in the AEXT tree
-            CTRL<N> ctrl(g, ci, co, pi, po,,,,,);
-            WORD<N> word(g, ctrl.w,);
-            MERGE<N> merge(g, ctrl.m, ctrl.mw,, p, word.y);
-            FWDT<N> fwdt[N];
-            (; n : N :
-                fwdt[n].g = g;
-                fwdt[n].ci = ctrl.fo[n];
-                fwdt[n].co = ctrl.fi[n];
-                fwdt[n].x = c[n];
-                fwdt[n].y = merge.c[n];
-            )
+            CTRL<N> ctrl(g, ci, co, pi, po,,,);
+            MERGE<N> merge(g, ctrl.m, ctrl.mw, c, p, ctrl.w);
+        }
+
+        template <pint N>
+        defproc LEAF (globals g; bool ci[N], co[N], pi, po; e1of<N> w) {
+            // leaf node of aext tree
+            bool c[N], q[N];
+            ::arbiter::N_ARB<N> arb(g, ci, c);
+            prs<g.Vdd, g.GND> {
+                c[0] & ~co[1] -> q[0]+
+                g.pReset | w.d[0] & ~w.e -> q[0]-
+                c[1] & ~co[0] -> q[1]+
+                g.pReset | w.d[1] & ~w.e -> q[1]-
+
+                q[0] | q[1] -> po+
+                ~q[0] & ~q[1] -> po-
+
+                (: n : N :
+                    q[n] & ~c[n] & w.e -> w.d[n]+
+                    ~pi -> w.d[n]-
+                )
+
+                (: n : N :
+                    q[n] & pi -> co[n]+
+                    ~w.d[n] & ~pi -> co[n]-
+                )
+            }
         }
 
         export
         template <pint M, N, NN>
         defproc AEXT_ (globals g; bool xi[NN], xo[NN],
-                       ci[N], co[N], pi, po; e1of<N+1> y) {
+                       ci[N], co[N], pi, po; e1of<N> y) {
             // utility for AEXT
-            [ M = 0 ->
-                NN = 1;
-                INT<N> nint(g, xi[0], xo[0], pi, po, y);
-            [] M > 0 ->
+            [ M = 1 ->
+                NN = N;
+                LEAF<N> leaf(g, ci, co, pi, po, y);
+                ci = xi;
+                co = xo;
+            [] M > 1 ->
                 pint k = NN/N;
                 AEXT_<M-1, N, k> _[N];
                 (; n : N :
@@ -140,7 +121,7 @@ namespace aer {
 
         export
         template <pint M, N, NN>
-        defproc AEXT (globals g; bool xi[NN], xo[NN]; e1of<N+1> y) {
+        defproc AEXT (globals g; bool xi[NN], xo[NN]; e1of<N> y) {
             // Serial transmitter
             // M layers in the tree
             // N for 1-of-N encoding. + tail word line
@@ -148,70 +129,14 @@ namespace aer {
             [ M = 0 ->
                 0 = 1;
             [] M > 0 ->
-                pint k = NN/N;
-                AEXT_<M-1, N, k> _[N];
-                (; n : N :
-                    _[n].g = g;
-                    _[n].xi = xi[n*k..(n+1)*k-1];
-                    _[n].xo = xo[n*k..(n+1)*k-1];
-                )
-
-                NODE<N> node(g,,,,,, y);
-                (; n : N :
-                    node.ci[n] = _[n].po;
-                    node.co[n] = _[n].pi;
-                    node.c[n] = _[n].y;
-                )
+                AEXT_<M, N, NN> _(g, xi, xo, , , , ,y);
                 prs {
-                    node.po => node.pi+
+                    _.po => _.pi+
                 }
             ]
         }
 
         namespace test {
-            export
-            template <pint N>
-            defproc TEST_FWDT (globals g; e1of<N+1> x,y) {
-                active_handshaker<1> c(g,,);
-                FWDT<N> fwdt(g, c.o[0], c.i[0],,);
-                VN_e1ofN<N+1> vn(fwdt.y);
-                x = fwdt.x;
-                y = fwdt.y;
-            }
-
-            export
-            template <pint N>
-            defproc TEST_CTRL (globals g) {
-                CTRL<N> ctrl(g,,,,,,,,,);
-                active_handshaker<N> c(g, ctrl.co, ctrl.ci);
-                passive_handshaker<1> p(,);
-                p.i[0] = ctrl.po;
-                p.o[0] = ctrl.pi;
-                VN_e1ofN<N> w(ctrl.w);
-                passive_handshaker<N> fwdt(ctrl.fo, ctrl.fi);
-            }
-
-            export
-            template <pint N>
-            defproc TEST_NODE (globals g) {
-                NODE<N> node(g,,,,,,);
-                INT<N> nint[N];
-                active_handshaker<N> nrn(g,,);
-                passive_handshaker<1> p(,);
-                VN_e1ofN<N+1> vn(node.p);
-
-                (; n : N :
-                    nint[n].g = g;
-                    nint[n].ni = nrn.o[n];
-                    nint[n].no = nrn.i[n];
-                    node.ci[n] = nint[n].co;
-                    node.co[n] = nint[n].ci;
-                    node.c[n] = nint[n].d;
-                )
-                node.pi = p.o[0];
-                node.po = p.i[0];
-            }
-
             export
             template <pint M, N, NN>
             defproc TEST_AEXT (globals g) {
@@ -220,7 +145,30 @@ namespace aer {
                 // NN = N^M neurons
                 active_handshaker<NN> a(g,,);
                 AEXT<M, N, NN> aext(g, a.o, a.i,);
-                VN_e1ofN<N+1> vn(aext.y);
+                VN_e1ofN<N> vn(aext.y);
+            }
+
+            export
+            template <pint M, N, NN, nn>
+            defproc TEST_AEXT1 (globals g) {
+                // M layers in the tree
+                // N for 1-of-N encoding. + tail word line
+                // NN = N^M neurons
+                active_handshaker<1> a(g,,);
+                AEXT<M, N, NN> aext(g,,,);
+                VN_e1ofN<N> vn(aext.y);
+                a.o[0] = aext.xi[nn];
+                a.i[0] = aext.xo[nn];
+                [ nn > 0 ->
+                    (; idx : 0..nn-1 :
+                        aext.xi[idx] = g.GND;
+                    )
+                ]
+                [ nn < NN ->
+                    (; idx : nn+1..NN-1 :
+                        aext.xi[idx] = g.GND;
+                    )
+                ]
             }
         } // namespace test
     } // namespace transmitter
