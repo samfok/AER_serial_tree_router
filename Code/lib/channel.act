@@ -10,7 +10,8 @@
 
 //Codeword: c1of<N>
 export template<pint N>
-deftype c1of <: int<1> (bool n[N]) {
+deftype c1of <: int<1> (bool n[N],d[N]) {
+    n = d;
     set { }
     get { }
 }
