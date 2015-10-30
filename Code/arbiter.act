@@ -345,7 +345,6 @@ namespace arbiter {
                 _c._o = _n_arb._i;
                 _c._i = _n_arb._o;
             }
-
         } // namespace test
     } // namespace n_arb_2arb_node
 
