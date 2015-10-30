@@ -3,4 +3,4 @@ import "lib/globals.act";
 import "arbiter.act";
 
 globals g;
-arbiter::test::TEST_H_ARB test(g);
+arbiter::n_arb_2arb_node::test::TEST_H_ARB test(g);

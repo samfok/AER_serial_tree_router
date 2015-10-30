@@ -4,4 +4,4 @@ import "arbiter.act";
 
 pint N=8;
 globals g;
-arbiter::test::TEST__N_ARB<N> test(g);
+arbiter::n_arb_2arb_node::test::TEST__N_ARB<N> test(g);

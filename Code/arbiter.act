@@ -5,56 +5,7 @@ import "test.act";
 
 namespace arbiter {
     // contains arbiter related processes. 
-    defproc CTRL (globals g; bool _ci[2], s0i, s0o, _s1i, s1o, pi, po) {
-        // sequences between children and parent communications
-        bool x, y, _y;
-        prs<g.Vdd,g.GND> {
-            g._sReset & (~_ci[0] | ~_ci[1]) & ~_y -> po+
-            g.pReset | _s1i & x & _y -> po-
-    
-            g._sReset & ~x & ~_y -> s0o+
-            g.pReset | x | _y -> s0o-
-    
-            g._sReset & ~s0i & ~x & ~y -> s1o+
-            g.pReset | x -> s1o-
-    
-            g.pReset | ~_s1i & ~y -> x+
-            g._sReset & pi & y -> x-
-    
-            ~pi -> y+
-            s0i -> y-
 
-            y => _y-
-        }
-    }
-    
-    export
-    defproc CTRL_TEST (globals g; bool s0i, s0o, s1i, s1o, pi, po) {
-        // test version of CTRL sequencing circuit
-        // does not use children as start signal
-        // assumes both children are always requesting
-        bool x, y, _y, _s1i;
-        prs<g.Vdd,g.GND> {
-            g._sReset & ~_y -> po+
-            g.pReset | _s1i & x & _y -> po-
-    
-            g._sReset & ~x & ~_y -> s0o+
-            g.pReset | x | _y -> s0o-
-    
-            g._sReset & ~s0i & ~x & ~y -> s1o+
-            g.pReset | x -> s1o-
-    
-            g.pReset | ~_s1i & ~y -> x+
-            g._sReset & pi & y -> x-
-    
-            ~pi -> y+
-            s0i -> y-
-
-            y => _y-
-            s1i => _s1i-
-        }
-    }
-    
     export
     defproc ARB (bool i[2], o[2]) {
         // The basic 2-input arbiter
@@ -105,206 +56,415 @@ namespace arbiter {
         }
     }
     
-    export
-    defproc C_ARB (bool _si, _so, _ci, co) {
-        // controlled arbiter cell for use with CTRL
-        // arbitrates between child request and CTRL request
-        bool cso, sso;
-        bool _ci_hat, _si_hat, _co;
-        _ARB arb(,);
-        arb._i[0] = _ci;
-        arb._i[1] = _si;
-        arb._o[0] = _ci_hat;
-        arb._o[1] = _si_hat;
-    
-        prs {
-            ~_ci_hat & ~_si & ~sso -> cso+
-            _ci_hat -> cso-
-    
-            _si & cso -> _co-
-            ~_si | ~cso -> _co+
-    
-            ~_si_hat & ~co -> sso+
-            _si_hat | co -> sso-
-    
-            cso | sso => _so-
+    namespace n_arb_2arb_node {
+        // N-way arbiter using only 2 arbiters per node
+        defproc CTRL (globals g; bool _ci[2], s0i, s0o, _s1i, s1o, pi, po) {
+            // sequences between children and parent communications
+            bool x, y, _y;
+            prs<g.Vdd,g.GND> {
+                g._sReset & (~_ci[0] | ~_ci[1]) & ~_y -> po+
+                g.pReset | _s1i & x & _y -> po-
+        
+                g._sReset & ~x & ~_y -> s0o+
+                g.pReset | x | _y -> s0o-
+        
+                g._sReset & ~s0i & ~x & ~y -> s1o+
+                g.pReset | x -> s1o-
+        
+                g.pReset | ~_s1i & ~y -> x+
+                g._sReset & pi & y -> x-
+        
+                ~pi -> y+
+                s0i -> y-
 
-            _co => co-
+                y => _y-
+            }
         }
-    }
+        
+        export
+        defproc CTRL_TEST (globals g; bool s0i, s0o, s1i, s1o, pi, po) {
+            // test version of CTRL sequencing circuit
+            // does not use children as start signal
+            // assumes both children are always requesting
+            bool x, y, _y, _s1i;
+            prs<g.Vdd,g.GND> {
+                g._sReset & ~_y -> po+
+                g.pReset | _s1i & x & _y -> po-
+        
+                g._sReset & ~x & ~_y -> s0o+
+                g.pReset | x | _y -> s0o-
+        
+                g._sReset & ~s0i & ~x & ~y -> s1o+
+                g.pReset | x -> s1o-
+        
+                g.pReset | ~_s1i & ~y -> x+
+                g._sReset & pi & y -> x-
+        
+                ~pi -> y+
+                s0i -> y-
 
-    export 
-    defproc H_ARB (globals g; bool _ci[2], co[2], pi, _po) {
-        // heirarchical arbiter cell
-        // can be arranged in a binary tree to service more than 2 children
-        CTRL ctrl(g, _ci,,,,, pi,);
-        C_ARB c0_arb(,, _ci[0], co[0]), c1_arb(,, _ci[1], co[1]);
+                y => _y-
+                s1i => _s1i-
+            }
+        }
+        
+        export
+        defproc C_ARB (bool _si, _so, _ci, co) {
+            // controlled arbiter cell for use with CTRL
+            // arbitrates between child request and CTRL request
+            bool cso, sso;
+            bool _ci_hat, _si_hat, _co;
+            _ARB arb(,);
+            arb._i[0] = _ci;
+            arb._i[1] = _si;
+            arb._o[0] = _ci_hat;
+            arb._o[1] = _si_hat;
+        
+            prs {
+                ~_ci_hat & ~_si & ~sso -> cso+
+                _ci_hat -> cso-
+        
+                _si & cso -> _co-
+                ~_si | ~cso -> _co+
+        
+                ~_si_hat & ~co -> sso+
+                _si_hat | co -> sso-
+        
+                cso | sso => _so-
 
-        bool _s0a, s0b, _s1a;
-        prs {
-            ctrl.po => _po-
-
-            ctrl.s0o => _s0a-
-            c0_arb._so => s0b- 
-            ctrl.s1o => _s1a-
+                _co => co-
+            }
         }
 
-        ctrl.s0i = s0b;
-        c0_arb._si = _s0a;
-        ctrl._s1i = c1_arb._so;
-        c1_arb._si = _s1a;
-    }
+        export 
+        defproc H_ARB (globals g; bool _ci[2], co[2], pi, _po) {
+            // heirarchical arbiter cell
+            // can be arranged in a binary tree to service more than 2 children
+            CTRL ctrl(g, _ci,,,,, pi,);
+            C_ARB c0_arb(,, _ci[0], co[0]), c1_arb(,, _ci[1], co[1]);
 
-    template <pint N>
-    defproc N_ARB_ (globals g; bool _ci[N], co[N], pi, _po) {
-        // recursive utility to build an N-way arbiter tree
-        [ N = 1 ->
-            _ci[0] = _po;
-            co[0] = pi;
-        [] N = 2 ->
-            H_ARB h_arb(g, _ci, co, pi, _po);
-        [] N > 2 ->
-            N_ARB_<N/2>   n_arb0_(g, _ci[0..N/2-1], co[0..N/2-1],,);
-            N_ARB_<N-N/2> n_arb1_(g, _ci[N/2..N-1], co[N/2..N-1],,);
-            H_ARB h_arb(g,,, pi, _po);
-            h_arb._ci[0] = n_arb0_._po;
-            h_arb._ci[1] = n_arb1_._po;
-            h_arb.co[0] = n_arb0_.pi;
-            h_arb.co[1] = n_arb1_.pi;
-        ]
-    }
-
-    export
-    template <pint N>
-    defproc N_ARB (globals g; bool i[N], o[N]) {
-        // N-way arbiter
-        [ N = 2 ->
-            ARB arb(i, o);
-        [] N = 1 | N > 2 ->
-            bool _i[N];
-            N_ARB_<N> n_arb_(g, _i, o,,);
+            bool _s0a, s0b, _s1a;
             prs {
-                // connect top of tree back to itself
-                n_arb_._po => n_arb_.pi-
-                // connect child ports to arbiter leaves
-                (: n : N : i[n] => _i[n]-)
+                ctrl.po => _po-
+
+                ctrl.s0o => _s0a-
+                c0_arb._so => s0b- 
+                ctrl.s1o => _s1a-
             }
-        ]
-    }
 
-    export
-    template <pint N>
-    defproc _N_ARB (globals g; bool _i[N], _o[N]) {
-        // active low version of N_ARB
-        [ N = 2 ->
-            _ARB _arb(_i, _o);
-        [] N = 1 | N > 2 ->
-            bool o[N];
-            N_ARB_<N> n_arb_(g, _i, o,,);
-            prs {
-                // connect top of tree back to itself
-                n_arb_._po => n_arb_.pi-
-                // connect child ports to arbiter leaves
-                (: n : N : o[n] => _o[n]-)
+            ctrl.s0i = s0b;
+            c0_arb._si = _s0a;
+            ctrl._s1i = c1_arb._so;
+            c1_arb._si = _s1a;
+        }
+
+        template <pint N>
+        defproc N_ARB_ (globals g; bool _ci[N], co[N], pi, _po) {
+            // recursive utility to build an N-way arbiter tree
+            [ N = 1 ->
+                _ci[0] = _po;
+                co[0] = pi;
+            [] N = 2 ->
+                H_ARB h_arb(g, _ci, co, pi, _po);
+            [] N > 2 ->
+                N_ARB_<N/2>   n_arb0_(g, _ci[0..N/2-1], co[0..N/2-1],,);
+                N_ARB_<N-N/2> n_arb1_(g, _ci[N/2..N-1], co[N/2..N-1],,);
+                H_ARB h_arb(g,,, pi, _po);
+                h_arb._ci[0] = n_arb0_._po;
+                h_arb._ci[1] = n_arb1_._po;
+                h_arb.co[0] = n_arb0_.pi;
+                h_arb.co[1] = n_arb1_.pi;
+            ]
+        }
+
+        export
+        template <pint N>
+        defproc N_ARB (globals g; bool i[N], o[N]) {
+            // N-way arbiter
+            [ N = 2 ->
+                ARB arb(i, o);
+            [] N = 1 | N > 2 ->
+                bool _i[N];
+                N_ARB_<N> n_arb_(g, _i, o,,);
+                prs {
+                    // connect top of tree back to itself
+                    n_arb_._po => n_arb_.pi-
+                    // connect child ports to arbiter leaves
+                    (: n : N : i[n] => _i[n]-)
+                }
+            ]
+        }
+
+        export
+        template <pint N>
+        defproc _N_ARB (globals g; bool _i[N], _o[N]) {
+            // active low version of N_ARB
+            [ N = 2 ->
+                _ARB _arb(_i, _o);
+            [] N = 1 | N > 2 ->
+                bool o[N];
+                N_ARB_<N> n_arb_(g, _i, o,,);
+                prs {
+                    // connect top of tree back to itself
+                    n_arb_._po => n_arb_.pi-
+                    // connect child ports to arbiter leaves
+                    (: n : N : o[n] => _o[n]-)
+                }
+            ]
+        }
+
+        namespace test {
+            export
+            defproc TEST_CTRL_TEST (globals g) {
+                // tests CTRL_TEST
+                passive_handshaker<2> s(,);
+                passive_handshaker<1> p(,);
+                CTRL_TEST ctrl(g,,,,,,);
+                
+                ctrl.po = p.i[0];
+                ctrl.pi = p.o[0];
+                ctrl.s0i = s.o[0];
+                ctrl.s0o = s.i[0];
+                ctrl.s1i = s.o[1];
+                ctrl.s1o = s.i[1];
             }
-        ]
-    }
 
-    template <pint N>
-    defproc N_ARB_C_ (globals g; bool i[N], o[N], pi, po) {
-        // utility for N_ARB_C
-        // N neurons
-        [ N = 1 ->
-            i[0] = po;
-            o[0] = pi;
-        [] N > 1 ->
-            bool ao[2], _ao[2], _po;
-            N_ARB_C_<N/2> n_arb0(g, i[0..N/2-1], o[0..N/2-1], ao[0],);
-            N_ARB_C_<N-N/2> n_arb1(g, i[N/2..N-1], o[N/2..N-1], ao[1],);
-            ARB arb(,);
-            arb.i[0] = n_arb0.po;
-            arb.i[1] = n_arb1.po;
-            prs<g.Vdd, g.GND> {
-               arb.o[0] & _ao[1] | arb.o[1] & _ao[0] -> _po-
-               g.pReset | ~arb.o[0] & ~_ao[0] | ~arb.o[1] & ~_ao[1] -> _po+
+            defproc C_ARB_handshaker (globals g; bool _si, _so, ci, _co) {
+                // used in TEST_C_ARB
+                prs<g.Vdd,g.GND> {
+                    g.pReset | ~_si -> _so+
+                    g._sReset & _si -> _so-
 
-               pi & arb.o[0] & _ao[1] -> _ao[0]-
-               ~pi -> _ao[0]+
-
-               pi & arb.o[1] & _ao[0] -> _ao[1]-
-               ~pi -> _ao[1]+
-
-               _po => po-
-               _ao[0] => ao[0]-
-               _ao[1] => ao[1]-
+                    g.pReset | ci -> _co+
+                    g._sReset & ~ci -> _co-
+                }
             }
-        ]
-    }
-    
-    export
-    template <pint N>
-    defproc N_ARB_C (globals g; bool i[N], o[N]) {
+
+            export
+            defproc TEST_C_ARB (globals g) {
+                C_ARB_handshaker c(g,,,,);
+                C_ARB c_arb(,,,);
+                
+                c_arb._si = c._so;
+                c_arb._so = c._si;
+                c_arb._ci = c._co;
+                c_arb.co = c.ci;
+            }
+
+            export 
+            defproc TEST_H_ARB (globals g) {
+                // tests H_ARB
+                active_handshaker<2> c(g,,);
+                H_ARB h_arb(g,, c.i,,);
+                
+                // connect top of H_ARB back to itself
+                prs<g.Vdd,g.GND> {
+                    h_arb._po => h_arb.pi-
+
+                    c.o[0] => h_arb._ci[0]-
+                    c.o[1] => h_arb._ci[1]-
+                }
+            }
+
+            export
+            template<pint N>
+            defproc TEST_N_ARB (globals g) {
+                // tests N_ARB
+                N_ARB<N> n_arb(g,,);
+                active_handshaker<N> c(g,,);
+
+                c.o = n_arb.i;
+                c.i = n_arb.o;
+            }
+
+            export
+            template<pint N>
+            defproc TEST_N_ARB_HALF_EVEN (globals g) {
+                // tests N_ARB with only even ports active
+                N_ARB<N> n_arb(g,,);
+                active_handshaker<N/2> c(g,,);
+
+                // connect children to arbiter tree ports
+                (; n : N/2 : 
+                    c.o[n] = n_arb.i[2*n];
+                    c.i[n] = n_arb.o[2*n];
+                )
+
+                // connect dangling arbiter tree ports to GND
+                (; n : N/2 : 
+                    n_arb.i[2*n+1] = g.GND;
+                )
+            }
+
+            export
+            template<pint N>
+            defproc TEST_N_ARB_HALF_ODD (globals g) {
+                // tests N_ARB with only odd ports active
+                N_ARB<N> n_arb(g,,);
+                active_handshaker<N/2> c(g,,);
+
+                // connect children to arbiter tree ports
+                (; n : N/2 : 
+                    c.o[n] = n_arb.i[2*n+1];
+                    c.i[n] = n_arb.o[2*n+1];
+                )
+
+                // connect dangling arbiter tree ports to GND
+                (; n : N/2 : 
+                    n_arb.i[2*n] = g.GND;
+                )
+            }
+
+            export
+            template<pint N>
+            defproc TEST_N_ARB_HALF_MID (globals g) {
+                // tests N_ARB with only middle ports active
+                N_ARB<N> n_arb(g,,);
+                active_handshaker<N/2> c(g,,);
+
+                // connect children to arbiter tree ports
+                (; n : N/2 : 
+                    c.o[n] = n_arb.i[N/4+n];
+                    c.i[n] = n_arb.o[N/4+n];
+                )
+
+                // connect dangling arbiter tree ports to GND
+                (; n : N/4 : 
+                    n_arb.i[n] = g.GND;
+                    n_arb.i[3*N/4+n] = g.GND;
+                )
+            }
+
+            export
+            template<pint N>
+            defproc TEST__N_ARB (globals g) {
+                // tests _N_ARB
+                _N_ARB<N> _n_arb(g,,);
+                _active_handshaker<N> _c(g,,);
+
+                _c._o = _n_arb._i;
+                _c._i = _n_arb._o;
+            }
+
+        } // namespace test
+    } // namespace n_arb_2arb_node
+
+    namespace n_arb_c {
         // cheap N-way arbiter
-        [ N = 1 ->
-            i[0] = o[0];
-        [] N > 1 ->
-            N_ARB_C_<N/2> n_arb0(g, i[0..N/2-1], o[0..N/2-1],,);
-            N_ARB_C_<N-N/2> n_arb1(g, i[N/2..N-1], o[N/2..N-1],,);
-            ARB arb(,);
-            arb.i[0] = n_arb0.po;
-            arb.i[1] = n_arb1.po;
-            arb.o[0] = n_arb0.pi;
-            arb.o[1] = n_arb1.pi;
-        ]
-    }
+        template <pint N>
+        defproc N_ARB_C_ (globals g; bool i[N], o[N], pi, po) {
+            // utility for N_ARB_C
+            // N neurons
+            [ N = 1 ->
+                i[0] = po;
+                o[0] = pi;
+            [] N > 1 ->
+                bool ao[2], _ao[2], _po;
+                N_ARB_C_<N/2> n_arb0(g, i[0..N/2-1], o[0..N/2-1], ao[0],);
+                N_ARB_C_<N-N/2> n_arb1(g, i[N/2..N-1], o[N/2..N-1], ao[1],);
+                ARB arb(,);
+                arb.i[0] = n_arb0.po;
+                arb.i[1] = n_arb1.po;
+                prs<g.Vdd, g.GND> {
+                   arb.o[0] & _ao[1] | arb.o[1] & _ao[0] -> _po-
+                   g.pReset | ~arb.o[0] & ~_ao[0] | ~arb.o[1] & ~_ao[1] -> _po+
 
-    template <pint N>
-    defproc _N_ARB_C_ (globals g; bool _i[N], _o[N], _pi, _po) {
-        // utility for _N_ARB_C
-        // N neurons
-        [ N = 1 ->
-            _i[0] = _po;
-            _o[0] = _pi;
-        [] N > 1 ->
-            bool _ao[2], ao[2], po;
-            _N_ARB_C_<N/2> _n_arb0(g, _i[0..N/2-1], _o[0..N/2-1], _ao[0],);
-            _N_ARB_C_<N-N/2> _n_arb1(g, _i[N/2..N-1], _o[N/2..N-1], _ao[1],);
-            _ARB _arb(,);
-            _arb._i[0] = _n_arb0._po;
-            _arb._i[1] = _n_arb1._po;
-            prs<g.Vdd, g.GND> {
-               ~_arb._o[0] & ~ao[1] | ~_arb._o[1] & ~ao[0] -> po+
-               g.pReset | _arb._o[0] & ao[0] | _arb._o[1] & ao[1] -> po-
+                   pi & arb.o[0] & _ao[1] -> _ao[0]-
+                   ~pi -> _ao[0]+
 
-               ~_pi & ~_arb._o[0] & ~ao[1] -> ao[0]+
-               _pi -> ao[0]-
+                   pi & arb.o[1] & _ao[0] -> _ao[1]-
+                   ~pi -> _ao[1]+
 
-               ~_pi & ~_arb._o[1] & ~ao[0] -> ao[1]+
-               _pi -> ao[1]-
+                   _po => po-
+                   _ao[0] => ao[0]-
+                   _ao[1] => ao[1]-
+                }
+            ]
+        }
+        
+        export
+        template <pint N>
+        defproc N_ARB_C (globals g; bool i[N], o[N]) {
+            // cheap N-way arbiter
+            [ N = 1 ->
+                i[0] = o[0];
+            [] N > 1 ->
+                N_ARB_C_<N/2> n_arb0(g, i[0..N/2-1], o[0..N/2-1],,);
+                N_ARB_C_<N-N/2> n_arb1(g, i[N/2..N-1], o[N/2..N-1],,);
+                ARB arb(,);
+                arb.i[0] = n_arb0.po;
+                arb.i[1] = n_arb1.po;
+                arb.o[0] = n_arb0.pi;
+                arb.o[1] = n_arb1.pi;
+            ]
+        }
 
-               po => _po-
-               ao[0] => _ao[0]-
-               ao[1] => _ao[1]-
+        template <pint N>
+        defproc _N_ARB_C_ (globals g; bool _i[N], _o[N], _pi, _po) {
+            // utility for _N_ARB_C
+            // N neurons
+            [ N = 1 ->
+                _i[0] = _po;
+                _o[0] = _pi;
+            [] N > 1 ->
+                bool _ao[2], ao[2], po;
+                _N_ARB_C_<N/2> _n_arb0(g, _i[0..N/2-1], _o[0..N/2-1], _ao[0],);
+                _N_ARB_C_<N-N/2> _n_arb1(g, _i[N/2..N-1], _o[N/2..N-1], _ao[1],);
+                _ARB _arb(,);
+                _arb._i[0] = _n_arb0._po;
+                _arb._i[1] = _n_arb1._po;
+                prs<g.Vdd, g.GND> {
+                   ~_arb._o[0] & ~ao[1] | ~_arb._o[1] & ~ao[0] -> po+
+                   g.pReset | _arb._o[0] & ao[0] | _arb._o[1] & ao[1] -> po-
+
+                   ~_pi & ~_arb._o[0] & ~ao[1] -> ao[0]+
+                   _pi -> ao[0]-
+
+                   ~_pi & ~_arb._o[1] & ~ao[0] -> ao[1]+
+                   _pi -> ao[1]-
+
+                   po => _po-
+                   ao[0] => _ao[0]-
+                   ao[1] => _ao[1]-
+                }
+            ]
+        }
+        
+        export
+        template <pint N>
+        defproc _N_ARB_C (globals g; bool _i[N], _o[N]) {
+            // cheap active-low N-way arbiter
+            [ N = 1 ->
+                _i[0] = _o[0];
+            [] N > 1 ->
+                _N_ARB_C_<N/2> _n_arb0(g, _i[0..N/2-1], _o[0..N/2-1],,);
+                _N_ARB_C_<N-N/2> _n_arb1(g, _i[N/2..N-1], _o[N/2..N-1],,);
+                _ARB _arb(,);
+                _arb._i[0] = _n_arb0._po;
+                _arb._i[1] = _n_arb1._po;
+                _arb._o[0] = _n_arb0._pi;
+                _arb._o[1] = _n_arb1._pi;
+            ]
+        }
+
+        namespace test {
+            export
+            template <pint N>
+            defproc TEST_N_ARB_C (globals g) {
+                //tests N_ARB_C
+                active_handshaker<N> c(g,,);
+                N_ARB_C<N> n_arb(g, c.o, c.i);
             }
-        ]
-    }
-    
-    export
-    template <pint N>
-    defproc _N_ARB_C (globals g; bool _i[N], _o[N]) {
-        // cheap active-low N-way arbiter
-        [ N = 1 ->
-            _i[0] = _o[0];
-        [] N > 1 ->
-            _N_ARB_C_<N/2> _n_arb0(g, _i[0..N/2-1], _o[0..N/2-1],,);
-            _N_ARB_C_<N-N/2> _n_arb1(g, _i[N/2..N-1], _o[N/2..N-1],,);
-            _ARB _arb(,);
-            _arb._i[0] = _n_arb0._po;
-            _arb._i[1] = _n_arb1._po;
-            _arb._o[0] = _n_arb0._pi;
-            _arb._o[1] = _n_arb1._pi;
-        ]
-    }
+
+            export
+            template <pint N>
+            defproc TEST__N_ARB_C (globals g) {
+                //tests _N_ARB_C
+                _active_handshaker<N> _c(g,,);
+                _N_ARB_C<N> _n_arb(g, _c._o, _c._i);
+            }
+        } // namespace test
+    } // namespace n_arb_c
 
     namespace n_arb_s {
         defproc MU_EX (bool ci[2], _co[2], qi[2], _qo[2]) {
@@ -382,21 +542,6 @@ namespace arbiter {
 
     namespace test {
         export
-        defproc TEST_CTRL_TEST (globals g) {
-            // tests CTRL_TEST
-            passive_handshaker<2> s(,);
-            passive_handshaker<1> p(,);
-            CTRL_TEST ctrl(g,,,,,,);
-            
-            ctrl.po = p.i[0];
-            ctrl.pi = p.o[0];
-            ctrl.s0i = s.o[0];
-            ctrl.s0o = s.i[0];
-            ctrl.s1i = s.o[1];
-            ctrl.s1o = s.i[1];
-        }
-        
-        export
         defproc TEST_ARB (globals g) {
             // tests ARB
             active_handshaker<2> c(g,,);
@@ -414,139 +559,6 @@ namespace arbiter {
             
             _c._o = _arb._i;
             _c._i = _arb._o;
-        }
-
-        defproc C_ARB_handshaker (globals g; bool _si, _so, ci, _co) {
-            // used in TEST_C_ARB
-            prs<g.Vdd,g.GND> {
-                g.pReset | ~_si -> _so+
-                g._sReset & _si -> _so-
-
-                g.pReset | ci -> _co+
-                g._sReset & ~ci -> _co-
-            }
-        }
-
-        export
-        defproc TEST_C_ARB (globals g) {
-            C_ARB_handshaker c(g,,,,);
-            C_ARB c_arb(,,,);
-            
-            c_arb._si = c._so;
-            c_arb._so = c._si;
-            c_arb._ci = c._co;
-            c_arb.co = c.ci;
-        }
-
-        export 
-        defproc TEST_H_ARB (globals g) {
-            // tests H_ARB
-            active_handshaker<2> c(g,,);
-            H_ARB h_arb(g,, c.i,,);
-            
-            // connect top of H_ARB back to itself
-            prs<g.Vdd,g.GND> {
-                h_arb._po => h_arb.pi-
-
-                c.o[0] => h_arb._ci[0]-
-                c.o[1] => h_arb._ci[1]-
-            }
-        }
-
-        export
-        template<pint N>
-        defproc TEST_N_ARB (globals g) {
-            // tests N_ARB
-            N_ARB<N> n_arb(g,,);
-            active_handshaker<N> c(g,,);
-
-            c.o = n_arb.i;
-            c.i = n_arb.o;
-        }
-
-        export
-        template<pint N>
-        defproc TEST_N_ARB_HALF_EVEN (globals g) {
-            // tests N_ARB with only even ports active
-            N_ARB<N> n_arb(g,,);
-            active_handshaker<N/2> c(g,,);
-
-            // connect children to arbiter tree ports
-            (; n : N/2 : 
-                c.o[n] = n_arb.i[2*n];
-                c.i[n] = n_arb.o[2*n];
-            )
-
-            // connect dangling arbiter tree ports to GND
-            (; n : N/2 : 
-                n_arb.i[2*n+1] = g.GND;
-            )
-        }
-
-        export
-        template<pint N>
-        defproc TEST_N_ARB_HALF_ODD (globals g) {
-            // tests N_ARB with only odd ports active
-            N_ARB<N> n_arb(g,,);
-            active_handshaker<N/2> c(g,,);
-
-            // connect children to arbiter tree ports
-            (; n : N/2 : 
-                c.o[n] = n_arb.i[2*n+1];
-                c.i[n] = n_arb.o[2*n+1];
-            )
-
-            // connect dangling arbiter tree ports to GND
-            (; n : N/2 : 
-                n_arb.i[2*n] = g.GND;
-            )
-        }
-
-        export
-        template<pint N>
-        defproc TEST_N_ARB_HALF_MID (globals g) {
-            // tests N_ARB with only middle ports active
-            N_ARB<N> n_arb(g,,);
-            active_handshaker<N/2> c(g,,);
-
-            // connect children to arbiter tree ports
-            (; n : N/2 : 
-                c.o[n] = n_arb.i[N/4+n];
-                c.i[n] = n_arb.o[N/4+n];
-            )
-
-            // connect dangling arbiter tree ports to GND
-            (; n : N/4 : 
-                n_arb.i[n] = g.GND;
-                n_arb.i[3*N/4+n] = g.GND;
-            )
-        }
-
-        export
-        template<pint N>
-        defproc TEST__N_ARB (globals g) {
-            // tests _N_ARB
-            _N_ARB<N> _n_arb(g,,);
-            _active_handshaker<N> _c(g,,);
-
-            _c._o = _n_arb._i;
-            _c._i = _n_arb._o;
-        }
-
-        export
-        template <pint N>
-        defproc TEST_N_ARB_C (globals g) {
-            //tests N_ARB_C
-            active_handshaker<N> c(g,,);
-            N_ARB_C<N> n_arb(g, c.o, c.i);
-        }
-
-        export
-        template <pint N>
-        defproc TEST__N_ARB_C (globals g) {
-            //tests _N_ARB_C
-            _active_handshaker<N> _c(g,,);
-            _N_ARB_C<N> _n_arb(g, _c._o, _c._i);
         }
     } // end namespace test
 } // end namespace arbiter
