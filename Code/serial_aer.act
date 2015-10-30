@@ -11,66 +11,123 @@ namespace aer {
         template <pint N>
         defproc NODE (globals g; bool ci[N], co[N], pi, po; c1of<N> c[N], p) {
             // AEXT tree NODE controller
-            bool c_[N], q[N], u;
-            c1of<N> w;
-            ::arbiter::N_ARB<N> arb(g, ci, c_);
+            /*--------------------------------------------------------------*/
+            // /* // development
+                bool c_[N], u;
+                c1of<N> w;
+                ::arbiter::N_ARB<N> arb(g, ci, c_);
 
-            prs<g.Vdd, g.GND> {
-                c_[0] & ~co[1] -> q[0]+
-                g.pReset | ~c_[0] & co[0] -> q[0]-
-                c_[1] & ~co[0] -> q[1]+
-                g.pReset | ~c_[1] & co[1] -> q[1]-
-
-                (| : n : N : q[n]) -> po+
-                (& : n : N : ~q[n]) -> po-
-            
-                (: n : N :
-                    q[n] & pi & ~u -> w.d[n]+
-                    g.pReset | u -> w.d[n]-
-                )
-
-                (| : n : N : w.d[n]) & ~pi -> u+
-                ~po -> u-
+                prs<g.Vdd, g.GND> {
+                    ~u & (| : n : N : c_[n]) -> po+
+                    g.pReset | (| : n : N : co[n] & ~c_[n]) -> po-
                 
-                (: nc : N :
-                    q[nc] & u & pi -> co[nc]+
-                    (~u | (| : n : N : p.d[n])) & ~pi -> co[nc]-
-                )
+                    (: n : N :
+                        c_[n] & pi & ~u -> w.d[n]+
+                        g.pReset | u -> w.d[n]-
+                    )
 
-                (: n : N :
-                    (| : nc : N : c[nc].d[n]) | w.d[n] => p.d[n]+
-                )
-            }
+                    (| : n : N : w.d[n]) & ~pi -> u+
+                    (& : n : N : ~co[n]) & ~po -> u-
+                    
+                    c_[0] & u & pi & ~co[1] -> co[0]+
+                    ~pi -> co[0]-
+                    c_[1] & u & pi & ~co[0] -> co[1]+
+                    ~pi -> co[1]-
+                    (: n : N :
+                        (| : nc : N : c[nc].d[n]) | w.d[n] => p.d[n]+
+                    )
+                }
+            // */
+            /*--------------------------------------------------------------*/
+            /* // reference
+                bool c_[N], q[N], u;
+                c1of<N> w;
+                ::arbiter::N_ARB<N> arb(g, ci, c_);
+
+                prs<g.Vdd, g.GND> {
+                    c_[0] & ~co[1] -> q[0]+
+                    g.pReset | ~c_[0] & co[0] -> q[0]-
+                    c_[1] & ~co[0] -> q[1]+
+                    g.pReset | ~c_[1] & co[1] -> q[1]-
+
+                    (| : n : N : q[n]) -> po+
+                    (& : n : N : ~q[n]) -> po-
+                
+                    (: n : N :
+                        q[n] & pi & ~u -> w.d[n]+
+                        g.pReset | u -> w.d[n]-
+                    )
+
+                    (| : n : N : w.d[n]) & ~pi -> u+
+                    ~po -> u-
+                    
+                    (: nc : N :
+                        q[nc] & u & pi -> co[nc]+
+                        (~u | (| : n : N : p.d[n])) & ~pi -> co[nc]-
+                    )
+
+                    (: n : N :
+                        (| : nc : N : c[nc].d[n]) | w.d[n] => p.d[n]+
+                    )
+                }
+            */
+            /*--------------------------------------------------------------*/
         }
 
         template <pint N>
         defproc LEAF (globals g; bool ci[N], co[N], pi, po; c1of<N> p) {
             // leaf node of aext tree
-            bool c[N], q[N], u;
-            ::arbiter::N_ARB<N> arb(g, ci, c);
+            /*--------------------------------------------------------------*/
+            // /* // development
+                bool c[N], u;
+                ::arbiter::N_ARB<N> arb(g, ci, c);
 
-            prs<g.Vdd, g.GND> {
-                c[0] & ~co[1] -> q[0]+
-                g.pReset | ~c[0] & co[0] -> q[0]-
-                c[1] & ~co[0] -> q[1]+
-                g.pReset | ~c[1] & co[1] -> q[1]-
-
-                (| : n : N : q[n]) -> po+
-                (& : n : N : ~q[n]) -> po-
-            
-                (: n : N :
-                    q[n] & pi & ~u -> p.d[n]+
-                    g.pReset | u -> p.d[n]-
-                )
-
-                (| : n : N : p.d[n]) & ~pi -> u+
-                ~po -> u-
+                prs<g.Vdd, g.GND> {
+                    ~u & (| : n : N : c[n]) -> po+
+                    g.pReset | (| : n : N : co[n] & ~c[n]) -> po-
                 
-                (: n : N :
-                    q[n] & u & pi -> co[n]+
-                    ~u & ~pi -> co[n]-
-                )
-            }
+                    (: n : N :
+                        c[n] & pi & ~u -> p.d[n]+
+                        g.pReset | u -> p.d[n]-
+                    )
+
+                    (| : n : N : p.d[n]) & ~pi -> u+
+                    (& : n : N : ~co[n]) & ~po -> u-
+                    
+                    c[0] & u & pi & ~co[1] -> co[0]+
+                    ~pi -> co[0]-
+                    c[1] & u & pi & ~co[0] -> co[1]+
+                    ~pi -> co[1]-
+                }
+            // */
+            /*--------------------------------------------------------------*/
+            /* // reference
+                bool c[N], q[N], u;
+                ::arbiter::N_ARB<N> arb(g, ci, c);
+
+                prs<g.Vdd, g.GND> {
+                    c[0] & ~co[1] -> q[0]+
+                    g.pReset | ~c[0] & co[0] -> q[0]-
+                    c[1] & ~co[0] -> q[1]+
+                    g.pReset | ~c[1] & co[1] -> q[1]-
+
+                    (| : n : N : q[n]) -> po+
+                    (& : n : N : ~q[n]) -> po-
+                
+                    (: n : N :
+                        q[n] & pi & ~u -> p.d[n]+
+                        g.pReset | u -> p.d[n]-
+                    )
+
+                    (| : n : N : p.d[n]) & ~pi -> u+
+                    ~po -> u-
+                    
+                    (: n : N :
+                        q[n] & u & pi -> co[n]+
+                        ~u & ~pi -> co[n]-
+                    )
+                }
+            */
         }
 
         template <pint N>
