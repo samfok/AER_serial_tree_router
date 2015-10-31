@@ -6,6 +6,53 @@
 \maketitle
 \tableofcontents
 
+This document explores arbiters
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{2-way Arbiter}
+
+\begin{csp}
+*[[#{C0}->C0
+  \|#{C1}->C1
+ ]]
+\end{csp}
+
+\begin{hse}
+*[[c0i->c0o+;[~c0i];c0o-
+  \|c1i->c1o+;[~c1i];c1o-
+ ]]
+\end{hse}
+
+\begin{hse}
+*[[c0i->c0+;[~c0i];c0-
+  \|c1i->c1+;[~c1i];c1-
+ ]]
+
+*[[c0->c0o+;[~c0];c0o-
+  []c1->c1o+;[~c1];c1o-
+ ]]
+\end{hse}
+
+Cross-coupled NANDs
+
+\begin{prs2}
+c0i & _c1 -> _c0-
+~c0i | ~_c1 -> _c0+
+
+c1i & _c0 -> _c1-
+~c1i | ~_c0 -> _c1+
+\end{prs2}
+
+Filter circuit to ensure $\_c0$ and $\_c1$ are separated by at least a PMOS's threshold voltage
+
+\begin{prs2}
+_c1 & ~_c0 -> c0o+
+~_c1 | _c0 -> c0o-
+
+_c0 & ~_c1 -> c1o+
+~_c0 | _c1 -> c1o-
+\end{prs2}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{N-way Arbiter (N\_ARB) Specification}
 
@@ -230,6 +277,9 @@ In this case, N\_ARB costs $38(N-2)+12+2N$ transistors for $N>2$.
     \hline
   \end{tabular}
 \end{center}
+
+Note that this implementation does not gaurantee mutual exclusion of the output signals between
+clients across leaves. For example, consider a 4-input arbiter with inputs 0 and 3 high. The N-way arbiter selects 0 first. 0 clears its input. The parent arbiter node clears $p_i$, and the 0 output will clear sometime in the future. However, because $p_i$ has cleared, the parent node is free to select the other child and can complete the full communication with 3 even before the 0 output clears. To fix this, the outputs would have to mutually exclude the requests of all other clients across the leaf nodes.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Alternative Unpipelined N-way Arbiter}
