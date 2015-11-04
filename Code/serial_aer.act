@@ -15,7 +15,7 @@ namespace aer {
             // /* // development
                 bool c_[N], u;
                 c1of<N> w;
-                ::arbiter::N_ARB<N> arb(g, ci, c_);
+                ::arbiter::n_arb_s::N_ARB<N> arb(g, ci, c_);
 
                 prs<g.Vdd, g.GND> {
                     ~u & (| : n : N : c_[n]) -> po+
@@ -42,7 +42,7 @@ namespace aer {
             /* // reference
                 bool c_[N], q[N], u;
                 c1of<N> w;
-                ::arbiter::N_ARB<N> arb(g, ci, c_);
+                ::arbiter::n_arb_s::N_ARB<N> arb(g, ci, c_);
 
                 prs<g.Vdd, g.GND> {
                     c_[0] & ~co[1] -> q[0]+
@@ -80,7 +80,7 @@ namespace aer {
             /*--------------------------------------------------------------*/
             // /* // development
                 bool c[N], u;
-                ::arbiter::N_ARB<N> arb(g, ci, c);
+                ::arbiter::n_arb_s::N_ARB<N> arb(g, ci, c);
 
                 prs<g.Vdd, g.GND> {
                     ~u & (| : n : N : c[n]) -> po+
@@ -103,7 +103,7 @@ namespace aer {
             /*--------------------------------------------------------------*/
             /* // reference
                 bool c[N], q[N], u;
-                ::arbiter::N_ARB<N> arb(g, ci, c);
+                ::arbiter::n_arb_s::N_ARB<N> arb(g, ci, c);
 
                 prs<g.Vdd, g.GND> {
                     c[0] & ~co[1] -> q[0]+
@@ -220,150 +220,108 @@ namespace aer {
 
     namespace receiver {
         template <pint N>
-        defproc INT (e1of<N+1> x; bool yi, yo) {
-            // interface with the neuron
-            // N for 1-of-N encoding. + tail word line
-            yi = x.e;
-            x.d[N] = yo;
-        }
-
-        template <pint N, NC>
-        defproc ROUTE (globals g; e1of<N+1> p, c[NC]; e1of<N> h) {
-            // routes parent data to requesting child
-            // assumes child requests are mutually exclusive
-            //
-            // parameters
-            // ----------
-            // N for 1-of-N encoding. + tail word line
-            // NC children
-            // 
-            // ports
-            // -----
-            // p parent, active
-            // c children, passive
-            // h read_head, passive
+        defproc SPLIT (globals g; e1of<N> p, c[N+1]; bool s[N+1]) {
+            // splits data to children
             prs {
-                (| : nc : NC : c[nc].e) | h.e => p.e+
-                
-                (: nc : NC :
-                    (: n : N+1 :
-                        p.d[n] & c[nc].e -> c[nc].d[n]+
-                        ~p.d[n] -> c[nc].d[n]-
+                (| : n : N+1 : c[n].e) => p.e+
+                (: nc : N+1 :
+                    (: n : N :
+                        s[nc] & p.d[n] => c[nc].d[n]+
                     )
-                )
-
-                (: n : N :
-                    p.d[n] & h.e -> h.d[n]+
-                    ~p.d[n] -> h.d[n]-
                 )
             }
         }
 
         template <pint N>
-        defproc READ_HEAD (globals g; e1of<N> x; bool si, s[N]) {
-            // reads the head of a packet to determine the routing direction
-            // N for 1-of-N encoding. + tail word line
+        defproc CTRL (globals g; bool pi, po, ci[N], co[N], s[N+1]; e1of<N> x) {
+            // controls split
             bool u[N];
-            /* version [si];xe+;[xi];u+;xe-;[~xi];so+;[~si];u-;so- ----------*/
-            // /*
-                prs<g.Vdd, g.GND> {
-                    si & (& : n : N : ~u[n]) -> x.e+
-                    (| : n : N : u[n]) -> x.e-
+            (; n : N : s[n] = co[n];)
+            prs<g.Vdd, g.GND> {
+                pi & (& : n : N : ~u[n]) => x.e+
 
-                    (: n : N :
-                        x.d[n] -> u[n]+
-                        g.pReset | ~si -> u[n]-
-                    )
+                x.e | (| : n : N : x.d[n]) => s[N]+
 
-                    (: n : N :
-                        u[n] & ~x.d[n] -> s[n]+
-                        g.pReset | ~u[n] | x.d[n] -> s[n]-
-                    )
-                }
-            // */
+                (: n : N :
+                    x.d[n] -> u[n]+
+                    ~pi -> u[n]-
+                )
+
+                (: n : N :
+                    u[n] & ~s[N] => s[n]+
+                )
+
+                (| : n : N : ci[n]) => po+
+            }
         }
 
         template <pint N>
-        defproc FWD_BODY (globals g; e1of<N+1> p, c[N]; bool s[N], so) {
-            // forwards the body of a packet to a child
-            // N for 1-of-N encoding. + tail word line
-            /* version pipelined --------------------------------------------*/
-            /*
-                bool q;
-                OR<(N+1)*N> or(, q);
-                (; nc : N : (; n : N+1 : or.i[nc*(N+1)+n] = c[nc].d[n];))
+        defproc LEAF (globals g; bool pi, po, ci[N], co[N]; e1of<N> x) {
+            // leaf of AERV tree
+            // similar to CTRL, but no need for SPLIT at leaf if no payload to deliver
+            bool u[N];
+            prs<g.Vdd, g.GND> {
+                pi & (& : n : N : ~u[n]) => x.e+
 
-                prs<g.Vdd, g.GND> {
-                    (| : n : N : s[n]) & ~q -> p.e+
-                    g.pReset | q -> p.e-
+                (: n : N :
+                    x.d[n] -> u[n]+
+                    ~pi -> u[n]-
+                )
 
-                    ~q -> so+
-                    ~p.d[N] & (| : n : N : ~c[n].e & c[n].d[N]) -> so-
+                (: n : N :
+                    u[n] & ~x.d[n] => co[n]+
+                )
 
-                    (: nc : N :
-                        (: n : N :
-                            p.d[n] & s[nc] & c[nc].e -> c[nc].d[n]+
-                            g.pReset | ~p.d[n] & ~c[nc].e -> c[nc].d[n]-
-                        )
-                        p.d[N] & s[nc] & c[nc].e -> c[nc].d[N]+ // tail
-                        g.pReset | ~s[nc] -> c[nc].d[N]-
-                    )
-                }
-            */
-            /* version unpipelined ------------------------------------------*/
-            // /*
-                prs<g.Vdd, g.GND> {
-                    (| : n : N : s[n] & c[n].e) -> p.e+
-                    g.pReset | (| : n : N : s[n] & ~c[n].e) -> p.e-
-
-                    (& : n : N : ~c[n].d[N]) -> so+
-                    ~p.d[N] & (| : n : N : c[n].d[N]) -> so-
-
-                    (: nc : N :
-                        (: n : N :
-                            p.d[n] & s[nc] -> c[nc].d[n]+
-                            g.pReset | ~p.d[n] | ~s[nc] -> c[nc].d[n]-
-                        )
-                        p.d[N] & s[nc] -> c[nc].d[N]+
-                        g.pReset | ~s[nc] -> c[nc].d[N]-
-                    )
-                }
-            // */
+                (| : n : N : ci[n]) => po+
+            }
         }
 
         template <pint N>
-        defproc NODE (globals g; e1of<N+1> p, c[N]) {
-            // node in receiver tree
-            // N for 1-of-N encoding. + tail word line
-            ROUTE<N, 1> route(g, p,,);
-            READ_HEAD<N> head(g, route.h,,);
-            FWD_BODY<N> fwd(g, route.c[0], c, head.s, head.si);
+        defproc NODE (globals g; bool pi, po, ci[N], co[N]; e1of<N> p, c[N]) {
+            // node in AERV tree
+            SPLIT<N> split(g, p,,);
+            CTRL<N> ctrl(g, pi, po, ci, co, split.s, split.c[N]);
+            (; n : N : split.c[n] = c[n];)
+        }
+
+        template <pint M, N, NN>
+        defproc AERV_ (globals g; bool yi[NN], yo[NN], pi, po; e1of<N> p) {
+            // utility for AERV
+            [ M = 1 ->
+                NN = N;
+                // NODE<N> node(g, pi, po, yi, yo, p,); // future
+                // (; n : N : node.c[n].e = g.GND;) // future
+                LEAF<N> leaf(g, pi, po, yi, yo, p);
+            [] M > 1 ->
+                AERV_<M-1, N, NN/N> _[N];
+                NODE<N> node(g, pi, po,,, p,);
+                pint k = NN/N;
+                (; n : N :
+                    _[n].g = g;
+                    _[n].p = node.c[n];
+                    _[n].pi = node.co[n];
+                    _[n].po = node.ci[n];
+                    _[n].yi = yi[n*k..(n+1)*k-1];
+                    _[n].yo = yo[n*k..(n+1)*k-1];
+                )
+            ]
         }
 
         export
         template <pint M, N, NN>
-        defproc AERV (globals g; e1of<N+1> x; bool yi[NN], yo[NN]) {
+        defproc AERV (globals g; e1of<N> x; bool yi[NN], yo[NN]) {
             // Serial receiver
             // M layers in the tree
             // N for 1-of-N encoding
             // NN = N^M neurons
             [ M = 0 ->
-                NN = 1; // check that NN = N^M
-                INT<N> n_int(x, yi[0], yo[0]);
+                0 = 1;
             [] M > 0 ->
-                bool xt = x.d[N];
-                pint k = NN/N;
-                NODE<N> node(g, x,);
-                AERV<M-1, N, k> _[N];
-
-                (; n : N : g = _[n].g;)
-                (; n : N : node.c[n] = _[n].x;)
-                (; n : N-1 :
-                    _[n].yi = yi[n*k..(n+1)*k-1];
-                    _[n].yo = yo[n*k..(n+1)*k-1];
-                )
-                _[N-1].yi = yi[(N-1)*k..NN-1];
-                _[N-1].yo = yo[(N-1)*k..NN-1];
+                AERV_<M, N, NN> _(g, yi, yo,,, x);
+                prs {
+                    ~g.sReset & ~_.po -> _.pi+
+                    g.pReset | _.po -> _.pi-
+                }
             ]
         }
 
@@ -381,8 +339,7 @@ namespace aer {
         // N items per group
         // NN=N^M
         transmitter::AEXT<M, N, NN> aext(g, xi, xo,);
-        receiver::AERV<M, N, NN> aerv(g,, yi, yo);
-        aext.y = aerv.x;
+        receiver::AERV<M, N, NN> aerv(g, aext.y, yi, yo);
     }
 
     namespace test {
@@ -393,7 +350,7 @@ namespace aer {
             // N items per group
             // NN neurons. NN=N^M
             active_handshaker<NN> x(g,,);
-            active_handshaker<NN> y(g,,);
+            passive_handshaker<NN> y(,);
             AER<M, N, NN> aer(g, x.o, x.i, y.o, y.i);
         }
 
