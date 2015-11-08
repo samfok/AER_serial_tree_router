@@ -141,13 +141,11 @@ namespace aer {
 
         export
         template <pint M, N, NN>
-        defproc AEXT_ (globals g; bool xi[NN], xo[NN], ci[N], co[N], pi, po; c1of<N> p) {
+        defproc AEXT_ (globals g; bool xi[NN], xo[NN], pi, po; c1of<N> p) {
             // utility for AEXT
             [ M = 1 ->
                 NN = N;
-                LEAF<N> leaf(g, ci, co, pi, po, p);
-                ci = xi;
-                co = xo;
+                LEAF<N> leaf(g, xi, xo, pi, po, p);
             [] M > 1 ->
                 pint k = NN/N;
                 AEXT_<M-1, N, k> _[N];
@@ -176,7 +174,7 @@ namespace aer {
             [ M = 0 ->
                 0 = 1;
             [] M > 0 ->
-                AEXT_<M, N, NN> _(g, xi, xo,,,,,);
+                AEXT_<M, N, NN> _(g, xi, xo,,,);
                 OUT<N> out(g, _.po, _.pi, _.p, y);
             ]
         }
