@@ -2,7 +2,16 @@
 import "serial_aer.act";
 
 globals g;
-pint M=3;
+// pint M=3;
+// pint N=2;
+// pint NN=8; // NN=N^M
+// // aer::test::TEST_AER_NODATA<M, N, NN> test(g);
+// aer::test::TEST_AER_DATA1<M, N, NN> test(g);
+
+pint M_AEXT=5;
+pint M_AERV=3;
 pint N=2;
-pint NN=8; // NN=N^M
-aer::test::TEST_AER<M, N, NN> test(g);
+pint NN_AEXT=32;
+pint NN_AERV=8;
+aer::test::TEST_AER_DATA<M_AEXT, M_AERV, N, NN_AEXT, NN_AERV> test(g);
+// aer::test::TEST_AER_DATA1<M_AEXT, M_AERV, N, NN_AEXT, NN_AERV> test(g);

@@ -130,6 +130,7 @@ namespace aer {
             */
         }
 
+        export
         template <pint N>
         defproc OUT (globals g; bool xi, xo; c1of<N> x; e1of<N> y) {
             // interface AEXT tree with e1ofN channel
@@ -141,14 +142,16 @@ namespace aer {
 
         export
         template <pint M, N, NN>
-        defproc AEXT_ (globals g; bool xi[NN], xo[NN], pi, po; c1of<N> p) {
+        defproc AEXT (globals g; bool xi[NN], xo[NN], pi, po; c1of<N> p) {
             // utility for AEXT
-            [ M = 1 ->
+            [ M = 0 ->
+                0 = 1;
+            [] M = 1 ->
                 NN = N;
                 LEAF<N> leaf(g, xi, xo, pi, po, p);
             [] M > 1 ->
                 pint k = NN/N;
-                AEXT_<M-1, N, k> _[N];
+                AEXT<M-1, N, k> _[N];
                 (; n : N :
                     _[n].g = g;
                     _[n].xi = xi[n*k..(n+1)*k-1];
@@ -164,22 +167,16 @@ namespace aer {
             ]
         }
 
-        export
-        template <pint M, N, NN>
-        defproc AEXT (globals g; bool xi[NN], xo[NN]; e1of<N> y) {
-            // Serial transmitter
-            // M layers in the tree
-            // N for 1-of-N encoding. + tail word line
-            // NN = N^M neurons
-            [ M = 0 ->
-                0 = 1;
-            [] M > 0 ->
-                AEXT_<M, N, NN> _(g, xi, xo,,,);
-                OUT<N> out(g, _.po, _.pi, _.p, y);
-            ]
-        }
-
         namespace test {
+            template <pint M, N, NN>
+            defproc TEST_AEXT_ (globals g; bool xi[NN], xo[NN]; e1of<N> y) {
+                // M layers in the tree
+                // N for 1-of-N encoding. + tail word line
+                // NN = N^M neurons
+                AEXT<M, N, NN> aext(g, xi, xo,,,);
+                OUT<N> out(g, aext.po, aext.pi, aext.p, y);
+            }
+
             export
             template <pint M, N, NN>
             defproc TEST_AEXT (globals g) {
@@ -187,7 +184,7 @@ namespace aer {
                 // N for 1-of-N encoding. + tail word line
                 // NN = N^M neurons
                 active_handshaker<NN> a(g,,);
-                AEXT<M, N, NN> aext(g, a.o, a.i,);
+                TEST_AEXT_<M, N, NN> aext(g, a.o, a.i,);
                 VN_e1ofN<N> vn(aext.y);
             }
 
@@ -198,7 +195,7 @@ namespace aer {
                 // N for 1-of-N encoding. + tail word line
                 // NN = N^M neurons
                 active_handshaker<1> a(g,,);
-                AEXT<M, N, NN> aext(g,,,);
+                TEST_AEXT_<M, N, NN> aext(g,,,);
                 VN_e1ofN<N> vn(aext.y);
                 a.o[0] = aext.xi[nn];
                 a.i[0] = aext.xo[nn];
@@ -218,80 +215,89 @@ namespace aer {
 
     namespace receiver {
         template <pint N>
-        defproc SPLIT (globals g; e1of<N> p, c[N+1]; bool s[N+1]) {
-            // splits data to children
-            prs {
-                (| : n : N+1 : c[n].e) => p.e+
-                (: nc : N+1 :
+        defproc NODE (globals g; bool pi, po, ci[N], co[N]; c1of<N> p, c[N]) {
+            // node in AERV tree
+            bool u[N], cco, cci, uu;
+            prs<g.Vdd, g.GND> {
+                (pi & ~cco | cci) & ~uu => po+
+
+                (: n : N :
+                    u[n] & ~p.d[n] -> co[n]+
+                    ~pi -> co[n]-
+                )
+
+                (| : n : N : ci[n]) => cci+
+                (| : n : N : co[n]) => cco+
+
+                (: n : N :
+                    p.d[n] & ~cco -> u[n]+
+                    g.pReset | cco -> u[n]-
+                )
+
+                (| : n : N : u[n]) => uu+
+
+                (: nc : N :
                     (: n : N :
-                        s[nc] & p.d[n] => c[nc].d[n]+
+                        co[nc] & p.d[n] => c[nc].d[n]+
                     )
                 )
             }
         }
 
         template <pint N>
-        defproc CTRL (globals g; bool pi, po, ci[N], co[N], s[N+1]; e1of<N> x) {
-            // controls split
-            bool u[N];
-            (; n : N : s[n] = co[n];)
-            prs<g.Vdd, g.GND> {
-                pi & (& : n : N : ~u[n]) => x.e+
-
-                x.e | (| : n : N : x.d[n]) => s[N]+
-
-                (: n : N :
-                    x.d[n] -> u[n]+
-                    ~pi -> u[n]-
-                )
-
-                (: n : N :
-                    u[n] & ~s[N] => s[n]+
-                )
-
-                (| : n : N : ci[n]) => po+
-            }
-        }
-
-        template <pint N>
-        defproc LEAF (globals g; bool pi, po, ci[N], co[N]; e1of<N> x) {
+        defproc LEAF_DATA1 (globals g; bool pi, po, ci[N]; c1of<N> p, c[N]) {
             // leaf of AERV tree
-            // similar to CTRL, but no need for SPLIT at leaf if no payload to deliver
-            bool u[N];
+            bool u[N], co[N], cco, cci, uu;
             prs<g.Vdd, g.GND> {
-                pi & (& : n : N : ~u[n]) => x.e+
+                (pi | cco) & ~uu & ~cci => po+
 
                 (: n : N :
-                    x.d[n] -> u[n]+
-                    ~pi -> u[n]-
+                    ~cco & p.d[n] -> u[n]+
+                    g.pReset | cco -> u[n]-
                 )
+                (| : n : N : u[n]) => uu+
 
                 (: n : N :
-                    u[n] & ~x.d[n] => co[n]+
+                    u[n] & ~p.d[n] -> co[n]+
+                    ~pi -> co[n]-
                 )
+                (| : n : N : co[n]) => cco+
 
-                (| : n : N : ci[n]) => po+
+                (| : n : N : ci[n]) => cci+
+
+                (: nc : N :
+                    (: n : N :
+                        co[nc] & p.d[n] => c[nc].d[n]+
+                    )
+                )
             }
         }
 
         template <pint N>
-        defproc NODE (globals g; bool pi, po, ci[N], co[N]; e1of<N> p, c[N]) {
-            // node in AERV tree
-            SPLIT<N> split(g, p,,);
-            CTRL<N> ctrl(g, pi, po, ci, co, split.s, split.c[N]);
-            (; n : N : split.c[n] = c[n];)
+        defproc LEAF_NODATA (globals g; bool pi, po, ci[N], co[N]; c1of<N> p) {
+            // leaf of AERV tree that does not transmit data
+            bool u;
+            prs<g.Vdd, g.GND> {
+                pi & (& : n : N : ~ci[n]) | u => po+
+
+                (| : n : N : ci[n] & ~p.d[n]) => u+
+
+                (: n : N :
+                    p.d[n] -> co[n]+
+                    ~pi -> co[n]-
+                )
+            }
         }
 
+        export
         template <pint M, N, NN>
-        defproc AERV_ (globals g; bool yi[NN], yo[NN], pi, po; e1of<N> p) {
-            // utility for AERV
+        defproc AERV_NODATA (globals g; bool yi[NN], yo[NN], pi, po; c1of<N> p) {
+            // receiver that does not send data to neurons
             [ M = 1 ->
                 NN = N;
-                // NODE<N> node(g, pi, po, yi, yo, p,); // future
-                // (; n : N : node.c[n].e = g.GND;) // future
-                LEAF<N> leaf(g, pi, po, yi, yo, p);
+                LEAF_NODATA<N> leaf(g, pi, po, yi, yo, p);
             [] M > 1 ->
-                AERV_<M-1, N, NN/N> _[N];
+                AERV_NODATA<M-1, N, NN/N> _[N];
                 NODE<N> node(g, pi, po,,, p,);
                 pint k = NN/N;
                 (; n : N :
@@ -307,19 +313,46 @@ namespace aer {
 
         export
         template <pint M, N, NN>
-        defproc AERV (globals g; e1of<N> x; bool yi[NN], yo[NN]) {
-            // Serial receiver
-            // M layers in the tree
-            // N for 1-of-N encoding
-            // NN = N^M neurons
-            [ M = 0 ->
-                0 = 1;
-            [] M > 0 ->
-                AERV_<M, N, NN> _(g, yi, yo,,, x);
-                prs {
-                    ~g.sReset & ~_.po -> _.pi+
-                    g.pReset | _.po -> _.pi-
-                }
+        defproc AERV_DATA (globals g; bool yi[NN], yo[NN], pi, po; c1of<N> p, c[NN]) {
+            // receiver capable of sending data to neuron
+            [ M = 1 ->
+                NN = N;
+                NODE<N> node(g, pi, po, yi, yo, p, c);
+            [] M > 1 ->
+                AERV_DATA<M-1, N, NN/N> _[N];
+                NODE<N> node(g, pi, po,,, p,);
+                pint k = NN/N;
+                (; n : N :
+                    _[n].g = g;
+                    _[n].p = node.c[n];
+                    _[n].pi = node.co[n];
+                    _[n].po = node.ci[n];
+                    _[n].yi = yi[n*k..(n+1)*k-1];
+                    _[n].yo = yo[n*k..(n+1)*k-1];
+                    _[n].c = c[n*k..(n+1)*k-1];
+                )
+            ]
+        }
+
+        export
+        template <pint M, N, NN>
+        defproc AERV_DATA1 (globals g; bool yi[NN], pi, po; c1of<N> p, c[NN]) {
+            // receiver capable of sending data to neuron
+            [ M = 1 ->
+                NN = N;
+                LEAF_DATA1<N> leaf(g, pi, po, yi, p, c);
+            [] M > 1 ->
+                AERV_DATA1<M-1, N, NN/N> _[N];
+                NODE<N> node(g, pi, po,,, p,);
+                pint k = NN/N;
+                (; n : N :
+                    _[n].g = g;
+                    _[n].p = node.c[n];
+                    _[n].pi = node.co[n];
+                    _[n].po = node.ci[n];
+                    _[n].yi = yi[n*k..(n+1)*k-1];
+                    _[n].c = c[n*k..(n+1)*k-1];
+                )
             ]
         }
 
@@ -329,39 +362,64 @@ namespace aer {
 
     export
     template <pint M, N, NN>
-    defproc AER (globals g; bool xi[NN], xo[NN], yi[NN], yo[NN]) {
+    defproc AER_NODATA (globals g; bool xi[NN], xo[NN], yi[NN], yo[NN]) {
         // address-event representation tranceiver
         // packets are serialized 
         // Uses M 1-of-N encoding
         // M groups
         // N items per group
         // NN=N^M
-        transmitter::AEXT<M, N, NN> aext(g, xi, xo,);
-        receiver::AERV<M, N, NN> aerv(g, aext.y, yi, yo);
+        transmitter::AEXT<M, N, NN> aext(g, xi, xo,,,);
+        receiver::AERV_NODATA<M, N, NN> aerv(g, yi, yo,,,);
+        aext.pi = aerv.po;
+        aext.po = aerv.pi;
+        aext.p = aerv.p;
+    }
+
+    export
+    template <pint M_AEXT, M_AERV, N, NN_AEXT, NN_AERV>
+    defproc AER_DATA1 (globals g; bool xi[NN_AEXT], xo[NN_AEXT], yi[NN_AERV]; c1of<N> y[NN_AERV]) {
+        // address-event representation tranceiver
+        // packets are serialized 
+        // Uses M 1-of-N encoding
+        // M_AEXT groups in transmitter
+        // M_AERV groups in receiver
+        // N items per group
+        // NN=N^M
+        transmitter::AEXT<M_AEXT, N, NN_AEXT> aext(g, xi, xo,,,);
+        receiver::AERV_DATA1<M_AERV, N, NN_AERV> aerv(g, yi,,,, y);
+        aext.pi = aerv.po;
+        aext.po = aerv.pi;
+        aext.p = aerv.p;
+    }
+
+    export
+    template <pint M_AEXT, M_AERV, N, NN_AEXT, NN_AERV>
+    defproc AER_DATA (globals g; bool xi[NN_AEXT], xo[NN_AEXT], yi[NN_AERV], yo[NN_AERV]; c1of<N> y[NN_AERV]) {
+        // address-event representation tranceiver
+        // packets are serialized 
+        // Uses M 1-of-N encoding
+        // M groups
+        // N items per group
+        // NN=N^M
+        transmitter::AEXT<M_AEXT, N, NN_AEXT> aext(g, xi, xo,,,);
+        receiver::AERV_DATA<M_AERV, N, NN_AERV> aerv(g, yi, yo,,,, y);
+        aext.pi = aerv.po;
+        aext.po = aerv.pi;
+        aext.p = aerv.p;
     }
 
     namespace test {
         export
         template <pint M, N, NN>
-        defproc TEST_AER (globals g) {
-            // M groups
-            // N items per group
-            // NN neurons. NN=N^M
-            active_handshaker<NN> x(g,,);
-            passive_handshaker<NN> y(,);
-            AER<M, N, NN> aer(g, x.o, x.i, y.o, y.i);
-        }
-
-        export
-        template <pint M, N, NN>
-        defproc TEST_AER1 (globals g) {
+        defproc TEST_AER1_NODATA (globals g) {
             // Tests AER with 1 neuron
             // M groups
             // N items per group
             // NN neuron ports. NN=N^M
             active_handshaker<1> x(g,,);
             active_handshaker<1> y(g,,);
-            AER<M, N, NN> aer(g,,,,);
+            AER_NODATA<M, N, NN> aer(g,,,,);
             aer.xi[0] = x.o[0];
             aer.xo[0] = x.i[0];
             aer.yi[0] = y.o[0];
@@ -370,6 +428,59 @@ namespace aer {
                 aer.xi[nn] = g.GND;
                 aer.yi[nn] = g.GND;
             )
+        }
+
+        export
+        template <pint M, N, NN>
+        defproc TEST_AER_NODATA (globals g) {
+            // M groups
+            // N items per group
+            // NN neurons. NN=N^M
+            active_handshaker<NN> x(g,,);
+            passive_handshaker<NN> y(,);
+            AER_NODATA<M, N, NN> aer(g, x.o, x.i, y.o, y.i);
+        }
+
+        template <pint N, NN>
+        defproc AERV_NRN_FULL(bool i[NN], o[NN]; c1of<N> d[NN]) {
+            prs {
+                (: nn : NN :
+                    i[nn] & (& : n : N : ~d[nn].d[n]) => o[nn]+
+                )
+            }
+        }
+
+        export
+        template <pint M_AEXT, M_AERV, N, NN_AEXT, NN_AERV>
+        defproc TEST_AER_DATA (globals g) {
+            // M groups
+            // N items per group
+            // NN receiver neurons. NN=N^M
+            // NN*M transmitter neurons generate data for receiver neurons
+            active_handshaker<NN_AEXT> x(g,,);
+            AERV_NRN_FULL<N, NN_AERV> y(,,);
+            AER_DATA<M_AEXT, M_AERV, N, NN_AEXT, NN_AERV> aer(g, x.o, x.i, y.o, y.i, y.d);
+        }
+
+        template <pint N, NN>
+        defproc AERV_NRN_SIMPLE(c1of<N> i[NN]; bool o[NN]) {
+            VN_a1ofN<N> vn[NN];
+            (; nn : NN :
+                vn[nn].d.m = i[nn];
+                vn[nn].d.a = o[nn];
+            )
+        }
+
+        export
+        template <pint M_AEXT, M_AERV, N, NN_AEXT, NN_AERV>
+        defproc TEST_AER_DATA1 (globals g) {
+            // M groups
+            // N items per group
+            // NN receiver neurons. NN=N^M
+            // NN*M transmitter neurons generate data for receiver neurons
+            active_handshaker<NN_AEXT> x(g,,);
+            AERV_NRN_SIMPLE<N, NN_AERV> y(,);
+            AER_DATA1<M_AEXT, M_AERV, N, NN_AEXT, NN_AERV> aer(g, x.o, x.i, y.o, y.i);
         }
     } // namespace test
 } // namespace aer
