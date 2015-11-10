@@ -245,7 +245,7 @@ namespace aer {
         }
 
         template <pint N>
-        defproc LEAF_DATA1 (globals g; bool pi, po, ci[N]; c1of<N> p, c[N]) {
+        defproc LEAF (globals g; bool pi, po, ci[N]; c1of<N> p, c[N]) {
             // leaf of AERV tree
             bool u[N], co[N], cco, cci, uu;
             prs<g.Vdd, g.GND> {
@@ -340,7 +340,7 @@ namespace aer {
             // receiver capable of sending data to neuron
             [ M = 1 ->
                 NN = N;
-                LEAF_DATA1<N> leaf(g, pi, po, yi, p, c);
+                LEAF<N> leaf(g, pi, po, yi, p, c);
             [] M > 1 ->
                 AERV_DATA1<M-1, N, NN/N> _[N];
                 NODE<N> node(g, pi, po,,, p,);
@@ -364,6 +364,7 @@ namespace aer {
     template <pint M, N, NN>
     defproc AER_NODATA (globals g; bool xi[NN], xo[NN], yi[NN], yo[NN]) {
         // address-event representation tranceiver
+        // no data sent to receiving neuron
         // packets are serialized 
         // Uses M 1-of-N encoding
         // M groups
@@ -380,6 +381,7 @@ namespace aer {
     template <pint M_AEXT, M_AERV, N, NN_AEXT, NN_AERV>
     defproc AER_DATA1 (globals g; bool xi[NN_AEXT], xo[NN_AEXT], yi[NN_AERV]; c1of<N> y[NN_AERV]) {
         // address-event representation tranceiver
+        // data (no control) sent to receiving neuron
         // packets are serialized 
         // Uses M 1-of-N encoding
         // M_AEXT groups in transmitter
@@ -397,6 +399,7 @@ namespace aer {
     template <pint M_AEXT, M_AERV, N, NN_AEXT, NN_AERV>
     defproc AER_DATA (globals g; bool xi[NN_AEXT], xo[NN_AEXT], yi[NN_AERV], yo[NN_AERV]; c1of<N> y[NN_AERV]) {
         // address-event representation tranceiver
+        // control and data sent to receiving neuron
         // packets are serialized 
         // Uses M 1-of-N encoding
         // M groups

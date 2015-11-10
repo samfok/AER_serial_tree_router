@@ -1,5 +1,0 @@
-import "serial_aer.act";
-
-globals g;
-pint N=2;
-aer::transmitter::test::TEST_NODE<N> test(g);
