@@ -1,0 +1,133 @@
+import "lib/globals.act";
+import "lib/channel.act";
+import "comm.act";
+import "test.act";
+
+defproc BUFF (globals g; e1of<2> x, y) {
+    /*-----------------------------------------------------------------------*/
+    // /* reference
+        bool u[2];
+        prs<g.Vdd, g.GND> {
+            (:n:2:
+                y.e & u[n] & ~x.e -> y.d[n]+
+                ~y.e -> y.d[n]-
+            )
+
+            g.pReset | x.d[0] -> u[0]+
+            y.d[0] & ~x.e -> u[0]-
+
+            x.d[1] -> u[1]+
+            g.pReset | y.d[1] & ~x.e -> u[1]-
+
+            (&:n:2: ~u[n]) -> x.e+
+            g.pReset | (|:n:2: u[n]) & (&:n:2: ~y.d[n]) -> x.e-
+        }
+    // */
+    /*-----------------------------------------------------------------------*/
+    /* parallel reset
+        bool u[2];
+        prs<g.Vdd, g.GND> {
+            (:n:2:
+                y.e & u[n] & ~x.d[n] -> y.d[n]+
+                ~y.e -> y.d[n]-
+            )
+
+            g.pReset | x.d[0] & x.e -> u[0]+
+            y.e & y.d[0] & ~x.e -> u[0]-
+
+            x.d[1] & x.e -> u[1]+
+            g.pReset | y.e & y.d[1] & ~x.e -> u[1]-
+
+            (&:n:2: ~u[n]) -> x.e+
+            g.pReset | (|:n:2: u[n]) -> x.e-
+        }
+    */
+    /*-----------------------------------------------------------------------*/
+}
+
+defproc BUFFTESTER (globals g; e1of<2> x, y) {
+    spec {
+        mk_exclhi(x.d[0], x.d[1])
+    }
+    /*-----------------------------------------------------------------------*/
+    // /* reference
+        prs<g.Vdd, g.GND> {
+            g._sReset & ~x.d[0] & ~x.d[1] & ~y.d[0] & ~y.d[1] -> y.e+
+            g.pReset | (x.d[0] | x.d[1]) & (y.d[0] | y.d[1]) -> y.e-
+            
+            (:n:2:
+                x.e -> x.d[n]+
+                ~x.e -> x.d[n]-
+            )
+        }
+    // */
+    /*-----------------------------------------------------------------------*/
+    /* parallel reset
+        prs<g.Vdd, g.GND> {
+            g._sReset & ~x.d[0] & ~x.d[1] & ~y.d[0] & ~y.d[1] -> y.e+
+            g.pReset | (y.d[0] | y.d[1]) -> y.e-
+            
+            (:n:2:
+                x.e -> x.d[n]+
+                ~x.e -> x.d[n]-
+            )
+        }
+    */
+    /*-----------------------------------------------------------------------*/
+}
+
+defproc CTRL (globals g; c1of<4> c; bool co, si[2], so[2]; e1of<2> x, y) {
+        (;n:2: c.d[n] = so[n];)
+        prs<g.Vdd, g.GND> {
+            si[0] | si[1] | x.d[0] | x.d[1] -> co+
+            ~si[0] & ~si[1] & ~x.d[0] & ~x.d[1] -> co-
+
+            g._sReset & (c.d[2] | c.d[3]) & ~x.d[0] & ~x.d[1] & ~y.d[0] & ~y.d[1] -> y.e+
+            g.pReset | (x.d[0] | x.d[1]) & (y.d[0] | y.d[1]) -> y.e-
+            
+            x.e & c.d[2] -> x.d[0]+
+            ~x.e & ~c.d[2] -> x.d[0]-
+
+            x.e & c.d[3] -> x.d[1]+
+            ~x.e & ~c.d[3] -> x.d[1]-
+        }
+}
+
+defproc CTRLTESTER (globals g; c1of<4> c; bool ci, si[2], so[2]) {
+    passive_handshaker<2> s(si, so);
+    spec {
+        mk_exclhi(c.d[0], c.d[1], c.d[2], c.d[3])
+    }
+    prs<g.Vdd, g.GND> {
+        (:n:4:
+            ~g.sReset & ~ci -> c.d[n]+
+            g.pReset | ci -> c.d[n]-
+        )
+    }
+}
+
+template <pint M>
+defproc BUFF_CHAIN (globals g; e1of<2> x, y) {
+    BUFF _[M];
+    (; m : M :
+        _[m].g = g;
+    )
+    _[0].x = x;
+    _[M-1].y = y;
+    [ M > 1 ->
+        (; m : 0..M-2 :
+            _[m].y = _[m+1].x;
+        )
+    ]
+}
+
+globals g;
+pint M=3;
+BUFF_CHAIN<M> buff(g,,);
+CTRL ctrl(g,,,,, buff.x, buff.y);
+CTRLTESTER tester(g, ctrl.c, ctrl.co, ctrl.so, ctrl.si);
+
+// globals g;
+// pint M=3;
+// BUFF_CHAIN<M> buff(g,,);
+// BUFFTESTER ctrl(g, buff.x, buff.y);
