@@ -43,6 +43,25 @@ defproc BUFF (globals g; e1of<2> x, y) {
         }
     */
     /*-----------------------------------------------------------------------*/
+    /* sequenced
+        bool u[2];
+        prs<g.Vdd, g.GND> {
+            (:n:2:
+                y.e & u[n] & ~x.d[0] & ~x.d[1] -> y.d[n]+
+                g.pReset | ~y.e & ~u[n] -> y.d[n]-
+            )
+
+            g.pReset | x.d[0] -> u[0]+
+            y.d[0] -> u[0]-
+
+            x.d[1] -> u[1]+
+            g.pReset | y.d[1] -> u[1]-
+
+            (&:n:2: ~u[n]) & (&:n:2: ~y.d[n]) -> x.e+
+            g.pReset | (|:n:2: u[n]) | (|:n:2: y.d[n]) -> x.e-
+        }
+    */
+    /*-----------------------------------------------------------------------*/
 }
 
 defproc BUFFTESTER (globals g; e1of<2> x, y) {
@@ -64,12 +83,24 @@ defproc BUFFTESTER (globals g; e1of<2> x, y) {
     /*-----------------------------------------------------------------------*/
     /* parallel reset
         prs<g.Vdd, g.GND> {
-            g._sReset & ~x.d[0] & ~x.d[1] & ~y.d[0] & ~y.d[1] -> y.e+
-            g.pReset | (y.d[0] | y.d[1]) -> y.e-
+            g._sReset & ~x.d[0] & ~x.d[1] -> y.e+
+            g.pReset | (x.d[0] | x.d[1]) & (y.d[0] | y.d[1]) -> y.e-
             
             (:n:2:
                 x.e -> x.d[n]+
-                ~x.e -> x.d[n]-
+                ~x.e & ~y.d[0] & ~y.d[1] -> x.d[n]-
+            )
+        }
+    */
+    /*-----------------------------------------------------------------------*/
+    /* sequenced
+        prs<g.Vdd, g.GND> {
+            g._sReset & ~x.d[0] & ~x.d[1] & ~y.d[0] & ~y.d[1] -> y.e+
+            g.pReset | x.d[0] | x.d[1] | y.d[0] | y.d[1] -> y.e-
+            
+            (:n:2:
+                x.e -> x.d[n]+
+                ~x.e & ~y.d[0] & ~y.d[1] -> x.d[n]-
             )
         }
     */
@@ -121,13 +152,13 @@ defproc BUFF_CHAIN (globals g; e1of<2> x, y) {
     ]
 }
 
-globals g;
-pint M=3;
-BUFF_CHAIN<M> buff(g,,);
-CTRL ctrl(g,,,,, buff.x, buff.y);
-CTRLTESTER tester(g, ctrl.c, ctrl.co, ctrl.so, ctrl.si);
-
 // globals g;
 // pint M=3;
 // BUFF_CHAIN<M> buff(g,,);
-// BUFFTESTER ctrl(g, buff.x, buff.y);
+// CTRL ctrl(g,,,,, buff.x, buff.y);
+// CTRLTESTER tester(g, ctrl.c, ctrl.co, ctrl.so, ctrl.si);
+
+globals g;
+pint M=3;
+BUFF_CHAIN<M> buff(g,,);
+BUFFTESTER ctrl(g, buff.x, buff.y);
