@@ -1,0 +1,5 @@
+import "arbiter.act";
+
+pint N=2;
+globals g;
+arbiter::n_arb_s_muex::test::TEST_N_ARB_S_MUEX<N> test(g);
