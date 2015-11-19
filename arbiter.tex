@@ -293,6 +293,36 @@ For example, consider the 4 client case with inputs 0 and 3 high. The N-way arbi
 However, because $p_i$ has cleared, the parent node is free to select the other child and can complete the full communication with 3 even before the 0 output clears. 
 To fix this, the outputs would have to mutually exclude the requests of all other clients across the leaf nodes.
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Unpipelined, Mutually Exclusive N-way Arbiter}
+
+To gaurantee mutual exclusion of the output signals between clients, we use an OR across the outputs to prevent new requests from propagating up the tree while one output is still high.
+
+This is the same as the N-way arbiter in Section~\ref{sec:n_arb_unpipelined}, except for special leaf nodes.
+
+\subsubsection*{PRS}
+
+MU\_EX:
+
+\begin{prs2}
+~cco & a0 -> q0o+
+cco | ~a0 -> q0o-
+
+~cco & a1 -> q1o+
+cco | ~a1 -> q1o-
+\end{prs2}
+
+\begin{prs2}
+q0i -> c0o+
+~q0i -> c0o-
+
+q1i -> c1o+
+~q1i -> c1o-
+\end{prs2}
+
+where $cc_o$ is the OR of all the $c_o$ across the arbiter tree leaves.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Alternative Unpipelined N-way Arbiter}
 
