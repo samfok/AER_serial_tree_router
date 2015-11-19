@@ -4,9 +4,11 @@
 
 \title{Arbitration}
 \maketitle
-\tableofcontents
 
 This document explores arbiters
+
+\tableofcontents
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{2-way Arbiter}
@@ -83,12 +85,50 @@ N_ARB\equiv
 We construct the N\_ARB as a binary tree of N\_ARB\_ cells recursively (see Figure~\ref{fig:n_arb_n_arb_}). 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Unpipelined N-way Arbiter}
+\section{Unpipelined N-way Arbiter \label{sec:n_arb_unpipelined}}
 
 This is the arbiter in Rajit's notes to provide mutual exclusion to a shared resource. 
 We extend the development with bubble-reshuffled, CMOS-implementable PRS and transistor counts.
 
-\subsection{CHP}
+\subsubsection*{Transistor accounting}
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|}
+    \hline
+    component & transistors/component & components/node & transistors/node \\ \hline
+    MU\_EX & 20 & 1 & 20 \\ \hline
+    PREQ & 18& 1 & 18 \\ \hline
+    \multicolumn{3}{|r|}{total transistors/node} & 38 \\ \hline
+    \end{tabular}
+\end{center}
+
+N\_ARB\_ is constructed as a tree with a 2-way active-low arbiter and 2 associated inverters at the root and N-2 instances of N\_ARB\_. 
+Overall, N\_ARB costs $38(N-2)+12+4$ transistors.
+
+\begin{center}
+  \begin{tabular}{|r|c|c|c|c|c|c|c|c|c|}
+    \hline
+    N & 2 & 3 & 4 & 8 & 16 & 32 & 64 & 128 & 256 \\
+    \hline
+    transistors & 16 & 54 & 92 & 244 & 548 & 1156 & 2372 & 4804 & 9668 \\
+    \hline
+  \end{tabular}
+\end{center}
+
+If the clients expect active high inputs, we'll need N inverters to convert the output of N\_ARB\_ to active high.
+In this case, N\_ARB costs $38(N-2)+12+4+2N$ transistors.
+
+\begin{center}
+  \begin{tabular}{|r|c|c|c|c|c|c|c|c|c|}
+    \hline
+    N & 2 & 3 & 4 & 8 & 16 & 32 & 64 & 128 & 256 \\
+    \hline
+    transistors & 20 & 60 & 100 & 260 & 580 & 1220 & 2500 & 5060 & 10180 \\
+    \hline
+  \end{tabular}
+\end{center}
+
+\subsubsection*{CHP}
 
 We implement this process as a tree of nodes that grant mutually exclusive access to a shared resource.
 
@@ -117,9 +157,9 @@ PREQ\equiv
  ]]
 \end{csp}
 
-\subsection{HSE}
+\subsubsection*{HSE}
 
-MU\_EX expands to
+MU\_EX
 \begin{hse}
 *[[c0i->q0o+;[q0i];c0o+;[~c0i];q0o-;[~q0i];c0o-
   \|c1i->q1o+;[q1i];c1o+;[~c1i];q1o-;[~q1i];c1o-
@@ -137,7 +177,7 @@ We break out the arbitration.
  ]]
 \end{hse}
 
-PREQ expands to
+\noindent PREQ
 
 \begin{hse}
 *[[q0i->po+;[pi];q0o+;[~q0i];po-;[~pi];q0o-
@@ -145,9 +185,9 @@ PREQ expands to
  ]]
 \end{hse}
 
-\subsection{PRS}
+\subsubsection*{PRS}
 
-MU\_EX:
+MU\_EX
 
 \begin{prs2}
 ~c1o & a0 -> q0o+
@@ -165,7 +205,7 @@ q1i -> c1o+
 ~q1i -> c1o-
 \end{prs2}
 
-PREQ:
+\noindent PREQ
 
 \begin{prs2}
 q0i | q1i -> po+
@@ -180,113 +220,100 @@ pi & q1i -> q1o+
 ~pi -> q1o-
 \end{prs2}
 
-\subsection{CMOS-implementable PRS}
+\subsubsection*{CMOS-implementable PRS}
 
-MU\_EX:
+\noindent MU\_EX
 
 \begin{prs2}
-_c1o & a0 -> _q0o-
-~_c1o | ~a0 -> _q0o+
+~c1o & ~_a0 -> q0o+
+c1o | _a0 -> q0o-
 
-_c0o & a1 -> _q1o-
-~_c0o | ~a1 -> _q1o+
+~c0o & ~_a1 -> q1o+
+c0o | _a1 -> q1o-
 \end{prs2}
 
 \begin{prs2}
-q0i -> _c0o-
-~q0i -> _c0o+
+q0i -> c0o+
+~q0i -> c0o-
 
-q1i -> _c1o-
-~q1i -> _c1o+
+q1i -> c1o+
+~q1i -> c1o-
 \end{prs2}
-
-accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
     \hline
     rule & transistor count & comments \\ \hline
-    $a[0,1]$ & 12 & 2-way arbiter \\ \hline
-    $\_q[0,1]_o$ & 8 & \\ \hline
-    $\_c[0,1]_o$ & 4 & staticizes PREQ $\_q[0,1]_o$ \\ \hline
-    \hline total & 24 & \\ \hline
+    $\_a[0,1]$ & 12 & 2-way active-low arbiter \\ \hline
+    $q[0,1]_o$ & 8 & \\ \hline
+    $c[0,1]_o$ & 0 & wires \\ \hline
+    \hline total & 20 & \\ \hline
     \end{tabular}
 \end{center}
 
-PREQ:
+
+\noindent PREQ
 
 \begin{prs2}
-~_q0i | ~_q1i -> po+
-_q0i & _q1i -> po-
+q0i | q1i -> _po-
+~q0i & ~q1i -> _po+
 \end{prs2}
 
 \begin{prs2}
-~_pi & ~_q0i -> q0o+
-_pi -> q0o-
+pi & q0i -> _q0o-
+~pi -> _q0o+
 
-~_pi & ~_q1i -> q1o+
-_pi -> q1o-
+pi & q1i -> _q1o-
+~pi -> _q1o+
 \end{prs2}
 
-accounting:
+\begin{prs2}
+_q0o -> q0o-
+~_q0o -> q0o+
+
+_q1o -> q1o-
+~_q1o -> q1o+
+\end{prs2}
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
     \hline
     rule & transistor count & comments \\ \hline
-    $p_o$ & 4 & \\ \hline
-    $\_q[0,1]_o$ & 10 & staticizers placed on MU\_EX $\_c[0,1]_o$ rules \\ \hline
-    \hline total & 14 & \\ \hline
+    $\_p_o$ & 4 & \\ \hline
+    $\_q[0,1]_o$ & 6 & staticizers on $q[0,1]_o$ \\ \hline
+    $q[0,1]_o$ & 8 & staticizes $\_q[0,1]_o$ \\ \hline
+    \hline total & 18 & \\ \hline
     \end{tabular}
 \end{center}
 
-\subsection{Accounting}
+\subsubsection*{Notes}
 
-\begin{center}
-    \begin{tabular}{|r|l|l|l|}
-    \hline
-    component & transistors/component & components/node & transistors/node \\ \hline
-    MU\_EX & 24 & 1 & 24 \\ \hline
-    PREQ & 14& 1 & 14 \\ \hline
-    \multicolumn{3}{|r|}{total transistors/node} & 38 \\ \hline
-    \end{tabular}
-\end{center}
-
-N\_ARB\_ is constructed as a tree with a 2-way arbiter at the root and N-2 instances of N\_ARB\_. 
-Overall, N\_ARB costs $38(N-2)+12$ transistors.
-
-\begin{center}
-  \begin{tabular}{|r|c|c|c|c|c|c|c|c|c|}
-    \hline
-    N & 2 & 3 & 4 & 8 & 16 & 32 & 64 & 128 & 256 \\
-    \hline
-    transistors & 12 & 50 & 88 & 240 & 544 & 1152 & 2368 & 4800 & 9664 \\
-    \hline
-  \end{tabular}
-\end{center}
-
-If the clients expect active high inputs, we'll need N inverters to convert the output of N\_ARB\_ to active high.
-In this case, N\_ARB costs $38(N-2)+12+2N$ transistors for $N>2$.
-
-\begin{center}
-  \begin{tabular}{|r|c|c|c|c|c|c|c|c|c|}
-    \hline
-    N & 2 & 3 & 4 & 8 & 16 & 32 & 64 & 128 & 256 \\
-    \hline
-    transistors & 12 & 56 & 96 & 256 & 576 & 1216 & 2496 & 5056 & 10176 \\
-    \hline
-  \end{tabular}
-\end{center}
-
-Note that this implementation does not gaurantee mutual exclusion of the output signals between
-clients across leaves. For example, consider a 4-input arbiter with inputs 0 and 3 high. The N-way arbiter selects 0 first. 0 clears its input. The parent arbiter node clears $p_i$, and the 0 output will clear sometime in the future. However, because $p_i$ has cleared, the parent node is free to select the other child and can complete the full communication with 3 even before the 0 output clears. To fix this, the outputs would have to mutually exclude the requests of all other clients across the leaf nodes.
+That this implementation does not gaurantee mutual exclusion of the output signals between clients across leaves of the arbiter tree for more than 2 clients. 
+For example, consider the 4 client case with inputs 0 and 3 high. The N-way arbiter selects 0 first. 0 clears its input. The parent arbiter node clears $p_i$, and the 0 output will clear sometime in the future. 
+However, because $p_i$ has cleared, the parent node is free to select the other child and can complete the full communication with 3 even before the 0 output clears. 
+To fix this, the outputs would have to mutually exclude the requests of all other clients across the leaf nodes.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Alternative Unpipelined N-way Arbiter}
 
 Here's an alternative to the previous, unpipelined design.
 
-\subsection{CHP}
+\subsubsection*{Transistor accounting}
+
+N\_ARB\_ is constructed as a tree with a 2-way arbiter at the root and $N-2$ instances of N\_ARB\_. Overall, N\_ARB\ costs $40(N-2)+12$ transistors.
+
+\begin{center}
+  \centering
+  \begin{tabular}{|r|c|c|c|c|c|c|c|c|c|}
+    \hline
+    N & 2 & 3 & 4 & 8 & 16 & 32 & 64 & 128 & 256 \\
+    \hline
+    transistors & 12 & 52 & 92 & 252 & 572 & 1212 & 2492 & 5052 & 10172 \\
+    \hline
+  \end{tabular}
+\end{center}
+
+\subsubsection*{CHP}
 
 \begin{csp}
 N_ARB_\equiv
@@ -294,7 +321,7 @@ N_ARB_\equiv
     \|C1\star\!P;C1\star\!P]]
 \end{csp}
 
-\subsection{HSE}
+\subsubsection*{HSE}
 
 \begin{hse}
 *[[c0i->c0+;[~c0i];c0-
@@ -303,7 +330,7 @@ N_ARB_\equiv
   []c1->po+;[pi];c1o+;[~c1];po-;[~pi];c1o-]]
 \end{hse}
 
-\subsection{PRS}
+\subsubsection*{PRS}
 
 \begin{prs2}
 c0 & ~c1o | c1 & ~c0o -> po+
@@ -318,7 +345,7 @@ pi & c1 & ~c0o -> c1o+
 ~pi -> c1o-
 \end{prs2}
 
-\subsection{CMOS-implementable PRS}
+\subsubsection*{CMOS-implementable PRS}
 
 \noindent A standard 2-input arbiter takes in $c0_i$ and $c1_i$ to generate $c0$ and $c1$.
 
@@ -361,30 +388,33 @@ accounting:
     \end{tabular}
 \end{center}
 
-\subsection{Accounting}
-
-N\_ARB\_ is constructed as a tree with a 2-way arbiter at the root and $N-2$ instances of N\_ARB\_. Overall, N\_ARB\ costs $40(N-2)+12$ transistors (See Table~\ref{tab:cheap_n_arb_cost}).
-
-\begin{table}[ht]
-  \centering
-  \begin{tabular}{|r|c|c|c|c|c|c|c|c|c|}
-    \hline
-    N & 2 & 3 & 4 & 8 & 16 & 32 & 64 & 128 & 256 \\
-    \hline
-    transistors & 12 & 52 & 92 & 252 & 572 & 1212 & 2492 & 5052 & 10172 \\
-    \hline
-  \end{tabular}
-  \caption{\label{tab:cheap_n_arb_cost}Transistor count for common sizes of $N\_ARB\_C$}
-\end{table}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Pipelined N-way Arbiter}
+\section{Greedy but fair N-way Arbiter}
 
 In this design, 
 
 \begin{csp}
 N\_ARB\_ \equiv H\_ARB
 \end{csp}
+
+N\_ARB will be constructed from $N-1$ H\_ARB instances. so N\_ARB requires approximately $110(N-1)$ transistors.
+
+
+\begin{center}
+  \begin{tabular}{|r|c|c|c|c|c|c|c|c|c|}
+    \hline
+    N & 2 & 3 & 4 & 8 & 16 & 32 & 64 & 128 & 256 \\
+    \hline
+    transistors & 110 & 220 & 330 & 770 & 1650 & 3410 & 6930 & 13970 & 28050 \\
+    \hline
+  \end{tabular}
+\end{center}
+
+Note that the basic, 2-input arbiter only requires 12 transistors, almost tenfold less than a 2-input N\_ARB. \\
+We might require N inverters to interface with the client's output. 
+We will need inverter to connect the top of the tree back to itself, 
+so in the worst case we'll need $110(N-1)+2N+2=112(N-1)+4$ transistors.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Heirarchical arbiter H\_ARB}
 
@@ -432,6 +462,19 @@ H\_ARB\equiv\!CTRL\pll\!C_ARB\pll\!C_ARB
 
 \noindent Bubble reshuffling $CTRL$ and $C\_ARB$ yields the H\_ARB shown in Figure~\ref{fig:h_arb_bubbled}.
 
+\noindent Accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|}
+    \hline
+    component & transistors/component & components/H\_ARB & transistors/H\_ARB \\ \hline
+    CTRL & 36 & 1 & 36 \\ \hline
+    C\_ARB & 34 & 2 & 68 \\ \hline
+    inverters & 2 & 3 & 6 \\ \hline
+    \hline \multicolumn{3}{|r|}{total transistors/H\_ARB} & 110 \\ \hline
+    \end{tabular}
+\end{center}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Control cell CTRL}
 CTRL sequences communications with the parent of H\_ARB and the child arbiters.
@@ -443,7 +486,7 @@ $S_0$ & child arbiter 0 port \\
 $S_1$ & child arbiter 1 port \\
 \end{tabular} \\
 
-\subsubsection{CHP}
+\subsubsection*{CHP}
 
 \begin{csp}
 CTRL\equiv
@@ -460,15 +503,15 @@ CTRL\equiv
   $S_1$ & communicates with the child 1 arbiter \\
 \end{tabular} \\ \\
 
-\subsubsection{HSE}
+\subsubsection*{HSE}
 
 \noindent Directly translating the CHP,
 
 \begin{hse}
 CTRL\equiv
   *[[c0i|c1i];po+;[pi];
-    s0o+;[s0i];[~s0i];s0o-;
-    s1o+;[s1i];[~s1i];s1o-;
+    s0o+;[s0i];s0o-;[~s0i];
+    s1o+;[s1i];s1o-;[~s1i];
     po-;[~pi]]
 \end{hse}
 
@@ -482,7 +525,7 @@ CTRL\equiv
     po-;[~pi];y+]
 \end{hse}
 
-\subsubsection{PRS}
+\subsubsection*{PRS}
 
 \begin{prs2}
 (c0i | c1i) & y -> po+
@@ -531,13 +574,27 @@ pi & y -> x-
 s0i -> y-
 \end{prs2}
 
-Including staticizers, CTRL contains 36 transistors.
+\noindent Transistor accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $p_o$ & 6 & \\ \hline
+    $\_p_o$ & 4 & includes staticizer for $p_o$ \\ \hline
+    $s0_o$ & 4 & \\ \hline
+    $s1_o$ & 8 & \\ \hline
+    $x$ & 8 & \\ \hline
+    $y$ & 6 & \\ \hline
+    \hline total & 36 & \\ \hline
+    \end{tabular}
+\end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Child Arbiter (C\_ARB)}
+\subsection{Child arbiter C\_ARB}
 C\_ARB determines whether or not a child's request is present when called upon by CTRL.
 
-\subsubsection{CHP}
+\subsubsection*{CHP}
 
 \begin{csp}
 C_ARB\equiv
@@ -573,7 +630,7 @@ requests from CTRL, $\overline{S}$. If a child request is present, the arbiter i
 
 \noindent which is a simple 4-phase handshake. Note that $S$ is shared between the two branches.
 
-\subsubsection{HSE}
+\subsubsection*{HSE}
 
 \noindent Directly translating the CHP,
 
@@ -627,7 +684,7 @@ requests from CTRL, $\overline{S}$. If a child request is present, the arbiter i
   []sso->so+;[~sso];so-]
 \end{hse}
 
-\subsubsection{PRS}
+\subsubsection*{PRS}
 
 \noindent $s_i$ and $c_i$ are inputs to a standard 2-input arbiter, which outputs $s$ and $c$.
 
@@ -670,29 +727,21 @@ cso | sso -> _so-
 
 \noindent where $\_s$ and $\_c$ come from an active-low 2-input arbiter with inputs $\_s_i$ and $\_c_i$. 
 
-\noindent Including staticizers, C\_ARB requires 34 transistors.
-
-%%%%%%%%%%%%%%%%
-\subsection{H\_ARB Accounting}
-
-H\_ARB includes 2 C\_ARB circuits and 1 CTRL circuit with 3 additional inverters. Therefore, H\_ARB requires 114 transistors.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Accounting}
-
-N\_ARB will be constructed from $N-1$ H\_ARB instances. We will also require N inverters to connect with the client's input and 1 inverter to connect the top of the tree back to itself. Therefore, N\_ARB requires $110(N-1)+2N+2=112(N-1)+4$ transistors.
+\noindent Transistor accounting:
 
 \begin{center}
-  \begin{tabular}{|r|c|c|c|c|c|c|c|c|c|}
+    \begin{tabular}{|r|l|l|}
     \hline
-    N & 2 & 3 & 4 & 8 & 16 & 32 & 64 & 128 & 256 \\
-    \hline
-    transistors & 116 & 228 & 340 & 788 & 1684 & 3476 & 7060 & 14228 & 28564 \\
-    \hline
-  \end{tabular}
+    rule & transistor count & comments \\ \hline
+    $\_[s,c]$ & 12 & 2-input arbiter \\ \hline
+    $cs_o$ & 8 & \\ \hline
+    $ss_o$ & 4 & \\ \hline
+    $\_c_o$ & 4 & \\ \hline
+    $c_o$ & 2 & \\ \hline
+    $\_s_o$ & 4 & \\ \hline
+    \hline total & 34 & \\ \hline
+    \end{tabular}
 \end{center}
-
-Note that the basic, 2-input arbiter only requires 12 transistors, tenfold less than a 2-input N\_ARB.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \end{document}
