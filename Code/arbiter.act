@@ -58,13 +58,15 @@ namespace arbiter {
     
     namespace n_arb_2arb_node {
         // N-way arbiter using only 2 arbiters per node
-        defproc CTRL (globals g; bool _ci[2], s0i, s0o, _s1i, s1o, pi, po) {
+        defproc CTRL (globals g; bool _ci[2], s0i, s0o, _s1i, s1o, pi, _po) {
             // sequences between children and parent communications
-            bool x, y, _y;
+            bool x, y, _y, po;
             prs<g.Vdd,g.GND> {
                 g._sReset & (~_ci[0] | ~_ci[1]) & ~_y -> po+
                 g.pReset | _s1i & x & _y -> po-
         
+                po => _po-
+
                 g._sReset & ~x & ~_y -> s0o+
                 g.pReset | x | _y -> s0o-
         
@@ -78,33 +80,6 @@ namespace arbiter {
                 s0i -> y-
 
                 y => _y-
-            }
-        }
-        
-        export
-        defproc CTRL_TEST (globals g; bool s0i, s0o, s1i, s1o, pi, po) {
-            // test version of CTRL sequencing circuit
-            // does not use children as start signal
-            // assumes both children are always requesting
-            bool x, y, _y, _s1i;
-            prs<g.Vdd,g.GND> {
-                g._sReset & ~_y -> po+
-                g.pReset | _s1i & x & _y -> po-
-        
-                g._sReset & ~x & ~_y -> s0o+
-                g.pReset | x | _y -> s0o-
-        
-                g._sReset & ~s0i & ~x & ~y -> s1o+
-                g.pReset | x -> s1o-
-        
-                g.pReset | ~_s1i & ~y -> x+
-                g._sReset & pi & y -> x-
-        
-                ~pi -> y+
-                s0i -> y-
-
-                y => _y-
-                s1i => _s1i-
             }
         }
         
@@ -140,11 +115,10 @@ namespace arbiter {
         defproc H_ARB (globals g; bool _ci[2], co[2], pi, _po) {
             // heirarchical arbiter cell
             // can be arranged in a binary tree to service more than 2 children
-            CTRL ctrl(g, _ci,,,,, pi,);
+            CTRL ctrl(g, _ci,,,,, pi, _po);
             C_ARB c0_arb(,, _ci[0], co[0]), c1_arb(, ctrl._s1i, _ci[1], co[1]);
 
             prs {
-                ctrl.po => _po-
                 ctrl.s0o => c0_arb._si-
                 c0_arb._so => ctrl.s0i- 
                 ctrl.s1o => c1_arb._si-
@@ -207,21 +181,6 @@ namespace arbiter {
         }
 
         namespace test {
-            export
-            defproc TEST_CTRL_TEST (globals g) {
-                // tests CTRL_TEST
-                passive_handshaker<2> s(,);
-                passive_handshaker<1> p(,);
-                CTRL_TEST ctrl(g,,,,,,);
-                
-                ctrl.po = p.i[0];
-                ctrl.pi = p.o[0];
-                ctrl.s0i = s.o[0];
-                ctrl.s0o = s.i[0];
-                ctrl.s1i = s.o[1];
-                ctrl.s1o = s.i[1];
-            }
-
             defproc C_ARB_handshaker (globals g; bool _si, _so, ci, _co) {
                 // used in TEST_C_ARB
                 prs<g.Vdd,g.GND> {
