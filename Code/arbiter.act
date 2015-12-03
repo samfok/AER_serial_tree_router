@@ -141,21 +141,14 @@ namespace arbiter {
             // heirarchical arbiter cell
             // can be arranged in a binary tree to service more than 2 children
             CTRL ctrl(g, _ci,,,,, pi,);
-            C_ARB c0_arb(,, _ci[0], co[0]), c1_arb(,, _ci[1], co[1]);
+            C_ARB c0_arb(,, _ci[0], co[0]), c1_arb(, ctrl._s1i, _ci[1], co[1]);
 
-            bool _s0a, s0b, _s1a;
             prs {
                 ctrl.po => _po-
-
-                ctrl.s0o => _s0a-
-                c0_arb._so => s0b- 
-                ctrl.s1o => _s1a-
+                ctrl.s0o => c0_arb._si-
+                c0_arb._so => ctrl.s0i- 
+                ctrl.s1o => c1_arb._si-
             }
-
-            ctrl.s0i = s0b;
-            c0_arb._si = _s0a;
-            ctrl._s1i = c1_arb._so;
-            c1_arb._si = _s1a;
         }
 
         template <pint N>
