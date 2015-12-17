@@ -1,6 +1,6 @@
 // This file defines a serialized tree tranceiver
-import "lib/globals.act";
-import "lib/channel.act";
+import "globals.act";
+import "channel.act";
 import "arbiter.act";
 import "logic.act";
 import "comm.act";
@@ -185,7 +185,7 @@ namespace aer {
                 // NN = N^M neurons
                 active_handshaker<NN> a(g,,);
                 TEST_AEXT_<M, N, NN> aext(g, a.o, a.i,);
-                VN_e1ofN<N> vn(aext.y);
+                VN_e1ofN<N> vn(g, aext.y);
             }
 
             export
@@ -196,7 +196,7 @@ namespace aer {
                 // NN = N^M neurons
                 active_handshaker<1> a(g,,);
                 TEST_AEXT_<M, N, NN> aext(g,,,);
-                VN_e1ofN<N> vn(aext.y);
+                VN_e1ofN<N> vn(g, aext.y);
                 a.o[0] = aext.xi[nn];
                 a.i[0] = aext.xo[nn];
                 [ nn > 0 ->
@@ -466,9 +466,10 @@ namespace aer {
         }
 
         template <pint N, NN>
-        defproc AERV_NRN_SIMPLE(c1of<N> i[NN]; bool o[NN]) {
+        defproc AERV_NRN_SIMPLE(globals g; c1of<N> i[NN]; bool o[NN]) {
             VN_a1ofN<N> vn[NN];
             (; nn : NN :
+                vn[nn].g = g;
                 vn[nn].d.m = i[nn];
                 vn[nn].d.a = o[nn];
             )
@@ -482,7 +483,7 @@ namespace aer {
             // NN receiver neurons. NN=N^M
             // NN*M transmitter neurons generate data for receiver neurons
             active_handshaker<NN_AEXT> x(g,,);
-            AERV_NRN_SIMPLE<N, NN_AERV> y(,);
+            AERV_NRN_SIMPLE<N, NN_AERV> y(g,,);
             AER_DATA1<M_AEXT, M_AERV, N, NN_AEXT, NN_AERV> aer(g, x.o, x.i, y.o, y.i);
         }
     } // namespace test

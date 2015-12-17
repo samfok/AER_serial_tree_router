@@ -10,7 +10,7 @@
 
 //Codeword: c1of<N>
 export template<pint N>
-deftype c1of <: int<1> (bool n[N],d[N]) {
+deftype c1of <: int<1> (bool n[N], d[N]) {
     n = d;
     set { }
     get { }
@@ -28,16 +28,17 @@ deftype _c1of <: int<1> (bool n[N]) {
 ////////////////////////////////////////
 
 //Codeword: c1of1
-export deftype c1of1 <: int<1> (bool n[1],d) {
+export deftype c1of1 <: int<1> (bool n[1], d) {
     n[0] = d;
     set { }
     get { }
 }
 
 //Codeword: c1of2
-export deftype c1of2 <: int<1> (bool n[2],t,f) {
+export deftype c1of2 <: int<1> (bool n[2], d[2], t, f) {
     n[0] = f;
     n[1] = t;
+    n = d;
     set { }
     get { }
 }
@@ -171,7 +172,7 @@ defchan  avMx1ofN <: chan(int<M>) (c1of<N> m[M]; bool a,v) {
 
 //Channel: a1of<N>
 export template <pint N>
-defchan a1of <: chan(int<1>) (c1of<N> m; bool d[N]; bool a) {
+defchan a1of <: chan(int<1>) (c1of<N> m; bool d[N], a) {
     m.n = d;
     send { }
     recv { }
@@ -179,7 +180,7 @@ defchan a1of <: chan(int<1>) (c1of<N> m; bool d[N]; bool a) {
 
 //Channel: av1of<N>
 export template <pint N>
-defchan av1of <: chan(int<1>) (c1of<N> m; bool a,v) {
+defchan av1of <: chan(int<1>) (c1of<N> m; bool a, v) {
     send { }
     recv { }
 }
@@ -189,16 +190,18 @@ defchan av1of <: chan(int<1>) (c1of<N> m; bool a,v) {
 ////////////////////////////////////////
 
 //Channel: a1of1
-export defchan a1of1 <: chan(int<1>) (c1of1 m; bool d,a) {
+export defchan a1of1 <: chan(int<1>) (c1of1 m; bool d, a) {
     m.n[0] = d;
     send { }
     recv { }
 }
 
 //Channel: a1of2
-export defchan  a1of2 <: chan(int<1>) (c1of2 m; bool t,f,a) {
+export defchan  a1of2 <: chan(int<1>) (c1of2 m; bool d[2], t,f,a) {
     m.n[0] = f;
     m.n[1] = t;
+    m.n[0] = d[0];
+    m.n[1] = d[1];
     send { }
     recv { }
 }

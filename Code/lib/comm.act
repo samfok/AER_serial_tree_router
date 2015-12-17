@@ -1,17 +1,18 @@
 // Defines processes used in data communication
-import "lib/channel.act";
+import "channel.act";
 import "logic.act";
 
 export
 template <pint M, N>
-defproc VN_aMx1ofN (aMx1ofN<M, N> d) {
+defproc VN_aMx1ofN (globals g; aMx1ofN<M, N> d) {
     // detects data validity/neutrality on d
     // [V(d.m)];d.a+;[~V(d.m)];d.a-
-    C_TREE<M> c_tree(,);
+    C_TREE<M> c_tree(g,,);
     
     [ N > 2 ->
         OR<N> or[M];
         (; m : M :
+            or[m].g = g;
             (; n : N :
                 or[m].i[n] = d.m[m].n[n];
             )
@@ -24,6 +25,7 @@ defproc VN_aMx1ofN (aMx1ofN<M, N> d) {
     [] N = 2 ->
         NOR nor[M];
         (; m : M :
+            nor[m].g = g;
             (; n : N :
                 nor[m].i[n] = d.m[m].n[n];
             )
@@ -34,7 +36,7 @@ defproc VN_aMx1ofN (aMx1ofN<M, N> d) {
         )
         bool _o;
         c_tree.o = _o;
-        prs {
+        prs<g.Vdd, g.GND> {
             _o => d.a-
         }
     ]
@@ -42,15 +44,15 @@ defproc VN_aMx1ofN (aMx1ofN<M, N> d) {
 
 export
 template <pint N>
-defproc VN_a1ofN (a1of<N> d) {
+defproc VN_a1ofN (globals g; a1of<N> d) {
     // detects data validity/neutrality on d
     // [V(d.m)];d.a+;[~V(d.m)];d.a-
     [ N > 2 ->
-        OR<N> or(d.d, d.a);
+        OR<N> or(g, d.d, d.a);
     [] N = 2 ->
         bool _o;
-        NOR nor(d.d, _o);
-        prs {
+        NOR nor(g, d.d, _o);
+        prs<g.Vdd, g.GND> {
             _o => d.a-
         }
     ]
@@ -58,16 +60,17 @@ defproc VN_a1ofN (a1of<N> d) {
 
 export
 template <pint M, N>
-defproc _VN (c1of<N> _d[M]; bool _o) {
+defproc _VN (globals g; c1of<N> _d[M]; bool _o) {
     // active low version of VN
     _OR<N> _or[M];
     (; m : M :
+        _or[m].g = g;
         (; n : N :
             _or[m]._i[n] = _d[m].n[n];
         )
     )
 
-    C_TREE<M> c_tree(,_o);
+    C_TREE<M> c_tree(g, ,_o);
 
     (; k : M :
         _or[k]._o = c_tree.i[k];
@@ -76,64 +79,65 @@ defproc _VN (c1of<N> _d[M]; bool _o) {
 
 export
 template <pint N>
-defproc VN_e1ofN (e1of<N> d) {
+defproc VN_e1ofN (globals g; e1of<N> d) {
     // detects data validity/neutrality on d
     // d.e+;[V(d.m)];d.e-;[~V(d.m)]
-    OR<N> or(d.d,);
-    prs {
+    OR<N> or(g, d.d,);
+    prs<g.Vdd, g.GND> {
         or.o => d.e-
     }
 }
 
 export
 template <pint M, N>
-defproc VN_eMx1ofN (eMx1ofN<M, N> d) {
+defproc VN_eMx1ofN (globals g; eMx1ofN<M, N> d) {
     // detects data validity/neutrality on d
     // d.e+;[V(d.m)];d.e-;[~V(d.m)]
     OR<N> or[M];
     (; m : M :
+        or[m].g = g;
         (; n : N :
             or[m].i[n] = d.m[m].n[n];
         )
     )
 
-    C_TREE<M> c_tree(,);
+    C_TREE<M> c_tree(g,,);
     (; k : M :
         or[k].o = c_tree.i[k];
     )
 
-    prs {
+    prs<g.Vdd, g.GND> {
         c_tree.o => d.e-
     }
 }
 
 template <pint M, N>
-defproc Mx1ofN_WIRES (c1of<N> d[M]; bool o[M*N]) {
+defproc Mx1ofN_WIRES (globals g; c1of<N> d[M]; bool o[M*N]) {
     // Connect a Mx1ofN channel to NN wires
     pint MN = M*N;
     (; n : N :
         d[0].n[n] = o[n];
     )
     [ M > 1 ->
-        Mx1ofN_WIRES<M-1, N> w(d[1..M-1], o[N..MN-1]);
+        Mx1ofN_WIRES<M-1, N> w(g, d[1..M-1], o[N..MN-1]);
     ]
 }
 
 export
 template <pint M, N, NN>
-defproc N_DETECT (aMx1ofN<M, N> d) {
+defproc N_DETECT (globals g; aMx1ofN<M, N> d) {
     // detects data neutrality on d
     bool x[NN];
-    Mx1ofN_WIRES<M, N> wires(d.m, x);
-    OR<NN> or(x, d.a);
+    Mx1ofN_WIRES<M, N> wires(g, d.m, x);
+    OR<NN> or(g, x, d.a);
 }
 
 export
 template <pint M, N>
-defproc A_TO_E (aMx1ofN<M, N> i; eMx1ofN<M, N> o) {
+defproc A_TO_E (globals g; aMx1ofN<M, N> i; eMx1ofN<M, N> o) {
     // converts aMx1ofN to eMx1ofN
     // [o.e];i.a-;[I];O+;[~o.e];i.a+;[~I];O-
-    prs {
+    prs<g.Vdd, g.GND> {
         (: m : M :
             (: n : N :
                 i.m[m].n[n] => o.m[m].n[n]+ // wires. prs to test delays
@@ -142,3 +146,4 @@ defproc A_TO_E (aMx1ofN<M, N> i; eMx1ofN<M, N> o) {
         o.e => i.a-
     }
 }
+

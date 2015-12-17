@@ -1,10 +1,11 @@
 // Defines N input logic gates
-import "lib/channel.act";
+import "globals.act";
+import "channel.act";
 import "logic.h"; // forward declare functions
 
 export
 template <pint N>
-defproc AND (bool i[N], o) {
+defproc AND (globals g; bool i[N], o) {
     // Logical AND implemented with as few transistors as possible
     // Implemented as an AND tree with 2 and 3 input NANDs and 2 input NORs
     // We don't use 3 input NORs because the pullup chain would be too slow
@@ -12,40 +13,40 @@ defproc AND (bool i[N], o) {
         i[0] = o;
     [] N=2 ->
         bool _o;
-        prs {
+        prs<g.Vdd, g.GND> {
             i[0] & i[1] => _o-
             _o => o-
         }
     [] N=3 ->
         bool _o;
-        prs {
+        prs<g.Vdd, g.GND> {
             i[0] & i[1] & i[2] => _o-
             _o => o-
         }
     [] N=4 ->
         bool _x01, _x23;
-        prs {
+        prs<g.Vdd, g.GND> {
             i[0] & i[1] => _x01-
             i[2] & i[3] => _x23-
             _x01 | _x23 => o-
         }
     [] N=5 ->
         bool _x012, _x34;
-        prs {
+        prs<g.Vdd, g.GND> {
             i[0] & i[1] & i[2] => _x012-
             i[3] & i[4] => _x34-
             _x012 | _x34 => o-
         }
     [] N>=6 ->
         pint k=N/6;
-        AND<k>     and0(i[0..k-1],);
-        AND<k>     and1(i[k..2*k-1],);
-        AND<k>     and2(i[2*k..3*k-1],);
-        AND<k>     and3(i[3*k..4*k-1],);
-        AND<k>     and4(i[4*k..5*k-1],);
-        AND<N-5*k> and5(i[5*k..N-1],);
+        AND<k>     and0(g, i[0..k-1],);
+        AND<k>     and1(g, i[k..2*k-1],);
+        AND<k>     and2(g, i[2*k..3*k-1],);
+        AND<k>     and3(g, i[3*k..4*k-1],);
+        AND<k>     and4(g, i[4*k..5*k-1],);
+        AND<N-5*k> and5(g, i[5*k..N-1],);
         bool _x012, _x345;
-        prs {
+        prs<g.Vdd, g.GND> {
             and0.o & and1.o & and2.o => _x012-
             and3.o & and4.o & and5.o => _x345-
             _x012 | _x345 => o-
@@ -55,22 +56,22 @@ defproc AND (bool i[N], o) {
 
 export
 template <pint N>
-defproc _AND (bool _i[N], _o) {
+defproc _AND (globals g; bool _i[N], _o) {
     // active low version of AND
-    OR<N> _(_i, _o);
+    OR<N> _(g, _i, _o);
 }
 
 export
 template <pint N>
-defproc AND_LINE (bool i[N], o) {
+defproc AND_LINE (globals g; bool i[N], o) {
     // Logical AND implemented as a line of AND gates
     // Implemented with 2 input NANDs
     [ N = 1 ->
         i[0] = o;
     [] N >= 2 ->
-        AND_LINE<N-1> and(i[0..N-2],);
+        AND_LINE<N-1> and(g, i[0..N-2],);
         bool _o;
-        prs {
+        prs<g.Vdd, g.GND> {
             and.o & i[N-1] => _o-
             _o => o-
         }
@@ -79,7 +80,7 @@ defproc AND_LINE (bool i[N], o) {
 
 export
 template <pint N>
-defproc OR (bool i[N], o) {
+defproc OR (globals g; bool i[N], o) {
     // Logical OR implemented with as few transistors as possible
     // Implemented as an OR tree with 2 and 3 input NANDs and 2 input NORs
     // We don't use 3 input NORs because the pullup chain would be too slow
@@ -87,27 +88,27 @@ defproc OR (bool i[N], o) {
         i[0] = o;
     [] N=2 ->
         bool _o;
-        prs {
+        prs<g.Vdd, g.GND> {
             i[0] | i[1] => _o-
             _o => o-
         }
     [] N=3 ->
         bool _x0, _x12;
-        prs {
+        prs<g.Vdd, g.GND> {
             i[0] => _x0-
             i[1] | i[2] => _x12-
             _x0 & _x12 => o-
         }
     [] N=4 ->
         bool _x01, _x23;
-        prs {
+        prs<g.Vdd, g.GND> {
             i[0] | i[1] => _x01-
             i[2] | i[3] => _x23-
             _x01 & _x23 => o-
         }
     [] N=5 ->
         bool _x01, _x23, _x4;
-        prs {
+        prs<g.Vdd, g.GND> {
             i[0] | i[1] => _x01-
             i[2] | i[3] => _x23-
             i[4] => _x4-
@@ -115,14 +116,14 @@ defproc OR (bool i[N], o) {
         }
     [] N>=6 ->
         pint k=N/6;
-        OR<k>     or0(i[0..k-1],);
-        OR<k>     or1(i[k..2*k-1],);
-        OR<k>     or2(i[2*k..3*k-1],);
-        OR<k>     or3(i[3*k..4*k-1],);
-        OR<k>     or4(i[4*k..5*k-1],);
-        OR<N-5*k> or5(i[5*k..N-1],);
+        OR<k>     or0(g, i[0..k-1],);
+        OR<k>     or1(g, i[k..2*k-1],);
+        OR<k>     or2(g, i[2*k..3*k-1],);
+        OR<k>     or3(g, i[3*k..4*k-1],);
+        OR<k>     or4(g, i[4*k..5*k-1],);
+        OR<N-5*k> or5(g, i[5*k..N-1],);
         bool _x01, _x23, _x45;
-        prs {
+        prs<g.Vdd, g.GND> {
             or0.o | or1.o => _x01-
             or2.o | or3.o => _x23-
             or4.o | or5.o => _x45-
@@ -133,52 +134,52 @@ defproc OR (bool i[N], o) {
 
 export
 template <pint N>
-defproc _OR (bool _i[N], _o) {
+defproc _OR (globals g; bool _i[N], _o) {
     // active low version of OR
-    AND<N> _(_i, _o);
+    AND<N> _(g, _i, _o);
 }
 
 export
 template <pint N>
-defproc OR_LINE (bool i[N], o) {
+defproc OR_LINE (globals g; bool i[N], o) {
     // Logical OR implemented as line of OR gates
     // Implemented with 2 input NORs
     [ N = 1 ->
         i[0] = o;
     [] N >= 2 ->
-        OR_LINE<N-1> or(i[0..N-2],);
+        OR_LINE<N-1> or(g, i[0..N-2],);
         bool _o;
-        prs {
+        prs<g.Vdd, g.GND> {
             or.o | i[N-1] => _o-
             _o => o-
         }
     ]
 }
 
-defproc NOR (bool i[2], o) {
+defproc NOR (globals g; bool i[2], o) {
     // Logical NOR
-    prs {
+    prs<g.Vdd, g.GND> {
         i[0] | i[1] => o-
     }
 }
 
 export
 template <pint N>
-defproc C_TREE (bool i[N], o) {
+defproc C_TREE (globals g; bool i[N], o) {
     [ N=1 ->
         i[0] = o;
     [] N=2 -> 
         bool _o;
-        prs {
+        prs<g.Vdd, g.GND> {
             i[0] & i[1] -> _o-
             ~i[0] & ~i[1] -> _o+
             _o => o-
         }
     [] N>2 ->
-        C_TREE<N/2> c_tree0(i[0..N/2-1],);
-        C_TREE<N-N/2> c_tree1(i[N/2..N-1],);
+        C_TREE<N/2> c_tree0(g, i[0..N/2-1],);
+        C_TREE<N-N/2> c_tree1(g, i[N/2..N-1],);
         bool _o;
-        prs {
+        prs<g.Vdd, g.GND> {
             c_tree0.o & c_tree1.o -> _o-
             ~c_tree0.o & ~c_tree1.o -> _o+
             _o => o-

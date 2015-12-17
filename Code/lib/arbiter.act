@@ -1,7 +1,7 @@
 // This file contains PRS for the arbiter circuits
-import "lib/globals.act";
-import "lib/channel.act";
-import "test.act";
+import "globals.act";
+import "channel.act";
+import "environment.act";
 
 namespace arbiter {
     // contains arbiter related processes. 
