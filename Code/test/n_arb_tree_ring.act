@@ -1,0 +1,7 @@
+import "arbiter.act";
+
+globals g;
+pint M=1;
+pint K=2;
+pint N=2;
+arbiter::n_arb_tree_ring::test::TEST_N_ARB<M, K, N> test(g);

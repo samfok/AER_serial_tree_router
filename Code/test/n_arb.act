@@ -1,5 +1,5 @@
 // Tests the n-way arbiter
-import "lib/globals.act";
+import "globals.act";
 import "arbiter.act";
 
 pint N=8;
