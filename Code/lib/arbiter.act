@@ -498,14 +498,17 @@ namespace arbiter {
     namespace n_arb_tree_ring {
         template <pint K>
         defproc PRODUCER_CTRL (globals g; e1of1 p, c[K]; a1of1 s) {
-            bool x;
+            bool x, _sa, _pe;
             prs<g.Vdd, g.GND> {
-                p.e & (|:k:K: c[k].d) -> x+
-                g.pReset | s.a -> x-
+                _pe & (|:k:K: c[k].d) -> x-
+                ~g._pReset | ~_sa -> x+
 
-                x | s.a => p.d+
+                ~x | ~_sa => p.d+
 
-                x & ~p.e => s.d+
+                ~x & ~_pe => s.d+
+
+                p.e => _pe-
+                s.a => _sa-
             }
         }
 
@@ -529,20 +532,20 @@ namespace arbiter {
             arb.i[1] = s.d;
             bool c_ = arb.o[0];
             bool s_ = arb.o[1];
-            bool sta, sfa;
+            bool _sta, _sfa;
 
             prs <g.Vdd, g.GND> {
-                c_ & s.d -> sta+
-                ~c_ -> sta-
+                c_ & s.d -> _sta-
+                ~c_ -> _sta+
 
-                s_ -> sfa+
-                ~s_ -> sfa-
+                s_ -> _sfa-
+                ~s_ -> _sfa+
 
-                ~sta | s.d -> c.e+
-                sta & ~s.d -> c.e-
+                _sta | s.d -> c.e-
+                ~_sta & ~s.d -> c.e+
 
-                sta | sfa -> s.a+
-                ~sta & ~sfa -> s.a-
+                ~_sta | ~_sfa -> s.a+
+                _sta & _sfa -> s.a-
             }
         }
 
@@ -550,7 +553,11 @@ namespace arbiter {
         defproc N_ARB_ (globals g; e1of1 p, c[N]) {
             [ M = 0 ->
                 N = 1;
-                c[0] = p;
+                c[0].d = p.d;
+                prs<g.Vdd, g.GND> {
+                    p.e => c[0].e-
+                }
+                // c[0] = p;
             [] M >= 1 ->
                 PRODUCER<K> prod(g, p,,);
                 CONSUMER cons[K];
@@ -570,9 +577,10 @@ namespace arbiter {
         template <pint M, K, N>
         defproc N_ARB (globals g; e1of1 c[N]) {
             N_ARB_<M, K, N> _(g,, c);
-            prs<g.Vdd, g.GND> {
-                ~_.p.d => _.p.e+
-            }
+            _.p.d = _.p.e;
+            // prs<g.Vdd, g.GND> {
+            //     ~_.p.d => _.p.e+
+            // }
         }
 
         namespace test {
