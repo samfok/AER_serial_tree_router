@@ -501,7 +501,7 @@ namespace arbiter {
             bool x;
             prs<g.Vdd, g.GND> {
                 p.e & (|:k:K: c[k].d) -> x+
-                s.a -> x-
+                g.pReset | s.a -> x-
 
                 x | s.a => p.d+
 
@@ -510,38 +510,40 @@ namespace arbiter {
         }
 
         template <pint K>
-        defproc SEQ_RING (globals g; a1of1 p; e1of1 c[K]) {
-            p.d = c[0].e;
-            c[K-1].d = p.a;
-            (; k : K-1 : c[k].d = c[k+1].e;)
+        defproc SEQ_RING (globals g; a1of1 sp, sc[K]) {
+            sp.d = sc[0].d;
+            sc[K-1].a = sp.a;
+            (; k : K-1 : sc[k].a = sc[k+1].d;)
         }
 
         template <pint K>
-        defproc PRODUCER (globals g; e1of1 p, c[K]) {
+        defproc PRODUCER (globals g; e1of1 p, c[K]; a1of1 s[K]) {
             PRODUCER_CTRL<K> ctrl(g, p, c,);
-            SEQ_RING<K> seq(g, ctrl.s, c);
+            SEQ_RING<K> seq(g, ctrl.s, s);
         }
 
-        defproc CONSUMER (globals g; e1of1 s, c) {
+        export
+        defproc CONSUMER (globals g; a1of1 s; e1of1 c) {
             ARB arb(g,,);
             arb.i[0] = c.d;
             arb.i[1] = s.d;
             bool c_ = arb.o[0];
             bool s_ = arb.o[1];
-            bool str, sfr;
+            bool sta, sfa;
 
             prs <g.Vdd, g.GND> {
-                c_ & s.e -> str+
-                g.pReset | ~c_ -> str-
+                c_ & s.d -> sta+
+                ~c_ -> sta-
 
-                s_ -> sfr+
-                ~s_ -> sfr-
+                s_ -> sfa+
+                ~s_ -> sfa-
 
-                ~str | s.e => c.e+
+                ~sta | s.d -> c.e+
+                sta & ~s.d -> c.e-
 
-                str | sfr => s.d+
+                sta | sfa -> s.a+
+                ~sta & ~sfa -> s.a-
             }
-
         }
 
         template <pint M, K, N>
@@ -550,14 +552,16 @@ namespace arbiter {
                 N = 1;
                 c[0] = p;
             [] M >= 1 ->
-                PRODUCER<K> prod(g, p,);
+                PRODUCER<K> prod(g, p,,);
                 CONSUMER cons[K];
                 N_ARB_<M-1, K, N/K> _[K];
                 (; k : K :
                     _[k].g = g;
                     _[k].c = c[k*N/K..(k+1)*N/K-1];
+                    cons[k].g = g;
                     cons[k].c = _[k].p;
-                    cons[k].s = prod.c[k];
+                    cons[k].s = prod.s[k];
+                    prod.c[k] = _[k].p;
                 )
             ]
         }
@@ -572,6 +576,13 @@ namespace arbiter {
         }
 
         namespace test {
+            export
+            defproc TEST_CONSUMER (globals g) {
+                SOURCE_random_a1of1 s(g,);
+                SOURCE_random_e1of1 c(g,);
+                CONSUMER _(g, s.d, c.d);
+            }
+
             export
             template<pint M, K, N>
             defproc TEST_N_ARB (globals g) {
