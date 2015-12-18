@@ -251,7 +251,6 @@ q1i -> c1o+
     \end{tabular}
 \end{center}
 
-
 \noindent PREQ
 
 \begin{prs2}
@@ -389,7 +388,7 @@ accounting:
 \end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Greedy but fair N-way Arbiter}
+\section{Greedy but Fair N-way Arbiter}
 
 In this design, 
 
@@ -398,7 +397,6 @@ N\_ARB\_ \equiv H\_ARB
 \end{csp}
 
 N\_ARB will be constructed from $N-1$ H\_ARB instances. so N\_ARB requires approximately $110(N-1)$ transistors.
-
 
 \begin{center}
   \begin{tabular}{|r|c|c|c|c|c|c|c|c|c|}
@@ -740,6 +738,338 @@ cso | sso -> _so-
     $c_o$ & 2 & \\ \hline
     $\_s_o$ & 4 & \\ \hline
     \hline total & 34 & \\ \hline
+    \end{tabular}
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Greedy but Fair N-way Arbiter using Tree/Ring Sequencing}
+
+The tree is built from NODEs. 
+The leaves of the tree service requests from $N$ clients.
+
+\subsubsection*{Accounting}
+
+NODES cost 30$K$+18 transistors, where $K$ is the radix of the tree.
+
+\begin{center}
+    \begin{tabular}{|r|l|}
+    \hline
+    Configuration & transistors \\ \hline
+    $K$-ary tree & $(30K+18)\frac{N-1}{K-1}$ \\ \hline
+    Flat ring & $30N+18$ \\ \hline
+    Binary tree & $78(N-1)$ \\ \hline
+    4-ary tree & $46(N-1)$ \\ \hline
+    \end{tabular}
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{NODE}
+
+For a binary tree,
+
+\begin{csp}
+*[[#{C`0}|#{C`1}];P\*(
+  [#{C`0}->C`0;C`0\|~#{C`0}->skip];
+  [#{C`1}->C`1;C`1\|~#{C`1}->skip])
+ ]
+\end{csp}
+
+\noindent
+For a $K$-ary tree,
+
+\begin{csp}
+*[[\langle|k:K:#{C`k}\rangle];
+  P\*\langle;k:K:[#{C`0}->C`0;C`0\|~#{C`0}->skip]\rangle
+ ]]
+\end{csp}
+
+\noindent
+We decompose NODE into PRODUCER and CONSUMER processes.
+
+\subsubsection*{Accounting}
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|}
+    \hline
+    component & transistors/component & components/NODE & transistors/NODE \\ \hline
+    PRODUCER & 18+$K$ & 1 & 18+$K$ \\ \hline
+    CONSUMER & 29 & $K$ & 29$K$ \\ \hline
+    \hline \multicolumn{3}{|r|}{total transistors/NODE} & 30$K$+18 \\ \hline
+    \end{tabular}
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{PRODUCER}
+
+PRODUCER produces parent requests upon sensing child requests
+and sequences between CONSUMERs.
+For a binary tree,
+
+\begin{csp}
+*[[#{C`0}|#{C`1}];P\*\langle\*K:k:S`k\rangle]]
+\end{csp}
+
+\noindent
+For a $K$-ary tree,
+
+\begin{csp}
+*[[\langle|K:k:#{C`k}\rangle];P\*\langle\*K:k:S`k\rangle]]
+\end{csp}
+
+\noindent 
+We decompose PRODUCER into CTRL and SEQ.
+
+\subsubsection*{Accounting}
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|}
+    \hline
+    component & transistors/component & components/PRODUCER & transistors/PRODUCER \\ \hline
+    CTRL & 18+$K$ & 1 & 18+$K$ \\ \hline
+    SEQ & 0 & 1 & 0 \\ \hline
+    \hline \multicolumn{3}{|r|}{total transistors/PRODUCER} & 18+$K$ \\ \hline
+    \end{tabular}
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{CTRL}
+
+CTRL relays the child requests to the parent 
+and initiates the sequencing between CONSUMERS.
+
+\subsubsection*{CHP}
+
+For a binary tree,
+
+\begin{csp}
+*[[#{C`0}|#{C`1}];P\*S]
+\end{csp}
+
+\noindent For a $K$-ary tree,
+
+\begin{csp}
+*[[\langle|K:k:#{C`k}\rangle];P\*S]
+\end{csp}
+
+\subsubsection*{HSE}
+
+For a binary tree,
+
+\begin{hse}
+*[[pe];[c0r|c1r];x-;
+  pr+;[~pe];
+  sr+;[sa];x+;sr-;[~sa];
+  pr-]
+\end{hse}
+
+\subsubsection*{PRS}
+
+\begin{prs2}
+pe & (c0r | c1r) -> x-
+sa -> x+
+\end{prs2}
+
+\begin{prs2}
+~x | sa -> pr+
+x & ~sa -> pr-
+\end{prs2}
+
+\begin{prs2}
+~x & ~pe -> sr+
+x | pe -> sr-
+\end{prs2}
+
+\subsubsection*{CMOS-implementable PRS}
+
+\begin{prs2}
+pe & (c0r | c1r) -> x-
+~_sa -> x+
+\end{prs2}
+
+\begin{prs2}
+~x | ~_sa -> pr+
+x & _sa -> pr-
+\end{prs2}
+
+\begin{prs2}
+~x & ~pe -> sr+
+x | pe -> sr-
+\end{prs2}
+
+\begin{prs2}
+_pe -> pe-
+~_pe -> pe+
+
+sa -> _sa-
+~sa -> _sa+
+\end{prs2}
+
+\subsubsection*{Accounting}
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $x$ & 2+$K$+4 & \\ \hline
+    $pr$ & 4 & \\ \hline
+    $sr$ & 4 & \\ \hline
+    $pe$ & 2 & \\ \hline
+    $_sa$ & 2 & \\ \hline
+    \hline total & 18+$K$ & \\ \hline
+    \end{tabular}
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{SEQ}
+
+SEQ sequences through the consumers.
+
+\subsubsection*{CHP}
+
+For a binary tree,
+
+\begin{csp}
+*[SP\*SC`0\*SC`1]
+\end{csp}
+
+\noindent
+In general,
+
+\begin{csp}
+*[SP\*\langle\*k:K:SC`k\rangle]
+\end{csp}
+
+\subsubsection*{HSE}
+
+For a binary tree,
+
+\begin{hse}
+*[[spr];
+  sc`0r+;[sc`0a];sc`1r+;[sc`1a];
+  spa+;[~spr];
+  sc`0r-;[~sc`0a];sc`1r-;[~sc`1a];
+  spa-
+ ]
+\end{hse}
+
+\noindent
+In general,
+
+\begin{hse}
+*[[spr];
+  \langle;k:K:sc`kr+;[sc`ka]\rangle
+  spa+;[~spr];
+  \langle;k:K:sc`kr-;[~sc`ka]\rangle
+  spa-
+ ]
+\end{hse}
+
+\subsubsection*{PRS}
+
+\begin{prs2}
+spr -> sc0r+
+~spr -> sc0r-
+
+sc(k\-1)r -> spa+
+~sc(k\-1)r -> spa-
+\end{prs2}
+
+\begin{prs2}
+scka -> sc(k\+1)r+
+~scka -> sc(k\+1)r-
+\end{prs2}
+
+\noindent
+These are just wires.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{CONSUMER}
+
+CONSUMER checks and services requests from children. 
+
+\subsubsection*{CHP}
+
+\begin{csp}
+*[[#C->S;C
+  \|#S->S]]
+\end{csp}
+
+\noindent
+This is just a variation on the precise exceptions circuit.
+
+\subsubsection*{HSE}
+
+\begin{hse}
+*[[cr->[sr];sa+;[~sr];ce-;[~cr];sa-;ce+
+  \|sa->sa+;[~sr];sa-
+ ]]
+\end{hse}
+
+\noindent
+We break out nondeterministic selection.
+
+\begin{hse}
+*[[cr->c+;[~cr];c-
+  \|sa->s+;[~sa];s-
+ ]]
+*[[c->[sr];sta+;[~sr];ce-;[~c];sta-;ce+
+  []s->sfa+;[~s];sfa-
+ ]]
+*[[sta|sfa];sa+;[~sta&~sfa];sa-]
+\end{hse}
+
+\subsubsection*{PRS}
+
+\begin{prs2}
+c & sr -> sta+
+~c -> sta-
+
+s -> sfa+
+~s -> sfa-
+\end{prs2}
+
+\begin{prs2}
+~sta | sr -> ce+
+sta & ~sr -> ce-
+\end{prs2}
+
+\begin{prs2}
+sta | sfa -> sa+
+~sta & ~sfa -> sa-
+\end{prs2}
+
+\subsubsection*{CMOS-implementable PRS}
+
+\begin{prs2}
+c & sr -> _sta-
+~c -> _sta+
+
+s -> _sfa-
+~s -> _sfa+
+\end{prs2}
+
+\begin{prs2}
+_sta | sr -> _ce-
+~_sta & ~sr -> _ce+
+\end{prs2}
+
+\begin{prs2}
+~_sta | ~_sfa -> sa+
+_sta & _sfa -> sa-
+\end{prs2}
+
+\subsubsection*{Accounting}
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $[c,s]$ & 12 & 2-way active-low arbiter \\ \hline
+    $\_sta$ & 7 & \\ \hline
+    $\_sfa$ & 2 & \\ \hline
+    $\_ce$ & 4 & \\ \hline
+    $sa$ & 4 & \\ \hline
+    \hline total & 29 & \\ \hline
     \end{tabular}
 \end{center}
 
