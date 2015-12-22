@@ -107,7 +107,8 @@ defproc VN_eMx1ofN (globals g; eMx1ofN<M, N> d) {
     )
 
     prs<g.Vdd, g.GND> {
-        c_tree.o => d.e-
+        g.pReset | c_tree.o -> d.e-
+        ~g.sReset & ~c_tree.o -> d.e+
     }
 }
 
