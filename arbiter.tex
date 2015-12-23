@@ -926,6 +926,14 @@ SEQ sequences through the consumers.
 
 \subsubsection*{CHP}
 
+In general,
+
+\begin{csp}
+SEQ(K)\equiv
+*[SP\*\langle\*k:K:SC`k\rangle]
+\end{csp}
+
+\noindent
 For a binary tree,
 
 \begin{csp}
@@ -933,22 +941,21 @@ For a binary tree,
 \end{csp}
 
 \noindent
-In general,
+We build a $K$-way sequencer as $K'$-way sequencer tree defined recursively as
 
 \begin{csp}
-*[SP\*\langle\*k:K:SC`k\rangle]
+SEQ(K)\equiv\!SEQ(K')\pll\langle\pll\!k':K'\-1:SEQ(K/K')\rangle\pll\!SEQ(K\-(K'\-1)K/K')
+\end{csp}
+
+\noindent where the recursion ends when $K\le K'$. For example, a binary tree
+would be defined recursively as
+
+\begin{csp}
+SEQ(K) = SEQ(2)\pll\!SEQ(K/2)\pll\!SEQ(K\-K/2)
 \end{csp}
 
 \noindent
-We build a $K$-way sequencer as a tree of $K'$-way sequencers.
-
-\begin{csp}
-*[SP\*\langle\*k':K':SC`{k'}\rangle]
-\end{csp}
-
-\noindent
-For example, a 4-way sequencer can be built with a tree of three 2-way sequencers.
-The $SC$ channels of the root sequencer are the $SP$ channels of the the leaf 
+The $SC$ channels of the parent sequencer are the $SP$ channels of the the child 
 sequencers. The $SC$ channels of the leaf sequencers connect to the consumers.
 
 \subsubsection*{HSE}

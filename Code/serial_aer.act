@@ -170,8 +170,11 @@ namespace aer {
             template <pint M, N>
             defproc DESERIAL_SPLIT (
                 globals g; bool xi, xo; c1of<N> x; e1of<N> y[M]) {
+                bool vye;
                 prs<g.Vdd, g.GND> {
-                    xi & (| : m : M : y[m].e) => xo+
+                    xi & vye => xo+
+
+                    (| : m : M : y[m].e) => vye+
 
                     (: m : M :
                         (: n : N :
