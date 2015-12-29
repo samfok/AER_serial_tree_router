@@ -56,6 +56,14 @@ defproc SOURCE_random_a1of1 (globals g; a1of1 d) {
     src.d.a = d.a;
 }
 
+export
+template <pint N>
+defproc SINK_a1ofN (globals g; a1of<N> d) {
+    SINK_aMx1ofN<1, N> snk(g,);
+    snk.d.m[0] = d.m;
+    snk.d.a = d.a;
+}
+
 /*---------------------------------------------------------------------------*/
 
 export
