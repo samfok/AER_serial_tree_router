@@ -9,8 +9,20 @@ namespace aer {
     namespace interface {
         export
         template <pint N>
+        defproc IN_e1ofN (globals g; bool xi, xo; c1of<N> x; e1of<N> y) {
+            // convert standard e1ofN channel to AEXT/AERV serial protocol
+        }
+
+        export
+        template <pint N>
+        defproc IN_a1ofN (globals g; bool xi, xo; c1of<N> x; a1of<N> y) {
+            // convert standard a1ofN channel to AEXT/AERV serial protocol
+        }
+
+        export
+        template <pint N>
         defproc OUT_e1ofN (globals g; bool xi, xo; c1of<N> x; e1of<N> y) {
-            // interface AEXT with e1ofN channel
+            // convert AEXT/AERV serial protocol to standard e1ofN channel
             x.d = y.d;
             prs {
                 xi & y.e => xo+
@@ -20,72 +32,76 @@ namespace aer {
         export
         template <pint N>
         defproc OUT_a1ofN (globals g; bool xi, xo; c1of<N> x; a1of<N> y) {
-            // interface AEXT with a1ofN channel
+            // convert AEXT/AERV serial protocol to standard a1ofN channel
             x.d = y.d;
             prs {
                 xi & ~y.a => xo+
             }
         }
 
-        template <pint M, N>
-        defproc DESERIAL_SPLIT (
-            globals g; bool xi, xo; c1of<N> x; e1of<N> y[M]) {
-            bool vye;
-            prs<g.Vdd, g.GND> {
-                xi & vye => xo+
+        namespace deserial {
+            export
+            template <pint M, N>
+            defproc SPLIT (
+                globals g; bool xi, xo; c1of<N> x; e1of<N> y[M]) {
+                bool vye;
+                prs<g.Vdd, g.GND> {
+                    xi & vye => xo+
 
-                (| : m : M : y[m].e) => vye+
+                    (| : m : M : y[m].e) => vye+
 
-                (: m : M :
-                    (: n : N :
-                        y[m].e & x.d[n] -> y[m].d[n]+
-                        ~x.d[n] -> y[m].d[n]-
+                    (: m : M :
+                        (: n : N :
+                            y[m].e & x.d[n] -> y[m].d[n]+
+                            ~x.d[n] -> y[m].d[n]-
+                        )
                     )
-                )
+                }
             }
-        }
 
-        template <pint M, N, m>
-        defproc DESERIAL_CHAIN (
-            globals g; e1of<N> x[M]; eMx1ofN<M, N> y; bool se) {
-            [m < (M-1) ->
-                DESERIAL_CHAIN<M, N, m+1> _(g, x,,);
-                _.y.m = y.m;
-                _.y.e = se;
-            ]
-            [m < (M-1) ->
-                bool vy;
-                prs<g.Vdd, g.GND> {
-                    y.e & ~vy => x[m].e+
+            export
+            template <pint M, N, m>
+            defproc CHAIN (
+                globals g; e1of<N> x[M]; eMx1ofN<M, N> y; bool se) {
+                [m < (M-1) ->
+                    CHAIN<M, N, m+1> _(g, x,,);
+                    _.y.m = y.m;
+                    _.y.e = se;
+                ]
+                [m < (M-1) ->
+                    bool vy;
+                    prs<g.Vdd, g.GND> {
+                        y.e & ~vy => x[m].e+
 
-                    (& : n : N : ~x[m].d[n]) & vy -> se+
-                    ~vy -> se-
+                        (& : n : N : ~x[m].d[n]) & vy -> se+
+                        ~vy -> se-
 
-                    (: n : N :
-                        x[m].d[n] -> y.m[m].n[n]+
-                        ~y.e -> y.m[m].n[n]-
-                    )
+                        (: n : N :
+                            x[m].d[n] -> y.m[m].n[n]+
+                            ~y.e -> y.m[m].n[n]-
+                        )
 
-                    (| : n : N : y.m[m].n[n]) => vy+
-                }
-            [] m = (M-1) ->
-                prs<g.Vdd, g.GND> {
-                    y.e & (& : n : N : ~y.m[m].n[n]) => x[m].e+
+                        (| : n : N : y.m[m].n[n]) => vy+
+                    }
+                [] m = (M-1) ->
+                    prs<g.Vdd, g.GND> {
+                        y.e & (& : n : N : ~y.m[m].n[n]) => x[m].e+
 
-                    (: n : N :
-                        x[m].d[n] -> y.m[m].n[n]+
-                        ~x[m].d[n] & ~y.e -> y.m[m].n[n]-
-                    )
-                }
-            ]
-        }
+                        (: n : N :
+                            x[m].d[n] -> y.m[m].n[n]+
+                            ~x[m].d[n] & ~y.e -> y.m[m].n[n]-
+                        )
+                    }
+                ]
+            }
+        } // namespace deserial
 
         export
         template <pint M, N>
         defproc DESERIAL (globals g; bool xi, xo; c1of<N> x; eMx1ofN<M, N> y) {
             // convert serial to parallel
-            DESERIAL_SPLIT<M, N> split(g, xi, xo, x,);
-            DESERIAL_CHAIN<M, N, 0> chain(g, split.y, y,);
+            deserial::SPLIT<M, N> split(g, xi, xo, x,);
+            deserial::CHAIN<M, N, 0> chain(g, split.y, y,);
         }
     }
 
