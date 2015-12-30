@@ -4,6 +4,7 @@ import "channel.act";
 import "arbiter.act";
 import "logic.act";
 import "comm.act";
+import "environment.act";
 
 namespace aer {
     namespace interface {
@@ -42,13 +43,9 @@ namespace aer {
         namespace deserial {
             export
             template <pint M, N>
-            defproc SPLIT (
-                globals g; bool xi, xo; c1of<N> x; e1of<N> y[M]) {
-                bool vye;
+            defproc SPLIT (globals g; e1of<N> x, y[M]) {
                 prs<g.Vdd, g.GND> {
-                    xi & vye => xo+
-
-                    (| : m : M : y[m].e) => vye+
+                    (| : m : M : y[m].e) => x.e+
 
                     (: m : M :
                         (: n : N :
@@ -100,7 +97,8 @@ namespace aer {
         template <pint M, N>
         defproc DESERIAL (globals g; bool xi, xo; c1of<N> x; eMx1ofN<M, N> y) {
             // convert serial to parallel
-            deserial::SPLIT<M, N> split(g, xi, xo, x,);
+            OUT_e1ofN<N> out(g, xi, xo, x,);
+            deserial::SPLIT<M, N> split(g, out.y,);
             deserial::CHAIN<M, N, 0> chain(g, split.y, y,);
         }
     }
@@ -306,8 +304,7 @@ namespace aer {
                 AEXT<M, N, NN> aext(g, a.o, a.i,,,);
                 ::aer::interface::DESERIAL<M, N> deserial(
                     g, aext.po, aext.pi, aext.p,);
-                VN_eMx1ofN<M, N> vn(g, deserial.y);
-
+                SINK_eMx1ofN<M, N> snk(g, deserial.y);
             }
         } // namespace test
     } // namespace transmitter
