@@ -99,7 +99,6 @@ namespace aer {
                     y.a | (| : n : N : d.d[n]) => x.a+
                 }
             }
-            
         } // namespace deserial
 
         export
