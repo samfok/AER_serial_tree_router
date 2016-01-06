@@ -2136,22 +2136,6 @@ Radix 4 accounting:
 \end{prs2}
 
 \begin{prs2}
-u0 & ~p0 -> c0o+
-~pi -> c0o-
-
-u1 & ~p1 -> c1o+
-~pi -> c1o-
-\end{prs2}
-
-\begin{prs2}
-c0i | c1i -> cci+
-~c0i & ~c1i -> cci-
-
-c0o | c1o -> cco+
-~c0o & ~c1o -> cco-
-\end{prs2}
-
-\begin{prs2}
 p0 & ~cco -> u0+
 cco -> u0-
 
@@ -2160,6 +2144,22 @@ cco -> u1-
 
 u0 | u1 -> uu+
 ~u0 & ~u1 -> uu-
+\end{prs2}
+
+\begin{prs2}
+u0 & ~p0 -> c0o+
+~pi -> c0o-
+
+u1 & ~p1 -> c1o+
+~pi -> c1o-
+\end{prs2}
+
+\begin{prs2}
+c0o | c1o -> cco+
+~c0o & ~c1o -> cco-
+
+c0i | c1i -> cci+
+~c0i & ~c1i -> cci-
 \end{prs2}
 
 \begin{prs2}
@@ -2184,11 +2184,11 @@ Radix 2 transistor accounting:
     \hline
     rule & transistor count & comments \\ \hline
     $p_o$ & 8 & \\ \hline
-    $c[0,1]_o$ & 14 & \\ \hline
-    $cc_i$ & 4 & could flatten in $p_o$ \\ \hline
-    $cc_o$ & 4 & \\ \hline
     $u[0,1]$ & 14 & \\ \hline
     $uu$ & 4 & could flatten in $p_o$ \\ \hline
+    $c[0,1]_o$ & 14 & \\ \hline
+    $cc_o$ & 4 & \\ \hline
+    $cc_i$ & 4 & could flatten in $p_o$ \\ \hline
     $c[0,1][0,1]$ & 16 & \\ \hline
     \hline total & 64 & 60 if $cc_i$ and $uu$ flattened in $p_o$ \\ \hline
     \end{tabular}
@@ -2202,13 +2202,32 @@ Radix 4 transistor accounting:
     \hline
     rule & transistor count & comments \\ \hline
     $p_o$ & 8 & \\ \hline
-    $c[0,1,2,3]_o$ & 28 & \\ \hline
-    $cc_i$ & 8 & \\ \hline
-    $cc_o$ & 8 & \\ \hline
     $u[0,1,2,3]$ & 28 & \\ \hline
     $uu$ & 8 & \\ \hline
+    $c[0,1,2,3]_o$ & 28 & \\ \hline
+    $cc_o$ & 8 & \\ \hline
+    $cc_i$ & 8 & \\ \hline
     $c[0,1,2,3][0,1,2,3]$ & 64 & \\ \hline
-    \hline total & 152 & flattening $cc_i$ and $uu$ would make pullup/down chains too long \\ \hline
+    \hline total & 152 & flattening $cc_i$ and $uu$ would make $p_o$ pullup chain too long \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+Radix 3, 1-of-4 out transistor accounting: This is used in some of the receiver
+designs.
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $p_o$ & 8 & \\ \hline
+    $u[0,1,2]$ & 21 & \\ \hline
+    $uu$ & 6 & \\ \hline
+    $c[0,1,2]_o$ & 28 & \\ \hline
+    $cc_o$ & 6 & \\ \hline
+    $cc_i$ & 6 & \\ \hline
+    $c[0,1,2][0,1,2,3]$ & 48 & \\ \hline
+    \hline total & 116 & 114 if $cc_i$ or $uu$ flattened in $p_o$ (can't flatten both; pullup chain too long) \\ \hline
     \end{tabular}
 \end{center}
 
@@ -2345,7 +2364,26 @@ Radix 4 transistor accounting:
     $cc_o$ & 8 & \\ \hline
     $cc_i$ & 8 & \\ \hline
     $c[0,1,2,3][0,1,2,3]$ & 64 & \\ \hline
-    \hline total & 152 & flattening $cc_i$ and $uu$ would make pullup/down chains too long \\ \hline
+    \hline total & 152 & flattening $cc_i$ and $uu$ would make $p_o$ pullup chain too long \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+Radix 3, 1-of-4 out transistor accounting: This is used in some of the receiver
+designs.
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $p_o$ & 8 & \\ \hline
+    $u[0,1,2]$ & 21 & \\ \hline
+    $uu$ & 6 & \\ \hline
+    $c[0,1,2]_o$ & 21 & \\ \hline
+    $cc_o$ & 6 & \\ \hline
+    $cc_i$ & 6 & \\ \hline
+    $c[0,1,2][0,1,2,3]$ & 48 & \\ \hline
+    \hline total & 116 & 114 if $cc_i$ or $uu$ flattened in $p_o$ (can't flatten both; pullup chain too long) \\ \hline
     \end{tabular}
 \end{center}
 
