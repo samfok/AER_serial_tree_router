@@ -42,64 +42,95 @@ namespace aer {
 
         namespace deserial {
             export
-            template <pint M, N>
-            defproc SPLIT (globals g; e1of<N> x, y[M]) {
+            template <pint N>
+            defproc HEAD (globals g; a1of<N> x; c1of<N> d; bool si, so) {
+                // deserializer chain head link
+                // parallel output word 0
+                bool vd;
                 prs<g.Vdd, g.GND> {
-                    (| : m : M : y[m].e) => x.e+
-
-                    (: m : M :
-                        (: n : N :
-                            y[m].e & x.d[n] -> y[m].d[n]+
-                            ~x.d[n] -> y[m].d[n]-
-                        )
+                    (: n : N :
+                        si & x.d[n] -> d.d[n]+
+                        ~si -> d.d[n]-
                     )
+            
+                    (& : n : N : ~x.d[n]) & vd => so+
+            
+                    ~so & vd => x.a+
+            
+                    (| : n : N : d.d[n]) => vd+
+                }
+            }
+            
+            export
+            template <pint N>
+            defproc NODE (globals g; a1of<N> x, y; c1of<N> d; bool si, so) {
+                // deserializer chain intermediate link
+                // parallel output words 1 to M-2
+                bool vd;
+                prs<g.Vdd, g.GND> {
+                    (: n : N :
+                        ~si & x.d[n] => y.d[n]+
+                
+                        si & x.d[n] -> d.d[n]+
+                        ~si -> d.d[n]-
+                    )
+                
+                    (& : n : N : ~x.d[n]) & vd => so+
+                
+                    y.a | ~so & vd => x.a+
+            
+                    (| : n : N : d.d[n]) => vd+
                 }
             }
 
             export
-            template <pint M, N, m>
-            defproc CHAIN (
-                globals g; e1of<N> x[M]; eMx1ofN<M, N> y; bool se) {
-                [m < (M-1) ->
-                    CHAIN<M, N, m+1> _(g, x,,);
-                    _.y.m = y.m;
-                    _.y.e = se;
-                ]
-                [m < (M-1) ->
-                    bool vy;
-                    prs<g.Vdd, g.GND> {
-                        y.e & ~vy => x[m].e+
-
-                        (& : n : N : ~x[m].d[n]) & vy -> se+
-                        ~vy -> se-
-
-                        (: n : N :
-                            x[m].d[n] -> y.m[m].n[n]+
-                            ~y.e -> y.m[m].n[n]-
-                        )
-
-                        (| : n : N : y.m[m].n[n]) => vy+
-                    }
-                [] m = (M-1) ->
-                    prs<g.Vdd, g.GND> {
-                        y.e & (& : n : N : ~y.m[m].n[n]) => x[m].e+
-
-                        (: n : N :
-                            x[m].d[n] -> y.m[m].n[n]+
-                            ~x[m].d[n] & ~y.e -> y.m[m].n[n]-
-                        )
-                    }
-                ]
+            template <pint N>
+            defproc TAIL (globals g; a1of<N> x, y; c1of<N> d; bool si) {
+                // deserializer chain tail link
+                // parallel output word M-1
+                prs<g.Vdd, g.GND> {
+                    (: n : N :
+                        ~si & x.d[n] & ~d.d[n] => y.d[n]+
+            
+                        si & x.d[n] -> d.d[n]+
+                        ~si & ~x.d[n] -> d.d[n]-
+                    )
+            
+                    y.a | (| : n : N : d.d[n]) => x.a+
+                }
             }
+            
         } // namespace deserial
 
         export
         template <pint M, N>
         defproc DESERIAL (globals g; bool xi, xo; c1of<N> x; eMx1ofN<M, N> y) {
-            // convert serial to parallel
-            OUT_e1ofN<N> out(g, xi, xo, x,);
-            deserial::SPLIT<M, N> split(g, out.y,);
-            deserial::CHAIN<M, N, 0> chain(g, split.y, y,);
+            // convert AEXT/AERV serial protocol to eMx1ofN protocol 
+            OUT_a1ofN<N> out(g, xi, xo, x,);
+
+            deserial::HEAD<N> head(g,, y.m[0], y.e,);
+            deserial::TAIL<N> tail(g, out.y,, y.m[M-1],);
+            [ M < 2 ->
+                1 = 0; // assert false -- shouldn't enter this case
+            [] M = 2 ->
+                head.x = tail.y;
+                head.so = tail.si;
+            [] M > 2 ->
+                pint MN = M-2;
+                deserial::NODE<N> node[MN];
+                (; mn : MN :
+                    node[mn].g = g;
+                    node[mn].d = y.m[mn+1];
+                )
+                head.x = node[0].y;
+                head.so = node[0].si;
+                tail.y = node[MN-1].x;
+                tail.si = node[MN-1].so;
+                (; mn : MN-1 :
+                    node[mn].x = node[mn+1].y;
+                    node[mn].so = node[mn+1].si;
+                )
+            ]
         }
     }
 
