@@ -10,6 +10,10 @@
 This document explores the design space of the serialized-tree AER system.
 The system uses an address-event representation and transmitters/receivers with tree architectures.
 The accounting is done assuming we're using an array of 4096 neurons.
+The transmitter encodes and transmit the spikes from all 4096 neurons.
+The receiver targets 1024 synapses. Each synapse delivers input current to 4 neurons. The receiver is also responsible for delivering neuron configuration bits
+to small memories adjacent to the neurons. Each group of 1 syanpse and 4 neurons
+needs 28 bits of memory.
 
 \noindent Design parametrizations:
 
@@ -2065,14 +2069,8 @@ MERGE\equiv
 
 Builds off AERV CD noTW (Section~\ref{sec:AERV_CD_noTW}) by reusing the control lines to request and acknowledge the data as is done in AEXT CD noTW cyc (Section~\ref{sec:AEXT_CD_noTW_CYC}).
 
-The accounting depends on whether we need the receiver to deliver payload or not.
-Without payload, we can simplify the leaf node circuitry.
-With payload, we'll need a more complicated interface with the neuron to be developed.
-
-First we'll consider the case without payload:
-
 \noindent
-Radix 2 accounting (2047 intermediate nodes, 2048 leaf nodes):
+Radix 2 accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|l|}
@@ -2082,15 +2080,16 @@ Radix 2 accounting (2047 intermediate nodes, 2048 leaf nodes):
     \hline \multicolumn{3}{|r|}{total transistors/intermediate node} & 60 \\ \hline
     \hline \multicolumn{4}{|c|}{leaf nodes} \\ \hline
     component & transistors/component & components/node & transistors/node \\ \hline
-    LEAF (no data) & 28 & 1 & 28 \\ \hline
-    \hline \multicolumn{3}{|r|}{total transistors/leaf node} & 28 \\ \hline
+    LEAF & 60 & 1 & 60 \\ \hline
+    \hline \multicolumn{3}{|r|}{total transistors/leaf node} & 60 \\ \hline
     \end{tabular}
 \end{center}
 
-(60 transistors/intermediate node * 2047 intermediate nodes + 28 transistors/leaf node * 2048 leaf nodes) / 4096 neurons = \textbf{44.0 transistors/neuron}
+(60 transistors/intermediate node * 511 intermediate nodes + 60 transistors/leaf node * 512 leaf nodes) / 4096 neurons = 
+\textbf{15.0 transistors/neuron}
 
 \noindent
-Radix 4 accounting (341 intermediate nodes, 1024 leaf nodes):
+Radix 4 accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|l|}
@@ -2100,24 +2099,13 @@ Radix 4 accounting (341 intermediate nodes, 1024 leaf nodes):
     \hline \multicolumn{3}{|r|}{total transistors/intermediate node} & 152 \\ \hline
     \hline \multicolumn{4}{|c|}{leaf nodes} \\ \hline
     component & transistors/component & components/node & transistors/node \\ \hline
-    LEAF (nodata) & 52 & 1 & 52 \\ \hline
-    \hline \multicolumn{3}{|r|}{total transistors/leaf node} & 52 \\ \hline
+    LEAF & 152 & 1 & 152 \\ \hline
+    \hline \multicolumn{3}{|r|}{total transistors/leaf node} & 152 \\ \hline
     \end{tabular}
 \end{center}
 
-(152 transistors/intermediate node * 341 intermediate nodes + 52 transistors/leaf node * 1024 leaf nodes) / 4096 neurons = \textbf{25.7 transistors/neuron}
-
-Now we'll consider the case where we have to deliver payload. In this case, we cannot use LEAF (no data) instead of LEAF. LEAF has the same transistor count as NODE, but makes the neuron circuitry simpler.
-
-\noindent
-Radix 2 accounting (4095 nodes):
-
-(60 transistors/node * 4095 nodes) / 4096 neurons = \textbf{60.0 transistors/neuron}
-
-\noindent
-Radix 4 accounting (1365 nodes):
-
-(152 transistors/node * 1365 nodes) / 4096 neurons = \textbf{50.7 transistors/neuron}
+(152 transistors/intermediate node * 256 intermediate nodes + 152 transistors/leaf node * 85 leaf nodes) / 4096 neurons = 
+\textbf{12.7 transistors/neuron}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{AERV CD noTW CYC NODE \label{sec:AERV_CD_noTW_CYC_NODE}}
