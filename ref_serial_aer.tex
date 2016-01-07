@@ -2223,11 +2223,30 @@ designs.
     $p_o$ & 8 & \\ \hline
     $u[0,1,2]$ & 21 & \\ \hline
     $uu$ & 6 & \\ \hline
-    $c[0,1,2]_o$ & 28 & \\ \hline
+    $c[0,1,2]_o$ & 21 & \\ \hline
     $cc_o$ & 6 & \\ \hline
     $cc_i$ & 6 & \\ \hline
     $c[0,1,2][0,1,2,3]$ & 48 & \\ \hline
     \hline total & 116 & 114 if $cc_i$ or $uu$ flattened in $p_o$ (can't flatten both; pullup chain too long) \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+Radix 2, 1-of-4 out transistor accounting: This is used in some of the receiver
+designs.
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $p_o$ & 8 & \\ \hline
+    $u[0,1]$ & 14 & \\ \hline
+    $uu$ & 4 & \\ \hline
+    $c[0,1]_o$ & 14 & \\ \hline
+    $cc_o$ & 4 & \\ \hline
+    $cc_i$ & 4 & \\ \hline
+    $c[0,1][0,1,2,3]$ & 32 & \\ \hline
+    \hline total & 80 & 76 with $cc_i$ or $uu$ flattened in $p_o$ \\ \hline
     \end{tabular}
 \end{center}
 
