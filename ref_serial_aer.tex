@@ -124,9 +124,9 @@ We also need the following interfaces:
     &&& \textbf{SPLIT} (Section~\ref{sec:DESERIAL_CHAIN_HEAD})
     &&& \textbf{NODE} (Section~\ref{sec:DESERIAL_CHAIN_NODE})
     &&& \textbf{TAIL} (Section~\ref{sec:DESERIAL_CHAIN_TAIL})
-    && tree deserializer (Section~\ref{sec:DESERIAL_TREE})
-    &&& LEAF (Section~\ref{sec:DESERIAL_TREE_LEAF})
-    &&& NODE (Section~\ref{sec:DESERIAL_TREE_NODE})
+    && split ring deserializer (Section~\ref{sec:DESERIAL_SPLITRING})
+    &&& \textbf{SPLIT} (Section~\ref{sec:DESERIAL_SPLITRING_SPLIT})
+    &&& \textbf{NODE} (Section~\ref{sec:DESERIAL_SPLITRING_NODE})
     && split chain deserializer (Section~\ref{sec:DESERIAL_SPLITCHAIN})
     &&& \textbf{SPLIT} (Section~\ref{sec:DESERIAL_SPLITCHAIN_SPLIT})
     &&& \textbf{NODE} (Section~\ref{sec:DESERIAL_SPLITCHAIN_NODE})
@@ -3738,8 +3738,10 @@ neuron configuration memory.
 This design uses a chain of nodes to sequence words into their respective place
 in the parallel output. That is, it takes as input a1ofN data and outputs 
 eMx1ofN data. We decompose this process into HEAD, NODE, and TAIL processes.
-The below figure shows the decomposition for packets consisting of M
-dual rail groups.
+Although it has a bit more expensive 1-of-4 implementation than the split ring of Section~\ref{sec:DESERIAL_SPLITRING}, its signal fanouts remain constant 
+as the number of words in the packet grows.
+The below figure shows the decomposition for packets consisting of $M$
+1-of-2 groups.
 
 \begin{center}
   \includegraphics[width=\textwidth]{img/deserial_chain.pdf}
@@ -3751,15 +3753,45 @@ serial communication protocol to the standard a1ofN protocol.
 Each link in the chain outputs one of the words in the parallel output.
 
 \noindent
+1-of-2 scaling:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|}
+    \hline
+    component & transistors/component & components/deserializer & transistors/deserializer \\ \hline
+    OUT a1ofN & 4 & 1 & 4 \\ \hline
+    HEAD & 28 & 1 & 28 \\ \hline
+    NODE & 38 & $M-2$ & $38(M-2)$ \\ \hline
+    TAIL & 34 & 1 & 34 \\ \hline
+    \hline \multicolumn{3}{|r|}{transistors/deserializer} & $38M-10$ \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+1-of-4 scaling:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|}
+    \hline
+    component & transistors/component & components/deserializer & transistors/deserializer \\ \hline
+    OUT a1ofN & 4 & 1 & 4 \\ \hline
+    HEAD & 50 & 1 & 50 \\ \hline
+    NODE & 68 & $M-2$ & $68(M-2)$ \\ \hline
+    TAIL & 66 & 1 & 66 \\ \hline
+    \hline \multicolumn{3}{|r|}{transistors/deserializer} & $68M-16$ \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
 For the transmitter encoding 4096 neurons as 1-of-2 or 1-of-4 words,
 we would need 12 and 6 links in the chain, respectively.
 
 \noindent
-Radix 2 accounting:
+1-of-2 accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|l|}
-    \hline \multicolumn{4}{|c|}{intermediate nodes} \\ \hline
+    \hline
     component & transistors/component & components/deserializer & transistors/deserializer \\ \hline
     OUT a1ofN & 4 & 1 & 4 \\ \hline
     HEAD & 28 & 1 & 28 \\ \hline
@@ -3770,11 +3802,11 @@ Radix 2 accounting:
 \end{center}
 
 \noindent
-Radix 4 accounting:
+1-of-4 accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|l|}
-    \hline \multicolumn{4}{|c|}{intermediate nodes} \\ \hline
+    \hline
     component & transistors/component & components/deserializer & transistors/deserializer \\ \hline
     OUT a1ofN & 4 & 1 & 4 \\ \hline
     HEAD & 50 & 1 & 50 \\ \hline
@@ -3815,7 +3847,7 @@ d0 | d1 -> vd+
 \end{prs2}
 
 \noindent
-Radix 2 transistor accounting:
+1-of-2 transistor accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
@@ -3830,7 +3862,7 @@ Radix 2 transistor accounting:
 \end{center}
 
 \noindent
-Radix 4 transistor accounting:
+1-of-4 transistor accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
@@ -3885,7 +3917,7 @@ d0 | d1 -> vd+
 \end{prs2}
 
 \noindent
-Radix 2 transistor accounting:
+1-of-2 transistor accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
@@ -3901,7 +3933,7 @@ Radix 2 transistor accounting:
 \end{center}
 
 \noindent
-Radix 4 transistor accounting:
+1-of-4 transistor accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
@@ -3947,7 +3979,7 @@ ya | d0 | d1 -> xa+
 \end{prs2}
 
 \noindent
-Radix 2 transistor accounting:
+1-of-2 transistor accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
@@ -3961,7 +3993,7 @@ Radix 2 transistor accounting:
 \end{center}
 
 \noindent
-Radix 4 transistor accounting:
+1-of-4 transistor accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
@@ -3975,33 +4007,234 @@ Radix 4 transistor accounting:
 \end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Tree Deserializer \label{sec:DESERIAL_TREE}}
+\section{Split Ring Deserializer \label{sec:DESERIAL_SPLITRING}}
 
-This design uses a tree of nodes to sequence words into their respective place
-in the parallel output. That is, it takes as input e1ofN data and outputs 
-eMx1ofN data. We decompose this process into LEAF and NODE.
+This design uses a ring of nodes receiving data from a central splitter 
+to sequence words into their respective place in the parallel output. 
+We decompose this process into SPLIT and NODE. 
+This design has a slightly cheaper 1-of-4 implementation than the 
+chain deserializer of Section~\ref{sec:DESERIAL_CHAIN}. 
+However, the data signals in SPLIT and the environment enable signal have 
+fanouts that grow with the number of words.
+The below figure shows the decomposition for packets containing $M$ 1-of-2 words.
+
+\begin{center}
+  \includegraphics[width=.45\textwidth]{img/deserial_achan_splitchain.pdf}
+\end{center}
+
+\noindent
+An OUT a1ofN process (if necessary and described above) first converts the AEXT/AERV 
+serial communication protocol to the standard a1ofN protocol.
+
+\noindent
+1-of-2 approximate scaling:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|}
+    \hline
+    component & transistors/component & components/deserializer & transistors/deserializer \\ \hline
+    OUT a1ofN & 4 & 1 & 4 \\ \hline
+    SPLIT & $3M-2$ & 1 & $3M-2$ \\ \hline
+    NODE & 39 & $M-1$ & $39(M-1)$ \\ \hline
+    NODE (end) & 41 & 1 & 41 \\ \hline
+    \hline \multicolumn{3}{|r|}{approx. transistors/deserializer} & $42M+4$ \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+1-of-4 approximate scaling:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|}
+    \hline
+    component & transistors/component & components/deserializer & transistors/deserializer \\ \hline
+    OUT a1ofN & 4 & 1 & 4 \\ \hline
+    SPLIT & $3M-2$ & 1 & $3M-2$ \\ \hline
+    NODE & 59 & $M-1$ & $59(M-1)$ \\ \hline
+    NODE (end) & 61 & 1 & 61 \\ \hline
+    \hline \multicolumn{3}{|r|}{approx. transistors/deserializer} & $62M+4$ \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+For the transmitter to handle 4096 neurons encoded as 1-of-2 or 1-of-4 words,
+we would need 12 and 6 NODEs, respectively.
+
+\noindent
+1-of-2 accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|}
+    \hline
+    component & transistors/component & components/deserializer & transistors/deserializer \\ \hline
+    OUT a1ofN & 4 & 1 & 4 \\ \hline
+    SPLIT & 30 & 1 & 30 \\ \hline
+    NODE & 39 & 11 & 429 \\ \hline
+    NODE (end) & 41 & 1 & 41 \\ \hline
+    \hline \multicolumn{3}{|r|}{total transistors/deserializer} & 504 \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+1-of-4 accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|}
+    \hline
+    component & transistors/component & components/deserializer & transistors/deserializer \\ \hline
+    OUT a1ofN & 4 & 1 & 4 \\ \hline
+    SPLIT & 16 & 1 & 16 \\ \hline
+    NODE & 59 & 5 & 295 \\ \hline
+    NODE (end) & 61 & 1 & 61 \\ \hline
+    \hline \multicolumn{3}{|r|}{total transistors/deserializer} & 376 \\ \hline
+    \end{tabular}
+\end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{LEAF \label{sec:DESERIAL_TREE_LEAF}}
+\section{SPLIT \label{sec:DESERIAL_SPLITRING_SPLIT}}
 
-Leaf nodes are responsible for interfacing.
+SPLIT takes incoming words and routes them to their respective locations
+in the parallel output.
+
+\noindent
+For $M$ words per packet,
 
 \begin{hse}
-*[[x0->y0+;xo+;[~x0];y0-;xo-
-  []x1->y1+;xo+;[~x1];y1-;xo-
+*[[x0->y00+,..,y(M\-1)0+;[y0a|..|y(M\-1)a];xa+;[~x0];y00-,..,y(M\-1)1-
+  []x1->y01+,..,y(M\-1)1+;[y0a|..|y(M\-1)a];xa+;[~x0];y01-,..,y(M\-1)1-
  ]]
 \end{hse}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{NODE \label{sec:DESERIAL_TREE_NODE}}
+\noindent
+For a 2-word packet,
 
 \begin{hse}
-*[[ x0&p0->c00+;[c0a];pa+;[~p0];x0-;x1+;c00-;[~c0a];pa-
-  []x0&p1->c00+;[c0a];pa+;[~p1];x0-;x1+;c01-;[~c0a];pa-
-  []x1&p0->c10+;[c1a];pa+;[~p0];x1-;x0+;c10-;[~c1a];pa-
-  []x1&p1->c11+;[c1a];pa+;[~p1];x1-;x0+;c11-;[~c1a];pa-
+*[[x0->y00+,y10+;[y0a|y1a];xa+;[~x0];y00-,y01-
+  []x1->y01+,y11+;[y0a|y1a];xa+;[~x0];y01-,y11-
  ]]
 \end{hse}
+
+\begin{prs2}
+x0 -> y00+
+~x0 -> y00-
+
+x0 -> y10+
+~x0 -> y10-
+
+x1 -> y01+
+~x1 -> y01-
+
+x1 -> y11+
+~x1 -> y11-
+\end{prs2}
+
+\begin{prs2}
+y0a | y1a -> xa+
+~y0a & ~y1a -> xa-
+\end{prs2}
+
+\noindent
+1-of-2 transistor accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $y[0..M-1][0,1]$ & 0 & wires \\ \hline
+    $xa$ & $8(M-1)/3$ & 4-ary OR-tree approx. \\ \hline
+    \hline approx. total & $3M-2$ & \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+1-of-4 transistor accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $y[0..M-1][0,1,2,3]$ & 0 & wires \\ \hline
+    $xa$ & $8(M-1)/3$ & 4-ary OR-tree approx. \\ \hline
+    \hline approx. total & $3M-2$ & \\ \hline
+    \end{tabular}
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{NODE \label{sec:DESERIAL_SPLITRING_NODE}}
+
+NODE latches data from SPLIT.
+
+\begin{hse}
+*[[ye&si];u-;
+    [x0->y0+;xa+;[~x0];so+;u+;xa-;[~ye];y0-;[~si];so-
+    []x1->y1+;xa+;[~x1];so+;u+;xa-;[~ye];y1-;[~si];so-
+    ]
+ ]
+\end{hse}
+
+\begin{prs2}
+~u & x0 -> y0+
+~ye -> y0-
+
+~u & x1 -> y1+
+~ye -> y1-
+\end{prs2}
+
+The end NODE needs to have its $y[0,1]$ pulldown rules strengthened with $u$
+to ensure that $s_o$ has gone high before $y[0,1]$ get pulled down. Otherwise
+$s_o$ would be unstable.
+
+\begin{prs2}
+so -> u+
+~so & ye & si -> u-
+\end{prs2}
+
+\begin{prs2}
+~u & vy -> xa+
+u | ~vy -> xa-
+\end{prs2}
+
+\begin{prs2}
+vy & ~x0 & ~x1 -> so+
+~vy  & ~si -> so-
+\end{prs2}
+
+\begin{prs2}
+y0 | y1 -> vy+
+~y0 & ~y1 -> vy-
+\end{prs2}
+
+\noindent
+1-of-2 transistor accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $y[0,1][0,1]$ & 14 & 16 for end NODE\\ \hline
+    $u$ & 8 & \\ \hline
+    $xa$ & 4 & \\ \hline
+    $s_o$ & 9 & \\ \hline
+    $vy$ & 4 & \\ \hline
+    \hline total & 39 & 41 for end NODE \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+1-of-4 transistor accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $y[0,1,2,3][0,1,2,3]$ & 28 & 32 for end NODE \\ \hline
+    $u$ & 8 & \\ \hline
+    $xa$ & 4 & \\ \hline
+    $s_o$ & 11 & \\ \hline
+    $vy$ & 8 & \\ \hline
+    \hline total & 59 & 61 for end NODE \\ \hline
+    \end{tabular}
+\end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Split Chain Deserializer \label{sec:DESERIAL_SPLITCHAIN}}
@@ -4009,10 +4242,10 @@ Leaf nodes are responsible for interfacing.
 This design uses a chain of nodes pulling data from a central splitter 
 to sequence words into their respective place in the parallel output. 
 We decompose this process into SPLIT and NODE.
-The below figure shows the decomposition for packets containing M 1-of-2 words.
+The below figure shows the decomposition for packets containing $M$ 1-of-2 words.
 
 \begin{center}
-  \includegraphics[width=.4\textwidth]{img/deserial_splitchain.pdf}
+  \includegraphics[width=.45\textwidth]{img/deserial_echan_splitchain.pdf}
 \end{center}
 
 \noindent
@@ -4020,31 +4253,61 @@ An OUT e1ofN process (described above) first converts the AEXT/AERV
 serial communication protocol to the standard e1ofN protocol.
 
 \noindent
-For the transmitter to handle 4096 neurons encoded as 1-of-2 or 1-of-4 words,
-we would need 12 and 6 NODEs, respectively.
-
-\noindent
-Radix 2 accounting:
+1-of-2 approximate scaling:
 
 \begin{center}
     \begin{tabular}{|r|l|l|l|}
-    \hline \multicolumn{4}{|c|}{intermediate nodes} \\ \hline
+    \hline
     component & transistors/component & components/deserializer & transistors/deserializer \\ \hline
     OUT e1ofN & 4 & 1 & 4 \\ \hline
-    SPLIT & 198 & 1 & 198 \\ \hline
-    NODE (int)  & 28 & 11 & 291 \\ \hline
+    SPLIT & $17M-2$ & 1 & $17M-2$ \\ \hline
+    NODE (int)  & 28 & $M-1$ & $28(M-1)$ \\ \hline
     NODE (end)  & 20 & 1 & 20 \\ \hline
-    \hline \multicolumn{3}{|r|}{total transistors/deserializer} & 513 \\ \hline
+    \hline \multicolumn{3}{|r|}{approx. transistors/deserializer} & $45M-6$ \\ \hline
     \end{tabular}
 \end{center}
 
 \noindent
-Radix 4 accounting:
+1-of-4 approximate scaling:
 
 \begin{center}
     \begin{tabular}{|r|l|l|l|}
-    \hline \multicolumn{4}{|c|}{intermediate nodes} \\ \hline
-    component & transistors/component & components/node & transistors/node \\ \hline
+    \hline
+    component & transistors/component & components/deserializer & transistors/deserializer \\ \hline
+    OUT e1ofN & 4 & 1 & 4 \\ \hline
+    SPLIT & $31M-2$ & 1 & $31M-2$ \\ \hline
+    NODE (int)  & $50$ & $M-1$ & $50(M-1)$ \\ \hline
+    NODE (end)  & 38 & 1 & 38 \\ \hline
+    \hline \multicolumn{3}{|r|}{approx. transistors/deserializer} & $81M-10$ \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+For the transmitter to handle 4096 neurons encoded as 1-of-2 or 1-of-4 words,
+we would need 12 and 6 NODEs, respectively.
+
+\noindent
+1-of-2 accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|}
+    \hline
+    component & transistors/component & components/deserializer & transistors/deserializer \\ \hline
+    OUT e1ofN & 4 & 1 & 4 \\ \hline
+    SPLIT & 198 & 1 & 198 \\ \hline
+    NODE (int)  & 28 & 11 & 308 \\ \hline
+    NODE (end)  & 20 & 1 & 20 \\ \hline
+    \hline \multicolumn{3}{|r|}{total transistors/deserializer} & 530 \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+1-of-4 accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|}
+    \hline
+    component & transistors/component & components/deserializer & transistors/deserializer \\ \hline
     OUT e1ofN & 4 & 1 & 4 \\ \hline
     SPLIT & 184 & 1 & 184 \\ \hline
     NODE (int)  & 50 & 5 & 250 \\ \hline
@@ -4113,7 +4376,7 @@ y1e & x1 -> y11+
 \end{prs2}
 
 \noindent
-Radix 2 transistor accounting:
+1-of-2 transistor accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
@@ -4121,12 +4384,12 @@ Radix 2 transistor accounting:
     rule & transistor count & comments \\ \hline
     $xe$ & $8(M-1)/3$ & 4-ary OR-tree approx. \\ \hline
     $y[0..M-1][0,1]$ & $14M$ & \\ \hline
-    \hline total & $16.7M-2.7$ & \\ \hline
+    \hline approx. total & $17M-2$ & \\ \hline
     \end{tabular}
 \end{center}
 
 \noindent
-Radix 4 transistor accounting:
+1-of-4 transistor accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
@@ -4134,7 +4397,7 @@ Radix 4 transistor accounting:
     rule & transistor count & comments \\ \hline
     $xe$ & $8(M-1)/3$ & 4-ary OR-tree approx. \\ \hline
     $y[0..M-1][0,1,2,3]$ & $28M$ & \\ \hline
-    \hline total & $32.7M-2.7$ & \\ \hline
+    \hline approx. total & $31M-2$ & \\ \hline
     \end{tabular}
 \end{center}
 
@@ -4171,7 +4434,7 @@ y0 | y1 -> vy+
 \end{prs2}
 
 \noindent
-Radix 2 transistor accounting:
+1-of-2 transistor accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
@@ -4186,7 +4449,7 @@ Radix 2 transistor accounting:
 \end{center}
 
 \noindent
-Radix 4 transistor accounting:
+1-of-4 transistor accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
@@ -4221,7 +4484,7 @@ x1 -> y1+
 \end{prs2}
 
 \noindent
-Radix 2 transistor accounting:
+1-of-2 transistor accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
@@ -4234,7 +4497,7 @@ Radix 2 transistor accounting:
 \end{center}
 
 \noindent
-Radix 4 transistor accounting:
+1-of-4 transistor accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}

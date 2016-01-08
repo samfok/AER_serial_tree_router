@@ -40,7 +40,7 @@ namespace aer {
             }
         }
 
-        namespace deserial {
+        namespace deserial_chain {
             export
             template <pint N>
             defproc HEAD (globals g; a1of<N> x; c1of<N> d; bool si, so) {
@@ -99,16 +99,14 @@ namespace aer {
                     y.a | (| : n : N : d.d[n]) => x.a+
                 }
             }
-        } // namespace deserial
+        } // namespace deserial_chain
 
         export
         template <pint M, N>
-        defproc DESERIAL (globals g; bool xi, xo; c1of<N> x; eMx1ofN<M, N> y) {
+        defproc DESERIAL_CHAIN (globals g; a1of<N> x; eMx1ofN<M, N> y) {
             // convert AEXT/AERV serial protocol to eMx1ofN protocol 
-            OUT_a1ofN<N> out(g, xi, xo, x,);
-
-            deserial::HEAD<N> head(g,, y.m[0], y.e,);
-            deserial::TAIL<N> tail(g, out.y,, y.m[M-1],);
+            deserial_chain::HEAD<N> head(g,, y.m[0], y.e,);
+            deserial_chain::TAIL<N> tail(g, x,, y.m[M-1],);
             [ M < 2 ->
                 1 = 0; // assert false -- shouldn't enter this case
             [] M = 2 ->
@@ -116,7 +114,7 @@ namespace aer {
                 head.so = tail.si;
             [] M > 2 ->
                 pint MN = M-2;
-                deserial::NODE<N> node[MN];
+                deserial_chain::NODE<N> node[MN];
                 (; mn : MN :
                     node[mn].g = g;
                     node[mn].d = y.m[mn+1];
@@ -131,6 +129,109 @@ namespace aer {
                 )
             ]
         }
+
+        namespace deserial_ring {
+            export
+            template <pint M, N>
+            defproc SPLIT (globals g; a1of<N> x, y[M]) {
+                (; m : M :
+                    y[m].d = x.d;
+                )
+                prs<g.Vdd, g.GND> {
+                    (| : m : M : y[m].a) => x.a+
+                }
+            }
+            
+            export
+            template <pint N>
+            defproc NODE_END (globals g; a1of<N> x; e1of<N> y; bool si, so) {
+                bool u, vy;
+                prs<g.Vdd, g.GND> {
+                    (: n : N :
+                        ~u & x.d[n] -> y.d[n]+
+                        u & ~y.e -> y.d[n]-
+                    )
+            
+                    g.pReset | so -> u+
+                    ~so & y.e & si -> u-
+            
+                    ~u & vy => x.a+
+            
+                    vy & (& : n : N : ~x.d[n]) -> so+
+                    g.pReset | ~vy & ~si -> so-
+            
+                    (| : n : N : y.d[n]) => vy+
+                }
+            }
+            
+            export
+            template <pint N>
+            defproc NODE (globals g; a1of<N> x; e1of<N> y; bool si, so) {
+                bool u, vy;
+                prs<g.Vdd, g.GND> {
+                    (: n : N :
+                        ~u & x.d[n] -> y.d[n]+
+                        ~y.e -> y.d[n]-
+                    )
+            
+                    g.pReset | so -> u+
+                    ~so & y.e & si -> u-
+            
+                    ~u & vy => x.a+
+            
+                    vy & (& : n : N : ~x.d[n]) -> so+
+                    g.pReset | ~vy & ~si -> so-
+            
+                    (| : n : N : y.d[n]) => vy+
+                }
+            }
+        } // namespace deserial_ring
+
+        export
+        template <pint M, N>
+        defproc DESERIAL_RING (globals g; a1of<N> x; eMx1ofN<M, N> y) {
+            deserial_ring::SPLIT<M, N> split(g, x,);
+            deserial_ring::NODE_END<N> end(g, split.y[M-1],,,);
+            end.y.m = y.m[M-1];
+            end.y.e = y.e;
+            [ M = 1 ->
+                end.si = end.so;
+            [] M > 1 ->
+                pint MM = M-1;
+                deserial_ring::NODE<N> node[MM];
+                (; m : MM :
+                    node[m].g = g;
+                    node[m].x = split.y[m];
+                    node[m].y.e = y.e;
+                    node[m].y.m = y.m[m];
+                )
+                (; m : MM-1 :
+                    node[m].so = node[m+1].si;
+                )
+                end.si = node[MM-1].so;
+                prs<g.Vdd, g.GND> {
+                    end.so => node[0].si-
+                }
+            ]
+        }
+
+        namespace test {
+            export
+            template <pint M, N>
+            defproc TEST_DESERIAL_CHAIN(globals g) {
+                SOURCE_random_a1ofN<N> src(g,);
+                SINK_eMx1ofN<M, N> snk(g,);
+                DESERIAL_CHAIN<M, N> deserial(g, src.d, snk.d);
+            }
+
+            export
+            template <pint M, N>
+            defproc TEST_DESERIAL_RING(globals g) {
+                SOURCE_random_a1ofN<N> src(g,);
+                SINK_eMx1ofN<M, N> snk(g,);
+                DESERIAL_RING<M, N> deserial(g, src.d, snk.d);
+            }
+        } // namespace test
     }
 
     namespace transmitter {
@@ -329,11 +430,12 @@ namespace aer {
 
             export
             template <pint M, N, NN>
-            defproc TEST_DESERIAL (globals g) {
+            defproc TEST_DESERIAL_CHAIN (globals g) {
                 active_handshaker<NN> a(g,,);
                 AEXT<M, N, NN> aext(g, a.o, a.i,,,);
-                ::aer::interface::DESERIAL<M, N> deserial(
-                    g, aext.po, aext.pi, aext.p,);
+                ::aer::interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
+                ::aer::interface::DESERIAL_CHAIN<M, N> deserial(
+                    g, out.y,);
                 SINK_eMx1ofN<M, N> snk(g, deserial.y);
             }
         } // namespace test

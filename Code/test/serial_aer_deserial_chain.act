@@ -3,4 +3,4 @@ globals g;
 pint M=5;
 pint N=2;
 pint NN=32; // NN=N^M
-aer::transmitter::test::TEST_DESERIAL<M, N, NN> test(g);
+aer::transmitter::test::TEST_DESERIAL_CHAIN<M, N, NN> test(g);
