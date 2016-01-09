@@ -13,7 +13,7 @@ The accounting is done assuming we're using an array of 4096 neurons.
 The transmitter encodes and transmit the spikes from all 4096 neurons.
 The receiver targets 1024 synapses. Each synapse delivers input current to 4 neurons. The receiver is also responsible for delivering neuron configuration bits
 to small memories adjacent to the neurons. Each group of 1 syanpse and 4 neurons
-needs 28 bits of memory.
+needs at least 28 bits of memory.
 
 \noindent Design parametrizations:
 
@@ -120,13 +120,13 @@ We also need the following interfaces:
     & \textbf{e1ofN converter} (Section~\ref{sec:OUT_e1ofN})
     & \textbf{a1ofN converter} (Section~\ref{sec:OUT_a1ofN})
     & deserializer (Section~\ref{sec:DESERIAL})
+    && ring deserializer (Section~\ref{sec:DESERIAL_RING})
+    &&& \textbf{SPLIT} (Section~\ref{sec:DESERIAL_RING_SPLIT})
+    &&& \textbf{NODE} (Section~\ref{sec:DESERIAL_RING_NODE})
     && chain deserializer (Section~\ref{sec:DESERIAL_CHAIN})
     &&& \textbf{SPLIT} (Section~\ref{sec:DESERIAL_CHAIN_HEAD})
     &&& \textbf{NODE} (Section~\ref{sec:DESERIAL_CHAIN_NODE})
     &&& \textbf{TAIL} (Section~\ref{sec:DESERIAL_CHAIN_TAIL})
-    && split ring deserializer (Section~\ref{sec:DESERIAL_SPLITRING})
-    &&& \textbf{SPLIT} (Section~\ref{sec:DESERIAL_SPLITRING_SPLIT})
-    &&& \textbf{NODE} (Section~\ref{sec:DESERIAL_SPLITRING_NODE})
     && split chain deserializer (Section~\ref{sec:DESERIAL_SPLITCHAIN})
     &&& \textbf{SPLIT} (Section~\ref{sec:DESERIAL_SPLITCHAIN_SPLIT})
     &&& \textbf{NODE} (Section~\ref{sec:DESERIAL_SPLITCHAIN_NODE})
@@ -2065,6 +2065,77 @@ MERGE\equiv
 \noindent\makebox[\linewidth]{\rule{\textwidth}{1pt}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Receiver tree structure}
+
+The receiver tree structure is dictated by its interface with the synapse
+and neuron/synapse configuration memory. We could place a memory for each group
+of 1 synapse and 4 neurons,
+
+\begin{center}
+  \includegraphics[width=.7\textwidth]{img/recv_nrn_interface_4syn1_4mem4.pdf}
+\end{center}
+
+\noindent
+but this would have a costly overhead. Further, we would be required to
+use the 1-of-2 instead of 1-of-4 deserializer. The 1-of-4
+deserializer cuts the number of words to deserialize in half with less
+than double the implementation cost per word. The tree would be structured as
+
+\begin{center}
+    \begin{tabular}{cc}
+        1 NODE & \\
+        4 NODE & \\
+        16 NODE & \\
+        64 NODE & \\
+        256 LEAF & \\
+        1024 SYN & 1024 DESERIAL \\
+        & 1024 MEM4 \\
+    \end{tabular}
+\end{center}
+
+To reduce overhead and use a 1-of-4 deserializer, we bundle 
+2 synapses (8 neurons) into each port, and consolidate the memories for the 
+16 neurons and their synapses into a single memory:
+
+\begin{center}
+  \includegraphics[width=.4\textwidth]{img/recv_nrn_interface_2syn2_1mem16.pdf}
+\end{center}
+
+\noindent
+By consolidating the memories, we further save a port on each leaf node.
+The tree would be structured as
+
+\begin{center}
+    \begin{tabular}{cc}
+        1 NODE & \\
+        4 NODE & \\
+        16 NODE & \\
+        64 NODE & \\
+        256 LEAF(3) & \\
+        512 SYN2 & 256 DESERIAL \\
+        & 256 MEM16 \\
+    \end{tabular}
+\end{center}
+
+We could continue this line of thought and consolidate synapses and 
+memories until all configuration data is stored in a single, monolithic memory.
+The tree would be structured as
+
+\begin{center}
+    \begin{tabular}{cc}
+        1 NODE(3) & \\
+        2 NODE & DESERIAL \\
+        8 NODE & MEM4096 \\
+        32 NODE & \\
+        128 LEAF & \\
+        128 SYN8 & \\
+    \end{tabular}
+\end{center}
+
+\noindent which has the fewest components. However, this would be difficult
+a to layout and wire.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{AERV CD noTW cyclic control (CYC) \label{sec:AERV_CD_noTW_CYC}}
 
 Builds off AERV CD noTW (Section~\ref{sec:AERV_CD_noTW}) by reusing the control lines to request and acknowledge the data as is done in AEXT CD noTW cyc (Section~\ref{sec:AEXT_CD_noTW_CYC}).
@@ -3733,7 +3804,7 @@ We also place a deserializer at the output of the receiver to interface with the
 neuron configuration memory.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Split Ring Deserializer \label{sec:DESERIAL_SPLITRING}}
+\section{Split Ring Deserializer \label{sec:DESERIAL_RING}}
 
 This design uses a ring of nodes receiving data from a central splitter 
 to sequence words into their respective place in the parallel output. 
@@ -3817,7 +3888,7 @@ we would need 12 and 6 NODEs, respectively.
 \end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{SPLIT \label{sec:DESERIAL_SPLITRING_SPLIT}}
+\section{SPLIT \label{sec:DESERIAL_RING_SPLIT}}
 
 SPLIT takes incoming words and routes them to their respective locations
 in the parallel output.
@@ -3886,7 +3957,7 @@ y0a | y1a -> xa+
 \end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{NODE \label{sec:DESERIAL_SPLITRING_NODE}}
+\section{NODE \label{sec:DESERIAL_RING_NODE}}
 
 NODE latches data from SPLIT.
 
@@ -3968,7 +4039,8 @@ y0 | y1 -> vy+
 This design uses a chain of nodes to sequence words into their respective place
 in the parallel output. That is, it takes as input a1ofN data and outputs 
 eMx1ofN data. We decompose this process into HEAD, NODE, and TAIL processes.
-Although it has a bit more expensive 1-of-4 implementation than the split ring of Section~\ref{sec:DESERIAL_SPLITRING}, its signal fanouts remain constant 
+Although it has a bit more expensive 1-of-4 implementation than the split ring 
+of Section~\ref{sec:DESERIAL_RING}, its signal fanouts remain constant 
 as the number of words in the packet grows.
 The below figure shows the decomposition for packets consisting of $M$
 1-of-2 groups.
