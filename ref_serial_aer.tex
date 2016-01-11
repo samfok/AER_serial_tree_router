@@ -114,7 +114,7 @@ needs at least 28 bits of memory.
     &&&& \textbf{unpipelined} (Section~\ref{sec:AERV_PSAR_RCP_PULL_u})
 \end{easylist}
 
-We also need the following interfaces:
+\textbf{We also need the following interfaces:}
 
 \begin{easylist}
     & \textbf{e1ofN converter} (Section~\ref{sec:OUT_e1ofN})
@@ -2076,10 +2076,7 @@ of 1 synapse and 4 neurons,
 \end{center}
 
 \noindent
-but this would have a costly overhead. Further, we would be required to
-use the 1-of-2 instead of 1-of-4 deserializer. The 1-of-4
-deserializer cuts the number of words to deserialize in half with less
-than double the implementation cost per word. The tree would be structured as
+Tree structure:
 
 \begin{center}
     \begin{tabular}{cc}
@@ -2093,8 +2090,28 @@ than double the implementation cost per word. The tree would be structured as
     \end{tabular}
 \end{center}
 
+\noindent
+Accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|l|}
+    \hline
+    component & transistors/component & components & transistors & comments \\ \hline
+    AERV NODE & 152 & 85 & 12920 & \\ \hline
+    AERV LEAF & 152 & 256 & 38912 & \\ \hline
+    DESERIAL & 216 & 1024 & 221184 & 6 1-of-2 words \\ \hline
+    OR & 4 & 1024 & 4096 & \\ \hline
+    \hline \multicolumn{3}{|r|}{total} & \multicolumn{2}{|l|}{277112} \\
+    \hline \multicolumn{3}{|r|}{total/neuron} & \multicolumn{2}{|l|}{67.65} \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+This design is expensive. We are required to use the 1-of-2 instead of 
+1-of-4 deserializer.
+
 To reduce overhead and use a 1-of-4 deserializer, we bundle 
-2 synapses (8 neurons) into each port, and consolidate the memories for the 
+2 synapses (8 neurons) into each port and consolidate the memories for the 
 16 neurons and their synapses into a single memory:
 
 \begin{center}
@@ -2102,8 +2119,8 @@ To reduce overhead and use a 1-of-4 deserializer, we bundle
 \end{center}
 
 \noindent
-By consolidating the memories, we further save a port on each leaf node.
-The tree would be structured as
+By consolidating the memories, we further save a port on each leaf node. \\
+Tree structure:
 
 \begin{center}
     \begin{tabular}{cc}
@@ -2117,9 +2134,25 @@ The tree would be structured as
     \end{tabular}
 \end{center}
 
-We could continue this line of thought and consolidate synapses and 
-memories until all configuration data is stored in a single, monolithic memory.
-The tree would be structured as
+\noindent
+Accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|l|}
+    \hline
+    component & transistors/component & components & transistors & comments \\ \hline
+    AERV NODE & 152 & 85 & 12920 & \\ \hline
+    AERV LEAF(3) & 114 & 256 & 29184 & \\ \hline
+    DESERIAL & 126 & 256 & 32256 & 4 1-of-4 words \\ \hline
+    OR & 4 & 512 & 2048 & \\ \hline
+    \hline \multicolumn{3}{|r|}{total} & \multicolumn{2}{|l|}{86408} \\
+    \hline \multicolumn{3}{|r|}{total/neuron} & \multicolumn{2}{|l|}{21.10} \\ \hline
+    \end{tabular}
+\end{center}
+
+We could continue this line of thought by consolidating synapses and 
+memories until all configuration data is stored in a single, monolithic memory. \\
+Tree structure:
 
 \begin{center}
     \begin{tabular}{cc}
@@ -2132,8 +2165,24 @@ The tree would be structured as
     \end{tabular}
 \end{center}
 
-\noindent which has the fewest components. However, this would be difficult
-a to layout and wire.
+\noindent
+Accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|l|}
+    \hline
+    component & transistors/component & components & transistors & comments \\ \hline
+    AERV NODE(3) & 114 & 1 & 114 & \\ \hline
+    AERV NODE & 152 & 42 & 6384 & \\ \hline
+    AERV LEAF & 152 & 128 & 19456 & \\ \hline
+    DESERIAL & 352 & 1 & 352 & \\ \hline
+    OR & 4 & 512 & 2048 & \\ \hline
+    \hline \multicolumn{3}{|r|}{total} & \multicolumn{2}{|l|}{28354} \\
+    \hline \multicolumn{3}{|r|}{total/neuron} & \multicolumn{2}{|l|}{6.92} \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent This design is the cheapest, but would would be difficult to layout and wire.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{AERV CD noTW cyclic control (CYC) \label{sec:AERV_CD_noTW_CYC}}
@@ -3804,7 +3853,7 @@ We also place a deserializer at the output of the receiver to interface with the
 neuron configuration memory.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Split Ring Deserializer \label{sec:DESERIAL_RING}}
+\section{Ring Deserializer \label{sec:DESERIAL_RING}}
 
 This design uses a ring of nodes receiving data from a central splitter 
 to sequence words into their respective place in the parallel output. 
@@ -3832,9 +3881,9 @@ serial communication protocol to the standard a1ofN protocol.
     component & transistors/component & components/deserializer & transistors/deserializer \\ \hline
     OUT a1ofN & 4 & 1 & 4 \\ \hline
     SPLIT & $3M-2$ & 1 & $3M-2$ \\ \hline
-    NODE & 39 & $M-1$ & $39(M-1)$ \\ \hline
-    NODE (end) & 41 & 1 & 41 \\ \hline
-    \hline \multicolumn{3}{|r|}{approx. transistors/deserializer} & $42M+4$ \\ \hline
+    NODE & 32 & $M$ & $32M$ \\ \hline
+    C & 8 & 1 & 8 \\ \hline
+    \hline \multicolumn{3}{|r|}{approx. transistors/deserializer} & $35M+10$ \\ \hline
     \end{tabular}
 \end{center}
 
@@ -3847,9 +3896,9 @@ serial communication protocol to the standard a1ofN protocol.
     component & transistors/component & components/deserializer & transistors/deserializer \\ \hline
     OUT a1ofN & 4 & 1 & 4 \\ \hline
     SPLIT & $3M-2$ & 1 & $3M-2$ \\ \hline
-    NODE & 59 & $M-1$ & $59(M-1)$ \\ \hline
-    NODE (end) & 61 & 1 & 61 \\ \hline
-    \hline \multicolumn{3}{|r|}{approx. transistors/deserializer} & $62M+4$ \\ \hline
+    NODE & 54 & $M$ & $54M$ \\ \hline
+    C & 8 & 1 & 8 \\ \hline
+    \hline \multicolumn{3}{|r|}{approx. transistors/deserializer} & $57M+10$ \\ \hline
     \end{tabular}
 \end{center}
 
@@ -3866,9 +3915,9 @@ we would need 12 and 6 NODEs, respectively.
     component & transistors/component & components/deserializer & transistors/deserializer \\ \hline
     OUT a1ofN & 4 & 1 & 4 \\ \hline
     SPLIT & 30 & 1 & 30 \\ \hline
-    NODE & 39 & 11 & 429 \\ \hline
-    NODE (end) & 41 & 1 & 41 \\ \hline
-    \hline \multicolumn{3}{|r|}{total transistors/deserializer} & 504 \\ \hline
+    NODE & 32 & 12 & 384 \\ \hline
+    C & 8 & 1 & 8 \\ \hline
+    \hline \multicolumn{3}{|r|}{total transistors/deserializer} & 426 \\ \hline
     \end{tabular}
 \end{center}
 
@@ -3881,9 +3930,9 @@ we would need 12 and 6 NODEs, respectively.
     component & transistors/component & components/deserializer & transistors/deserializer \\ \hline
     OUT a1ofN & 4 & 1 & 4 \\ \hline
     SPLIT & 16 & 1 & 16 \\ \hline
-    NODE & 59 & 5 & 295 \\ \hline
-    NODE (end) & 61 & 1 & 61 \\ \hline
-    \hline \multicolumn{3}{|r|}{total transistors/deserializer} & 376 \\ \hline
+    NODE & 54 & 6 & 324 \\ \hline
+    C & 8 & 1 & 8 \\ \hline
+    \hline \multicolumn{3}{|r|}{total transistors/deserializer} & 352 \\ \hline
     \end{tabular}
 \end{center}
 
@@ -3962,38 +4011,29 @@ y0a | y1a -> xa+
 NODE latches data from SPLIT.
 
 \begin{hse}
-*[[ye&si];u-;
-    [x0->y0+;xa+;[~x0];so+;u+;xa-;[~ye];y0-;[~si];so-
-    []x1->y1+;xa+;[~x1];so+;u+;xa-;[~ye];y1-;[~si];so-
-    ]
+*[[si];
+  [x0->y0+;xa+;[~x0];so+;xa-;[~si];y0-;so-
+  []x1->y1+;xa+;[~x1];so+;xa-;[~si];y1-;so-
+  ]
  ]
 \end{hse}
 
 \begin{prs2}
-~u & x0 -> y0+
-~ye -> y0-
+~so & si & x0 -> y0+
+~si -> y0-
 
-~u & x1 -> y1+
-~ye -> y1-
-\end{prs2}
-
-The end NODE needs to have its $y[0,1]$ pulldown rules strengthened with $u$
-to ensure that $s_o$ has gone high before $y[0,1]$ get pulled down. Otherwise
-$s_o$ would be unstable.
-
-\begin{prs2}
-so -> u+
-~so & ye & si -> u-
+~so & si & x1 -> y1+
+~si -> y1-
 \end{prs2}
 
 \begin{prs2}
-~u & vy -> xa+
-u | ~vy -> xa-
+~so & vy -> xa+
+so | ~vy -> xa-
 \end{prs2}
 
 \begin{prs2}
 vy & ~x0 & ~x1 -> so+
-~vy  & ~si -> so-
+~vy -> so-
 \end{prs2}
 
 \begin{prs2}
@@ -4008,12 +4048,11 @@ y0 | y1 -> vy+
     \begin{tabular}{|r|l|l|}
     \hline
     rule & transistor count & comments \\ \hline
-    $y[0,1][0,1]$ & 14 & 16 for end NODE\\ \hline
-    $u$ & 8 & \\ \hline
+    $y[0,1][0,1]$ & 16 \\ \hline
     $xa$ & 4 & \\ \hline
-    $s_o$ & 9 & \\ \hline
+    $s_o$ & 8 & \\ \hline
     $vy$ & 4 & \\ \hline
-    \hline total & 39 & 41 for end NODE \\ \hline
+    \hline total & 32 & \\ \hline
     \end{tabular}
 \end{center}
 
@@ -4024,14 +4063,29 @@ y0 | y1 -> vy+
     \begin{tabular}{|r|l|l|}
     \hline
     rule & transistor count & comments \\ \hline
-    $y[0,1,2,3][0,1,2,3]$ & 28 & 32 for end NODE \\ \hline
-    $u$ & 8 & \\ \hline
+    $y[0,1,2,3][0,1,2,3]$ & 32 & \\ \hline
     $xa$ & 4 & \\ \hline
-    $s_o$ & 11 & \\ \hline
+    $s_o$ & 10 & \\ \hline
     $vy$ & 8 & \\ \hline
-    \hline total & 59 & 61 for end NODE \\ \hline
+    \hline total & 54 & \\ \hline
     \end{tabular}
 \end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{C \label{sec:DESERIAL_RING_C}}
+
+C in the ring deserializer of Section~\ref{sec:DESERIAL_RING} is a C-element 
+taking in the environment enable signal and the last node's $s_o$ signal 
+to produce first node's $s_i$ signal. $s_i$ indicates whether we are in the
+up or down phase of the serial-to-parallel conversion.
+
+\begin{prs2}
+~so & xe -> si+
+so & ~xe -> si-
+\end{prs2}
+
+\noindent
+A C-element costs 8 transistors.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{CHAIN Deserializer \label{sec:DESERIAL_CHAIN}}

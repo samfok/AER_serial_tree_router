@@ -40,6 +40,58 @@ namespace aer {
             }
         }
 
+        namespace deserial_ring {
+            export
+            template <pint M, N>
+            defproc SPLIT (globals g; a1of<N> x, y[M]) {
+                (; m : M :
+                    y[m].d = x.d;
+                )
+                prs<g.Vdd, g.GND> {
+                    (| : m : M : y[m].a) => x.a+
+                }
+            }
+            
+            export
+            template <pint N>
+            defproc NODE (globals g; a1of<N> x; e1of<N> y; bool si, so) {
+                bool vy;
+                prs<g.Vdd, g.GND> {
+                    (: n : N :
+                        ~so & si & x.d[n] -> y.d[n]+
+                        ~si -> y.d[n]-
+                    )
+            
+                    ~so & vy => x.a+
+            
+                    vy & (& : n : N : ~x.d[n]) -> so+
+                    g.pReset | ~vy -> so-
+            
+                    (| : n : N : y.d[n]) => vy+
+                }
+            }
+        } // namespace deserial_ring
+        
+        export
+        template <pint M, N>
+        defproc DESERIAL_RING (globals g; a1of<N> x; eMx1ofN<M, N> y) {
+            deserial_ring::SPLIT<M, N> split(g, x,);
+            deserial_ring::NODE<N> node[M];
+            (; m : M :
+                node[m].g = g;
+                node[m].x = split.y[m];
+                node[m].y.e = y.e;
+                node[m].y.m = y.m[m];
+            )
+            (; m : M-1 :
+                node[m].so = node[m+1].si;
+            )
+            prs<g.Vdd, g.GND> {
+                ~node[M-1].so & y.e  -> node[0].si+
+                g.pReset | node[M-1].so & ~y.e  -> node[0].si-
+            }
+        }
+
         namespace deserial_chain {
             export
             template <pint N>
@@ -130,106 +182,21 @@ namespace aer {
             ]
         }
 
-        namespace deserial_ring {
-            export
-            template <pint M, N>
-            defproc SPLIT (globals g; a1of<N> x, y[M]) {
-                (; m : M :
-                    y[m].d = x.d;
-                )
-                prs<g.Vdd, g.GND> {
-                    (| : m : M : y[m].a) => x.a+
-                }
-            }
-            
-            export
-            template <pint N>
-            defproc NODE_END (globals g; a1of<N> x; e1of<N> y; bool si, so) {
-                bool u, vy;
-                prs<g.Vdd, g.GND> {
-                    (: n : N :
-                        ~u & x.d[n] -> y.d[n]+
-                        u & ~y.e -> y.d[n]-
-                    )
-            
-                    g.pReset | so -> u+
-                    ~so & y.e & si -> u-
-            
-                    ~u & vy => x.a+
-            
-                    vy & (& : n : N : ~x.d[n]) -> so+
-                    g.pReset | ~vy & ~si -> so-
-            
-                    (| : n : N : y.d[n]) => vy+
-                }
-            }
-            
-            export
-            template <pint N>
-            defproc NODE (globals g; a1of<N> x; e1of<N> y; bool si, so) {
-                bool u, vy;
-                prs<g.Vdd, g.GND> {
-                    (: n : N :
-                        ~u & x.d[n] -> y.d[n]+
-                        ~y.e -> y.d[n]-
-                    )
-            
-                    g.pReset | so -> u+
-                    ~so & y.e & si -> u-
-            
-                    ~u & vy => x.a+
-            
-                    vy & (& : n : N : ~x.d[n]) -> so+
-                    g.pReset | ~vy & ~si -> so-
-            
-                    (| : n : N : y.d[n]) => vy+
-                }
-            }
-        } // namespace deserial_ring
-
-        export
-        template <pint M, N>
-        defproc DESERIAL_RING (globals g; a1of<N> x; eMx1ofN<M, N> y) {
-            deserial_ring::SPLIT<M, N> split(g, x,);
-            deserial_ring::NODE_END<N> end(g, split.y[M-1],,,);
-            end.y.m = y.m[M-1];
-            end.y.e = y.e;
-            [ M = 1 ->
-                end.si = end.so;
-            [] M > 1 ->
-                pint MM = M-1;
-                deserial_ring::NODE<N> node[MM];
-                (; m : MM :
-                    node[m].g = g;
-                    node[m].x = split.y[m];
-                    node[m].y.e = y.e;
-                    node[m].y.m = y.m[m];
-                )
-                (; m : MM-1 :
-                    node[m].so = node[m+1].si;
-                )
-                end.si = node[MM-1].so;
-                prs<g.Vdd, g.GND> {
-                    end.so => node[0].si-
-                }
-            ]
-        }
-
         namespace test {
-            export
-            template <pint M, N>
-            defproc TEST_DESERIAL_CHAIN(globals g) {
-                SOURCE_random_a1ofN<N> src(g,);
-                SINK_eMx1ofN<M, N> snk(g,);
-                DESERIAL_CHAIN<M, N> deserial(g, src.d, snk.d);
-            }
-
             export
             template <pint M, N>
             defproc TEST_DESERIAL_RING(globals g) {
                 SOURCE_random_a1ofN<N> src(g,);
                 SINK_eMx1ofN<M, N> snk(g,);
                 DESERIAL_RING<M, N> deserial(g, src.d, snk.d);
+            }
+
+            export
+            template <pint M, N>
+            defproc TEST_DESERIAL_CHAIN(globals g) {
+                SOURCE_random_a1ofN<N> src(g,);
+                SINK_eMx1ofN<M, N> snk(g,);
+                DESERIAL_CHAIN<M, N> deserial(g, src.d, snk.d);
             }
         } // namespace test
     }
