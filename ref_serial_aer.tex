@@ -4667,28 +4667,56 @@ of the sequencing.
 
 \begin{hse}
 *[[ye&si];
-  [ x0->y0+;u+;[~ye];y0-;so+;[~si];u-;[~x0];so-
-  []x1->y1+;u+;[~ye];y1-;so+;[~si];u-;[~x1];so-
+  [ x0->y0+;[~ye];u+;y0-;so+;[~si&~x0];u-;so-
+  []x1->y1+;[~ye];u+;y1-;so+;[~si&~x1];u-;so-
  ]]
 \end{hse}
 
 \begin{prs2}
 ~u & ye & si & x0 -> y0+
-u & ~so & ~ye -> y0-
+u & ~so -> y0-
 
 ~u & ye & si & x1 -> y1+
-u & ~so & ~ye -> y1-
+u & ~so -> y1-
 \end{prs2}
 
 \begin{prs2}
-si & (y0 | y1) -> u+
-~si -> u-
+si & ~ye & (y0 | y1) & ~so -> u+
+~si & ~x0 & ~x1 -> u-
 \end{prs2}
 
 \begin{prs2}
 u & ~y0 & ~y1 -> so+
-~u & ~x0 & ~x1 -> so-
+~u -> so-
 \end{prs2}
+
+\noindent
+1-of-2 transistor accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $y[0,1]$ & 20 & \\ \hline
+    $u$ & 12 & \\ \hline
+    $s_o$ & 8 & \\ \hline
+    \hline total & 40 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+1-of-4 transistor accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $y[0,1]$ & 40 & \\ \hline
+    $u$ & 16 & \\ \hline
+    $s_o$ & 10 & \\ \hline
+    \hline total & 56 & \\ \hline
+    \end{tabular}
+\end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Ring serializer C \label{sec:SERIAL_RING_C}}
