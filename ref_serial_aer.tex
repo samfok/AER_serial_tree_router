@@ -4393,8 +4393,8 @@ serial communication protocol to the standard e1ofN protocol.
     component & transistors/component & components/deserializer & transistors/deserializer \\ \hline
     OUT e1ofN & 4 & 1 & 4 \\ \hline
     SPLIT & $17M-2$ & 1 & $17M-2$ \\ \hline
-    NODE (int)  & 28 & $M-1$ & $28(M-1)$ \\ \hline
-    NODE (end)  & 20 & 1 & 20 \\ \hline
+    NODE (int) & 28 & $M-1$ & $28(M-1)$ \\ \hline
+    NODE (end) & 20 & 1 & 20 \\ \hline
     \hline \multicolumn{3}{|r|}{approx. transistors/deserializer} & $45M-6$ \\ \hline
     \end{tabular}
 \end{center}
@@ -4408,8 +4408,8 @@ serial communication protocol to the standard e1ofN protocol.
     component & transistors/component & components/deserializer & transistors/deserializer \\ \hline
     OUT e1ofN & 4 & 1 & 4 \\ \hline
     SPLIT & $31M-2$ & 1 & $31M-2$ \\ \hline
-    NODE (int)  & $50$ & $M-1$ & $50(M-1)$ \\ \hline
-    NODE (end)  & 38 & 1 & 38 \\ \hline
+    NODE (int) & $50$ & $M-1$ & $50(M-1)$ \\ \hline
+    NODE (end) & 38 & 1 & 38 \\ \hline
     \hline \multicolumn{3}{|r|}{approx. transistors/deserializer} & $81M-10$ \\ \hline
     \end{tabular}
 \end{center}
@@ -4427,8 +4427,8 @@ we would need 12 and 6 NODEs, respectively.
     component & transistors/component & components/deserializer & transistors/deserializer \\ \hline
     OUT e1ofN & 4 & 1 & 4 \\ \hline
     SPLIT & 198 & 1 & 198 \\ \hline
-    NODE (int)  & 28 & 11 & 308 \\ \hline
-    NODE (end)  & 20 & 1 & 20 \\ \hline
+    NODE (int) & 28 & 11 & 308 \\ \hline
+    NODE (end) & 20 & 1 & 20 \\ \hline
     \hline \multicolumn{3}{|r|}{total transistors/deserializer} & 530 \\ \hline
     \end{tabular}
 \end{center}
@@ -4442,8 +4442,8 @@ we would need 12 and 6 NODEs, respectively.
     component & transistors/component & components/deserializer & transistors/deserializer \\ \hline
     OUT e1ofN & 4 & 1 & 4 \\ \hline
     SPLIT & 184 & 1 & 184 \\ \hline
-    NODE (int)  & 50 & 5 & 250 \\ \hline
-    NODE (end)  & 38 & 1 & 38 \\ \hline
+    NODE (int) & 50 & 5 & 250 \\ \hline
+    NODE (end) & 38 & 1 & 38 \\ \hline
     \hline \multicolumn{3}{|r|}{total transistors/deserializer} & 476 \\ \hline
     \end{tabular}
 \end{center}
@@ -4660,6 +4660,64 @@ of the sequencing.
 
 \begin{center}
   \includegraphics[width=.7\textwidth]{img/serial_ring.pdf}
+\end{center}
+
+Note the shared $ye$ and $y[0,1]$ between the NODE processes.
+
+\noindent
+1-of-2 approximate scaling:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|}
+    \hline
+    component & transistors/component & components/serializer & transistors/serializer \\ \hline
+    NODE & 40 & $M$ & $40M$ \\ \hline
+    C & 8 & $1$ & $8$ \\ \hline
+    \hline \multicolumn{3}{|r|}{approx. transistors/serializer} & $40M+8$ \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+1-of-4 approximate scaling:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|}
+    \hline
+    component & transistors/component & components/serializer & transistors/serializer \\ \hline
+    NODE & 56 & $M$ & $56M$ \\ \hline
+    C & 8 & $1$ & $8$ \\ \hline
+    \hline \multicolumn{3}{|r|}{approx. transistors/serializer} & $56M+8$ \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+For the receiver to handle 4096 neurons (and no data) 
+encoded as 1-of-2 or 1-of-4 words, we would need 12 and 6 NODEs, respectively.
+
+\noindent
+1-of-2 accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|}
+    \hline
+    component & transistors/component & components/serializer & transistors/serializer \\ \hline
+    NODE & 40 & 12 & 480 \\ \hline
+    C & 8 & 1 & 8 \\ \hline
+    \hline \multicolumn{3}{|r|}{total transistors/serializer} & 488 \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+1-of-4 accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|}
+    \hline
+    component & transistors/component & components/serializer & transistors/serializer \\ \hline
+    NODE & 56 & 6 & 336 \\ \hline
+    C & 8 & 1 & 8 \\ \hline
+    \hline \multicolumn{3}{|r|}{total transistors/serializer} & 344 \\ \hline
+    \end{tabular}
 \end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
