@@ -117,20 +117,26 @@ needs at least 28 bits of memory.
 \textbf{We also need the following interfaces:}
 
 \begin{easylist}
-    & \textbf{e1ofN converter} (Section~\ref{sec:OUT_e1ofN})
-    & \textbf{a1ofN converter} (Section~\ref{sec:OUT_a1ofN})
-    & deserializer (Section~\ref{sec:DESERIAL})
+    & \textbf{serial to e1ofN converter} (Section~\ref{sec:OUT_e1ofN})
+    & \textbf{serial to a1ofN converter} (Section~\ref{sec:OUT_a1ofN})
+    & deserializer, serial-to-parallel converter (Section~\ref{sec:DESERIAL})
     && ring deserializer (Section~\ref{sec:DESERIAL_RING})
     &&& \textbf{SPLIT} (Section~\ref{sec:DESERIAL_RING_SPLIT})
     &&& \textbf{NODE} (Section~\ref{sec:DESERIAL_RING_NODE})
     && chain deserializer (Section~\ref{sec:DESERIAL_CHAIN})
-    &&& \textbf{SPLIT} (Section~\ref{sec:DESERIAL_CHAIN_HEAD})
+    &&& \textbf{HEAD} (Section~\ref{sec:DESERIAL_CHAIN_HEAD})
     &&& \textbf{NODE} (Section~\ref{sec:DESERIAL_CHAIN_NODE})
     &&& \textbf{TAIL} (Section~\ref{sec:DESERIAL_CHAIN_TAIL})
     && split chain deserializer (Section~\ref{sec:DESERIAL_SPLITCHAIN})
     &&& \textbf{SPLIT} (Section~\ref{sec:DESERIAL_SPLITCHAIN_SPLIT})
     &&& \textbf{NODE} (Section~\ref{sec:DESERIAL_SPLITCHAIN_NODE})
-    & parallel to serial converter
+    & serializer, parallel to serial converter (Section~\ref{sec:SERIAL})
+    && ring serializer (Section~\ref{sec:SERIAL_RING})
+    &&& \textbf{NODE} (Section~\ref{sec:SERIAL_RING_NODE})
+    && chain serializer (Section~\ref{sec:SERIAL_CHAIN})
+    &&& \textbf{HEAD} (Section~\ref{sec:SERIAL_CHAIN_HEAD})
+    &&& \textbf{NODE} (Section~\ref{sec:SERIAL_CHAIN_NODE})
+    &&& \textbf{TAIL} (Section~\ref{sec:SERIAL_CHAIN_TAIL})
     & leaf interface (Section~\ref{sec:RECV_LEAF})
     && FIFO buffer decomposed into CTRL, BUFFER (Section~\ref{sec:RECV_LEAF_FIFO})
     &&& \textbf{CTRL} (Section~\ref{sec:RECV_LEAF_FIFO_CTRL})
@@ -2108,7 +2114,8 @@ Accounting:
 
 \noindent
 This design is expensive. We are required to use the 1-of-2 instead of 
-1-of-4 deserializer.
+1-of-4 deserializer. The deserializer costs are derived from the number of words,
+which are derived from the shape of the memory as detailed in Section~\ref{sec:memory}.
 
 To reduce overhead and use a 1-of-4 deserializer, we bundle 
 2 synapses (8 neurons) into each port and consolidate the memories for the 
@@ -3844,7 +3851,6 @@ transmitter $\rightarrow$
 deserializer $\rightarrow$
 1-of-4-to-1-of-2 converter (if needed) $\rightarrow$
 [Datapath] $\rightarrow$
-1-of-2-to-1-of-4 converter (if needed) $\rightarrow$
 serializer $\rightarrow$
 receiver
 
@@ -4638,7 +4644,73 @@ x1 -> y1+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Serializer \label{sec:SERIAL}}
 
-The serializer takes in 1-of-N data and converts it to M-1-of-N data.
+The serializer converts M-1-of-N parallel data into in 1-of-N serial data.
+We cannot create standard a1ofN or e1ofN input interfaces to the serial protocol 
+(like we could with output interfaces in Sections~\ref{sec:OUT_e1ofN} and \ref{sec:OUT_a1ofN}) 
+because the serial protocol requires a signal indicating
+the transitions between packets, which the standard a1ofN and e1ofN channels
+cannot provide.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Ring serializer \label{sec:SERIAL_RING}}
+
+The ring serializer uses a ring of NODES to sequence the words of an eMx1ofN 
+channel. A C-element indicates the transition between the up and down phases
+of the sequencing.
+
+\begin{center}
+  \includegraphics[width=.7\textwidth]{img/serial_ring.pdf}
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Ring serializer NODE \label{sec:SERIAL_RING_NODE}}
+
+\begin{hse}
+*[[ye&si];
+  [ x0->y0+;u+;[~ye];y0-;so+;[~si];u-;[~x0];so-
+  []x1->y1+;u+;[~ye];y1-;so+;[~si];u-;[~x1];so-
+ ]]
+\end{hse}
+
+\begin{prs2}
+~u & ye & si & x0 -> y0+
+u & ~so & ~ye -> y0-
+
+~u & ye & si & x1 -> y1+
+u & ~so & ~ye -> y1-
+\end{prs2}
+
+\begin{prs2}
+si & (y0 | y1) -> u+
+~si -> u-
+\end{prs2}
+
+\begin{prs2}
+u & ~y0 & ~y1 -> so+
+~u & ~x0 & ~x1 -> so-
+\end{prs2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Ring serializer C \label{sec:SERIAL_RING_C}}
+
+The C process in the ring serializer is a C-element and costs 8 transistors.
+
+\begin{prs2}
+so & po -> s-
+~so & ~po -> s+
+\end{prs2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Chain serializer \label{sec:SERIAL_CHAIN}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Chain serializer HEAD \label{sec:SERIAL_CHAIN_HEAD}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Chain serializer NODE \label{sec:SERIAL_CHAIN_NODE}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Chain serializer TAIL \label{sec:SERIAL_CHAIN_TAIL}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{AERV LEAF/neuron interface (RECVLEAF) \label{sec:RECV_LEAF}}
@@ -4884,6 +4956,43 @@ xe -> x0+
 xe -> x1+
 ~xe -> x1-
 \end{prs2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Memory \label{sec:memory}}
+
+Each group of 4 neurons and 1 synapse needs at least 28 bits of memory.
+However, given the shape and size constraints of the memory, we may end up using
+larger memories. This memory will only be written, not read.
+
+A memory consists of a two dimensional array of bitcells.
+Rows are addressed by a read/write lines, and columns are addressed by the 
+data itself. That is, we write an entire row at a time.
+
+The shape of the memory dictates the size of the input we deliver to it.
+For each write operation, we indicate the address (which write line) and data
+to write. The address is encoded in 1-of-2 or 1-of-4 words. The data is communicated
+as it will be written. It is cheaper to have write lines than
+data lines because the size of the encoded address scales with the logarithm of the
+number of write lines. So we usually maximize the number of write lines
+within the aspect ratio constraint of the neuron layout. 
+Further, using 1-of-4 encoding requires that we use at least 2 data bits.
+
+Here are some memory sizes and their required deserializer bits:
+
+\begin{center}
+    \begin{tabular}{|r|r|l|l|l|l|l|l|}
+    \hline
+    neurons/synapses & memory bits & write lines & write bits & data bits & total bits & word size & words \\ \hline
+    4/1 & 32 & 32 & 5 & 1 & 6 & 2 & 6 \\ \hline
+    16/4 & 128 & 64 & 6 & 2 & 8 & 4 & 4 \\ \hline
+    16/4 & 128 & 32 & 5 & 4 & 9 & 4 & 4.5 \\ \hline
+    4096/1024 & 32768 & 16384 & 14 & 2 & 16 & 4 & 8 \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+We can reduce the number of words if the memory supports banking, a 
+level of address heirarchy on top of the address itself.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \end{document}
