@@ -702,9 +702,9 @@ namespace aer {
         // NN=N^M
         transmitter::AEXT<M, N, NN> aext(g, xi, xo,,,);
         receiver::AERV_NODATA<M, N, NN> aerv(g, yi, yo,,,);
-        aext.pi = aerv.po;
-        aext.po = aerv.pi;
-        aext.p = aerv.p;
+        interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
+        interface::DESERIAL_CHAIN<M, N> deserial(g, out.y,);
+        interface::SERIAL_CHAIN<M, N> serial(g, deserial.y, aerv.po, aerv.pi, aerv.p);
     }
 
     export
