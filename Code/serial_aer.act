@@ -146,11 +146,19 @@ namespace aer {
         template <pint M, N>
         defproc DESERIAL_CHAIN (globals g; a1of<N> x; eMx1ofN<M, N> y) {
             // convert AEXT/AERV serial protocol to eMx1ofN with chain
-            deserial_chain::HEAD<N> head(g,, y.m[0], y.e,);
-            deserial_chain::TAIL<N> tail(g, x,, y.m[M-1],);
             [ M < 2 ->
-                1 = 0; // assert false -- shouldn't enter this case
-            [] M = 2 ->
+                (; n : N :
+                    x.d[n] = y.m[0].n[n];
+                )
+                prs <g.Vdd, g.GND> {
+                    y.e => x.a-
+                }
+            [] M >= 2->
+                deserial_chain::HEAD<N> head(g,, y.m[0], y.e,);
+                deserial_chain::TAIL<N> tail(g, x,, y.m[M-1],);
+            ]
+
+            [ M = 2 ->
                 head.x = tail.y;
                 head.so = tail.si;
             [] M > 2 ->
