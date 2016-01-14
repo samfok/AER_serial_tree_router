@@ -483,15 +483,6 @@ namespace aer {
         }
 
         namespace test {
-            template <pint M, N, NN>
-            defproc TEST_AEXT_ (globals g; bool xi[NN], xo[NN]; e1of<N> y) {
-                // M layers in the tree
-                // N for 1-of-N encoding. + tail word line
-                // NN = N^M neurons
-                AEXT<M, N, NN> aext(g, xi, xo,,,);
-                ::aer::interface::OUT_e1ofN<N> out(g, aext.po, aext.pi, aext.p, y);
-            }
-
             export
             template <pint M, N, NN>
             defproc TEST_AEXT (globals g) {
@@ -499,8 +490,11 @@ namespace aer {
                 // N for 1-of-N encoding. + tail word line
                 // NN = N^M neurons
                 active_handshaker<NN> a(g,,);
-                TEST_AEXT_<M, N, NN> aext(g, a.o, a.i,);
-                VN_e1ofN<N> vn(g, aext.y);
+                AEXT<M, N, NN> aext(g, a.o, a.i,,,);
+                ::aer::interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
+                ::aer::interface::DESERIAL_CHAIN<M, N> deserial(
+                    g, out.y,);
+                SINK_eMx1ofN<M, N> snk(g, deserial.y);
             }
 
             export
@@ -510,8 +504,12 @@ namespace aer {
                 // N for 1-of-N encoding. + tail word line
                 // NN = N^M neurons
                 active_handshaker<1> a(g,,);
-                TEST_AEXT_<M, N, NN> aext(g,,,);
-                VN_e1ofN<N> vn(g, aext.y);
+                AEXT<M, N, NN> aext(g,,,,,);
+                ::aer::interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
+                ::aer::interface::DESERIAL_CHAIN<M, N> deserial(
+                    g, out.y,);
+                SINK_eMx1ofN<M, N> snk(g, deserial.y);
+
                 a.o[0] = aext.xi[nn];
                 a.i[0] = aext.xo[nn];
                 [ nn > 0 ->
@@ -524,17 +522,6 @@ namespace aer {
                         aext.xi[idx] = g.GND;
                     )
                 ]
-            }
-
-            export
-            template <pint M, N, NN>
-            defproc TEST_DESERIAL_CHAIN (globals g) {
-                active_handshaker<NN> a(g,,);
-                AEXT<M, N, NN> aext(g, a.o, a.i,,,);
-                ::aer::interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
-                ::aer::interface::DESERIAL_CHAIN<M, N> deserial(
-                    g, out.y,);
-                SINK_eMx1ofN<M, N> snk(g, deserial.y);
             }
         } // namespace test
     } // namespace transmitter
