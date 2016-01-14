@@ -134,7 +134,6 @@ needs at least 28 bits of memory.
     && ring serializer (Section~\ref{sec:SERIAL_RING})
     &&& \textbf{NODE} (Section~\ref{sec:SERIAL_RING_NODE})
     && chain serializer (Section~\ref{sec:SERIAL_CHAIN})
-    &&& \textbf{HEAD} (Section~\ref{sec:SERIAL_CHAIN_HEAD})
     &&& \textbf{NODE} (Section~\ref{sec:SERIAL_CHAIN_NODE})
     &&& \textbf{TAIL} (Section~\ref{sec:SERIAL_CHAIN_TAIL})
     & leaf interface (Section~\ref{sec:RECV_LEAF})
@@ -4789,14 +4788,195 @@ so & po -> s-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Chain serializer \label{sec:SERIAL_CHAIN}}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Chain serializer HEAD \label{sec:SERIAL_CHAIN_HEAD}}
+The chain serializer uses a chain of NODES to sequence the words of an eMx1ofN 
+channel. A C-element indicates the transition between the up and down phases
+of the sequencing.
+
+\begin{center}
+  \includegraphics[width=.7\textwidth]{img/serial_chain.pdf}
+\end{center}
+
+\noindent
+1-of-2 approximate scaling:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|}
+    \hline
+    component & transistors/component & components/serializer & transistors/serializer \\ \hline
+    NODE & 39 & $M-1$ & $39(M-1)$ \\ \hline
+    TAIL & 33 & 1 & 33 \\ \hline
+    C & 8 & 1 & 8 \\ \hline
+    \hline \multicolumn{3}{|r|}{approx. transistors/serializer} & $39M+2$ \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+1-of-4 approximate scaling:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|}
+    \hline
+    component & transistors/component & components/serializer & transistors/serializer \\ \hline
+    NODE & 65 & $M-1$ & $65(M-1)$ \\ \hline
+    TAIL & 53 & 1 & 53 \\ \hline
+    C & 8 & 1 & 8 \\ \hline
+    \hline \multicolumn{3}{|r|}{approx. transistors/serializer} & $65M-4$ \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+For the receiver to handle 4096 neurons (and no data) 
+encoded as 1-of-2 or 1-of-4 words, we would need 11 and 5 NODEs, respectively.
+
+\noindent
+1-of-2 accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|}
+    \hline
+    component & transistors/component & components/serializer & transistors/serializer \\ \hline
+    NODE & 39 & 11 & 429 \\ \hline
+    TAIL & 33 & 1 & 33 \\ \hline
+    C & 8 & 1 & 8 \\ \hline
+    \hline \multicolumn{3}{|r|}{total transistors/serializer} & 470 \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+1-of-4 accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|l|}
+    \hline
+    component & transistors/component & components/serializer & transistors/serializer \\ \hline
+    NODE & 65 & 5 & 325 \\ \hline
+    TAIL & 53 & 5 & 53 \\ \hline
+    C & 8 & 1 & 8 \\ \hline
+    \hline \multicolumn{3}{|r|}{total transistors/serializer} & 386 \\ \hline
+    \end{tabular}
+\end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Chain serializer NODE \label{sec:SERIAL_CHAIN_NODE}}
 
+\begin{hse}
+*[[ye];
+  [~u->
+    [d0->y0+;[~ye];u+;y0-
+    []d1->y1+;[~ye];u+;y1-
+    ]
+  []u->xe+;
+    [x0->y0+;[~ye];xe-;[~x0];y0-
+    []x1->y1+;[~ye];xe-;[~x1]y1-
+    []~d0&~d1->u-;[~ye];xe-
+    ]
+ ]]
+\end{hse}
+
+\begin{prs2}
+ye & ~u & d0 | x0 -> y0+
+u & ~x0 -> y0-
+
+ye & ~u & d1 | x1 -> y1+
+u & ~x1 -> y1-
+\end{prs2}
+
+\begin{prs2}
+(y0 | y1) & ~ye -> u+
+~d0 & ~d1 -> u-
+\end{prs2}
+
+\begin{prs2}
+ye & u -> xe+
+~ye & (y0 | y1 | ~u)  -> xe-
+\end{prs2}
+
+\noindent
+1-of-2 transistor accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $y[0,1]$ & 20 & \\ \hline
+    $u$ & 9 & \\ \hline
+    $xe$ & 10 & \\ \hline
+    \hline total & 39 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+1-of-4 transistor accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $y[0,1]$ & 40 & \\ \hline
+    $u$ & 13 & \\ \hline
+    $xe$ & 12 & \\ \hline
+    \hline total & 65 & \\ \hline
+    \end{tabular}
+\end{center}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Chain serializer TAIL \label{sec:SERIAL_CHAIN_TAIL}}
+
+\begin{hse}
+*[[ye];
+  [~u->
+    [d0->y0+;[~ye];u+;y0-
+    []d1->y1+;[~ye];u+;y1-
+    ]
+  []u->xe+;[~d0&~d1];u-;[~ye]xe-
+ ]]
+\end{hse}
+
+\begin{prs2}
+ye & ~u & d0 -> y0+
+u -> y0-
+
+ye & ~u & d1 -> y1+
+u -> y1-
+\end{prs2}
+
+\begin{prs2}
+(y0 | y1) & ~ye -> u+
+~d0 & ~d1 -> u-
+\end{prs2}
+
+\begin{prs2}
+ye & u -> xe+
+~ye & ~u -> xe-
+\end{prs2}
+
+\noindent
+1-of-2 transistor accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $y[0,1]$ & 16 & \\ \hline
+    $u$ & 9 & \\ \hline
+    $xe$ & 8 & \\ \hline
+    \hline total & 33 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+1-of-4 transistor accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $y[0,1]$ & 32 & \\ \hline
+    $u$ & 13 & \\ \hline
+    $xe$ & 8 & \\ \hline
+    \hline total & 53 & \\ \hline
+    \end{tabular}
+\end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{AERV LEAF/neuron interface (RECVLEAF) \label{sec:RECV_LEAF}}

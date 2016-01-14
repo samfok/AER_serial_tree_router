@@ -172,12 +172,70 @@ namespace aer {
         }
 
         namespace serial_chain {
+            export
+            template <pint N>
+            defproc NODE (globals g; e1of<N> x, y; c1of<N> d) {
+                bool u;
+                prs<g.Vdd, g.GND> {
+                    (: n : N :
+                        y.e & ~u & d.d[n] | x.d[n] -> y.d[n]+
+                        g.pReset | u & ~x.d[n] -> y.d[n]-
+                    )
+
+                    (| : n : N : y.d[n]) & ~y.e -> u+
+                    g.pReset | (& : n : N : ~d.d[n]) -> u-
+
+                    y.e & u -> x.e+
+                    ~y.e & ((| : n : N : y.d[n]) | ~u) -> x.e-
+                }
+            }
+
+            export
+            template <pint N>
+            defproc TAIL (globals g; bool xe; e1of<N> y; c1of<N> d) {
+                bool u;
+                prs<g.Vdd, g.GND> {
+                    (: n : N :
+                        y.e & ~u & d.d[n] -> y.d[n]+
+                        g.pReset | u -> y.d[n]-
+                    )
+
+                    (| : n : N : y.d[n]) & ~y.e -> u+
+                    g.pReset | (& : n : N : ~d.d[n]) -> u-
+
+                    y.e & u -> xe+
+                    ~y.e & ~u -> xe-
+                }
+            }
         } // namespace serial_chain
 
         export
         template <pint M, N>
         defproc SERIAL_CHAIN (globals g; eMx1ofN<M, N> x; bool yi, yo; c1of<N> y) {
             // convert eMx1ofN protocol to AEXT/AERV serial with chain
+            [ M = 1 ->
+                1 = 0; // assert false -- shouldn't enter this case
+            [] M > 1 ->
+                pint MM = M-1;
+                serial_chain::NODE<N> node[MM];
+                serial_chain::TAIL<N> tail(g,, node[MM-1].x, x.m[M-1]);
+                (; m : MM :
+                    node[m].g = g;
+                    node[m].d = x.m[m];
+                )
+                (; m : MM-1 :
+                    node[m].x = node[m+1].y;
+                )
+                node[0].y.m = y;
+                node[0].y.e = yi;
+                bool s;
+                s = yo;
+                s = x.e;
+                prs<g.Vdd, g.GND> {
+                    g.pReset | tail.xe & yi -> s-
+                    ~g.sReset & ~tail.xe & ~yi -> s+
+                }
+            ]
         }
 
         namespace serial_ring {
@@ -617,6 +675,15 @@ namespace aer {
             defproc TEST_SERIAL_RING (globals g) {
                 SOURCE_random_eMx1ofN<M, N> src(g,);
                 ::aer::interface::SERIAL_RING<M, N> serial(g, src.d,,,);
+                AERV_NODATA<M, N, NN> aerv(g,,, serial.yo, serial.yi, serial.y);
+                passive_handshaker<NN> y(aerv.yo, aerv.yi);
+            }
+
+            export
+            template <pint M, N, NN>
+            defproc TEST_SERIAL_CHAIN (globals g) {
+                SOURCE_random_eMx1ofN<M, N> src(g,);
+                ::aer::interface::SERIAL_CHAIN<M, N> serial(g, src.d,,,);
                 AERV_NODATA<M, N, NN> aerv(g,,, serial.yo, serial.yi, serial.y);
                 passive_handshaker<NN> y(aerv.yo, aerv.yi);
             }
