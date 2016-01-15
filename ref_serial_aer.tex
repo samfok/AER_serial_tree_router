@@ -211,6 +211,21 @@ Intermediate node of AEXT tree
  ]]
 \end{hse}
 
+\noindent It's helpful to consider the projection of the HSE on to the parent control and data lines.
+
+\begin{hse}
+*[po+;[pi];
+    [~pi];[pi];
+    (P+;[~pi];P-;[pi])\times(m\-1)
+  po-;[~pi]
+ ]
+\end{hse}
+
+\noindent The first line propagates the child request up the tree and waits for the parents to acknowledge. \\
+The second line is the node outputting a new head word. \\
+The third line repeats $(m-1)$ times where $m$ is this node's level in the tree. \\
+The fourth line propagates the child reset up the tree.
+
 \subsubsection*{PRS}
 
 \begin{prs2}
@@ -247,47 +262,8 @@ c01 | c11 | w1 -> p1+
 ~c01 & ~c11 & ~w1 -> p1-
 \end{prs2}
 
-\subsubsection*{CMOS-implementable PRS}
-
-\begin{prs2}
-~u & (~_c0 | ~_c1) -> po+
-(c0o & _c0) | (c1o & _c1) -> po-
-\end{prs2}
-
-\begin{prs2}
-~_c0 & ~_pi & ~u -> w0+
-u -> w0-
-
-~_c1 & ~_pi & ~u -> w1+
-u -> w1-
-\end{prs2}
-
-\begin{prs2}
-(w0 | w1) & _pi -> _u-
-~c0o & ~c1o & ~po -> _u+
-
-~_u -> u-
-_u -> u+
-\end{prs2}
-
-\begin{prs2}
-~_c0 & ~_u & ~_pi & ~c1o -> c0o+
-_pi -> c0o-
-
-~_c1 & ~_u & ~_pi ~c0o -> c1o+
-_pi -> c1o-
-\end{prs2}
-
-\begin{prs2}
-c00 | c10 | w0 -> p0+
-~c00 & ~c10 & ~w0 -> p0-
-
-c01 | c11 | w1 -> p1+
-~c01 & ~c11 & ~w1 -> p1-
-\end{prs2}
-
 \noindent
-Radix 2 transistor accounting:
+Radix 2 transistor approximate accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
@@ -304,7 +280,7 @@ Radix 2 transistor accounting:
 \end{center}
 
 \noindent
-Radix 4 transistor accounting:
+Radix 4 transistor approximate accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
@@ -320,20 +296,112 @@ Radix 4 transistor accounting:
     \end{tabular}
 \end{center}
 
-\noindent It's helpful to consider the projection of the HSE on to the parent control and data lines.
+\subsubsection*{CMOS-implementable PRS}
 
-\begin{hse}
-*[po+;[pi];
-    [~pi];[pi];
-    (P+;[~pi];P-;[pi])\times(m\-1)
-  po-;[~pi]
- ]
-\end{hse}
+\begin{prs2}
+_u & (c0 | c1) -> _po-
+(~_c0o & ~c0) | (~_c1o & ~c1) -> _po+
 
-\noindent The first line propagates the child request up the tree and waits for the parents to acknowledge. \\
-The second line is the node outputting a new head word. \\
-The third line repeats $(m-1)$ times where $m$ is this node's level in the tree. \\
-The fourth line propagates the child reset up the tree.
+~_po -> po+
+_po -> po-
+\end{prs2}
+
+\begin{prs2}
+c0 & pi & _u -> _w0-
+~_u -> _w0+
+
+c1 & pi & _u -> _w1-
+~_u -> _w1+
+\end{prs2}
+
+\begin{prs2}
+(~_w0 | ~_w1) & ~pi -> u+
+_c0o & _c1o & _po -> u-
+
+~u -> _u+
+u -> _u-
+\end{prs2}
+
+\begin{prs2}
+c0 & u & pi & _c1o -> _c0o-
+~pi -> _c0o+
+
+c1 & u & pi _c0o -> _c1o-
+~pi -> _c1o+
+\end{prs2}
+
+\begin{prs2}
+~_c0o -> c0o+
+_c0o -> c0o-
+
+~_c1o -> c1o+
+_c1o -> c1o-
+\end{prs2}
+
+\begin{prs2}
+~_c00 | ~_c10 | ~_w0 -> p0+
+_c00 & _c10 & _w0 -> p0-
+
+~_c01 | ~_c11 | ~_w1 -> p1+
+_c01 & _c11 & _w1 -> p1-
+\end{prs2}
+
+\begin{prs2}
+~p0 -> _p0+
+p0 -> _p0-
+
+~p1 -> _p1+
+p1 -> _p1-
+\end{prs2}
+
+We could make another another version of CMOS-implementable PRS to alternate
+with this version and eliminate the inverters creating $p_o$, $c[0,1]_o$, and $_p[0,1]$. 
+However, that version would have a PMOS pull up chain for $c[0,1]_o$ that doesn't scale. 
+With a radix 2 tree the chain is already 4 transistors long.
+With a radix 4 tree the chain is 6 transitors long. 
+We want to keep PMOS chains 3 long or shorter.
+
+\noindent
+Radix 2 transistor accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $c[0,1]$ & 12 & 2-way arbiter \\ \hline
+    $\_p_o$ & 11 & \\ \hline
+    $p_o$ & 2 & \\ \hline
+    $\_w[0,1]$ & 16 & \\ \hline
+    $u$ & 10 & \\ \hline
+    $\_u$ & 2 & \\ \hline
+    $\_c[0,1]_o$ & 18 & \\ \hline
+    $c[0,1]_o$ & 4 & \\ \hline
+    $p[0,1]$ & 12 & \\ \hline
+    $\_p[0,1]$ & 4 & \\ \hline
+    \hline total & 91 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+Radix 4 transistor accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $c[0,1,2,3]$ & 92 & 4-way unpipelined arbiter \\ \hline
+    $\_p_o$ & 19 & \\ \hline
+    $p_o$ & 2 & \\ \hline
+    $\_w[0,1,2,3]$ & 32 & \\ \hline
+    $u$ & 10 & \\ \hline
+    $\_u$ & 2 & \\ \hline
+    $\_c[0,1,2,3]_o$ & 44 & \\ \hline
+    $c[0,1,2,3]_o$ & 8 & \\ \hline
+    $p[0,1,2,3]$ & 40 & \\ \hline
+    $\_p[0,1,2,3]$ & 8 & \\ \hline
+    \hline total & 257 & \\ \hline
+    \end{tabular}
+\end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{AEXT CD noTW CYC NODE (reference implementation) \label{sec:AEXT_CD_noTW_CYC_NODE(ref)}}
@@ -449,6 +517,8 @@ Leaf node of AEXT tree
  ]]
 \end{hse}
 
+\subsubsection*{PRS}
+
 \begin{prs2}
 ~u & c0 | c1 -> po+
 (c0o & ~c0) | (c1o & ~c1) -> po-
@@ -468,15 +538,15 @@ u -> p1-
 \end{prs2}
 
 \begin{prs2}
-q0 & u & pi & ~c1o -> c0o+
+c0 & u & pi & ~c1o -> c0o+
 ~u & ~pi -> c0o-
 
-q1 & u & pi & ~c0o -> c1o+
+c1 & u & pi & ~c0o -> c1o+
 ~u & ~pi -> c1o-
 \end{prs2}
 
 \noindent
-Radix 2 transistor accounting:
+Radix 2 transistor approximate accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
@@ -492,7 +562,7 @@ Radix 2 transistor accounting:
 \end{center}
 
 \noindent
-Radix 4 transistor accounting:
+Radix 4 transistor approximate accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
@@ -504,6 +574,84 @@ Radix 4 transistor accounting:
     $u$ & 14 & \\ \hline
     $c[0,1,2,3]_o$ & 48 & \\ \hline
     \hline total & 203 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\subsubsection*{CMOS-implementable PRS}
+
+\begin{prs2}
+_u & c0 | c1 -> _po-
+(~_c0o & ~c0) | (~_c1o & ~c1) -> _po+
+
+~_po -> po+
+_po -> po-
+\end{prs2}
+
+\begin{prs2}
+c0 & pi & _u -> _p0-
+~_u -> _p0+
+
+c1 & pi & _u -> _p1-
+~_u -> _p1-
+\end{prs2}
+
+\begin{prs2}
+(~_p0 | ~_p1) & ~pi -> u+
+_c0o & _c1o & _po -> u-
+
+~u -> _u+
+u -> _u-
+\end{prs2}
+
+\begin{prs2}
+c0 & u & pi & _c1o -> _c0o-
+~u & ~pi -> _c0o+
+
+c1 & u & pi & _c0o -> _c1o-
+~u & ~pi -> _c1o+
+
+~_c0o -> c0o+
+_c0o -> c0o-
+
+~_c1o -> c1o+
+_c1o -> c1o-
+\end{prs2}
+
+\noindent
+Radix 2 transistor accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $c[0,1]$ & 12 & 2-way arbiter \\ \hline
+    $\_p_o$ & 11 & \\ \hline
+    $p_o$ & 2 & \\ \hline
+    $\_p[0,1]$ & 16 & \\ \hline
+    $u$ & 10 & \\ \hline
+    $\_u$ & 2 & \\ \hline
+    $\_c[0,1]_o$ & 20 & \\ \hline
+    $c[0,1]_o$ & 4 & \\ \hline
+    \hline total & 77 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+Radix 4 transistor accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $c[0,1,2,3]$ & 92 & 4-way unpipelined arbiter \\ \hline
+    $\_p_o$ & 17 & \\ \hline
+    $p_o$ & 2 & \\ \hline
+    $\_p[0,1,2,3]$ & 32 & \\ \hline
+    $u$ & 14 & \\ \hline
+    $\_u$ & 2 & \\ \hline
+    $\_c[0,1,2,3]_o$ & 48 & \\ \hline
+    $c[0,1,2,3]_o$ & 8 & \\ \hline
+    \hline total & 215 & \\ \hline
     \end{tabular}
 \end{center}
 
@@ -3778,6 +3926,8 @@ Interfaces AEXT/AERV serial format to e1ofN channel.
  ]]
 \end{hse}
 
+\subsubsection*{PRS}
+
 \begin{prs2}
 xi & ye -> xo+
 ~xi | ~ye -> xo-
@@ -3789,6 +3939,42 @@ x0 -> y0+
 
 x1 -> y1+
 ~x1 -> y1-
+\end{prs2}
+
+\subsubsection*{CMOS-implementable PRS version 0}
+
+\begin{prs2}
+xi & ye -> _xo-
+~xi | ~ye -> _xo+
+
+~_xo -> xo-
+_xo -> xo+
+\end{prs2}
+
+\begin{prs2}
+x0 -> y0+
+~x0 -> y0-
+
+x1 -> y1+
+~x1 -> y1-
+\end{prs2}
+
+\subsubsection*{CMOS-implementable PRS version 1}
+
+\begin{prs2}
+xi & ye -> _xo-
+~xi | ~ye -> _xo+
+
+~_xo -> xo-
+_xo -> xo+
+\end{prs2}
+
+\begin{prs2}
+~_x0 -> y0+
+_x0 -> y0-
+
+~_x1 -> y1+
+_x1 -> y1-
 \end{prs2}
 
 \noindent
@@ -3830,6 +4016,8 @@ Interfaces AEXT/AERV serial format to a1ofN channel.
  ]]
 \end{hse}
 
+\subsubsection*{PRS}
+
 \begin{prs2}
 xi & ~ya -> xo+
 ~xi | ya -> xo-
@@ -3841,6 +4029,24 @@ x0 -> y0+
 
 x1 -> y1+
 ~x1 -> y1-
+\end{prs2}
+
+\subsubsection*{CMOS-implementable PRS version 0}
+
+\begin{prs2}
+xi & _ya -> _xo-
+~xi | ~_ya -> _xo+
+
+~_xo -> xo+
+_xo -> xo-
+\end{prs2}
+
+\begin{prs2}
+_x0 -> _y0+
+~_x0 -> _y0-
+
+_x1 -> _y1+
+~_x1 -> _y1-
 \end{prs2}
 
 \noindent
@@ -4225,8 +4431,10 @@ we would need 12 and 6 links in the chain, respectively.
 *[[si&X];D+;xa+;[~X];so+;xa-;[~si];D-;so-]
 \end{hse}
 
+\subsubsection*{PRS}
+
 \begin{prs2}
-si & x0 > d0+
+si & x0 -> d0+
 ~si -> d0-
 
 si & x1 -> d1+
@@ -4246,6 +4454,74 @@ so | ~vd -> xa-
 \begin{prs2}
 d0 | d1 -> vd+
 ~d0 & ~d1 -> vd-
+\end{prs2}
+
+\subsubsection*{CMOS-implementable PRS version 0}
+
+\begin{prs2}
+~_si & ~_x0 -> d0+
+_si -> d0-
+
+~_si & ~_x1 -> d1+
+_si -> d1-
+\end{prs2}
+
+\begin{prs2}
+_x0 & _x1 & vd -> _so-
+~_x0 | ~_x1 | ~vd -> _so+
+
+~_so -> so+
+_so -> so-
+\end{prs2}
+
+\begin{prs2}
+~so & ~_vd -> xa+
+so | _vd -> xa-
+\end{prs2}
+
+\begin{prs2}
+d0 | d1 -> _vd-
+~d0 & ~d1 -> _vd+
+
+~_vd -> vd+
+_vd -> vd-
+\end{prs2}
+
+\subsubsection*{CMOS-implementable PRS version 1}
+
+\begin{prs2}
+si & x0 -> _d0-
+~si -> _d0+
+
+si & x1 -> _d1-
+~si -> _d1+
+
+~_d0 -> d0+
+_d0 -> d0-
+
+~_d1 -> d1+
+_d1 -> d1-
+\end{prs2}
+
+\begin{prs2}
+~x0 & ~x1 & ~_vd -> so+
+x0 | x1 | _vd -> so-
+
+~so -> _so+
+so -> _so-
+\end{prs2}
+
+\begin{prs2}
+_so & vd -> _xa-
+~_so | ~vd -> _xa+
+\end{prs2}
+
+\begin{prs2}
+~_d0 | ~_d1 -> vd+
+_d0 & _d1 -> vd-
+
+~vd -> _vd+
+vd -> _vd-
 \end{prs2}
 
 \noindent
@@ -4287,6 +4563,8 @@ d0 | d1 -> vd+
  ]]
 \end{hse}
 
+\subsubsection*{PRS}
+
 \begin{prs2}
 ~si & x0 -> y0+
 si | ~x0 -> y0-
@@ -4310,12 +4588,103 @@ x0 | x1 | ~vd -> so-
 
 \begin{prs2}
 ya | ~so & vd -> xa+
-~ya | so | vd -> xa-
+~ya & (so | ~vd) -> xa-
 \end{prs2}
 
 \begin{prs2}
 d0 | d1 -> vd+
 ~d0 & ~d1 -> vd-
+\end{prs2}
+
+\subsubsection*{CMOS-implementable PRS version 0}
+
+\begin{prs2}
+~_si -> si+
+_si -> si-
+\end{prs2}
+
+\begin{prs2}
+~si & ~_x0 -> y0+
+si | _x0 -> y0-
+
+~si & ~_x1 -> y1+
+si | _x1 -> y1-
+\end{prs2}
+
+\begin{prs2}
+~_si & ~_x0 -> d0+
+_si -> d0-
+
+~_si & ~_x1 -> d1+
+_si -> d1-
+\end{prs2}
+
+\begin{prs2}
+_x0 & _x1 & vd -> _so-
+~_x0 | ~_x1 | ~vd -> _so+
+
+~_so -> so+
+_so -> so-
+\end{prs2}
+
+\begin{prs2}
+~_ya | ~so & ~_vd -> xa+
+_ya & (so | _vd) -> xa-
+\end{prs2}
+
+\begin{prs2}
+d0 | d1 -> _vd-
+~d0 & ~d1 -> _vd+
+\end{prs2}
+
+\subsubsection*{CMOS-implementable PRS version 1}
+
+\begin{prs2}
+~si -> _si+
+si -> _si-
+\end{prs2}
+
+\begin{prs2}
+_si & x0 -> _y0-
+~_si | ~x0 -> _y0+
+
+_si & x1 -> _y1-
+~_si | ~x1 -> _y1+
+\end{prs2}
+
+\begin{prs2}
+si & x0 -> _d0-
+~si -> _d0+
+
+si & x1 -> _d1-
+~si -> _d1+
+
+~_d0 -> d0+
+_d0 -> d0-
+
+~_d1 -> d1+
+_d1 -> d1-
+\end{prs2}
+
+\begin{prs2}
+~x0 & ~x1 & ~_vd -> so+
+x0 | x1 | _vd -> so-
+
+~so -> _so+
+so -> _so-
+\end{prs2}
+
+\begin{prs2}
+ya | _so & vd -> _xa-
+~ya & (~_so | ~vd) -> _xa+
+\end{prs2}
+
+\begin{prs2}
+~_d0 | ~_d1 -> vd+
+_d0 & _d1 -> vd-
+
+~vd -> _vd+
+vd -> _vd-
 \end{prs2}
 
 \noindent
@@ -4359,6 +4728,8 @@ d0 | d1 -> vd+
  ]]
 \end{hse}
 
+\subsubsection*{PRS}
+
 \begin{prs2}
 ~si & x0 & ~d0 -> y0+
 si | ~x0 | d0 -> y0-
@@ -4378,6 +4749,63 @@ si & x1 -> d1+
 \begin{prs2}
 ya | d0 | d1 -> xa+
 ~ya & ~d0 & ~d1 -> xa-
+\end{prs2}
+
+\subsubsection*{CMOS-implementable PRS version 0}
+
+\begin{prs2}
+~_si -> si+
+_si -> si-
+\end{prs2}
+
+\begin{prs2}
+~si & ~_x0 & ~d0 -> y0+
+si | _x0 | d0 -> y0-
+
+~si & ~_x1 & ~d1 -> y1+
+si | _x1 | d1 -> y1-
+\end{prs2}
+
+\begin{prs2}
+~_si & ~_x0 -> d0+
+_si & _x0 -> d0-
+
+~_si & ~_x1 -> d1+
+_si & _x1 -> d1-
+\end{prs2}
+
+\begin{prs2}
+ya | d0 | d1 -> _xa-
+~ya & ~d0 & ~d1 -> _xa+
+\end{prs2}
+
+\subsubsection*{CMOS-implementable PRS version 1}
+
+\begin{prs2}
+_si & x0 & _d0 -> _y0-
+~_si | ~x0 | ~_d0 -> _y0+
+
+_si & x1 & _d1 -> _y1-
+~_si | ~x1 | ~_d1 -> _y1+
+\end{prs2}
+
+\begin{prs2}
+si & x0 -> _d0-
+~si & ~x0 -> _d0+
+
+si & x1 -> _d1-
+~si & ~x1 -> _d1+
+
+~_d0 -> d0+
+_d0 -> d0-
+
+~_d1 -> d1+
+_d1 -> d1-
+\end{prs2}
+
+\begin{prs2}
+~_ya | ~_d0 | ~_d1 -> xa+
+_ya & _d0 & _d1 -> xa-
 \end{prs2}
 
 \noindent
