@@ -211,6 +211,8 @@ Intermediate node of AEXT tree
  ]]
 \end{hse}
 
+\subsubsection*{PRS}
+
 \begin{prs2}
 ~u & (c0 | c1) -> po+
 (c0o & ~c0) | (c1o & ~c1) -> po-
@@ -235,6 +237,45 @@ c0 & u & pi & ~c1o -> c0o+
 
 c1 & u & pi ~c0o -> c1o+
 ~pi -> c1o-
+\end{prs2}
+
+\begin{prs2}
+c00 | c10 | w0 -> p0+
+~c00 & ~c10 & ~w0 -> p0-
+
+c01 | c11 | w1 -> p1+
+~c01 & ~c11 & ~w1 -> p1-
+\end{prs2}
+
+\subsubsection*{CMOS-implementable PRS}
+
+\begin{prs2}
+~u & (~_c0 | ~_c1) -> po+
+(c0o & _c0) | (c1o & _c1) -> po-
+\end{prs2}
+
+\begin{prs2}
+~_c0 & ~_pi & ~u -> w0+
+u -> w0-
+
+~_c1 & ~_pi & ~u -> w1+
+u -> w1-
+\end{prs2}
+
+\begin{prs2}
+(w0 | w1) & _pi -> _u-
+~c0o & ~c1o & ~po -> _u+
+
+~_u -> u-
+_u -> u+
+\end{prs2}
+
+\begin{prs2}
+~_c0 & ~_u & ~_pi & ~c1o -> c0o+
+_pi -> c0o-
+
+~_c1 & ~_u & ~_pi ~c0o -> c1o+
+_pi -> c1o-
 \end{prs2}
 
 \begin{prs2}
@@ -4977,6 +5018,16 @@ ye & u -> xe+
     \hline total & 53 & \\ \hline
     \end{tabular}
 \end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Chain serializer C \label{sec:SERIAL_CHAIN_C}}
+
+The C process in the chain serializer is a C-element and costs 8 transistors.
+
+\begin{prs2}
+xe & po -> s-
+~xe & ~po -> s+
+\end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{AERV LEAF/neuron interface (RECVLEAF) \label{sec:RECV_LEAF}}

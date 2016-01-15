@@ -1,4 +1,5 @@
-// This file defines a serialized tree tranceiver
+// This file defines a tree transmitter and receiver.
+// The data traverses the tree with a serialized packet format.
 import "globals.act";
 import "channel.act";
 import "arbiter.act";
@@ -222,7 +223,9 @@ namespace aer {
         defproc SERIAL_CHAIN (globals g; eMx1ofN<M, N> x; bool yi, yo; c1of<N> y) {
             // convert eMx1ofN protocol to AEXT/AERV serial with chain
             [ M = 1 ->
-                1 = 0; // assert false -- shouldn't enter this case
+                serial_chain::TAIL<N> tail(g,,, x.m[0]);
+                tail.y.m = y;
+                tail.y.e = yi;
             [] M > 1 ->
                 pint MM = M-1;
                 serial_chain::NODE<N> node[MM];
@@ -236,14 +239,14 @@ namespace aer {
                 )
                 node[0].y.m = y;
                 node[0].y.e = yi;
-                bool s;
-                s = yo;
-                s = x.e;
-                prs<g.Vdd, g.GND> {
-                    g.pReset | tail.xe & yi -> s-
-                    ~g.sReset & ~tail.xe & ~yi -> s+
-                }
             ]
+            bool s;
+            s = yo;
+            s = x.e;
+            prs<g.Vdd, g.GND> {
+                g.pReset | tail.xe & yi -> s-
+                ~g.sReset & ~tail.xe & ~yi -> s+
+            }
         }
 
         namespace serial_ring {
@@ -495,7 +498,7 @@ namespace aer {
             template <pint M, N, NN>
             defproc TEST_AEXT (globals g) {
                 // M layers in the tree
-                // N for 1-of-N encoding. + tail word line
+                // N for 1-of-N encoding
                 // NN = N^M neurons
                 active_handshaker<NN> a(g,,);
                 AEXT<M, N, NN> aext(g, a.o, a.i,,,);
@@ -509,7 +512,7 @@ namespace aer {
             template <pint M, N, NN, nn>
             defproc TEST_AEXT1 (globals g) {
                 // M layers in the tree
-                // N for 1-of-N encoding. + tail word line
+                // N for 1-of-N encoding
                 // NN = N^M neurons
                 active_handshaker<1> a(g,,);
                 AEXT<M, N, NN> aext(g,,,,,);
