@@ -4046,11 +4046,11 @@ _xo -> xo-
 \end{prs2}
 
 \begin{prs2}
-x0 -> _y0-
-~x0 -> _y0+
+_x0 -> _y0-
+~_x0 -> _y0+
 
-x1 -> _y1-
-~x1 -> _y1+
+_x1 -> _y1-
+~_x1 -> _y1+
 \end{prs2}
 
 \noindent
@@ -4060,9 +4060,10 @@ Radix 2 transistor accounting:
     \begin{tabular}{|r|l|l|}
     \hline
     rule & transistor count & comments \\ \hline
-    $xo$ & 4 & \\ \hline
-    $y[0,1]$ & 0 & wires \\ \hline
-    \hline total & 4 & \\ \hline
+    $\_x_o$ & 4 & \\ \hline
+    $x_o$ & 2 & \\ \hline
+    $\_y[0,1]$ & 0 & wires \\ \hline
+    \hline total & 6 & \\ \hline
     \end{tabular}
 \end{center}
 
@@ -4073,9 +4074,10 @@ Radix 4 transistor accounting:
     \begin{tabular}{|r|l|l|}
     \hline
     rule & transistor count & comments \\ \hline
-    $xo$ & 4 & \\ \hline
-    $y[0,1]$ & 0 & wires \\ \hline
-    \hline total & 4 & \\ \hline
+    $\_x_o$ & 4 & \\ \hline
+    $x_o$ & 2 & \\ \hline
+    $\_y[0,1]$ & 0 & wires \\ \hline
+    \hline total & 6 & \\ \hline
     \end{tabular}
 \end{center}
 
@@ -4365,7 +4367,7 @@ serial communication protocol to the standard a1ofN protocol.
 Each link in the chain outputs one of the words in the parallel output.
 
 \noindent
-1-of-2 scaling:
+1-of-2 approximate scaling:
 
 \begin{center}
     \begin{tabular}{|r|l|l|l|}
@@ -4380,7 +4382,7 @@ Each link in the chain outputs one of the words in the parallel output.
 \end{center}
 
 \noindent
-1-of-4 scaling:
+1-of-4 approximate scaling:
 
 \begin{center}
     \begin{tabular}{|r|l|l|l|}
@@ -4399,7 +4401,7 @@ For the transmitter encoding 4096 neurons as 1-of-2 or 1-of-4 words,
 we would need 12 and 6 links in the chain, respectively.
 
 \noindent
-1-of-2 accounting:
+1-of-2 approximate accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|l|}
@@ -4414,7 +4416,7 @@ we would need 12 and 6 links in the chain, respectively.
 \end{center}
 
 \noindent
-1-of-4 accounting:
+1-of-4 approximate accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|l|}
@@ -4459,6 +4461,36 @@ so | ~vd -> xa-
 d0 | d1 -> vd+
 ~d0 & ~d1 -> vd-
 \end{prs2}
+
+\noindent
+1-of-2 transistor approximate accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $d[0,1]$ & 14 & \\ \hline
+    $s_o$ & 6 & \\ \hline
+    $xa$ & 4 & \\ \hline
+    $vd$ & 4 & \\ \hline
+    \hline total & 28 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+1-of-4 transistor approximate accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $d[0,1,2,3]$ & 28 & \\ \hline
+    $s_o$ & 10 & \\ \hline
+    $xa$ & 4 & \\ \hline
+    $vd$ & 8 & \\ \hline
+    \hline total & 50 & \\ \hline
+    \end{tabular}
+\end{center}
 
 \subsubsection*{CMOS-implementable PRS}
 
@@ -4515,11 +4547,15 @@ _xa -> xa-
     \begin{tabular}{|r|l|l|}
     \hline
     rule & transistor count & comments \\ \hline
-    $d[0,1]$ & 14 & \\ \hline
+    $\_d[0,1]$ & 14 & \\ \hline
+    $d[0,1]$ & 4 & \\ \hline
     $s_o$ & 6 & \\ \hline
-    $xa$ & 4 & \\ \hline
+    $\_s_o$ & 2 & \\ \hline
+    $\_xa$ & 4 & \\ \hline
     $vd$ & 4 & \\ \hline
-    \hline total & 28 & \\ \hline
+    $\_vd$ & 2 & \\ \hline
+    $xa$ & 2 & \\ \hline
+    \hline total & 38 & \\ \hline
     \end{tabular}
 \end{center}
 
@@ -4530,11 +4566,15 @@ _xa -> xa-
     \begin{tabular}{|r|l|l|}
     \hline
     rule & transistor count & comments \\ \hline
-    $d[0,1,2,3]$ & 28 & \\ \hline
+    $\_d[0,1,2,3]$ & 28 & \\ \hline
+    $d[0,1,2,3]$ & 8 & \\ \hline
     $s_o$ & 10 & \\ \hline
-    $xa$ & 4 & \\ \hline
+    $\_s_o$ & 2 & \\ \hline
+    $\_xa$ & 4 & \\ \hline
     $vd$ & 8 & \\ \hline
-    \hline total & 50 & \\ \hline
+    $\_vd$ & 2 & \\ \hline
+    $xa$ & 2 & \\ \hline
+    \hline total & 64 & \\ \hline
     \end{tabular}
 \end{center}
 
@@ -4579,6 +4619,38 @@ ya | ~so & vd -> xa+
 d0 | d1 -> vd+
 ~d0 & ~d1 -> vd-
 \end{prs2}
+
+\noindent
+1-of-2 transistor approximate accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $y[0,1]$ & 8 & \\ \hline
+    $d[0,1]$ & 14 & \\ \hline
+    $s_o$ & 6 & \\ \hline
+    $xa$ & 6 & \\ \hline
+    $vd$ & 4 & \\ \hline
+    \hline total & 38 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+1-of-4 transistor approximate accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $y[0,1,2,3]$ & 16 & \\ \hline
+    $d[0,1,2,3]$ & 28 & \\ \hline
+    $s_o$ & 10 & \\ \hline
+    $xa$ & 6 & \\ \hline
+    $vd$ & 8 & \\ \hline
+    \hline total & 68 & \\ \hline
+    \end{tabular}
+\end{center}
 
 \subsubsection*{CMOS-implementable PRS}
 
@@ -4653,11 +4725,17 @@ _xa -> xa-
     \begin{tabular}{|r|l|l|}
     \hline
     rule & transistor count & comments \\ \hline
+    $\_x[0,1]$ & 4 & \\ \hline
     $y[0,1]$ & 8 & \\ \hline
+    $\_s_i$ & 2 & \\ \hline
     $d[0,1]$ & 14 & \\ \hline
-    $s_o$ & 6 & \\ \hline
-    $xa$ & 6 & \\ \hline
-    $vd$ & 4 & \\ \hline
+    $vd$ & 2 & \\ \hline
+    $\_s_o$ & 6 & \\ \hline
+    $s_o$ & 2 & \\ \hline
+    $\_\_\_s_o$ & 2 & \\ \hline
+    $\_xa$ & 6 & \\ \hline
+    $\_vd$ & 4 & \\ \hline
+    $xa$ & 2 & \\ \hline
     \hline total & 38 & \\ \hline
     \end{tabular}
 \end{center}
@@ -4669,12 +4747,17 @@ _xa -> xa-
     \begin{tabular}{|r|l|l|}
     \hline
     rule & transistor count & comments \\ \hline
+    $\_x[0,1,2,3]$ & 8 & \\ \hline
     $y[0,1,2,3]$ & 16 & \\ \hline
+    $\_s_i$ & 2 & \\ \hline
     $d[0,1,2,3]$ & 28 & \\ \hline
-    $s_o$ & 10 & \\ \hline
-    $xa$ & 6 & \\ \hline
-    $vd$ & 8 & \\ \hline
-    \hline total & 68 & \\ \hline
+    $vd$ & 2 & \\ \hline
+    $\_s_o$ & 10 & \\ \hline
+    $s_o$ & 2 & \\ \hline
+    $\_xa$ & 6 & \\ \hline
+    $\_vd$ & 8 & \\ \hline
+    $xa$ & 2 & \\ \hline
+    \hline total & 84 & \\ \hline
     \end{tabular}
 \end{center}
 
@@ -4709,6 +4792,34 @@ si & x1 -> d1+
 ya | d0 | d1 -> xa+
 ~ya & ~d0 & ~d1 -> xa-
 \end{prs2}
+
+\noindent
+1-of-2 transistor approximate accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $y[0,1]$ & 12 & \\ \hline
+    $d[0,1]$ & 16 & \\ \hline
+    $xa$ & 6 & \\ \hline
+    \hline total & 34 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+1-of-4 transistor approximate accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $y[0,1,2,3]$ & 24 & \\ \hline
+    $d[0,1,2,3]$ & 32 & \\ \hline
+    $xa$ & 10 & \\ \hline
+    \hline total & 66 & \\ \hline
+    \end{tabular}
+\end{center}
 
 \subsubsection*{CMOS-implementable PRS}
 
@@ -4746,9 +4857,10 @@ ya | d0 | d1 -> _xa-
     \hline
     rule & transistor count & comments \\ \hline
     $y[0,1]$ & 12 & \\ \hline
+    $\_s_i$ & 2 & \\ \hline
     $d[0,1]$ & 16 & \\ \hline
-    $xa$ & 6 & \\ \hline
-    \hline total & 34 & \\ \hline
+    $\_xa$ & 6 & \\ \hline
+    \hline total & 36 & \\ \hline
     \end{tabular}
 \end{center}
 
@@ -4760,9 +4872,10 @@ ya | d0 | d1 -> _xa-
     \hline
     rule & transistor count & comments \\ \hline
     $y[0,1,2,3]$ & 24 & \\ \hline
+    $\_s_i$ & 2 & \\ \hline
     $d[0,1,2,3]$ & 32 & \\ \hline
     $xa$ & 10 & \\ \hline
-    \hline total & 66 & \\ \hline
+    \hline total & 68 & \\ \hline
     \end{tabular}
 \end{center}
 
