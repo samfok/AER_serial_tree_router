@@ -213,7 +213,13 @@ namespace aer {
         defproc DESERIAL_CHAIN (globals g; a1of<N> _x; eMx1ofN<M, N> y) {
             // convert AEXT/AERV serial protocol to eMx1ofN with chain
             [ M = 1 ->
-                _x.m = y.m[0]; // needs work
+                _x.a = y.e;
+                prs<g.Vdd, g.GND> {
+                    (: n : N :
+                        ~_x.m.n[n] -> y.m[0].n[n]+
+                        _x.m.n[n] -> y.m[0].n[n]-
+                    )
+                }
             [] M > 1 ->
                 deserial_chain::HEAD<N> head(g,, y.m[0], y.e,);
                 deserial_chain::TAIL<N> tail(g, _x,, y.m[M-1],);
