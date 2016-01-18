@@ -621,28 +621,28 @@ namespace aer {
             export
             template <pint M, N, NN, nn>
             defproc TEST_AEXT1 (globals g) {
-                // // M layers in the tree
-                // // N for 1-of-N encoding
-                // // NN = N^M neurons
-                // active_handshaker<1> a(g,,);
-                // AEXT<M, N, NN> aext(g,,,,,);
-                // ::aer::interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
-                // ::aer::interface::DESERIAL_CHAIN<M, N> deserial(
-                //     g, out.y,);
-                // SINK_eMx1ofN<M, N> snk(g, deserial.y);
+                // M layers in the tree
+                // N for 1-of-N encoding
+                // NN = N^M neurons
+                active_handshaker<1> a(g,,);
+                AEXT<M, N, NN> aext(g,,,,,);
+                ::aer::interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
+                ::aer::interface::DESERIAL_CHAIN<M, N> deserial(
+                    g, out._y,);
+                SINK_eMx1ofN<M, N> snk(g, deserial.y);
 
-                // a.o[0] = aext.xi[nn];
-                // a.i[0] = aext.xo[nn];
-                // [ nn > 0 ->
-                //     (; idx : 0..nn-1 :
-                //         aext.xi[idx] = g.GND;
-                //     )
-                // ]
-                // [ nn < NN ->
-                //     (; idx : nn+1..NN-1 :
-                //         aext.xi[idx] = g.GND;
-                //     )
-                // ]
+                a.o[0] = aext.xi[nn];
+                a.i[0] = aext.xo[nn];
+                [ nn > 0 ->
+                    (; idx : 0..nn-1 :
+                        aext.xi[idx] = g.GND;
+                    )
+                ]
+                [ nn < NN ->
+                    (; idx : nn+1..NN-1 :
+                        aext.xi[idx] = g.GND;
+                    )
+                ]
             }
         } // namespace test
     } // namespace transmitter
