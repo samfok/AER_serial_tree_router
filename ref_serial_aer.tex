@@ -354,12 +354,16 @@ p0 -> _p0-
 p1 -> _p1-
 \end{prs2}
 
+Note that the root NODE does not create $\_p[0,1]$.
+We simply present a normal-sense $p_i$, $p_o$, and $p[0,1]$ interface to the environment.
+
 We could make another another version of CMOS-implementable PRS to alternate
 with this version and eliminate the inverters creating $p_o$, $c[0,1]_o$, and $_p[0,1]$. 
 However, that version would have a PMOS pull up chain for $c[0,1]_o$ that doesn't scale. 
 With a radix 2 tree the chain is already 4 transistors long.
 With a radix 4 tree the chain is 6 transitors long. 
 We want to keep PMOS chains 3 long or shorter.
+
 
 \noindent
 Radix 2 transistor accounting:
@@ -4042,11 +4046,11 @@ _xo -> xo-
 \end{prs2}
 
 \begin{prs2}
-_x0 -> _y0+
-~_x0 -> _y0-
+x0 -> _y0-
+~x0 -> _y0+
 
-_x1 -> _y1+
-~_x1 -> _y1-
+x1 -> _y1-
+~x1 -> _y1+
 \end{prs2}
 
 \noindent
@@ -4456,38 +4460,7 @@ d0 | d1 -> vd+
 ~d0 & ~d1 -> vd-
 \end{prs2}
 
-\subsubsection*{CMOS-implementable PRS version 0}
-
-\begin{prs2}
-~_si & ~_x0 -> d0+
-_si -> d0-
-
-~_si & ~_x1 -> d1+
-_si -> d1-
-\end{prs2}
-
-\begin{prs2}
-_x0 & _x1 & vd -> _so-
-~_x0 | ~_x1 | ~vd -> _so+
-
-~_so -> so+
-_so -> so-
-\end{prs2}
-
-\begin{prs2}
-~so & ~_vd -> xa+
-so | _vd -> xa-
-\end{prs2}
-
-\begin{prs2}
-d0 | d1 -> _vd-
-~d0 & ~d1 -> _vd+
-
-~_vd -> vd+
-_vd -> vd-
-\end{prs2}
-
-\subsubsection*{CMOS-implementable PRS version 1}
+\subsubsection*{CMOS-implementable PRS}
 
 \begin{prs2}
 si & x0 -> _d0-
@@ -4495,7 +4468,9 @@ si & x0 -> _d0-
 
 si & x1 -> _d1-
 ~si -> _d1+
+\end{prs2}
 
+\begin{prs2}
 ~_d0 -> d0+
 _d0 -> d0-
 
@@ -4506,9 +4481,11 @@ _d1 -> d1-
 \begin{prs2}
 ~x0 & ~x1 & ~_vd -> so+
 x0 | x1 | _vd -> so-
+\end{prs2}
 
+\begin{prs2}
 ~so -> _so+
-so -> _so-
+so -> so-
 \end{prs2}
 
 \begin{prs2}
@@ -4519,9 +4496,16 @@ _so & vd -> _xa-
 \begin{prs2}
 ~_d0 | ~_d1 -> vd+
 _d0 & _d1 -> vd-
+\end{prs2}
 
+\begin{prs2}
 ~vd -> _vd+
 vd -> _vd-
+\end{prs2}
+
+\begin{prs2}
+~_xa -> xa+
+_xa -> xa-
 \end{prs2}
 
 \noindent
@@ -4596,11 +4580,14 @@ d0 | d1 -> vd+
 ~d0 & ~d1 -> vd-
 \end{prs2}
 
-\subsubsection*{CMOS-implementable PRS version 0}
+\subsubsection*{CMOS-implementable PRS}
 
 \begin{prs2}
-~_si -> si+
-_si -> si-
+~x0 -> _x0-
+x0 -> _x0+
+
+~x1 -> _x1-
+x1 -> _x1+
 \end{prs2}
 
 \begin{prs2}
@@ -4612,79 +4599,51 @@ si | _x1 -> y1-
 \end{prs2}
 
 \begin{prs2}
-~_si & ~_x0 -> d0+
-_si -> d0-
-
-~_si & ~_x1 -> d1+
-_si -> d1-
-\end{prs2}
-
-\begin{prs2}
-_x0 & _x1 & vd -> _so-
-~_x0 | ~_x1 | ~vd -> _so+
-
-~_so -> so+
-_so -> so-
-\end{prs2}
-
-\begin{prs2}
-~_ya | ~so & ~_vd -> xa+
-_ya & (so | _vd) -> xa-
-\end{prs2}
-
-\begin{prs2}
-d0 | d1 -> _vd-
-~d0 & ~d1 -> _vd+
-\end{prs2}
-
-\subsubsection*{CMOS-implementable PRS version 1}
-
-\begin{prs2}
 ~si -> _si+
 si -> _si-
 \end{prs2}
 
 \begin{prs2}
-_si & x0 -> _y0-
-~_si | ~x0 -> _y0+
+~_si & ~_x0 -> d0+
+_si -> d0-
 
-_si & x1 -> _y1-
-~_si | ~x1 -> _y1+
+~_si & ~_x1 -> d1-
+_si -> _d1+
 \end{prs2}
 
 \begin{prs2}
-si & x0 -> _d0-
-~si -> _d0+
-
-si & x1 -> _d1-
-~si -> _d1+
-
-~_d0 -> d0+
-_d0 -> d0-
-
-~_d1 -> d1+
-_d1 -> d1-
+~_vd -> vd+
+_vd -> vd-
 \end{prs2}
 
 \begin{prs2}
-~x0 & ~x1 & ~_vd -> so+
-x0 | x1 | _vd -> so-
-
-~so -> _so+
-so -> _so-
+_x0 & _x1 & vd -> _so-
+~_x0 | ~_x1 | ~vd -> _so+
 \end{prs2}
 
 \begin{prs2}
-ya | _so & vd -> _xa-
-~ya & (~_so | ~vd) -> _xa+
+~_so -> so+
+_so -> so-
 \end{prs2}
 
 \begin{prs2}
-~_d0 | ~_d1 -> vd+
-_d0 & _d1 -> vd-
+~so -> ___so+
+so -> ___so-
+\end{prs2}
 
-~vd -> _vd+
-vd -> _vd-
+\begin{prs2}
+ya | ___so & vd -> _xa-
+~ya & (~___so | ~vd) -> _xa+
+\end{prs2}
+
+\begin{prs2}
+d0 | d1 -> _vd-
+~d0 & ~d1 -> ~vd+
+\end{prs2}
+
+\begin{prs2}
+~_xa -> xa+
+_xa -> xa-
 \end{prs2}
 
 \noindent
@@ -4751,19 +4710,19 @@ ya | d0 | d1 -> xa+
 ~ya & ~d0 & ~d1 -> xa-
 \end{prs2}
 
-\subsubsection*{CMOS-implementable PRS version 0}
-
-\begin{prs2}
-~_si -> si+
-_si -> si-
-\end{prs2}
+\subsubsection*{CMOS-implementable PRS}
 
 \begin{prs2}
 ~si & ~_x0 & ~d0 -> y0+
 si | _x0 | d0 -> y0-
 
 ~si & ~_x1 & ~d1 -> y1+
-si | _x1 | d1 -> y1-
+si | x1 | d1 -> y1-
+\end{prs2}
+
+\begin{prs2}
+~si -> _si+
+si -> _si-
 \end{prs2}
 
 \begin{prs2}
@@ -4771,41 +4730,12 @@ si | _x1 | d1 -> y1-
 _si & _x0 -> d0-
 
 ~_si & ~_x1 -> d1+
-_si & _x1 -> d1-
+_si & ~_1 -> d1-
 \end{prs2}
 
 \begin{prs2}
 ya | d0 | d1 -> _xa-
 ~ya & ~d0 & ~d1 -> _xa+
-\end{prs2}
-
-\subsubsection*{CMOS-implementable PRS version 1}
-
-\begin{prs2}
-_si & x0 & _d0 -> _y0-
-~_si | ~x0 | ~_d0 -> _y0+
-
-_si & x1 & _d1 -> _y1-
-~_si | ~x1 | ~_d1 -> _y1+
-\end{prs2}
-
-\begin{prs2}
-si & x0 -> _d0-
-~si & ~x0 -> _d0+
-
-si & x1 -> _d1-
-~si & ~x1 -> _d1+
-
-~_d0 -> d0+
-_d0 -> d0-
-
-~_d1 -> d1+
-_d1 -> d1-
-\end{prs2}
-
-\begin{prs2}
-~_ya | ~_d0 | ~_d1 -> xa+
-_ya & _d0 & _d1 -> xa-
 \end{prs2}
 
 \noindent
