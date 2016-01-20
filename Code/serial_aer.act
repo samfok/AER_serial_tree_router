@@ -402,20 +402,31 @@ namespace aer {
             export
             template <pint N>
             defproc NODE (globals g; c1of<N> x; av1of<N> y; bool si, so) {
-                bool u;
+                bool u, _yv;
+                c1of<N> _y;
                 prs<g.Vdd, g.GND> {
                     (: n : N :
-                        si & x.d[n] & u -> y.d[n]+
-                        ~si | ~x.d[n] | ~u -> y.d[n]-
-                    )
-                    si & (| : n : N : x.d[n]) & u -> y.v+
-                    ~si | (& : n : N : ~x.d[n]) | ~u -> y.v-
+                        si & x.d[n] & u -> _y.d[n]-
+                        ~si | ~x.d[n] | ~u -> _y.d[n]+
+                    ) 
+
+                    si & (| : n : N : x.d[n]) & u -> _yv-
+                    ~si | (& : n : N : ~x.d[n]) | ~u -> _yv+
 
                     ~si & (& : n : N : ~x.d[n]) -> u+
                     y.a -> u-
 
                     ~u & ~y.a -> so+
                     u | y.a -> so-
+                }
+                prs<g.Vdd, g.GND> {
+                    (: n : N :
+                        ~_y.d[n] -> y.d[n]+
+                        _y.d[n] -> y.d[n]-
+                    )
+
+                    ~_yv -> y.v+
+                    _yv -> y.v-
                 }
             }
 
@@ -436,19 +447,30 @@ namespace aer {
                     )
                     or[n].o = u.d[n];
                 )
-                bool vy;
+                c1of<N> _y;
+                bool _vy, _xv[M];
                 prs<g.Vdd, g.GND> {
                     (: n : N :
-                        u.d[n] & yi -> y.d[n]+
-                        ~u.d[n] -> y.d[n]-
+                        u.d[n] & yi -> _y.d[n]-
+                        ~u.d[n] -> _y.d[n]+
                     )
 
-                    (| : n : N : y.d[n]) -> vy+
-                    (& : n : N : ~y.d[n]) -> vy-
+                    (: n : N :
+                        ~_y.d[n] -> y.d[n]+
+                        _y.d[n] -> y.d[n]-
+                    )
+
+                    (| : n : N : y.d[n]) -> _vy-
+                    (& : n : N : ~y.d[n]) -> _vy+
 
                     (: m : M :
-                        x[m].v & ~yi & vy -> x[m].a+
-                        ~x[m].v & ~vy -> x[m].a-
+                        ~x[m].v -> _xv[m]+
+                        x[m].v -> _xv[m]-
+                    )
+
+                    (: m : M :
+                        ~_xv[m] & ~yi & ~_vy -> x[m].a+
+                        _xv[m] & _vy -> x[m].a-
                     )
                 }
             }
