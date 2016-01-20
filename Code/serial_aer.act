@@ -402,7 +402,8 @@ namespace aer {
             export
             template <pint N>
             defproc NODE (globals g; c1of<N> x; av1of<N> y; bool si, so) {
-                bool u, _yv;
+                bool u;
+                bool _yv = y.v;
                 c1of<N> _y;
                 prs<g.Vdd, g.GND> {
                     (: n : N :
@@ -424,9 +425,6 @@ namespace aer {
                         ~_y.d[n] -> y.d[n]+
                         _y.d[n] -> y.d[n]-
                     )
-
-                    ~_yv -> y.v+
-                    _yv -> y.v-
                 }
             }
 
@@ -449,6 +447,9 @@ namespace aer {
                 )
                 c1of<N> _y;
                 bool _vy, _xv[M];
+                (; m : M :
+                    _xv[m] = x[m].v;
+                )
                 prs<g.Vdd, g.GND> {
                     (: n : N :
                         u.d[n] & yi -> _y.d[n]-
@@ -462,11 +463,6 @@ namespace aer {
 
                     (| : n : N : y.d[n]) -> _vy-
                     (& : n : N : ~y.d[n]) -> _vy+
-
-                    (: m : M :
-                        ~x[m].v -> _xv[m]+
-                        x[m].v -> _xv[m]-
-                    )
 
                     (: m : M :
                         ~_xv[m] & ~yi & ~_vy -> x[m].a+
