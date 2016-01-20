@@ -2452,6 +2452,8 @@ Radix 4 accounting:
  ]]
 \end{hse}
 
+\subsubsection*{PRS}
+
 \begin{prs2}
 (pi & ~cco | cci) & ~uu -> po+
 (~pi | cco) & ~cci | uu -> po-
@@ -2463,7 +2465,9 @@ cco -> u0-
 
 p1 & ~cco -> u1+
 cco -> u1-
+\end{prs2}
 
+\begin{prs2}
 u0 | u1 -> uu+
 ~u0 & ~u1 -> uu-
 \end{prs2}
@@ -2496,6 +2500,82 @@ c1o & p0 -> c10+
 
 c1o & p1 -> c11+
 ~c1o | ~p1 -> c11-
+\end{prs2}
+
+\subsubsection*{CMOS-implementable PRS}
+
+\begin{prs2}
+~pi -> _pi+
+pi -> _pi-
+\end{prs2}
+
+\begin{prs2}
+~_uu -> __uu+
+_uu -> __uu-
+\end{prs2}
+
+\begin{prs2}
+(~_pi & ~cco | ~_cci) & ~__uu -> po+
+(_pi | cco) & _cci | __uu -> po-
+\end{prs2}
+
+\begin{prs2}
+~p0 -> _p0+
+p0 -> _p0-
+
+~p1 -> _p1+
+p1 -> _p1-
+\end{prs2}
+
+\begin{prs2}
+~_p0 & ~cco -> u0+
+cco -> u0-
+
+~_p1 & ~cco -> u1+
+cco -> u1-
+\end{prs2}
+
+\begin{prs2}
+u0 | u1 -> _uu-
+~u0 & ~u1 -> _uu+
+\end{prs2}
+
+\begin{prs2}
+u0 & _p0 -> _c0o-
+~pi -> _c0o+
+
+u1 & _p1 -> _c1o-
+~pi -> _c1o+
+\end{prs2}
+
+\begin{prs2}
+~_c0o | ~_c1o -> cco+
+_c0o & _c1o -> cco-
+
+c0i | c1i -> _cci-
+~c0i & ~c1i -> _cci+
+\end{prs2}
+
+\begin{prs2}
+~_c0o & ~_p0 -> c00+
+_c0o | _p0 -> c00-
+
+~_c0o & ~_p1 -> c01+
+_c0o | _p1 -> c01-
+
+~_c1o & ~_p0 -> c10+
+_c1o | _p0 -> c10-
+
+~_c1o & ~_p1 -> c11+
+_c1o | _p1 -> c11-
+\end{prs2}
+
+\begin{prs2}
+~_c0o -> c0o+
+_c0o -> c0o-
+
+~_c1o -> c1o+
+_c1o -> c1o-
 \end{prs2}
 
 \noindent
@@ -2627,6 +2707,8 @@ This leaf design does not transmit the $c_o$ signals to the neuron. Rather data 
  ]]
 \end{hse}
 
+\subsubsection*{PRS}
+
 \begin{prs2}
 (pi | cco) & ~uu & ~cci -> po+
 ~pi & ~cco | uu | cci -> po-
@@ -2638,7 +2720,9 @@ cco -> u0-
 
 ~cco & p1 -> u1+
 cco -> u1-
+\end{prs2}
 
+\begin{prs2}
 u0 | u1 -> uu+
 ~u0 & ~u1 -> uu-
 \end{prs2}
@@ -2672,6 +2756,76 @@ c1o & p0 -> c10+
 c1o & p1 -> c11+
 ~c1o | ~p1 -> c11-
 \end{prs2}
+
+\subsubsection*{CMOS-implementable PRS}
+
+\begin{prs2}
+~pi -> _pi+
+pi -> _pi-
+\end{prs2}
+
+\begin{prs2}
+(~_pi | ~_cco) & ~uu & ~cci -> po+
+_pi & _cco | uu | cci -> po-
+\end{prs2}
+
+\begin{prs2}
+_cco & p0 -> _u0-
+~_cco -> _u0+
+
+_cco & p1 -> _u1-
+~_cco -> _u1+
+\end{prs2}
+
+\begin{prs2}
+~_u0 | ~_u1 -> uu+
+_u0 & _u1 -> uu-
+\end{prs2}
+
+\begin{prs2}
+~_u0 & ~p0 -> c0o+
+_pi -> c0o-
+
+~_u1 & ~p1 -> c1o+
+_pi -> c1o-
+\end{prs2}
+
+\begin{prs2}
+c0o | c1o -> _cco-
+~c0o & ~c1o -> _cco+
+
+c0i | c1i -> _cci-
+~c0i & ~c1i -> _cci+
+\end{prs2}
+
+\begin{prs2}
+c0o & p0 -> _c00-
+~c0o | ~p0 -> _c00+
+
+c0o & p1 -> _c01-
+~c0o | ~p1 -> _c01+
+
+c1o & p0 -> _c10-
+~c1o | ~p0 -> _c10+
+
+c1o & p1 -> _c11-
+~c1o | ~p1 -> _c11+
+\end{prs2}
+
+\begin{prs2}
+~_c00 -> c00+
+_c00 -> c00-
+
+~_c01 -> c01+
+_c01 -> c01-
+
+~_c10 -> c10+
+_c10 -> c10-
+
+~_c11 -> c11+
+_c11 -> c11-
+\end{prs2}
+
 
 \noindent
 Radix 2 transistor accounting:
@@ -2752,6 +2906,8 @@ If we don't need to send any data to the neurons we can make very cheap leaf nod
  ]
 \end{hse}
 
+\subsubsection*{PRS}
+
 \begin{prs2}
 (pi & ~c0i & ~c1i) | u -> po+
 (~pi | c0i | c1i) & ~u -> po-
@@ -2768,6 +2924,52 @@ p1 -> c1o+
 \begin{prs2}
 c0i & ~p0 | c1i & ~p1 -> u+
 (~c0i | p0) & (~c1i | p1) -> u-
+\end{prs2}
+
+\subsubsection*{CMOS-implementable PRS}
+
+\begin{prs2}
+~pi -> _pi+
+pi -> _pi-
+\end{prs2}
+
+\begin{prs2}
+~u -> _u+
+u -> _u-
+\end{prs2}
+
+\begin{prs2}
+(~_pi & ~c0i & ~c1i) | ~_u -> po+
+(_pi | c0i | c1i) & _u -> po-
+\end{prs2}
+
+\begin{prs2}
+p0 -> _c0o-
+~pi -> _c0o+
+
+p1 -> _c1o-
+~pi -> _c1o+
+\end{prs2}
+
+\begin{prs2}
+~c0i -> _c0i+
+c0i -> _c0i-
+
+~c1i -> _c1i+
+c1i -> _c1i-
+\end{prs2}
+
+\begin{prs2}
+~_c0i & ~p0 | ~_c1i & ~p1 -> u+
+(_c0i | p0) & (_c1i | p1) -> u-
+\end{prs2}
+
+\begin{prs2}
+~_c0o -> c0o+
+_c0o -> c0o-
+
+~_c1o -> c1o+
+_c1o -> c1o-
 \end{prs2}
 
 \noindent

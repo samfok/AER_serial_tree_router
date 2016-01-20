@@ -772,29 +772,53 @@ namespace aer {
         template <pint N>
         defproc NODE (globals g; bool pi, po, ci[N], co[N]; c1of<N> p, c[N]) {
             // node in AERV tree
-            bool u[N], cco, cci, uu;
+            bool _pi, u[N], _co[N], cco, _cci, _uu, __uu;
+            c1of<N> _p;
             prs<g.Vdd, g.GND> {
-                (pi & ~cco | cci) & ~uu => po+
+                ~pi -> _pi+
+                pi -> _pi-
+
+                ~_uu -> __uu+
+                _uu -> __uu-
+
+                (~_pi & ~cco | ~_cci) & ~__uu -> po+
+                (_pi | cco) & _cci | __uu -> po-
 
                 (: n : N :
-                    u[n] & ~p.d[n] -> co[n]+
-                    ~pi -> co[n]-
+                    ~p.d[n] -> _p.d[n]+
+                    p.d[n] -> _p.d[n]-
                 )
 
-                (| : n : N : ci[n]) => cci+
-                (| : n : N : co[n]) => cco+
-
                 (: n : N :
-                    p.d[n] & ~cco -> u[n]+
+                    ~_p.d[n] & ~cco -> u[n]+
                     g.pReset | cco -> u[n]-
                 )
 
-                (| : n : N : u[n]) => uu+
+                (| : n : N : u[n]) -> _uu-
+                (& : n : N : ~u[n]) -> _uu+
+
+                (: n : N :
+                    u[n] & _p.d[n] -> _co[n]-
+                    _pi -> _co[n]+
+                )
+
+                (| : n : N : ~_co[n]) -> cco+
+                (& : n : N : _co[n]) -> cco-
+
+                (| : n : N : ci[n]) -> _cci-
+                (& : n : N : ~ci[n]) -> _cci+
 
                 (: nc : N :
                     (: n : N :
-                        co[nc] & p.d[n] => c[nc].d[n]+
+                        ~_co[nc] & ~_p.d[n] -> c[nc].d[n]+
+                        _co[nc] | _p.d[n] -> c[nc].d[n]-
                     )
+                )
+            }
+            prs<g.Vdd, g.GND> {
+                (: n : N :
+                    ~_co[n] -> co[n]+
+                    _co[n] -> co[n]-
                 )
             }
         }
@@ -804,25 +828,30 @@ namespace aer {
             // leaf of AERV tree
             bool u[N], co[N], cco, cci, uu;
             prs<g.Vdd, g.GND> {
-                (pi | cco) & ~uu & ~cci => po+
+                (pi | cco) & ~uu & ~cci -> po+
+                ~pi & ~cco | uu | cci -> po-
 
                 (: n : N :
                     ~cco & p.d[n] -> u[n]+
                     g.pReset | cco -> u[n]-
                 )
-                (| : n : N : u[n]) => uu+
+                (| : n : N : u[n]) -> uu+
+                (& : n : N : ~u[n]) -> uu-
 
                 (: n : N :
                     u[n] & ~p.d[n] -> co[n]+
                     ~pi -> co[n]-
                 )
-                (| : n : N : co[n]) => cco+
+                (| : n : N : co[n]) -> cco+
+                (& : n : N : ~co[n]) -> cco-
 
-                (| : n : N : ci[n]) => cci+
+                (| : n : N : ci[n]) -> cci+
+                (& : n : N : ~ci[n]) -> cci-
 
                 (: nc : N :
                     (: n : N :
-                        co[nc] & p.d[n] => c[nc].d[n]+
+                        co[nc] & p.d[n] -> c[nc].d[n]+
+                        ~co[nc] | ~p.d[n] -> c[nc].d[n]-
                     )
                 )
             }
@@ -831,15 +860,34 @@ namespace aer {
         template <pint N>
         defproc LEAF_NODATA (globals g; bool pi, po, ci[N], co[N]; c1of<N> p) {
             // leaf of AERV tree that does not transmit data
-            bool u;
+            bool _pi, u, _u, _ci[N], _co[N];
             prs<g.Vdd, g.GND> {
-                pi & (& : n : N : ~ci[n]) | u => po+
+                ~pi -> _pi+
+                pi -> _pi-
 
-                (| : n : N : ci[n] & ~p.d[n]) => u+
+                ~u -> _u+
+                u -> _u-
+
+                ~_pi & (& : n : N : ~ci[n]) | ~_u -> po+
+                (_pi | (| : n : N : ci[n])) & _u -> po-
 
                 (: n : N :
-                    p.d[n] -> co[n]+
-                    ~pi -> co[n]-
+                    p.d[n] -> _co[n]-
+                    ~pi -> _co[n]+
+                )
+
+                (: n : N :
+                    ~ci[n] -> _ci[n]+
+                    ci[n] -> _ci[n]-
+                )
+
+                (| : n : N : ~_ci[n] & ~p.d[n]) -> u+
+                (& : n : N : _ci[n] | p.d[n]) -> u-
+            }
+            prs<g.Vdd, g.GND> {
+                (: n : N :
+                    ~_co[n] -> co[n]+
+                    _co[n] -> co[n]-
                 )
             }
         }
@@ -868,36 +916,13 @@ namespace aer {
 
         export
         template <pint M, N, NN>
-        defproc AERV_DATA (globals g; bool yi[NN], yo[NN], pi, po; c1of<N> p, c[NN]) {
-            // receiver capable of sending data to neuron
-            [ M = 1 ->
-                NN = N;
-                NODE<N> node(g, pi, po, yi, yo, p, c);
-            [] M > 1 ->
-                AERV_DATA<M-1, N, NN/N> _[N];
-                NODE<N> node(g, pi, po,,, p,);
-                pint k = NN/N;
-                (; n : N :
-                    _[n].g = g;
-                    _[n].p = node.c[n];
-                    _[n].pi = node.co[n];
-                    _[n].po = node.ci[n];
-                    _[n].yi = yi[n*k..(n+1)*k-1];
-                    _[n].yo = yo[n*k..(n+1)*k-1];
-                    _[n].c = c[n*k..(n+1)*k-1];
-                )
-            ]
-        }
-
-        export
-        template <pint M, N, NN>
-        defproc AERV_DATA1 (globals g; bool yi[NN], pi, po; c1of<N> p, c[NN]) {
+        defproc AERV_DATA (globals g; bool yi[NN], pi, po; c1of<N> p, c[NN]) {
             // receiver capable of sending data to neuron
             [ M = 1 ->
                 NN = N;
                 LEAF<N> leaf(g, pi, po, yi, p, c);
             [] M > 1 ->
-                AERV_DATA1<M-1, N, NN/N> _[N];
+                AERV_DATA<M-1, N, NN/N> _[N];
                 NODE<N> node(g, pi, po,,, p,);
                 pint k = NN/N;
                 (; n : N :
@@ -941,7 +966,6 @@ namespace aer {
         } // namespace test
     } // namespace receiver
 
-    /*
     export
     template <pint M, N, NN>
     defproc AER_NODATA (globals g; bool xi[NN], xo[NN], yi[NN], yo[NN]) {
@@ -953,28 +977,10 @@ namespace aer {
         // N items per group
         // NN=N^M
         transmitter::AEXT<M, N, NN> aext(g, xi, xo,,,);
-        receiver::AERV_NODATA<M, N, NN> aerv(g, yi, yo,,,);
         interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
-        interface::DESERIAL_CHAIN<M, N> deserial(g, out.y,);
-        interface::SERIAL_CHAIN<M, N> serial(g, deserial.y, aerv.po, aerv.pi, aerv.p);
-    }
-
-    export
-    template <pint M_AEXT, M_AERV, N, NN_AEXT, NN_AERV>
-    defproc AER_DATA1 (globals g; bool xi[NN_AEXT], xo[NN_AEXT], yi[NN_AERV]; c1of<N> y[NN_AERV]) {
-        // address-event representation tranceiver
-        // data (no control) sent to receiving neuron
-        // packets are serialized 
-        // Uses M 1-of-N encoding
-        // M_AEXT groups in transmitter
-        // M_AERV groups in receiver
-        // N items per group
-        // NN=N^M
-        transmitter::AEXT<M_AEXT, N, NN_AEXT> aext(g, xi, xo,,,);
-        receiver::AERV_DATA1<M_AERV, N, NN_AERV> aerv(g, yi,,,, y);
-        aext.pi = aerv.po;
-        aext.po = aerv.pi;
-        aext.p = aerv.p;
+        interface::DESERIAL_CHAIN<M, N> deserial(g, out._y,);
+        interface::SERIAL_RING2<M, N> serial(g, deserial.y,,,);
+        receiver::AERV_NODATA<M, N, NN> aerv(g, yi, yo, serial.yo, serial.yi, serial.y);
     }
 
     export
@@ -987,11 +993,11 @@ namespace aer {
         // M groups
         // N items per group
         // NN=N^M
-        transmitter::AEXT<M_AEXT, N, NN_AEXT> aext(g, xi, xo,,,);
-        receiver::AERV_DATA<M_AERV, N, NN_AERV> aerv(g, yi, yo,,,, y);
-        aext.pi = aerv.po;
-        aext.po = aerv.pi;
-        aext.p = aerv.p;
+        // transmitter::AEXT<M_AEXT, N, NN_AEXT> aext(g, xi, xo,,,);
+        // interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
+        // interface::DESERIAL_CHAIN<M_AEXT, N> deserial(g, out._y,);
+        // interface::SERIAL_RING2<M_AERV, N> serial(g, deserial.y,,,);
+        // receiver::AERV_DATA<M_AERV, N, NN_AERV> aerv(g, yi, yo, serial.yo, serial.yi, serial.y);
     }
 
     namespace test {
@@ -1066,8 +1072,7 @@ namespace aer {
             // NN*M transmitter neurons generate data for receiver neurons
             active_handshaker<NN_AEXT> x(g,,);
             AERV_NRN_SIMPLE<N, NN_AERV> y(g,,);
-            AER_DATA1<M_AEXT, M_AERV, N, NN_AEXT, NN_AERV> aer(g, x.o, x.i, y.o, y.i);
+            // AER_DATA1<M_AEXT, M_AERV, N, NN_AEXT, NN_AERV> aer(g, x.o, x.i, y.o, y.i);
         }
     } // namespace test
-    */
 } // namespace aer
