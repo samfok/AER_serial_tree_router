@@ -133,6 +133,9 @@ needs at least 28 bits of memory.
     & serializer, parallel to serial converter (Section~\ref{sec:SERIAL})
     && ring serializer (Section~\ref{sec:SERIAL_RING})
     &&& \textbf{NODE} (Section~\ref{sec:SERIAL_RING_NODE})
+    && ring serializer 2 (Section~\ref{sec:SERIAL_RING2})
+    &&& \textbf{NODE} (Section~\ref{sec:SERIAL_RING2_NODE})
+    &&& \textbf{MERGE} (Section~\ref{sec:SERIAL_RING2_MERGE})
     && chain serializer (Section~\ref{sec:SERIAL_CHAIN})
     &&& \textbf{NODE} (Section~\ref{sec:SERIAL_CHAIN_NODE})
     &&& \textbf{TAIL} (Section~\ref{sec:SERIAL_CHAIN_TAIL})
@@ -5243,20 +5246,20 @@ encoded as 1-of-2 or 1-of-4 words, we would need 12 and 6 NODEs, respectively.
 
 \begin{prs2}
 ~u & ye & si & x0 -> y0+
-u & ~so -> y0-
+u -> y0-
 
-~u & ye & si & x1 -> y1+
-u & ~so -> y1-
+ye & ~u & si & x1 -> y1+
+u -> y1-
 \end{prs2}
 
 \begin{prs2}
-si & ~ye & (y0 | y1) & ~so -> u+
-~si & ~x0 & ~x1 -> u-
+(y0 | y0) & ~ye -> u+
+~x0 & ~x1 & ~si -> u-
 \end{prs2}
 
 \begin{prs2}
 u & ~y0 & ~y1 -> so+
-~u -> so-
+~u | y0 | y1 -> so-
 \end{prs2}
 
 \noindent
@@ -5295,6 +5298,190 @@ The C process in the ring serializer is a C-element and costs 8 transistors.
 \begin{prs2}
 so & po -> s-
 ~so & ~po -> s+
+\end{prs2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Ring serializer 2 \label{sec:SERIAL_RING2}}
+
+The previous ring serializer (Section~\ref{sec:SERIAL_RING}) used a lot
+of isochronic forks and was too difficult to bubble reshuffle. This design
+uses more conventional channels and more sequencing. Since there's only one
+serializer per neuron array, the cost per neuron is still trivial.
+
+\begin{center}
+  \includegraphics[width=.7\textwidth]{img/serial_ring2.pdf}
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Ring serializer 2 NODE \label{sec:SERIAL_RING2_NODE}}
+
+\begin{hse}
+*[[ si&x0->y0+,yv+;[ya];u-;y0-,yv-;[~ya];so+;[~si&~x0];u+;so-
+  []si&x1->y1+,yv+;[ya];u-;y1-,yv-;[~ya];so+;[~si&~x1];u+;so-
+ ]]
+\end{hse}
+
+\subsubsection*{PRS}
+
+\begin{prs2}
+si & x0 & u -> y0+
+~si | ~x0 | ~u -> y0-
+
+si & x1 & u -> y1+
+~si | ~x1 | ~u -> y1-
+\end{prs2}
+
+\begin{prs2}
+si & (x0 | x1) & u -> yv+
+~si | ~x0 & ~x1 | ~u -> yv-
+\end{prs2}
+
+\begin{prs2}
+~si & ~x0 & ~x1 -> u+
+ya -> u-
+\end{prs2}
+
+\begin{prs2}
+~u & ~ya -> so+
+u | ya -> so-
+\end{prs2}
+
+\subsubsection*{CMOS-implementable PRS}
+
+\begin{prs2}
+si & x0 & u -> _y0-
+~si | ~x0 | ~u -> _y0+
+
+si & x1 & u -> _y1-
+~si | ~x1 | ~u -> _y1+
+\end{prs2}
+
+\begin{prs2}
+si & (x0 | x1) & u -> _yv-
+~si | ~x0 & ~x1 | ~u -> _yv+
+\end{prs2}
+
+\begin{prs2}
+~si & ~x0 & ~x1 -> u+
+ya -> u-
+\end{prs2}
+
+\begin{prs2}
+~u & ~ya -> so+
+u | ya -> so-
+\end{prs2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Ring serializer 2 MERGE \label{sec:SERIAL_RING2_MERGE}}
+
+without state:
+
+\begin{hse}
+*[[~si&~yi];so+;[si&yi];so-]
+
+*[[ x00->[yi];y0+;[x0v&~yi];x0a+;([~x00];y0-),[~x0v];x0a-
+  []x01->[yi];y1+;[x0v&~yi];x0a+;([~x01];y1-),[~x0v];x0a-
+  []x10->[yi];y0+;[x1v&~yi];x1a+;([~x10];y0-),[~x1v];x1a-
+  []x11->[yi];y1+;[x1v&~yi];x1a+;([~x11];y1-),[~x1v];x1a-
+ ]]
+\end{hse}
+
+with state:
+
+\begin{hse}
+*[[~si&~yi];so+;[si&yi];so-]
+
+*[[ x00->u0+,[yi];y0+;vy+;[x0v&~yi];x0a+;([~x00];u0-;y0-;vy-),[~x0v];x0a-
+  []x01->u1+,[yi];y1+;vy+;[x0v&~yi];x0a+;([~x01];u1-;y1-;vy-),[~x0v];x0a-
+  []x10->u0+,[yi];y0+;vy+;[x1v&~yi];x1a+;([~x10];u0-;y0-;vy-),[~x1v];x1a-
+  []x11->u1+,[yi];y1+;vy+;[x1v&~yi];x1a+;([~x11];u1-;y1-;vy-),[~x1v];x1a-
+ ]]
+\end{hse}
+
+\begin{prs2}
+~si & ~yi -> so+
+si & yi -> so-
+\end{prs2}
+
+\begin{prs2}
+x00 | x10 -> u0+
+~x00 & ~x10 -> u0-
+
+x01 | x11 -> u1+
+~x01 & ~x11 -> u1-
+\end{prs2}
+
+\begin{prs2}
+u0 & yi -> y0+
+~u0 -> y0-
+
+u1 & yi -> y1+
+~u1 -> y1-
+\end{prs2}
+
+\begin{prs2}
+y0 | y1 -> vy+
+~y0 & ~y1 -> vy+
+\end{prs2}
+
+\begin{prs2}
+x0v & ~yi & vy -> x0a+
+~x0v & ~vy -> x0a-
+
+x1v & ~yi & vy -> x1a+
+~x1v & ~vy -> x1a-
+\end{prs2}
+
+\subsubsection*{CMOS-implementable PRS}
+
+\begin{prs2}
+~si & ~yi -> so+
+si & yi -> so-
+\end{prs2}
+
+\begin{prs2}
+x00 | x10 -> u0+
+~x00 & ~x10 -> u0-
+
+x01 | x11 -> u1+
+~x01 & ~x11 -> u1-
+\end{prs2}
+
+\begin{prs2}
+u0 & yi -> _y0-
+~u0 -> _y0+
+
+u1 & yi -> _y1-
+~u1 -> _y1+
+\end{prs2}
+
+\begin{prs2}
+~_y0 -> y0+
+_y0 -> y0-
+
+~_y1 -> y1+
+_y1 -> y1-
+\end{prs2}
+
+\begin{prs2}
+y0 | y1 -> _vy-
+~y0 & ~y1 -> _vy+
+\end{prs2}
+
+\begin{prs2}
+~x0v -> _x0v+
+x0v -> _x0v-
+
+~x1v -> _x1v+
+x1v -> _x1v-
+\end{prs2}
+
+\begin{prs2}
+~_x0v & ~yi & ~_vy -> x0a+
+_x0v & _vy -> x0a-
+
+~_x1v & ~yi & ~_vy -> x1a+
+_x1v & _vy -> x1a-
 \end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -5379,29 +5566,41 @@ encoded as 1-of-2 or 1-of-4 words, we would need 11 and 5 NODEs, respectively.
     ]
   []u->xe+;
     [x0->y0+;[~ye];xe-;[~x0];y0-
-    []x1->y1+;[~ye];xe-;[~x1]y1-
+    []x1->y1+;[~ye];xe-;[~x1];y1-
     []~d0&~d1->u-;[~ye];xe-
     ]
  ]]
 \end{hse}
 
+\subsubsection*{PRS}
+
 \begin{prs2}
 ye & ~u & d0 | x0 -> y0+
-u & ~x0 -> y0-
+~ye & u & ~x0 -> y0-
 
 ye & ~u & d1 | x1 -> y1+
-u & ~x1 -> y1-
+~ye & ~x1 -> y1-
 \end{prs2}
 
 \begin{prs2}
-(y0 | y1) & ~ye -> u+
-~d0 & ~d1 -> u-
+y0 | y1 -> vy+
+~y0 & ~y1 -> vy-
+
+d0 | d1 -> vd+
+~d0 & ~d1 -> vd-
 \end{prs2}
 
 \begin{prs2}
-ye & u -> xe+
-~ye & (y0 | y1 | ~u)  -> xe-
+~ye & vy & vd -> u+
+~vy & ~vd -> u-
 \end{prs2}
+
+\begin{prs2}
+ye & u & ~vy -> xe+
+~ye & (~u | vy)  -> xe-
+\end{prs2}
+
+\subsubsection*{CMOS-implementable PRS}
 
 \noindent
 1-of-2 transistor accounting:
@@ -5437,30 +5636,42 @@ ye & u -> xe+
 \begin{hse}
 *[[ye];
   [~u->
-    [d0->y0+;[~ye];u+;y0-
-    []d1->y1+;[~ye];u+;y1-
+    [d0->y0+;u+;[~ye];y0-
+    []d1->y1+;u+;[~ye];y1-
     ]
-  []u->xe+;[~d0&~d1];u-;[~ye]xe-
+  []u->xe+;[~d0&~d1];u-;[~ye];xe-
  ]]
 \end{hse}
 
+\subsubsection*{PRS}
+
 \begin{prs2}
 ye & ~u & d0 -> y0+
-u -> y0-
+~ye & u -> y0-
 
 ye & ~u & d1 -> y1+
-u -> y1-
+~ye & u -> y1-
 \end{prs2}
 
 \begin{prs2}
-(y0 | y1) & ~ye -> u+
-~d0 & ~d1 -> u-
+y0 | y1 -> vy+
+~y0 & ~y1 -> vy-
+
+d0 | d1 -> vd+
+~d0 & ~d1 -> vd-
 \end{prs2}
 
 \begin{prs2}
-ye & u -> xe+
-~ye & ~u -> xe-
+vy & vd -> u+
+~vy & ~vd -> u-
 \end{prs2}
+
+\begin{prs2}
+ye & u & ~vy -> xe+
+~ye & (~u | vy)  -> xe-
+\end{prs2}
+
+\subsubsection*{CMOS-implementable PRS}
 
 \noindent
 1-of-2 transistor accounting:

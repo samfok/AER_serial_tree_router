@@ -250,35 +250,43 @@ namespace aer {
             export
             template <pint N>
             defproc NODE (globals g; e1of<N> x, y; c1of<N> d) {
-                bool u;
+                bool u, vy, vd;
                 prs<g.Vdd, g.GND> {
                     (: n : N :
                         y.e & ~u & d.d[n] | x.d[n] -> y.d[n]+
-                        g.pReset | u & ~x.d[n] -> y.d[n]-
+                        g.pReset | ~y.e & u & ~x.d[n] -> y.d[n]-
                     )
 
-                    (| : n : N : y.d[n]) & ~y.e -> u+
-                    g.pReset | (& : n : N : ~d.d[n]) -> u-
+                    (| : n : N : y.d[n]) => vy+
 
-                    y.e & u -> x.e+
-                    ~y.e & ((| : n : N : y.d[n]) | ~u) -> x.e-
+                    (| : n : N : d.d[n]) => vd+
+
+                    vy & vd -> u+
+                    g.pReset | ~vy & ~vd -> u-
+
+                    y.e & u & ~vy -> x.e+
+                    ~y.e & (~u | vy) -> x.e-
                 }
             }
 
             export
             template <pint N>
             defproc TAIL (globals g; bool xe; e1of<N> y; c1of<N> d) {
-                bool u;
+                bool u, vy, vd;
                 prs<g.Vdd, g.GND> {
                     (: n : N :
                         y.e & ~u & d.d[n] -> y.d[n]+
-                        g.pReset | u -> y.d[n]-
+                        g.pReset | ~y.e & u -> y.d[n]-
                     )
 
-                    (| : n : N : y.d[n]) & ~y.e -> u+
-                    g.pReset | (& : n : N : ~d.d[n]) -> u-
+                    (| : n : N : y.d[n]) => vy+
 
-                    y.e & u -> xe+
+                    (| : n : N : d.d[n]) => vd+
+
+                    vy & vd -> u+
+                    g.pReset | ~vy & ~vd -> u-
+
+                    y.e & u & ~vy -> xe+
                     ~y.e & ~u -> xe-
                 }
             }
@@ -319,37 +327,48 @@ namespace aer {
             export
             template <pint N>
             defproc NODE (globals g; c1of<N> x; e1of<N> y; bool si, so) {
-                /*-----------------------------------------------------------*/
-                bool u;
+                bool _u, _ye, __ye;
+                c1of<N> _y;
+                c1of<N> __y = y.m;
                 prs<g.Vdd, g.GND> {
+                    ~_ye -> __ye+
+                    _ye -> __ye-
+
                     (: n : N :
-                        ~u & y.e & si & x.d[n] -> y.d[n]+
-                        g.pReset | u & ~so -> y.d[n]-
+                        _u & __ye & si & x.d[n] -> _y.d[n]-
+                        g.pReset | ~_u & ~__ye -> _y.d[n]+
                     )
 
-                    si & ~y.e & (| : n : N : y.d[n]) & ~so -> u+
-                    ~si & (& : n : N : ~x.d[n]) -> u-
+                    (: n : N :
+                        ~_y.d[n] -> __y.d[n]+
+                        _y.d[n] -> __y.d[n]-
+                    )
 
-                    u & (& : n : N : ~y.d[n]) -> so+
-                    ~u -> so-
+                    ~y.e -> _ye+
+                    y.e -> _ye-
+
+                    (| : n : N : y.d[n]) & _ye -> _u-
+                    ~si & (& : n : N : ~x.d[n]) -> _u+
+
+                    ~_u & (& : n : N : ~y.d[n]) -> so+
+                    _u | (| : n : N : y.d[n]) -> so-
                 }
-                /*-----------------------------------------------------------*/
-                    /* ref
-                    bool u;
-                    prs<g.Vdd, g.GND> {
-                        (: n : N :
-                            ~u & y.e & si & x.d[n] -> y.d[n]+
-                            g.pReset | u & ~so -> y.d[n]-
-                        )
+            }
 
-                        si & ~y.e & (| : n : N : y.d[n]) & ~so -> u+
-                        ~si & (& : n : N : ~x.d[n]) -> u-
-
-                        u & (& : n : N : ~y.d[n]) -> so+
-                        ~u -> so-
-                    }
-                    */
-                /*-----------------------------------------------------------*/
+            export
+            template <pint M, N>
+            defproc MERGE (globals g; e1of<N> x[M], y) {
+                OR<M> or[N];
+                (; n : N :
+                    or[n].g = g;
+                    or[n].o = y.d[n];
+                    (; m : M :
+                        or[n].i[m] = x[m].d[n];
+                    )
+                )
+                (; m : M :
+                    x[m].e = y.e;
+                )
             }
         } // namespace serial_ring
 
@@ -358,12 +377,14 @@ namespace aer {
         defproc SERIAL_RING (globals g; eMx1ofN<M, N> x; bool yi, yo; c1of<N> y) {
             // convert eMx1ofN protocol to AEXT/AERV serial with ring
             serial_ring::NODE<N> node[M];
+            serial_ring::MERGE<M, N> merge(g,,);
             (; m : M :
                 node[m].g = g;
                 node[m].x = x.m[m];
-                node[m].y.m = y;
-                node[m].y.e = yi;
+                node[m].y = merge.x[m];
             )
+            merge.y.m = y;
+            merge.y.e = yi;
             (; m : M-1:
                 node[m].so = node[m+1].si;
             )
@@ -375,6 +396,82 @@ namespace aer {
                 g.pReset | node[M-1].so & yi -> s-
                 ~g.sReset & ~node[M-1].so & ~yi -> s+
             }
+        }
+
+        namespace serial_ring2 {
+            export
+            template <pint N>
+            defproc NODE (globals g; c1of<N> x; av1of<N> y; bool si, so) {
+                bool u;
+                prs<g.Vdd, g.GND> {
+                    (: n : N :
+                        si & x.d[n] & u -> y.d[n]+
+                        ~si | ~x.d[n] | ~u -> y.d[n]-
+                    )
+                    si & (| : n : N : x.d[n]) & u -> y.v+
+                    ~si | (& : n : N : ~x.d[n]) | ~u -> y.v-
+
+                    ~si & (& : n : N : ~x.d[n]) -> u+
+                    y.a -> u-
+
+                    ~u & ~y.a -> so+
+                    u | y.a -> so-
+                }
+            }
+
+            export
+            template <pint M, N>
+            defproc MERGE (globals g; av1of<N> x[M]; c1of<N> y; bool yi, si, so) {
+                prs<g.Vdd, g.GND> {
+                    ~g.sReset & ~yi & ~si -> so+
+                    g.pReset | yi & si -> so-
+                }
+
+                c1of<N> u;
+                OR<M> or[N];
+                (; n : N :
+                    or[n].g = g;
+                    (; m : M :
+                        or[n].i[m] = x[m].d[n];
+                    )
+                    or[n].o = u.d[n];
+                )
+                bool vy;
+                prs<g.Vdd, g.GND> {
+                    (: n : N :
+                        u.d[n] & yi -> y.d[n]+
+                        ~u.d[n] -> y.d[n]-
+                    )
+
+                    (| : n : N : y.d[n]) -> vy+
+                    (& : n : N : ~y.d[n]) -> vy-
+
+                    (: m : M :
+                        x[m].v & ~yi & vy -> x[m].a+
+                        ~x[m].v & ~vy -> x[m].a-
+                    )
+                }
+            }
+        } // namespace serial_ring2
+
+        export
+        template <pint M, N>
+        defproc SERIAL_RING2 (globals g; eMx1ofN<M, N> x; bool yi, yo; c1of<N> y) {
+            // convert eMx1ofN protocol to AEXT/AERV serial with ring
+            serial_ring2::NODE<N> node[M];
+            serial_ring2::MERGE<M, N> merge(g,,y, yi, node[M-1].so,);
+            (; m : M :
+                node[m].g = g;
+                node[m].x = x.m[m];
+                node[m].y = merge.x[m];
+            )
+            merge.y = y;
+            (; m : M-1:
+                node[m].so = node[m+1].si;
+            )
+            merge.so = x.e;
+            merge.so = node[0].si;
+            merge.so = yo; 
         }
 
         namespace test {
@@ -802,6 +899,15 @@ namespace aer {
             defproc TEST_SERIAL_RING (globals g) {
                 SOURCE_random_eMx1ofN<M, N> src(g,);
                 ::aer::interface::SERIAL_RING<M, N> serial(g, src.d,,,);
+                AERV_NODATA<M, N, NN> aerv(g,,, serial.yo, serial.yi, serial.y);
+                passive_handshaker<NN> y(aerv.yo, aerv.yi);
+            }
+
+            export
+            template <pint M, N, NN>
+            defproc TEST_SERIAL_RING2 (globals g) {
+                SOURCE_random_eMx1ofN<M, N> src(g,);
+                ::aer::interface::SERIAL_RING2<M, N> serial(g, src.d,,,);
                 AERV_NODATA<M, N, NN> aerv(g,,, serial.yo, serial.yi, serial.y);
                 passive_handshaker<NN> y(aerv.yo, aerv.yi);
             }
