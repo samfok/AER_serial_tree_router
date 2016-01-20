@@ -98,14 +98,14 @@ defchan eMx1ofN <: chan(int<M>) (c1of<N> m[M]; bool e) {
 
 //Channel: evMx1ofN<M,N>
 export template <pint M,N>
-defchan  evMx1ofN <: chan(int<M>) (c1of<N> m[M]; bool e,v) {
+defchan  evMx1ofN <: chan(int<M>) (c1of<N> m[M]; bool e, v) {
     send { }
     recv { }
 }
 
 //Channel: e1of<N>
 export template <pint N>
-defchan e1of <: chan(int<1>) (c1of<N> m; bool d[N]; bool e) {
+defchan e1of <: chan(int<1>) (c1of<N> m; bool d[N], e) {
     m.n = d;
     send { }
     recv { }
@@ -113,7 +113,8 @@ defchan e1of <: chan(int<1>) (c1of<N> m; bool d[N]; bool e) {
 
 //Channel: ev1of<N>
 export template <pint N>
-defchan ev1of <: chan(int<1>) (c1of<N> m; bool e,v) {
+defchan ev1of <: chan(int<1>) (c1of<N> m; bool d[N], e, v) {
+    m.n = d;
     send { }
     recv { }
 }
@@ -180,7 +181,8 @@ defchan a1of <: chan(int<1>) (c1of<N> m; bool d[N], a) {
 
 //Channel: av1of<N>
 export template <pint N>
-defchan av1of <: chan(int<1>) (c1of<N> m; bool a, v) {
+defchan av1of <: chan(int<1>) (c1of<N> m; bool d[N], a, v) {
+    m.n = d;
     send { }
     recv { }
 }
