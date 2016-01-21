@@ -4461,30 +4461,40 @@ NODE latches data from SPLIT.
 
 \begin{hse}
 *[[si];
-  [x0->y0+;xa+;[~x0];so+;xa-;[~si];y0-;so-
-  []x1->y1+;xa+;[~x1];so+;xa-;[~si];y1-;so-
+  [x0->y0+;xa+;[~x0];s+;so+;xa-;[~si];y0-;s-;so-
+  []x1->y1+;xa+;[~x1];s+;so+;xa-;[~si];y1-;s-;so-
   ]
  ]
 \end{hse}
 
+The $s$ state variable is necessary for bubble reshuffling. 
+It breaks a cycle of isochronic branches with an odd number of bubbles
+(See Section~\ref{sec:DESERIAL_RING_RING}),
+which would be impossible to make CMOS-implementable.
+
 \subsubsection*{PRS}
 
 \begin{prs2}
-~so & si & x0 -> y0+
+~s & si & x0 -> y0+
 ~si -> y0-
 
-~so & si & x1 -> y1+
+~s & si & x1 -> y1+
 ~si -> y1-
 \end{prs2}
 
 \begin{prs2}
-~so & vy -> xa+
-so | ~vy -> xa-
+~s & vy -> xa+
+s | ~vy -> xa-
 \end{prs2}
 
 \begin{prs2}
-vy & ~x0 & ~x1 -> so+
-~vy -> so-
+vy & ~x0 & ~x1 -> s+
+~vy -> s-
+\end{prs2}
+
+\begin{prs2}
+s -> so+
+~s -> so-
 \end{prs2}
 
 \begin{prs2}
@@ -4524,6 +4534,44 @@ y0 | y1 -> vy+
 
 \subsubsection*{CMOS-implementable PRS}
 
+\begin{prs2}
+~_s -> __s+
+_s -> __s0-
+\end{prs2}
+
+\begin{prs2}
+~__s & ~_si & ~_x0 -> y0+
+_si -> y0-
+
+~__s & ~_si & ~_x1 -> y1+
+_si -> y1-
+\end{prs2}
+
+\begin{prs2}
+~__s & ~_vy -> xa+
+__s | _vy -> xa-
+\end{prs2}
+
+\begin{prs2}
+~_vy -> __vy+
+_vy -> __vy-
+\end{prs2}
+
+\begin{prs2}
+__vy & _x0 & _x1 -> _s-
+~__vy -> _s+
+\end{prs2}
+
+\begin{prs2}
+__s -> _so-
+~__s -> _so+
+\end{prs2}
+
+\begin{prs2}
+y0 | y1 -> _vy-
+~y0 & ~y1 -> _vy+
+\end{prs2}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{C \label{sec:DESERIAL_RING_C}}
 
@@ -4544,95 +4592,128 @@ A C-element costs 8 transistors.
 
 \subsubsection*{CMOS-implementable PRS}
 
+\begin{prs2}
+_so & xe -> _si-
+~_so & ~xe -> _si+
+\end{prs2}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{RING \label{sec:DESERIAL_RING_RING}}
 
 In the interest of bubble reshuffling, the deserial ring NODEs and C-element
-should be described in a single process because the NODE processes share
-share isochronic branches.
+should be described in a single process. 
 
 \begin{hse}
 *[[ye];s0+;
   [x0->y00+;x0a+;[~x0]
   []x1->y01+;x0a+;[~x1]
-  ];s1+;x0a-;
+  ];s01+;s1+;x0a-;
   ...
   [x0->ym0+;xma+;[~x0]
   []x1->ym1+;xma+;[~x1]
-  ];s(m\+1)+;xma-;
+  ];sm(m\+1)+;s(m\+1)+;xma-;
   ...
   [x0->y(M\-1)0+;x(M\-1)a+;[~x0]
   []x1->y(M\-1)1+;x(M\-1)a+;[~x1]
-  ];sM+;x(M\-1)a-;
+  ];s(M\-1)M+;sM+;x(M\-1)a-;
   [~ye];s0-;
-  y00-,y01-;s1-;
+  y00-,y01-;s01-;s1-;
   ...
-  ym0-,ym1-;s(m\+1)-
+  ym0-,ym1-;sm(m\+1)-;s(m\+1)-
   ...
-  y(M\-1)0-,y(M\-1)1-
+  y(M\-1)0-,y(M\-1)1-;s(M\-1)M-;sM-
  ]
 \end{hse}
+
+Recall in Section~\ref{sec:DESERIAL_RING_NODE} that we had an apparently
+extraneous state variable $s$. 
+If we removed the state variable, the NODE processes would share share isochronic
+branches, which would create a cycle of isochronic branches among NODES.
+Further, this cycle would have an odd number of bubbles and be impossible to 
+make CMOS-implementable.
 
 \subsubsection*{PRS}
 
 \noindent
 $Y$ data:
 \begin{prs2}
-~s1 & s0 & x0 -> y00+
+~s01 & s0 & x0 -> y00+
 ~s0 -> y00-
 
-~s1 & s0 & x1 -> y01+
+~s01 & s0 & x1 -> y01+
 ~s0 -> y01-
 \end{prs2}
 ...
 \begin{prs2}
-~s(m\+1) & sm & x0 -> ym0+
+~sm(m\+1) & sm & x0 -> ym0+
 ~sm -> ym0-
 
-~s(m\+1) & sm & x1 -> ym1+
+~sm(m\+1) & sm & x1 -> ym1+
 ~sm -> ym1-
 \end{prs2}
 ...
 \begin{prs2}
-~sM & s(M\-1) & x0 -> y(M\-1)0+
+~s(M\-1)M & s(M\-1) & x0 -> y(M\-1)0+
 ~s(M\-1) -> y(M\-1)0-
 
-~sM & s(M\-1) & x1 -> y(M\-1)1+
+~s(M\-1)M & s(M\-1) & x1 -> y(M\-1)1+
 ~s(M\-1) -> y(M\-1)1-
 \end{prs2}
 
 \noindent
 $X$ acknowledge:
 \begin{prs2}
-~s1 & v0y -> x0a+
-s1 | ~v0y -> x0a-
+~s01 & v0y -> x0a+
+s01 | ~v0y -> x0a-
 \end{prs2}
 ...
 \begin{prs2}
-~s(m\+1) & vmy -> xma+
-s(m\+1) | ~vmy -> xma-
+~sm(m\+1) & vmy -> xma+
+sm(m\+1) | ~vmy -> xma-
 \end{prs2}
 ...
 \begin{prs2}
-~sM & v(M\-1)y -> x(M\-1)a+
-sM | ~v(M\-1)y -> x(M\-1)a-
+~s(M\-1)M & v(M\-1)y -> x(M\-1)a+
+s(M\-1)M | ~v(M\-1)y -> x(M\-1)a-
 \end{prs2}
 
 \noindent
-$S$ states:
+$S$ buffer states:
 \begin{prs2}
-v0y & ~x0 & ~x1 -> s1+
-~v0y -> s1-
+v0y & ~x0 & ~x1 -> s01+
+~v0y -> s01-
 \end{prs2}
 ...
 \begin{prs2}
-vmy & ~x0 & ~x1 -> s(m\+1)+
-~vmy -> s(m\+1)m-
+vmy & ~x0 & ~x1 -> sm(m\+1)+
+~vmy -> sm(m\+1)-
 \end{prs2}
 ...
 \begin{prs2}
-v(M\-1)y & ~x0 & ~x1 -> sM+
-~v(M\-1)y -> sM-
+v(M\-1)y & ~x0 & ~x1 -> s(M\-1)M+
+~v(M\-1)y -> s(M\-1)M-
+\end{prs2}
+
+\noindent
+$S$ input states:
+\begin{prs2}
+~sM & ye -> s0+
+sM & ~ye -> s0-
+\end{prs2}
+
+\begin{prs2}
+s01 -> s1+
+~s01 -> s1-
+\end{prs2}
+...
+\begin{prs2}
+sm(m\+1) -> s(m\+1)+
+~sm(m\+1) -> s(m\+1)-
+\end{prs2}
+...
+\begin{prs2}
+s(M\-1)M -> sM+
+~s(M\-1)M -> sM-
 \end{prs2}
 
 \noindent
@@ -4654,6 +4735,125 @@ y(M\-1)0 | y(M\-1)1 -> v(M\-1)y+
 
 \subsubsection*{CMOS-implementable PRS}
 
+\noindent
+$Y$ data:
+\begin{prs2}
+~_s01 -> __s01+
+_s01 -> __s01-
+\end{prs2}
+\begin{prs2}
+~__s01 & ~_s0 & ~_x0 -> y00+
+_s0 -> y00-
+
+~__s01 & ~_s0 & ~_x1 -> y01+
+_s0 -> y01-
+\end{prs2}
+...
+\begin{prs2}
+~_sm(m\+1) -> __sm(m\+1)+
+_sm(m\+1) -> __sm(m\+1)-
+\end{prs2}
+\begin{prs2}
+~__sm(m\+1) & ~_sm & ~_x0 -> ym0+
+_sm -> ym0-
+
+~__sm(m\+1) & ~_sm & ~_x1 -> ym1+
+_sm -> ym1-
+\end{prs2}
+...
+\begin{prs2}
+~_s(M\-1)M -> __s(M\-1)M-
+_s(M\-1)M -> __s(M\-1)M-
+\end{prs2}
+\begin{prs2}
+~__s(M\-1)M & ~_s(M\-1) & ~_x0 -> y(M\-1)0+
+_s(M\-1) -> y(M\-1)0-
+
+~__s(M\-1)M & ~_s(M\-1) & ~_x1 -> y(M\-1)1+
+_s(M\-1) -> y(M\-1)1-
+\end{prs2}
+
+\noindent
+$X$ acknowledge:
+\begin{prs2}
+~__s01 & ~_v0y -> x0a+
+__s01 | _v0y -> x0a-
+\end{prs2}
+...
+\begin{prs2}
+~__sm(m\+1) & ~_vmy -> xma+
+__sm(m\+1) | _vmy -> xma-
+\end{prs2}
+...
+\begin{prs2}
+~__s(M\-1)M & ~_v(M\-1)y -> x(M\-1)a+
+__s(M\-1)M | _v(M\-1)y -> x(M\-1)a-
+\end{prs2}
+
+\noindent
+$S$ buffer states:
+\begin{prs2}
+~_v0y -> __v0y
+_v0y -> __v0y
+
+__v0y & _x0 & _x1 -> _s01-
+___v0y -> _s01+
+\end{prs2}
+...
+\begin{prs2}
+~_vmy -> __vmy
+_vmy -> __vmy
+
+__vmy & _x0 & _x1 -> _sm(m\+1)-
+___vmy -> _sm(m\+1)+
+\end{prs2}
+...
+\begin{prs2}
+~_v(M\-1)y -> __v(M\-1)y
+_v(M\-1)y -> __v(M\-1)y
+
+__v(M\-1)y & _x0 & _x1 -> _s(M\-1)M-
+~__v(M\-1)y -> _s(M\-1)M+
+\end{prs2}
+
+\noindent
+$S$ input/output states:
+\begin{prs2}
+_sM & ye -> _s0-
+~_sM & ~ye -> _s0+
+\end{prs2}
+
+\begin{prs2}
+~__s01 -> _s1+
+__s01 -> _s1-
+\end{prs2}
+...
+\begin{prs2}
+~__sm(m\+1) -> _s(m\+1)+
+__sm(m\+1) -> _s(m\+1)-
+\end{prs2}
+...
+\begin{prs2}
+~__s(M\-1)M -> _sM+
+__s(M\-1)M -> _sM-
+\end{prs2}
+
+\noindent
+$Y$ valid detectors:
+\begin{prs2}
+y00 | y01 -> _v0y-
+~y00 & ~y01 -> _v0y+
+\end{prs2}
+...
+\begin{prs2}
+ym0 | ym1 -> _vmy-
+~ym0 & ~ym1 -> _vmy+
+\end{prs2}
+...
+\begin{prs2}
+y(M\-1)0 | y(M\-1)1 -> _v(M\-1)y-
+~y(M\-1)0 & ~y(M\-1)1 -> _v(M\-1)y+
+\end{prs2}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{CHAIN Deserializer \label{sec:DESERIAL_CHAIN}}
 

@@ -1,6 +1,7 @@
+// import "ref_serial_aer.act";
 import "serial_aer.act";
 
-pint M=5;
-pint N=4;
+pint M=3;
+pint N=2;
 globals g;
 ::aer::interface::test::TEST_DESERIAL_RING<M, N> test(g);

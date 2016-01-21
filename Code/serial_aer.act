@@ -41,53 +41,71 @@ namespace aer {
         namespace deserial_ring {
             export
             template <pint M, N>
-            defproc SPLIT (globals g; a1of<N> x, y[M]) {
+            defproc SPLIT (globals g; a1of<N> _x, _y[M]) {
+                bool ya[M];
                 (; m : M :
-                    y[m].d = x.d;
+                    _y[m].d = _x.d;
+                    _y[m].a = ya[m]; // normal sense
+                )
+                OR<M> or(g,,);
+                (; m : M :
+                    ya[m] = or.i[m];
                 )
                 prs<g.Vdd, g.GND> {
-                    (| : m : M : y[m].a) => x.a+
+                    ~or.o -> _x.a+
+                    or.o -> _x.a-
                 }
             }
             
             export
             template <pint N>
-            defproc NODE (globals g; a1of<N> x; e1of<N> y; bool si, so) {
-                bool vy;
+            defproc NODE (globals g; a1of<N> _x; c1of<N> y; bool _si, _so) {
+                bool _vy, __vy, _s, __s;
+                bool xa = _x.a; // normal sense
                 prs<g.Vdd, g.GND> {
+                    ~_s -> __s+
+                    _s -> __s-
+
                     (: n : N :
-                        ~so & si & x.d[n] -> y.d[n]+
-                        ~si -> y.d[n]-
+                        ~__s & ~_si & ~_x.d[n] -> y.d[n]+
+                        _si -> y.d[n]-
                     )
             
-                    ~so & vy => x.a+
+                    ~__s & ~_vy -> xa+
+                    __s | _vy -> xa-
             
-                    vy & (& : n : N : ~x.d[n]) -> so+
-                    g.pReset | ~vy -> so-
+                    ~_vy -> __vy+
+                    _vy -> __vy-
+
+                    __vy & (& : n : N : _x.d[n]) -> _s-
+                    ~g._pReset | ~__vy -> _s+
             
-                    (| : n : N : y.d[n]) => vy+
+                    ~__s -> _so+
+                    __s -> _so-
+
+                    (| : n : N : y.d[n]) -> _vy-
+                    (& : n : N : ~y.d[n]) -> _vy+
                 }
             }
         } // namespace deserial_ring
         
         export
         template <pint M, N>
-        defproc DESERIAL_RING (globals g; a1of<N> x; eMx1ofN<M, N> y) {
+        defproc DESERIAL_RING (globals g; a1of<N> _x; eMx1ofN<M, N> y) {
             // convert AEXT/AERV serial protocol to eMx1ofN with ring
-            deserial_ring::SPLIT<M, N> split(g, x,);
+            deserial_ring::SPLIT<M, N> split(g, _x,);
             deserial_ring::NODE<N> node[M];
             (; m : M :
                 node[m].g = g;
-                node[m].x = split.y[m];
-                node[m].y.e = y.e;
-                node[m].y.m = y.m[m];
+                node[m]._x = split._y[m];
+                node[m].y = y.m[m];
             )
             (; m : M-1 :
-                node[m].so = node[m+1].si;
+                node[m]._so = node[m+1]._si;
             )
             prs<g.Vdd, g.GND> {
-                ~node[M-1].so & y.e  -> node[0].si+
-                g.pReset | node[M-1].so & ~y.e  -> node[0].si-
+                node[M-1]._so & y.e  -> node[0]._si-
+                ~g._pReset | ~node[M-1]._so & ~y.e  -> node[0]._si+
             }
         }
 
@@ -498,7 +516,16 @@ namespace aer {
             defproc TEST_DESERIAL_RING(globals g) {
                 SOURCE_random_a1ofN<N> src(g,);
                 SINK_eMx1ofN<M, N> snk(g,);
-                DESERIAL_RING<M, N> deserial(g, src.d, snk.d);
+                a1of<N> _d;
+                prs<g.Vdd, g.GND> {
+                    (: n : N :
+                        ~src.d.d[n] -> _d.d[n]+
+                        src.d.d[n] -> _d.d[n]-
+                    )
+                    ~_d.a -> src.d.a+
+                    _d.a -> src.d.a-
+                }
+                DESERIAL_RING<M, N> deserial(g, _d, snk.d);
             }
 
             export
@@ -506,7 +533,16 @@ namespace aer {
             defproc TEST_DESERIAL_CHAIN(globals g) {
                 SOURCE_random_a1ofN<N> src(g,);
                 SINK_eMx1ofN<M, N> snk(g,);
-                DESERIAL_CHAIN<M, N> deserial(g, src.d, snk.d);
+                a1of<N> _d;
+                prs<g.Vdd, g.GND> {
+                    (: n : N :
+                        ~src.d.d[n] -> _d.d[n]+
+                        src.d.d[n] -> _d.d[n]-
+                    )
+                    ~_d.a -> src.d.a+
+                    _d.a -> src.d.a-
+                }
+                DESERIAL_CHAIN<M, N> deserial(g, _d, snk.d);
             }
         } // namespace test
     }
@@ -978,7 +1014,8 @@ namespace aer {
         // NN=N^M
         transmitter::AEXT<M, N, NN> aext(g, xi, xo,,,);
         interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
-        interface::DESERIAL_CHAIN<M, N> deserial(g, out._y,);
+        interface::DESERIAL_RING<M, N> deserial(g, out._y,);
+        // interface::DESERIAL_CHAIN<M, N> deserial(g, out._y,);
         interface::SERIAL_RING2<M, N> serial(g, deserial.y,,,);
         receiver::AERV_NODATA<M, N, NN> aerv(g, yi, yo, serial.yo, serial.yi, serial.y);
     }
@@ -1051,28 +1088,6 @@ namespace aer {
             active_handshaker<NN_AEXT> x(g,,);
             AERV_NRN_FULL<N, NN_AERV> y(,,);
             AER_DATA<M_AEXT, M_AERV, N, NN_AEXT, NN_AERV> aer(g, x.o, x.i, y.o, y.i, y.d);
-        }
-
-        template <pint N, NN>
-        defproc AERV_NRN_SIMPLE(globals g; c1of<N> i[NN]; bool o[NN]) {
-            VN_a1ofN<N> vn[NN];
-            (; nn : NN :
-                vn[nn].g = g;
-                vn[nn].d.m = i[nn];
-                vn[nn].d.a = o[nn];
-            )
-        }
-
-        export
-        template <pint M_AEXT, M_AERV, N, NN_AEXT, NN_AERV>
-        defproc TEST_AER_DATA1 (globals g) {
-            // M groups
-            // N items per group
-            // NN receiver neurons. NN=N^M
-            // NN*M transmitter neurons generate data for receiver neurons
-            active_handshaker<NN_AEXT> x(g,,);
-            AERV_NRN_SIMPLE<N, NN_AERV> y(g,,);
-            // AER_DATA1<M_AEXT, M_AERV, N, NN_AEXT, NN_AERV> aer(g, x.o, x.i, y.o, y.i);
         }
     } // namespace test
 } // namespace aer

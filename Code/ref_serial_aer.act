@@ -36,26 +36,29 @@ namespace aer {
                 (; m : M :
                     y[m].d = x.d;
                 )
-                prs<g.Vdd, g.GND> {
-                    (| : m : M : y[m].a) => x.a+
-                }
+                OR<M> or(g,, x.a);
+                (; m : M :
+                    y[m].a = or.i[m];
+                )
             }
             
             export
             template <pint N>
-            defproc NODE (globals g; a1of<N> x; e1of<N> y; bool si, so) {
-                bool vy;
+            defproc NODE (globals g; a1of<N> x; c1of<N> y; bool si, so) {
+                bool vy, s;
                 prs<g.Vdd, g.GND> {
                     (: n : N :
-                        ~so & si & x.d[n] -> y.d[n]+
+                        ~s & si & x.d[n] -> y.d[n]+
                         ~si -> y.d[n]-
                     )
             
-                    ~so & vy => x.a+
+                    ~s & vy => x.a+
             
-                    vy & (& : n : N : ~x.d[n]) -> so+
-                    g.pReset | ~vy -> so-
+                    vy & (& : n : N : ~x.d[n]) -> s+
+                    g.pReset | ~vy -> s-
             
+                    s => so+
+
                     (| : n : N : y.d[n]) => vy+
                 }
             }
@@ -70,8 +73,7 @@ namespace aer {
             (; m : M :
                 node[m].g = g;
                 node[m].x = split.y[m];
-                node[m].y.e = y.e;
-                node[m].y.m = y.m[m];
+                node[m].y = y.m[m];
             )
             (; m : M-1 :
                 node[m].so = node[m+1].si;
@@ -147,14 +149,14 @@ namespace aer {
         template <pint M, N>
         defproc DESERIAL_CHAIN (globals g; a1of<N> x; eMx1ofN<M, N> y) {
             // convert AEXT/AERV serial protocol to eMx1ofN with chain
-            [ M < 2 ->
+            [ M = 1 ->
                 (; n : N :
                     x.d[n] = y.m[0].n[n];
                 )
                 prs <g.Vdd, g.GND> {
                     y.e => x.a-
                 }
-            [] M >= 2->
+            [] M > 1 ->
                 deserial_chain::HEAD<N> head(g,, y.m[0], y.e,);
                 deserial_chain::TAIL<N> tail(g, x,, y.m[M-1],);
             ]
@@ -798,11 +800,11 @@ namespace aer {
         // M groups
         // N items per group
         // NN=N^M
-        transmitter::AEXT<M_AEXT, N, NN_AEXT> aext(g, xi, xo,,,);
-        receiver::AERV_DATA<M_AERV, N, NN_AERV> aerv(g, yi, yo,,,, y);
-        aext.pi = aerv.po;
-        aext.po = aerv.pi;
-        aext.p = aerv.p;
+        // transmitter::AEXT<M_AEXT, N, NN_AEXT> aext(g, xi, xo,,,);
+        // receiver::AERV_DATA<M_AERV, N, NN_AERV> aerv(g, yi, yo,,,, y);
+        // aext.pi = aerv.po;
+        // aext.po = aerv.pi;
+        // aext.p = aerv.p;
     }
 
     namespace test {
@@ -856,28 +858,6 @@ namespace aer {
             active_handshaker<NN_AEXT> x(g,,);
             AERV_NRN_FULL<N, NN_AERV> y(,,);
             AER_DATA<M_AEXT, M_AERV, N, NN_AEXT, NN_AERV> aer(g, x.o, x.i, y.o, y.i, y.d);
-        }
-
-        template <pint N, NN>
-        defproc AERV_NRN_SIMPLE(globals g; c1of<N> i[NN]; bool o[NN]) {
-            VN_a1ofN<N> vn[NN];
-            (; nn : NN :
-                vn[nn].g = g;
-                vn[nn].d.m = i[nn];
-                vn[nn].d.a = o[nn];
-            )
-        }
-
-        export
-        template <pint M_AEXT, M_AERV, N, NN_AEXT, NN_AERV>
-        defproc TEST_AER_DATA1 (globals g) {
-            // M groups
-            // N items per group
-            // NN receiver neurons. NN=N^M
-            // NN*M transmitter neurons generate data for receiver neurons
-            active_handshaker<NN_AEXT> x(g,,);
-            AERV_NRN_SIMPLE<N, NN_AERV> y(g,,);
-            AER_DATA1<M_AEXT, M_AERV, N, NN_AEXT, NN_AERV> aer(g, x.o, x.i, y.o, y.i);
         }
     } // namespace test
 } // namespace aer
