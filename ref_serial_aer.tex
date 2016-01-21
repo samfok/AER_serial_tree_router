@@ -72,7 +72,6 @@ needs at least 28 bits of memory.
     &&&& \textbf{NODE} (Section~\ref{sec:AERV_CD_noTW_CYC_NODE})
     &&&& \textbf{LEAF} (Section~\ref{sec:AERV_CD_noTW_CYC_LEAF})
     &&&& \textbf{LEAF} (no data) (Section~\ref{sec:AERV_CD_noTW_CYC_LEAF_nodata})
-    &&&& \textbf{IN} (Section~\ref{sec:AERV_CD_noTW_CYC_IN})
     && decomposed into SPLIT and CTRL, interface with INT
     &&& \textbf{SPLIT} (Section~\ref{sec:AERV_CD_noTW_SPLIT})
     &&& \textbf{CTRL} (Section~\ref{sec:AERV_CD_noTW_CTRL})
@@ -2452,6 +2451,23 @@ Radix 4 accounting:
  ]]
 \end{hse}
 
+\noindent
+It's helpful to consider the projection of the HSE on to the parent control and data lines.
+
+\begin{hse}
+*[[pi];po+;
+    [P];po-;[~P];po+
+    ([P];po-;[~P];po+)\times(m\-1)
+  [~pi];po-
+ ]
+\end{hse}
+
+\noindent
+The first line acknowledges the parent. \\
+The second line is the node reading in the head word. \\
+The third line repeats $(m-1)$ times where $m$ is this node's level in the tree. \\
+The fourth line propagates the parents reset down the tree.
+
 \subsubsection*{PRS}
 
 \begin{prs2}
@@ -2501,6 +2517,80 @@ c1o & p0 -> c10+
 c1o & p1 -> c11+
 ~c1o | ~p1 -> c11-
 \end{prs2}
+
+\noindent
+Radix 2 transistor approximate accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $p_o$ & 8 & \\ \hline
+    $u[0,1]$ & 14 & \\ \hline
+    $uu$ & 4 & could flatten in $p_o$ \\ \hline
+    $c[0,1]_o$ & 14 & \\ \hline
+    $cc_o$ & 4 & \\ \hline
+    $cc_i$ & 4 & could flatten in $p_o$ \\ \hline
+    $c[0,1][0,1]$ & 16 & \\ \hline
+    \hline total & 64 & 60 if $cc_i$ and $uu$ flattened in $p_o$ \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+Radix 4 transistor approximate accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $p_o$ & 8 & \\ \hline
+    $u[0,1,2,3]$ & 28 & \\ \hline
+    $uu$ & 8 & \\ \hline
+    $c[0,1,2,3]_o$ & 28 & \\ \hline
+    $cc_o$ & 8 & \\ \hline
+    $cc_i$ & 8 & \\ \hline
+    $c[0,1,2,3][0,1,2,3]$ & 64 & \\ \hline
+    \hline total & 152 & flattening $cc_i$ and $uu$ would make $p_o$ pullup chain too long \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+Radix 3, 1-of-4 out transistor approximate accounting: This is used in some of the receiver
+designs.
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $p_o$ & 8 & \\ \hline
+    $u[0,1,2]$ & 21 & \\ \hline
+    $uu$ & 6 & \\ \hline
+    $c[0,1,2]_o$ & 21 & \\ \hline
+    $cc_o$ & 6 & \\ \hline
+    $cc_i$ & 6 & \\ \hline
+    $c[0,1,2][0,1,2,3]$ & 48 & \\ \hline
+    \hline total & 116 & 114 if $cc_i$ or $uu$ flattened in $p_o$ (can't flatten both; pullup chain too long) \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+Radix 2, 1-of-4 out transistor approximate accounting: This is used in some of the receiver
+designs.
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $p_o$ & 8 & \\ \hline
+    $u[0,1]$ & 14 & \\ \hline
+    $uu$ & 4 & \\ \hline
+    $c[0,1]_o$ & 14 & \\ \hline
+    $cc_o$ & 4 & \\ \hline
+    $cc_i$ & 4 & \\ \hline
+    $c[0,1][0,1,2,3]$ & 32 & \\ \hline
+    \hline total & 80 & 76 with $cc_i$ or $uu$ flattened in $p_o$ \\ \hline
+    \end{tabular}
+\end{center}
 
 \subsubsection*{CMOS-implementable PRS}
 
@@ -2578,110 +2668,6 @@ _c0o -> c0o-
 _c1o -> c1o-
 \end{prs2}
 
-\noindent
-Radix 2 transistor accounting:
-
-\begin{center}
-    \begin{tabular}{|r|l|l|}
-    \hline
-    rule & transistor count & comments \\ \hline
-    $p_o$ & 8 & \\ \hline
-    $u[0,1]$ & 14 & \\ \hline
-    $uu$ & 4 & could flatten in $p_o$ \\ \hline
-    $c[0,1]_o$ & 14 & \\ \hline
-    $cc_o$ & 4 & \\ \hline
-    $cc_i$ & 4 & could flatten in $p_o$ \\ \hline
-    $c[0,1][0,1]$ & 16 & \\ \hline
-    \hline total & 64 & 60 if $cc_i$ and $uu$ flattened in $p_o$ \\ \hline
-    \end{tabular}
-\end{center}
-
-\noindent
-Radix 4 transistor accounting:
-
-\begin{center}
-    \begin{tabular}{|r|l|l|}
-    \hline
-    rule & transistor count & comments \\ \hline
-    $p_o$ & 8 & \\ \hline
-    $u[0,1,2,3]$ & 28 & \\ \hline
-    $uu$ & 8 & \\ \hline
-    $c[0,1,2,3]_o$ & 28 & \\ \hline
-    $cc_o$ & 8 & \\ \hline
-    $cc_i$ & 8 & \\ \hline
-    $c[0,1,2,3][0,1,2,3]$ & 64 & \\ \hline
-    \hline total & 152 & flattening $cc_i$ and $uu$ would make $p_o$ pullup chain too long \\ \hline
-    \end{tabular}
-\end{center}
-
-\noindent
-Radix 3, 1-of-4 out transistor accounting: This is used in some of the receiver
-designs.
-
-\begin{center}
-    \begin{tabular}{|r|l|l|}
-    \hline
-    rule & transistor count & comments \\ \hline
-    $p_o$ & 8 & \\ \hline
-    $u[0,1,2]$ & 21 & \\ \hline
-    $uu$ & 6 & \\ \hline
-    $c[0,1,2]_o$ & 21 & \\ \hline
-    $cc_o$ & 6 & \\ \hline
-    $cc_i$ & 6 & \\ \hline
-    $c[0,1,2][0,1,2,3]$ & 48 & \\ \hline
-    \hline total & 116 & 114 if $cc_i$ or $uu$ flattened in $p_o$ (can't flatten both; pullup chain too long) \\ \hline
-    \end{tabular}
-\end{center}
-
-\noindent
-Radix 2, 1-of-4 out transistor accounting: This is used in some of the receiver
-designs.
-
-\begin{center}
-    \begin{tabular}{|r|l|l|}
-    \hline
-    rule & transistor count & comments \\ \hline
-    $p_o$ & 8 & \\ \hline
-    $u[0,1]$ & 14 & \\ \hline
-    $uu$ & 4 & \\ \hline
-    $c[0,1]_o$ & 14 & \\ \hline
-    $cc_o$ & 4 & \\ \hline
-    $cc_i$ & 4 & \\ \hline
-    $c[0,1][0,1,2,3]$ & 32 & \\ \hline
-    \hline total & 80 & 76 with $cc_i$ or $uu$ flattened in $p_o$ \\ \hline
-    \end{tabular}
-\end{center}
-
-\noindent
-It's helpful to consider the projection of the HSE on to the parent control and data lines.
-
-\begin{hse}
-*[[pi];po+;
-    [P];po-;[~P];po+
-    ([P];po-;[~P];po+)\times(m\-1)
-  [~pi];po-
- ]
-\end{hse}
-
-\noindent
-The first line acknowledges the parent. \\
-The second line is the node reading in the head word. \\
-The third line repeats $(m-1)$ times where $m$ is this node's level in the tree. \\
-The fourth line propagates the parents reset down the tree.
-
-\noindent NODE/neuron simple (just acks) interface:
-
-\begin{hse}
-*[[ci];co+;[~ci];co-]
-
-*[[c0|c1];co-;[~c0&~c1];co+]
-\end{hse}
-
-\begin{prs2}
-ci & ~c0 & ~c1 -> co+
-~ci | c0 | c1 -> co-
-\end{prs2}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{AERV CD noTW CYC LEAF \label{sec:AERV_CD_noTW_CYC_LEAF}}
 
@@ -2757,6 +2743,61 @@ c1o & p1 -> c11+
 ~c1o | ~p1 -> c11-
 \end{prs2}
 
+\noindent
+Radix 2 transistor approximate accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $p_o$ & 8 & \\ \hline
+    $u[0,1]$ & 14 & \\ \hline
+    $uu$ & 4 & could flatten in $p_o$ \\ \hline
+    $c[0,1]_o$ & 14 & \\ \hline
+    $cc_o$ & 4 & \\ \hline
+    $cc_i$ & 4 & could flatten in $p_o$ \\ \hline
+    $c[0,1][0,1]$ & 16 & \\ \hline
+    \hline total & 64 & 60 if $cc_i$ and $uu$ flattened in $p_o$ \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+Radix 4 transistor approximate accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $p_o$ & 8 & \\ \hline
+    $u[0,1,2,3]$ & 28 & \\ \hline
+    $uu$ & 8 & \\ \hline
+    $c[0,1,2,3]_o$ & 28 & \\ \hline
+    $cc_o$ & 8 & \\ \hline
+    $cc_i$ & 8 & \\ \hline
+    $c[0,1,2,3][0,1,2,3]$ & 64 & \\ \hline
+    \hline total & 152 & flattening $cc_i$ and $uu$ would make $p_o$ pullup chain too long \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+Radix 3, 1-of-4 out transistor approximate accounting: This is used in some of the receiver
+designs.
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $p_o$ & 8 & \\ \hline
+    $u[0,1,2]$ & 21 & \\ \hline
+    $uu$ & 6 & \\ \hline
+    $c[0,1,2]_o$ & 21 & \\ \hline
+    $cc_o$ & 6 & \\ \hline
+    $cc_i$ & 6 & \\ \hline
+    $c[0,1,2][0,1,2,3]$ & 48 & \\ \hline
+    \hline total & 116 & 114 if $cc_i$ or $uu$ flattened in $p_o$ (can't flatten both; pullup chain too long) \\ \hline
+    \end{tabular}
+\end{center}
+
 \subsubsection*{CMOS-implementable PRS}
 
 \begin{prs2}
@@ -2826,73 +2867,6 @@ _c10 -> c10-
 _c11 -> c11-
 \end{prs2}
 
-
-\noindent
-Radix 2 transistor accounting:
-
-\begin{center}
-    \begin{tabular}{|r|l|l|}
-    \hline
-    rule & transistor count & comments \\ \hline
-    $p_o$ & 8 & \\ \hline
-    $u[0,1]$ & 14 & \\ \hline
-    $uu$ & 4 & could flatten in $p_o$ \\ \hline
-    $c[0,1]_o$ & 14 & \\ \hline
-    $cc_o$ & 4 & \\ \hline
-    $cc_i$ & 4 & could flatten in $p_o$ \\ \hline
-    $c[0,1][0,1]$ & 16 & \\ \hline
-    \hline total & 64 & 60 if $cc_i$ and $uu$ flattened in $p_o$ \\ \hline
-    \end{tabular}
-\end{center}
-
-\noindent
-Radix 4 transistor accounting:
-
-\begin{center}
-    \begin{tabular}{|r|l|l|}
-    \hline
-    rule & transistor count & comments \\ \hline
-    $p_o$ & 8 & \\ \hline
-    $u[0,1,2,3]$ & 28 & \\ \hline
-    $uu$ & 8 & \\ \hline
-    $c[0,1,2,3]_o$ & 28 & \\ \hline
-    $cc_o$ & 8 & \\ \hline
-    $cc_i$ & 8 & \\ \hline
-    $c[0,1,2,3][0,1,2,3]$ & 64 & \\ \hline
-    \hline total & 152 & flattening $cc_i$ and $uu$ would make $p_o$ pullup chain too long \\ \hline
-    \end{tabular}
-\end{center}
-
-\noindent
-Radix 3, 1-of-4 out transistor accounting: This is used in some of the receiver
-designs.
-
-\begin{center}
-    \begin{tabular}{|r|l|l|}
-    \hline
-    rule & transistor count & comments \\ \hline
-    $p_o$ & 8 & \\ \hline
-    $u[0,1,2]$ & 21 & \\ \hline
-    $uu$ & 6 & \\ \hline
-    $c[0,1,2]_o$ & 21 & \\ \hline
-    $cc_o$ & 6 & \\ \hline
-    $cc_i$ & 6 & \\ \hline
-    $c[0,1,2][0,1,2,3]$ & 48 & \\ \hline
-    \hline total & 116 & 114 if $cc_i$ or $uu$ flattened in $p_o$ (can't flatten both; pullup chain too long) \\ \hline
-    \end{tabular}
-\end{center}
-
-\noindent LEAF/neuron simple (just acks) interface:
-
-\begin{hse}
-*[[c0|c1];co+;[~c0&~c1];co-]
-\end{hse}
-
-\begin{prs2}
-~c0 & ~c1 -> co+
-c0 | c1 -> co-
-\end{prs2}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{AERV CD noTW CYC LEAF (no data) \label{sec:AERV_CD_noTW_CYC_LEAF_nodata}}
 
@@ -2925,6 +2899,34 @@ p1 -> c1o+
 c0i & ~p0 | c1i & ~p1 -> u+
 (~c0i | p0) & (~c1i | p1) -> u-
 \end{prs2}
+
+\noindent
+Radix 2 transistor approximate accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $p_o$ & 8 & \\ \hline
+    $c[0,1]_o$ & 12 & \\ \hline
+    $u[0,1]$ & 8 & \\ \hline
+    \hline total & 28 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+Radix 4 transistor approximate accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $p_o$ & 12 & \\ \hline
+    $c[0,1,2,3]_o$ & 24 & \\ \hline
+    $u[0,1,2,3]$ & 16 & \\ \hline
+    \hline total & 52 & \\ \hline
+    \end{tabular}
+\end{center}
 
 \subsubsection*{CMOS-implementable PRS}
 
@@ -2971,45 +2973,6 @@ _c0o -> c0o-
 ~_c1o -> c1o+
 _c1o -> c1o-
 \end{prs2}
-
-\noindent
-Radix 2 transistor accounting:
-
-\begin{center}
-    \begin{tabular}{|r|l|l|}
-    \hline
-    rule & transistor count & comments \\ \hline
-    $p_o$ & 8 & \\ \hline
-    $c[0,1]_o$ & 12 & \\ \hline
-    $u[0,1]$ & 8 & \\ \hline
-    \hline total & 28 & \\ \hline
-    \end{tabular}
-\end{center}
-
-\noindent
-Radix 4 transistor accounting:
-
-\begin{center}
-    \begin{tabular}{|r|l|l|}
-    \hline
-    rule & transistor count & comments \\ \hline
-    $p_o$ & 12 & \\ \hline
-    $c[0,1,2,3]_o$ & 24 & \\ \hline
-    $u[0,1,2,3]$ & 16 & \\ \hline
-    \hline total & 52 & \\ \hline
-    \end{tabular}
-\end{center}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{AERV CD noTW CYC input interface IN \label{sec:AERV_CD_noTW_CYC_IN}}
-
-Needs to know when the end of the packet happens.
-Need to design Serial-Parallel-Serial interface first.
-
-\begin{hse}
-*[xe+,yo+;[yi&x0->y0+[]yi&x1->y1+];...]
-\end{hse}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{AERV Control Data decomposed (CD) no tailword (noTW) \label{sec:AERV_CD_noTW}}
@@ -4423,6 +4386,8 @@ For a 2-word packet,
  ]]
 \end{hse}
 
+\subsubsection*{PRS}
+
 \begin{prs2}
 x0 -> y00+
 ~x0 -> y00-
@@ -4443,7 +4408,7 @@ y0a | y1a -> xa+
 \end{prs2}
 
 \noindent
-1-of-2 transistor accounting:
+1-of-2 transistor approximate accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
@@ -4456,7 +4421,7 @@ y0a | y1a -> xa+
 \end{center}
 
 \noindent
-1-of-4 transistor accounting:
+1-of-4 transistor approximate accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
@@ -4467,6 +4432,27 @@ y0a | y1a -> xa+
     \hline approx. total & $3M-2$ & \\ \hline
     \end{tabular}
 \end{center}
+
+\subsubsection*{CMOS-implementable PRS}
+
+\begin{prs2}
+x0 -> y00+
+~x0 -> y00-
+
+x0 -> y10+
+~x0 -> y10-
+
+x1 -> y01+
+~x1 -> y01-
+
+x1 -> y11+
+~x1 -> y11-
+\end{prs2}
+
+\begin{prs2}
+y0a | y1a -> _xa-
+~y0a & ~y1a -> _xa+
+\end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{NODE \label{sec:DESERIAL_RING_NODE}}
@@ -4480,6 +4466,8 @@ NODE latches data from SPLIT.
   ]
  ]
 \end{hse}
+
+\subsubsection*{PRS}
 
 \begin{prs2}
 ~so & si & x0 -> y0+
@@ -4505,7 +4493,7 @@ y0 | y1 -> vy+
 \end{prs2}
 
 \noindent
-1-of-2 transistor accounting:
+1-of-2 transistor approximate accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
@@ -4520,7 +4508,7 @@ y0 | y1 -> vy+
 \end{center}
 
 \noindent
-1-of-4 transistor accounting:
+1-of-4 transistor approximate accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
@@ -4534,6 +4522,8 @@ y0 | y1 -> vy+
     \end{tabular}
 \end{center}
 
+\subsubsection*{CMOS-implementable PRS}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{C \label{sec:DESERIAL_RING_C}}
 
@@ -4542,6 +4532,8 @@ taking in the environment enable signal and the last node's $s_o$ signal
 to produce first node's $s_i$ signal. $s_i$ indicates whether we are in the
 up or down phase of the serial-to-parallel conversion.
 
+\subsubsection*{PRS}
+
 \begin{prs2}
 ~so & xe -> si+
 so & ~xe -> si-
@@ -4549,6 +4541,118 @@ so & ~xe -> si-
 
 \noindent
 A C-element costs 8 transistors.
+
+\subsubsection*{CMOS-implementable PRS}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{RING \label{sec:DESERIAL_RING_RING}}
+
+In the interest of bubble reshuffling, the deserial ring NODEs and C-element
+should be described in a single process because the NODE processes share
+share isochronic branches.
+
+\begin{hse}
+*[[ye];s0+;
+  [x0->y00+;x0a+;[~x0]
+  []x1->y01+;x0a+;[~x1]
+  ];s1+;x0a-;
+  ...
+  [x0->ym0+;xma+;[~x0]
+  []x1->ym1+;xma+;[~x1]
+  ];s(m\+1)+;xma-;
+  ...
+  [x0->y(M\-1)0+;x(M\-1)a+;[~x0]
+  []x1->y(M\-1)1+;x(M\-1)a+;[~x1]
+  ];sM+;x(M\-1)a-;
+  [~ye];s0-;
+  y00-,y01-;s1-;
+  ...
+  ym0-,ym1-;s(m\+1)-
+  ...
+  y(M\-1)0-,y(M\-1)1-
+ ]
+\end{hse}
+
+\subsubsection*{PRS}
+
+\noindent
+$Y$ data:
+\begin{prs2}
+~s1 & s0 & x0 -> y00+
+~s0 -> y00-
+
+~s1 & s0 & x1 -> y01+
+~s0 -> y01-
+\end{prs2}
+...
+\begin{prs2}
+~s(m\+1) & sm & x0 -> ym0+
+~sm -> ym0-
+
+~s(m\+1) & sm & x1 -> ym1+
+~sm -> ym1-
+\end{prs2}
+...
+\begin{prs2}
+~sM & s(M\-1) & x0 -> y(M\-1)0+
+~s(M\-1) -> y(M\-1)0-
+
+~sM & s(M\-1) & x1 -> y(M\-1)1+
+~s(M\-1) -> y(M\-1)1-
+\end{prs2}
+
+\noindent
+$X$ acknowledge:
+\begin{prs2}
+~s1 & v0y -> x0a+
+s1 | ~v0y -> x0a-
+\end{prs2}
+...
+\begin{prs2}
+~s(m\+1) & vmy -> xma+
+s(m\+1) | ~vmy -> xma-
+\end{prs2}
+...
+\begin{prs2}
+~sM & v(M\-1)y -> x(M\-1)a+
+sM | ~v(M\-1)y -> x(M\-1)a-
+\end{prs2}
+
+\noindent
+$S$ states:
+\begin{prs2}
+v0y & ~x0 & ~x1 -> s1+
+~v0y -> s1-
+\end{prs2}
+...
+\begin{prs2}
+vmy & ~x0 & ~x1 -> s(m\+1)+
+~vmy -> s(m\+1)m-
+\end{prs2}
+...
+\begin{prs2}
+v(M\-1)y & ~x0 & ~x1 -> sM+
+~v(M\-1)y -> sM-
+\end{prs2}
+
+\noindent
+$Y$ valid detectors:
+\begin{prs2}
+y00 | y01 -> v0y+
+~y00 & ~y01 -> v0y-
+\end{prs2}
+...
+\begin{prs2}
+ym0 | ym1 -> vmy+
+~ym0 & ~ym1 -> vmy-
+\end{prs2}
+...
+\begin{prs2}
+y(M\-1)0 | y(M\-1)1 -> v(M\-1)y+
+~y(M\-1)0 & ~y(M\-1)1 -> v(M\-1)y-
+\end{prs2}
+
+\subsubsection*{CMOS-implementable PRS}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{CHAIN Deserializer \label{sec:DESERIAL_CHAIN}}
@@ -5584,19 +5688,25 @@ _y1 -> y1-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Ring serializer 2 MERGE \label{sec:SERIAL_RING2_MERGE}}
 
-without state:
+\noindent
+for $M$ words,
 
 \begin{hse}
 *[[~si&~yi];so+;[si&yi];so-]
 
-*[[ x00->[yi];y0+;[x0v&~yi];x0a+;([~x00];y0-),[~x0v];x0a-
-  []x01->[yi];y1+;[x0v&~yi];x0a+;([~x01];y1-),[~x0v];x0a-
-  []x10->[yi];y0+;[x1v&~yi];x1a+;([~x10];y0-),[~x1v];x1a-
-  []x11->[yi];y1+;[x1v&~yi];x1a+;([~x11];y1-),[~x1v];x1a-
+*[[ x00->u0+,[yi];y0+;vy+;[x0v&~yi];x0a+;([~x00];u0-;y0-;vy-),[~x0v];x0a-
+  []x01->u1+,[yi];y1+;vy+;[x0v&~yi];x0a+;([~x01];u1-;y1-;vy-),[~x0v];x0a-
+  ...
+  []xm0->u0+,[yi];y0+;vy+;[xmv&~yi];xma+;([~xm0];u0-;y0-;vy-),[~xmv];xma-
+  []xm1->u1+,[yi];y1+;vy+;[xmv&~yi];xma+;([~xm1];u1-;y1-;vy-),[~xmv];xma-
+  ...
+  []x(M-1)0->u0+,[yi];y0+;vy+;[x(M-1)v&~yi];x(M-1)a+;([~x(M-1)0];u0-;y0-;vy-),[~x(M-1)v];x(M-1)a-
+  []x(M-1)1->u1+,[yi];y1+;vy+;[x(M-1)v&~yi];x(M-1)a+;([~x(M-1)1];u1-;y1-;vy-),[~x(M-1)v];x(M-1)a-
  ]]
 \end{hse}
 
-with state:
+\noindent
+for $M=2$,
 
 \begin{hse}
 *[[~si&~yi];so+;[si&yi];so-]
