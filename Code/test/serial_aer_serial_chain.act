@@ -1,7 +1,7 @@
 import "serial_aer.act";
 // import "ref_serial_aer.act";
 globals g;
-pint M=1;
+pint M=3;
 pint N=2;
-pint NN=2; // NN=N^M
+pint NN=8; // NN=N^M
 aer::receiver::test::TEST_SERIAL_CHAIN<M, N, NN> test(g);

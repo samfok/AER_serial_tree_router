@@ -268,44 +268,89 @@ namespace aer {
             export
             template <pint N>
             defproc NODE (globals g; e1of<N> x, y; c1of<N> d) {
-                bool u, vy, vd;
+                bool u, _u, __u, _vy, _vd, _xe;
+                c1of<N> _y;
+                c1of<N> __y = y.m;
                 prs<g.Vdd, g.GND> {
+                    ~u -> _u+
+                    u -> _u-
+
                     (: n : N :
-                        y.e & ~u & d.d[n] | x.d[n] -> y.d[n]+
-                        g.pReset | ~y.e & u & ~x.d[n] -> y.d[n]-
+                        y.e & _u & d.d[n] | x.d[n] -> _y.d[n]-
+                        g.pReset | ~y.e & ~_u & ~x.d[n] -> _y.d[n]+
                     )
 
-                    (| : n : N : y.d[n]) => vy+
+                    (: n : N :
+                        ~_y.d[n] -> __y.d[n]+
+                        _y.d[n] -> __y.d[n]-
+                    )
 
-                    (| : n : N : d.d[n]) => vd+
+                    (| : n : N : __y.d[n]) -> _vy-
+                    (& : n : N : ~__y.d[n]) -> _vy+
 
-                    vy & vd -> u+
-                    g.pReset | ~vy & ~vd -> u-
+                    (| : n : N : d.d[n]) -> _vd-
+                    (& : n : N : ~d.d[n]) -> _vd+
 
-                    y.e & u & ~vy -> x.e+
-                    ~y.e & (~u | vy) -> x.e-
+                    ~_vy & ~_vd -> u+
+                    g.pReset | _vy & _vd -> u-
+
+                    ~_u -> __u+
+                    _u -> __u-
+
+                    y.e & __u & _vy -> _xe-
+                    ~y.e & (~__u | ~_vy) -> _xe+
+                }
+                prs<g.Vdd, g.GND> {
+                    (: n : N :
+                        ~_y.d[n] -> y.d[n]+
+                        _y.d[n] -> y.d[n]-
+                    )
+
+                    ~_xe -> x.e+
+                    _xe -> x.e-
                 }
             }
 
             export
             template <pint N>
             defproc TAIL (globals g; bool xe; e1of<N> y; c1of<N> d) {
-                bool u, vy, vd;
+                bool u, _u, __u, vy, _vy, _vd, _xe;
+                c1of<N> _y;
                 prs<g.Vdd, g.GND> {
+                    ~u -> _u+
+                    u -> _u-
+
                     (: n : N :
-                        y.e & ~u & d.d[n] -> y.d[n]+
-                        g.pReset | ~y.e & u -> y.d[n]-
+                        y.e & _u & d.d[n] -> _y.d[n]-
+                        g.pReset | ~y.e & ~_u -> _y.d[n]+
                     )
 
-                    (| : n : N : y.d[n]) => vy+
+                    (| : n : N : ~_y.d[n]) -> vy+
+                    (& : n : N : _y.d[n]) -> vy-
 
-                    (| : n : N : d.d[n]) => vd+
+                    (| : n : N : d.d[n]) -> _vd-
+                    (& : n : N : ~d.d[n]) -> _vd+
 
-                    vy & vd -> u+
-                    g.pReset | ~vy & ~vd -> u-
+                    ~vy -> _vy+
+                    vy -> _vy-
 
-                    y.e & u & ~vy -> xe+
-                    ~y.e & ~u -> xe-
+                    ~_vy & ~_vd -> u+
+                    ~g._pReset | _vy & _vd -> u-
+
+                    ~_u -> __u+
+                    _u -> __u-
+
+                    y.e & __u & _vy -> _xe-
+                    ~y.e & ~__u -> _xe+
+                }
+                prs<g.Vdd, g.GND> {
+                    (: n : N :
+                        ~_y.d[n] -> y.d[n]+
+                        _y.d[n] -> y.d[n]-
+                    )
+
+                    ~_xe -> xe+
+                    _xe -> xe-
                 }
             }
         } // namespace serial_chain
@@ -1016,7 +1061,8 @@ namespace aer {
         interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
         interface::DESERIAL_RING<M, N> deserial(g, out._y,);
         // interface::DESERIAL_CHAIN<M, N> deserial(g, out._y,);
-        interface::SERIAL_RING2<M, N> serial(g, deserial.y,,,);
+        // interface::SERIAL_RING2<M, N> serial(g, deserial.y,,,);
+        interface::SERIAL_CHAIN<M, N> serial(g, deserial.y,,,);
         receiver::AERV_NODATA<M, N, NN> aerv(g, yi, yo, serial.yo, serial.yi, serial.y);
     }
 

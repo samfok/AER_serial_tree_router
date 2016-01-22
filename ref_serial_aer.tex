@@ -4854,6 +4854,7 @@ ym0 | ym1 -> _vmy-
 y(M\-1)0 | y(M\-1)1 -> _v(M\-1)y-
 ~y(M\-1)0 & ~y(M\-1)1 -> _v(M\-1)y+
 \end{prs2}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{CHAIN Deserializer \label{sec:DESERIAL_CHAIN}}
 
@@ -6091,7 +6092,7 @@ ye & ~u & d0 | x0 -> y0+
 ~ye & u & ~x0 -> y0-
 
 ye & ~u & d1 | x1 -> y1+
-~ye & ~x1 -> y1-
+~ye & u & ~x1 -> y1-
 \end{prs2}
 
 \begin{prs2}
@@ -6103,7 +6104,7 @@ d0 | d1 -> vd+
 \end{prs2}
 
 \begin{prs2}
-~ye & vy & vd -> u+
+vy & vd -> u+
 ~vy & ~vd -> u-
 \end{prs2}
 
@@ -6112,10 +6113,8 @@ ye & u & ~vy -> xe+
 ~ye & (~u | vy)  -> xe-
 \end{prs2}
 
-\subsubsection*{CMOS-implementable PRS}
-
 \noindent
-1-of-2 transistor accounting:
+1-of-2 transistor approximate accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
@@ -6129,7 +6128,7 @@ ye & u & ~vy -> xe+
 \end{center}
 
 \noindent
-1-of-4 transistor accounting:
+1-of-4 transistor approximate accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
@@ -6141,6 +6140,52 @@ ye & u & ~vy -> xe+
     \hline total & 65 & \\ \hline
     \end{tabular}
 \end{center}
+
+\subsubsection*{CMOS-implementable PRS}
+
+\begin{prs2}
+~u -> _u+
+u -> _u-
+\end{prs2}
+
+\begin{prs2}
+ye & _u & d0 | x0 -> _y0-
+~ye & ~_u & ~x0 -> _y0+
+
+ye & _u & d1 | x1 -> _y1-
+~ye & ~_u & ~x1 -> _y1+
+\end{prs2}
+
+\begin{prs2}
+~_y0 -> __y0+
+_y0 -> __y0-
+
+~_y1 -> __y1+
+_y1 -> __y1-
+\end{prs2}
+
+\begin{prs2}
+__y0 | __y1 -> _vy-
+~__y0 & ~__y1 -> _vy+
+
+d0 | d1 -> _vd-
+~d0 & ~d1 -> _vd+
+\end{prs2}
+
+\begin{prs2}
+~_vy & ~_vd -> u+
+_vy & _vd -> u-
+\end{prs2}
+
+\begin{prs2}
+~_u -> __u+
+_u -> __u-
+\end{prs2}
+
+\begin{prs2}
+ye & __u & _vy -> _xe-
+~ye & (~__u | ~_vy)  -> _xe+
+\end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Chain serializer TAIL \label{sec:SERIAL_CHAIN_TAIL}}
@@ -6183,10 +6228,8 @@ ye & u & ~vy -> xe+
 ~ye & (~u | vy)  -> xe-
 \end{prs2}
 
-\subsubsection*{CMOS-implementable PRS}
-
 \noindent
-1-of-2 transistor accounting:
+1-of-2 transistor approximate accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
@@ -6200,7 +6243,7 @@ ye & u & ~vy -> xe+
 \end{center}
 
 \noindent
-1-of-4 transistor accounting:
+1-of-4 transistor approximate accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
@@ -6212,6 +6255,49 @@ ye & u & ~vy -> xe+
     \hline total & 53 & \\ \hline
     \end{tabular}
 \end{center}
+
+\subsubsection*{CMOS-implementable PRS}
+
+\begin{prs2}
+~u -> _u+
+u -> _u-
+\end{prs2}
+
+\begin{prs2}
+ye & _u & d0 -> _y0-
+~ye & ~_u -> _y0+
+
+ye & _u & d1 -> _y1-
+~ye & ~_u -> _y1+
+\end{prs2}
+
+\begin{prs2}
+~_y0 | ~_y1 -> vy+
+_y0 & _y1 -> vy-
+
+d0 | d1 -> _vd-
+~d0 & ~d1 -> _vd+
+\end{prs2}
+
+\begin{prs2}
+~_vd -> __vd+
+_vd -> __vd-
+\end{prs2}
+
+\begin{prs2}
+~_vy & ~_vd -> u+
+_vy & _vd -> u-
+\end{prs2}
+
+\begin{prs2}
+~_u -> __u+
+_u -> __u-
+\end{prs2}
+
+\begin{prs2}
+ye & __u & _vy -> xe+
+~ye & (~__u | ~_vy)  -> xe-
+\end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Chain serializer C \label{sec:SERIAL_CHAIN_C}}
