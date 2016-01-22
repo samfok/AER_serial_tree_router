@@ -1,0 +1,10 @@
+break-on-warn
+source scripts/reset0.scr
+cycle
+source scripts/reset1.scr
+cycle
+source scripts/reset2.scr
+cycle
+source scripts/reset3.scr
+status X
+

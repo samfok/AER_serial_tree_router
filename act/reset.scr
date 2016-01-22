@@ -1,9 +1,0 @@
-source init.scr
-source reset0.scr
-cycle
-source reset1.scr
-cycle
-source reset2.scr
-cycle
-source reset3.scr
-status X

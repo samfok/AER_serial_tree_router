@@ -1,1 +1,2 @@
-source reset.scr
+# shortcut to reset script
+source scripts/reset.scr
