@@ -1,33 +1,35 @@
 import "globals.act";
 import "channel.act";
-import "environment.act";
-import "arbiter.act";
 
-export defproc wrapper(globals_np g_np; e1of1 A; e1of1 B)
+export defproc wrapper(globals_np g_np; e1of<1> A; e1of<1> B)
 {
-	bool Vdd;
-	bool GND;
-
-	prs <Vdd, GND> {
-		g_np._sReset<20> => p.g.sReset-
-		g_np._pReset<20> => p.g.pReset-
-	}
+	  bool Vdd;
+	  bool GND;
+    pint width=6;
 
     bool a[2];
     bool b[2];
+    bool o[3];
+    A.e = o[2];
+    B.e = o[2];
     prs <Vdd, GND> {
-        A.d -> a[0]-
-        ~A.d -> a[0]+
-        a[0] -> a[1]-
-        ~a[0] -> a[1]+
+        A.d[0]<width> -> a[0]-
+        ~A.d[0]<1.5*width> -> a[0]+
+        a[0]<width> -> a[1]-
+        ~a[0]<1.5*width> -> a[1]+
 
-        B.d -> b[0]-
-        ~B.d -> b[0]+
-        b[0] -> b[1]-
-        ~b[0] -> b[1]+
+        B.d[0]<width> -> b[0]-
+        ~B.d[0]<1.5*width> -> b[0]+
+        b[0]<width> -> b[1]-
+        ~b[0]<1.5*width> -> b[1]+
 
-        g.pReset | a[1] & b[1] -> o-
-        ~g.sReset & ~a[1] & ~b[1] -> o+
+        g_np.pReset | a[1]<2*width> & b[1]<2*width> -> o[0]-
+        ~g_np.sReset<5*width> & ~a[1]<5*width> & ~b[1]<5*width> -> o[0]+
+
+        o[0]<width> -> o[1]-
+        ~o[0]<1.5*width> -> o[1]+
+        o[1]<width> -> o[2]-
+        ~o[1]<1.5*width> -> o[2]+
     }
 }
 
