@@ -6,7 +6,7 @@ import "environment.act";
 namespace arbiter {
     // contains arbiter related processes. 
 
-    export
+    export template <pint width>
     defproc ARB (globals g; bool i[2], o[2]) {
         // The basic 2-input arbiter
         bool _x[2];
@@ -17,21 +17,30 @@ namespace arbiter {
     
         //Cross-Coupled NANDs
         prs<g.Vdd, g.GND> {
-            i[0] & _x[1]  => _x[0]-
-            i[1] & _x[0]  => _x[1]-
+            i[0]<width> & _x[1]<width>  -> _x[0]-
+            ~i[0]<width> | ~_x[1]<width>  -> _x[0]+
+            i[1]<width> & _x[0]<width>  -> _x[1]-
+            ~i[1]<width> | ~_x[0]<width>  -> _x[1]+
         }
     
         //Filter
-        prs<g.Vdd, g.GND> {
-            ~_x[0] & _x[1] -> o[0]+
-            _x[0]          -> o[0]-
+        [ ~LAYOUT ->
+            prs <g.Vdd, g.GND> {
+                _x[0] => o[0]-
+                _x[1] => o[1]-
+            }
+        [] LAYOUT ->
+            prs<g.Vdd, g.GND> {
+                [keeper=0] passp<width>(_x[0], _x[1], o[0])
+                [keeper=0] _x[0]<width> -> o[0]-
     
-            ~_x[1] & _x[0] -> o[1]+
-            _x[1]          -> o[1]-
-        }
+                [keeper=0] passp<width>(_x[1], _x[0], o[1])
+                [keeper=0] _x[1]<width> -> o[1]-
+            }
+        ]
     }
     
-    export
+    export template <pint width>
     defproc _ARB (globals g; bool _i[2], _o[2]) {
         // The basic 2-input arbiter with active low inputs/outputs
         bool x[2];
@@ -42,18 +51,27 @@ namespace arbiter {
     
         //Cross-Coupled NORs
         prs<g.Vdd, g.GND> {
-            _i[0] | x[1] => x[0]-
-            _i[1] | x[0] => x[1]-
+            _i[0]<width> | x[1]<width> -> x[0]-
+            ~_i[0]<width> & ~x[1]<width> -> x[0]+
+            _i[1]<width> | x[0]<width> -> x[1]-
+            ~_i[1]<width> & ~x[0]<width> -> x[1]+
         }
     
         //Filter
-        prs<g.Vdd, g.GND> {
-            x[0] & ~x[1] -> _o[0]-
-            ~x[0]        -> _o[0]+
+        [ ~LAYOUT ->
+            prs<g.Vdd, g.GND> {
+                x[0] => _o[0]-
+                x[1] => _o[1]-
+            }
+        [] LAYOUT ->
+            prs<g.Vdd, g.GND> {
+                [keeper=0] passn<width>(x[0], x[1], _o[0])
+                [keeper=0] ~x[0]<width> -> _o[0]+
     
-            x[1] & ~x[0] -> _o[1]-
-            ~x[1]        -> _o[1]+
-        }
+                [keeper=0] passn<width>(x[1], x[0], _o[1])
+                [keeper=0] ~x[1]<width> -> _o[1]+
+            }
+        ]
     }
     
     namespace n_arb_2arb_node {
@@ -302,7 +320,7 @@ namespace arbiter {
 
     namespace n_arb_c {
         // cheap N-way arbiter
-        template <pint N>
+        template <pint N, width>
         defproc N_ARB_ (globals g; bool i[N], o[N], pi, po) {
             // utility for N_ARB_C
             // N neurons
@@ -334,7 +352,7 @@ namespace arbiter {
         }
         
         export
-        template <pint N>
+        template <pint N, width>
         defproc N_ARB (globals g; bool i[N], o[N]) {
             // cheap N-way arbiter
             [ N = 1 ->
@@ -350,7 +368,7 @@ namespace arbiter {
             ]
         }
 
-        template <pint N>
+        template <pint N, width>
         defproc _N_ARB_ (globals g; bool _i[N], _o[N], _pi, _po) {
             // utility for _N_ARB_C
             // N neurons
@@ -382,7 +400,7 @@ namespace arbiter {
         }
         
         export
-        template <pint N>
+        template <pint N, width>
         defproc _N_ARB (globals g; bool _i[N], _o[N]) {
             // cheap active-low N-way arbiter
             [ N = 1 ->
@@ -404,7 +422,7 @@ namespace arbiter {
             defproc TEST_N_ARB_C (globals g) {
                 //tests N_ARB_C
                 active_handshaker<N> c(g,,);
-                N_ARB<N> n_arb(g, c.o, c.i);
+                N_ARB<N, 1> n_arb(g, c.o, c.i);
             }
 
             export
@@ -412,52 +430,87 @@ namespace arbiter {
             defproc TEST__N_ARB_C (globals g) {
                 //tests _N_ARB_C
                 _active_handshaker<N> _c(g,,);
-                _N_ARB<N> _n_arb(g, _c._o, _c._i);
+                _N_ARB<N, 1> _n_arb(g, _c._o, _c._i);
             }
         } // namespace test
     } // namespace n_arb_c
 
     namespace n_arb_s {
         // standard, unpipelined n-way arbiter
+        template <pint width>
         defproc MU_EX (globals g; bool _ci[2], co[2], qi[2], qo[2]) {
             // grants mutual exclusion between two requesting signals
-            _ARB _arb(g, _ci,);
+            _ARB<width> _arb(g, _ci,);
             qi = co;
-            prs {
-                ~co[1] & ~_arb._o[0] => qo[0]+
-                ~co[0] & ~_arb._o[1] => qo[1]+
-            }
+            [ ~LAYOUT ->
+                prs {
+                    ~co[1] & ~_arb._o[0] -> qo[0]+
+                    co[1] | _arb._o[0] -> qo[0]-
+                    ~co[0] & ~_arb._o[1] -> qo[1]+
+                    co[0] | _arb._o[1] -> qo[1]-
+                }
+            [] LAYOUT ->
+                prs {
+                    ~co[1]<width> & ~_arb._o[0]<width> -> qo[0]+
+                    co[1]<width> | _arb._o[0]<width> -> qo[0]-
+                    ~co[0]<width> & ~_arb._o[1]<width> -> qo[1]+
+                    co[0]<width> | _arb._o[1]<width> -> qo[1]-
+                }
+            ]
         }
 
+        template <pint width>
         defproc PREQ (globals g; bool qi[2], qo[2], pi, _po) {
             // merges mutually exclusive requests into a parent request
             bool _qo[2];
-            prs<g.Vdd, g.GND> {
-                qi[0] | qi[1] -> _po-
-                ~qi[0] & ~qi[1] -> _po+
+            [ ~LAYOUT ->
+                prs<g.Vdd, g.GND> {
+                    qi[0] | qi[1] => _po-
 
-                (: n : 2 :
-                    pi & qi[n] -> _qo[n]-
-                    ~pi -> _qo[n]+
+                    (: n : 2 :
+                        pi & qi[n] -> _qo[n]-
+                        ~pi -> _qo[n]+
 
-                    _qo[n] => qo[n]-
-                )
-            }
+                        _qo[n] -> qo[n]-
+                        ~_qo[n] -> qo[n]+
+                    )
+                }
+            [] LAYOUT ->
+                prs<g.Vdd, g.GND> {
+                    qi[0]<width> | qi[1]<width> -> _po-
+                    ~qi[0]<width> & ~qi[1]<width> -> _po+
+
+                    (: n : 2 :
+                        pi<width> & qi[n]<width> -> _qo[n]-
+                        ~pi<width> -> _qo[n]+
+
+                        _qo[n]<width> -> qo[n]-
+                        ~_qo[n]<width> -> qo[n]+
+                    )
+                }
+            ]
         }
 
-        template <pint N>
+        template <pint N, width>
         defproc N_ARB_ (globals g; bool i[N], o[N], pi, _po) {
             // utility for N_ARB_S
             [ N = 1 ->
-                prs <g.Vdd, g.GND> {
-                    i[0] => _po-
-                }
+                [ ~LAYOUT ->
+                    prs <g.Vdd, g.GND> {
+                        i[0] => _po-
+                    }
+                [] LAYOUT ->
+                    prs <g.Vdd, g.GND> {
+                        i[0]<width> -> _po-
+                        ~i[0]<width> -> _po+
+                    }
+                ]
                 o[0] = pi;
             [] N > 1 ->
-                N_ARB_<N/2> n_arb0(g, i[0..N/2-1], o[0..N/2-1],,);
-                N_ARB_<N-N/2> n_arb1(g, i[N/2..N-1], o[N/2..N-1],,);
-                MU_EX mu_ex(g,,,,);
-                PREQ preq(g, mu_ex.qo, mu_ex.qi, pi, _po);
+                N_ARB_<N/2, width> n_arb0(g, i[0..N/2-1], o[0..N/2-1],,);
+                N_ARB_<N-N/2, width> n_arb1(g, i[N/2..N-1], o[N/2..N-1],,);
+                MU_EX<width> mu_ex(g,,,,);
+                PREQ<width> preq(g, mu_ex.qo, mu_ex.qi, pi, _po);
                 mu_ex._ci[0] = n_arb0._po;
                 mu_ex.co[0] = n_arb0.pi;
                 mu_ex._ci[1] = n_arb1._po;
@@ -466,21 +519,30 @@ namespace arbiter {
         }
 
         export
-        template <pint N>
+        template <pint N, width>
         defproc N_ARB (globals g; bool i[N], o[N]) {
             // Standard N-way arbtier as developed in Rajit's notes
             [ N = 1 ->
                 i[0] = o[0];
             [] N > 1 ->
-                N_ARB_<N/2> n_arb0(g, i[0..N/2-1], o[0..N/2-1],,);
-                N_ARB_<N-N/2> n_arb1(g, i[N/2..N-1], o[N/2..N-1],,);
-                _ARB _arb(g,,);
+                N_ARB_<N/2, width> n_arb0(g, i[0..N/2-1], o[0..N/2-1],,);
+                N_ARB_<N-N/2, width> n_arb1(g, i[N/2..N-1], o[N/2..N-1],,);
+                _ARB<width> _arb(g,,);
                 _arb._i[0] = n_arb0._po;
                 _arb._i[1] = n_arb1._po;
-                prs<g.Vdd, g.GND> {
-                    _arb._o[0] => n_arb0.pi-
-                    _arb._o[1] => n_arb1.pi-
-                }
+                [ ~LAYOUT ->
+                    prs<g.Vdd, g.GND> {
+                        _arb._o[0] => n_arb0.pi-
+                        _arb._o[1] => n_arb1.pi-
+                    }
+                [] LAYOUT ->
+                    prs<g.Vdd, g.GND> {
+                        _arb._o[0]<width> -> n_arb0.pi-
+                        ~_arb._o[0]<width> -> n_arb0.pi+
+                        _arb._o[1]<width> -> n_arb1.pi-
+                        ~_arb._o[1]<width> -> n_arb1.pi+
+                    }
+                ]
             ]
         }
 
@@ -490,7 +552,7 @@ namespace arbiter {
             defproc TEST_N_ARB_S (globals g) {
                 //tests N_ARB_S
                 active_handshaker<N> c(g,,);
-                N_ARB<N> n_arb(g, c.o, c.i);
+                N_ARB<N, 1> n_arb(g, c.o, c.i);
             }
         } // namespace test
     } // namespace n_arb_s

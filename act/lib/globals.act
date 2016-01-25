@@ -2,17 +2,21 @@
 // Globals
 ////////////////////////////////////////////////////////////////////////////////
 
-export deftype nopower_globals <: int<2> (bool _pReset,_sReset) {
+export deftype globals_np <: int<4> (bool Reset, _Reset, pReset, sReset, _pReset, _sReset)
+{
+	sReset = Reset;
+	_sReset = _Reset;
+
+	set { }
+	get { }
+}
+
+export deftype globals <: int<4> (bool Vdd, GND, pReset, _pReset, sReset, _sReset) {
   set { }
   get { }
 }
 
-export deftype globals <: int<4> (bool Vdd,GND,pReset,_pReset,sReset,_sReset) {
-  set { }
-  get { }
-}
-
-export deftype ternary_globals <: int<5> (bool Vdd,Vdd2,GND,_pReset,_sReset) {
+export deftype ternary_globals <: int<5> (bool Vdd, Vdd2, GND, _pReset, _sReset) {
   set { }
   get { }
 }

@@ -1,0 +1,34 @@
+import "globals.act";
+import "channel.act";
+import "environment.act";
+import "arbiter.act";
+
+export defproc wrapper(globals_np g_np; e1of1 A; e1of1 B)
+{
+	bool Vdd;
+	bool GND;
+
+	prs <Vdd, GND> {
+		g_np._sReset<20> => p.g.sReset-
+		g_np._pReset<20> => p.g.pReset-
+	}
+
+    bool a[2];
+    bool b[2];
+    prs <Vdd, GND> {
+        A.d -> a[0]-
+        ~A.d -> a[0]+
+        a[0] -> a[1]-
+        ~a[0] -> a[1]+
+
+        B.d -> b[0]-
+        ~B.d -> b[0]+
+        b[0] -> b[1]-
+        ~b[0] -> b[1]+
+
+        g.pReset | a[1] & b[1] -> o-
+        ~g.sReset & ~a[1] & ~b[1] -> o+
+    }
+}
+
+wrapper dut;
