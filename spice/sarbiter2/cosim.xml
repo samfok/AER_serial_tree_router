@@ -3,7 +3,6 @@
   <circuit sim_type="spice" file="spice.act" instance="wrapper" file_type="act" name="dut" uses_blackbox="1"> 
     <source type="globals_np" channel="g_np" />
     <source type="random" channel="A" delay="0" />
-    <source type="random" channel="B" delay="0.01" />
   </circuit>
 
 	<!---GLOBAL PARAMETERS !-->
@@ -17,14 +16,14 @@
   <global name="netgen_cfg" value="/ufs/cad/lib/netgen/st28soi.conf" />
 
   <!-- Simulation time settings -->
-  <global name="sim_time" value="5" />
+  <global name="sim_time" value="3" />
   <global name="timescale" value="1ns/1ps" />
   <global name="_sReset_time" value="2" />
   <global name="_pReset_time" value="1" />
 
   <!-- Measurement start/stop times -->
   <global name="measurement_start_time" value="2n" />	<!--usually after Reset !-->
-  <global name="measurement_stop_time" value="5n" />	<!--usually end of sim  !-->
+  <global name="measurement_stop_time" value="3n" />	<!--usually end of sim  !-->
 
   <!-- SPICE models -->
   <global name="additional_spice_files" value="/ufs/cad/lib/spice/st28soi.spi" />

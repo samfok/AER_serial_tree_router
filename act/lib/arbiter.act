@@ -6,7 +6,7 @@ import "environment.act";
 namespace arbiter {
     // contains arbiter related processes. 
 
-    export template <pint width>
+    export
     defproc ARB (globals g; bool i[2], o[2]) {
         // The basic 2-input arbiter
         bool _x[2];
@@ -17,10 +17,10 @@ namespace arbiter {
     
         //Cross-Coupled NANDs
         prs<g.Vdd, g.GND> {
-            i[0]<width> & _x[1]<width>  -> _x[0]-
-            ~i[0]<width> | ~_x[1]<width>  -> _x[0]+
-            i[1]<width> & _x[0]<width>  -> _x[1]-
-            ~i[1]<width> | ~_x[0]<width>  -> _x[1]+
+            i[0] & _x[1]  -> _x[0]-
+            ~i[0] | ~_x[1]  -> _x[0]+
+            i[1] & _x[0]  -> _x[1]-
+            ~i[1] | ~_x[0]  -> _x[1]+
         }
     
         //Filter
@@ -31,16 +31,16 @@ namespace arbiter {
             }
         [] LAYOUT ->
             prs<g.Vdd, g.GND> {
-                [keeper=0] passp<width>(_x[0], _x[1], o[0])
-                [keeper=0] _x[0]<width> -> o[0]-
+                [keeper=0] passp(_x[0], _x[1], o[0])
+                [keeper=0] _x[0] -> o[0]-
     
-                [keeper=0] passp<width>(_x[1], _x[0], o[1])
-                [keeper=0] _x[1]<width> -> o[1]-
+                [keeper=0] passp(_x[1], _x[0], o[1])
+                [keeper=0] _x[1] -> o[1]-
             }
         ]
     }
     
-    export template <pint width>
+    export
     defproc _ARB (globals g; bool _i[2], _o[2]) {
         // The basic 2-input arbiter with active low inputs/outputs
         bool x[2];
@@ -51,10 +51,10 @@ namespace arbiter {
     
         //Cross-Coupled NORs
         prs<g.Vdd, g.GND> {
-            _i[0]<width> | x[1]<width> -> x[0]-
-            ~_i[0]<width> & ~x[1]<width> -> x[0]+
-            _i[1]<width> | x[0]<width> -> x[1]-
-            ~_i[1]<width> & ~x[0]<width> -> x[1]+
+            _i[0]<10> | x[1]<10> -> x[0]-
+            ~_i[0]<28> & ~x[1]<28> -> x[0]+
+            _i[1]<10> | x[0]<10> -> x[1]-
+            ~_i[1]<28> & ~x[0]<28> -> x[1]+
         }
     
         //Filter
@@ -65,11 +65,11 @@ namespace arbiter {
             }
         [] LAYOUT ->
             prs<g.Vdd, g.GND> {
-                [keeper=0] passn<width>(x[0], x[1], _o[0])
-                [keeper=0] ~x[0]<width> -> _o[0]+
+                [keeper=0] passn<9>(x[0], x[1], _o[0])
+                [keeper=0] ~x[0]<12> -> _o[0]+
     
-                [keeper=0] passn<width>(x[1], x[0], _o[1])
-                [keeper=0] ~x[1]<width> -> _o[1]+
+                [keeper=0] passn<9>(x[1], x[0], _o[1])
+                [keeper=0] ~x[1]<12> -> _o[1]+
             }
         ]
     }
@@ -440,7 +440,7 @@ namespace arbiter {
         template <pint width>
         defproc MU_EX (globals g; bool _ci[2], co[2], qi[2], qo[2]) {
             // grants mutual exclusion between two requesting signals
-            _ARB<width> _arb(g, _ci,);
+            _ARB _arb(g, _ci,);
             qi = co;
             [ ~LAYOUT ->
                 prs {
@@ -501,8 +501,8 @@ namespace arbiter {
                     }
                 [] LAYOUT ->
                     prs <g.Vdd, g.GND> {
-                        i[0]<width> -> _po-
-                        ~i[0]<width> -> _po+
+                        i[0]<1.2*width> -> _po-
+                        ~i[0]<2.2*width> -> _po+
                     }
                 ]
                 o[0] = pi;
@@ -527,7 +527,7 @@ namespace arbiter {
             [] N > 1 ->
                 N_ARB_<N/2, width> n_arb0(g, i[0..N/2-1], o[0..N/2-1],,);
                 N_ARB_<N-N/2, width> n_arb1(g, i[N/2..N-1], o[N/2..N-1],,);
-                _ARB<width> _arb(g,,);
+                _ARB _arb(g,,);
                 _arb._i[0] = n_arb0._po;
                 _arb._i[1] = n_arb1._po;
                 [ ~LAYOUT ->
@@ -538,9 +538,9 @@ namespace arbiter {
                 [] LAYOUT ->
                     prs<g.Vdd, g.GND> {
                         _arb._o[0]<width> -> n_arb0.pi-
-                        ~_arb._o[0]<width> -> n_arb0.pi+
+                        ~_arb._o[0]<2*width> -> n_arb0.pi+
                         _arb._o[1]<width> -> n_arb1.pi-
-                        ~_arb._o[1]<width> -> n_arb1.pi+
+                        ~_arb._o[1]<2*width> -> n_arb1.pi+
                     }
                 ]
             ]
