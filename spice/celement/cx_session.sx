@@ -1,0 +1,15 @@
+### Custom WaveView session file (version K-2015.06 build 05/23/15) ###
+### saved at 17:38:45 on Mon Jan 25 2016 ###
+wdf 0 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/celement/hsim.fsdb" load=used 
+scalar list
+waveview_begin 1  stack  offset=0 name_b=243 mntr_b=243 name_width=228 dm=slew:929:257:1:0:0:9e+01:1e+01:0e+00:0e+00:0:2.28923078509088e-09:9.64540856424719e-02:2.25288566195785e-09:9.05117717245594e-01:0:0e+00:0e+00 dm=slew:885:579:1:0:0:9e+01:1e+01:0e+00:0e+00:1:2.22166452368712e-09:9.31212028488517e-02:2.29099550907344e-09:9.10750988684595e-01:0:0e+00:0e+00 dm=slew:624:891:1:0:0:9e+01:1e+01:0e+00:0e+00:2:2.01767623832257e-09:9.24740171059966e-02:2.09480972364471e-09:9.21389477513731e-01:0:0e+00:0e+00 dm=slew:694:246:1:0:0:9e+01:1e+01:0e+00:0e+00:0:2.08411909698333e-09:9.64540856424719e-02:2.13389930541951e-09:9.05117717245594e-01:0:0e+00:0e+00 dm=slew:912:913:1:0:0:9e+01:1e+01:0e+00:0e+00:2:2.23675026530545e-09:9.24740171059966e-02:2.18432854538004e-09:9.21389477513731e-01:0:0e+00:0e+00 dm=slew:743:541:1:0:0:9e+01:1e+01:0e+00:0e+00:1:2.09868302178137e-09:9.31212028488517e-02:2.04991848942486e-09:9.10750988684595e-01:0:0e+00:0e+00 "name=waveview 1" 
+  panel_begin linear pidx=0 spath=name+file xlabel=sec xmin=1.7909887359199e-09 xmax=3e-09 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=v(o_02_1_dut)" attr=2:2:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=1 spath=name+file xlabel=sec xmin=1.7909887359199e-09 xmax=3e-09 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.v(o_01_1)" attr=1:1:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=2 spath=name+file xlabel=sec xmin=1.7909887359199e-09 xmax=3e-09 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.v(o_00_1)" attr=0:0:1:0 autoset=true disp=show 
+  panel_end
+waveview_end
