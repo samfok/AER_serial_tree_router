@@ -3,8 +3,8 @@ import "channel.act";
 
 export defproc wrapper(globals_np g_np; e1of<1> A; e1of<1> B)
 {
-	  bool Vdd;
-	  bool GND;
+    bool Vdd;
+    bool GND;
     pint width=6;
 
     bool a[2];
