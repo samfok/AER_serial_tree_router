@@ -62,30 +62,57 @@ namespace aer {
             defproc NODE (globals g; a1of<N> _x; c1of<N> y; bool _si, _so) {
                 bool _vy, __vy, _s, __s;
                 bool xa = _x.a; // normal sense
-                prs<g.Vdd, g.GND> {
-                    ~_s -> __s+
-                    _s -> __s-
+                [ ~LAYOUT ->
+                    prs<g.Vdd, g.GND> {
+                        ~_s -> __s+
+                        _s -> __s-
 
-                    (: n : N :
-                        ~__s & ~_si & ~_x.d[n] -> y.d[n]+
-                        _si -> y.d[n]-
-                    )
+                        (: n : N :
+                            ~__s & ~_si & ~_x.d[n] -> y.d[n]+
+                            _si -> y.d[n]-
+                        )
             
-                    ~__s & ~_vy -> xa+
-                    __s | _vy -> xa-
+                        ~__s & ~_vy -> xa+
+                        __s | _vy -> xa-
             
-                    ~_vy -> __vy+
-                    _vy -> __vy-
+                        ~_vy -> __vy+
+                        _vy -> __vy-
 
-                    __vy & (& : n : N : _x.d[n]) -> _s-
-                    ~g._pReset | ~__vy -> _s+
+                        __vy & (& : n : N : _x.d[n]) -> _s-
+                        ~g._pReset | ~__vy -> _s+
             
-                    ~__s -> _so+
-                    __s -> _so-
+                        ~__s -> _so+
+                        __s -> _so-
 
-                    (| : n : N : y.d[n]) -> _vy-
-                    (& : n : N : ~y.d[n]) -> _vy+
-                }
+                        (| : n : N : y.d[n]) -> _vy-
+                        (& : n : N : ~y.d[n]) -> _vy+
+                    }
+                [] LAYOUT ->
+                    prs<g.Vdd, g.GND> {
+                        ~_s -> __s+
+                        _s -> __s-
+
+                        (: n : N :
+                            ~__s<width*3> & ~_si<width*3> & ~_x.d[n]<width*3> -> y.d[n]+
+                            _si -> y.d[n]-
+                        )
+            
+                        ~__s & ~_vy -> xa+
+                        __s | _vy -> xa-
+            
+                        ~_vy -> __vy+
+                        _vy -> __vy-
+
+                        __vy<width*5> & (& : n : N : _x.d[n]<width*5>) -> _s-
+                        ~g._pReset | ~__vy -> _s+
+            
+                        ~__s -> _so+
+                        __s -> _so-
+
+                        (| : n : N : y.d[n]) -> _vy-
+                        (& : n : N : ~y.d[n]) -> _vy+
+                    }
+                ]
             }
         } // namespace deserial_ring
         
@@ -103,10 +130,17 @@ namespace aer {
             (; m : M-1 :
                 node[m]._so = node[m+1]._si;
             )
-            prs<g.Vdd, g.GND> {
-                g._sReset & node[M-1]._so & y.e  -> node[0]._si-
-                ~g._pReset | ~node[M-1]._so & ~y.e  -> node[0]._si+
-            }
+            [ ~LAYOUT ->
+                prs<g.Vdd, g.GND> {
+                    g._sReset & node[M-1]._so & y.e  -> node[0]._si-
+                    ~g._pReset | ~node[M-1]._so & ~y.e  -> node[0]._si+
+                }
+            [] LAYOUT ->
+                prs<g.Vdd, g.GND> {
+                    g._sReset<3*width> & node[M-1]._so<3*width> & y.e<3*width>  -> node[0]._si-
+                    ~g._pReset | ~node[M-1]._so & ~y.e  -> node[0]._si+
+                }
+            ]
         }
 
         namespace deserial_chain {

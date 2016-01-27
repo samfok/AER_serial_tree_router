@@ -1,0 +1,83 @@
+import "serial_aer.act";
+
+/*
+export defproc wrapper(globals_np g_np; a1of<4> src; eMx1ofN<1, 4> snk)
+{
+    bool Vdd;
+    bool GND;
+    pint M = 1;
+    pint N = 4;
+    pint width = 6;
+
+    aer::interface::DESERIAL_RING<M, N, width> deserial;
+    deserial.y = snk;
+
+    deserial.g.Vdd = Vdd;
+    deserial.g.GND = GND;
+    prs <Vdd, GND> {
+        g_np._sReset<20> => deserial.g.sReset-
+        g_np._pReset<20> => deserial.g.pReset-
+    }
+    deserial.g._pReset = g_np._pReset;
+    deserial.g._sReset = g_np._sReset;
+
+    c1of<N> _b[3]; // buffer
+    _b[2] = deserial._x.m;
+
+    prs<Vdd, GND> {
+        (: n : N :
+            src.d[n] -> _b[0].d[n]-
+            ~src.d[n] -> _b[0].d[n]+
+
+            _b[0].d[n] -> _b[1].d[n]-
+            ~_b[0].d[n] -> _b[1].d[n]+
+
+            _b[1].d[n] -> _b[2].d[n]-
+            ~_b[1].d[n] -> _b[2].d[n]+
+        )
+        deserial._x.a -> src.a-
+        ~deserial._x.a -> src.a+
+    }
+}
+*/
+
+export defproc wrapper(globals_np g_np; a1of<4> src)
+{
+    bool Vdd;
+    bool GND;
+    pint M = 1;
+    pint N = 4;
+    pint width = 6;
+
+    aer::interface::DESERIAL_RING<M, N, width> deserial;
+    SINK_eMx1ofN<M, N, width> snk(deserial.g, deserial.y);
+
+    deserial.g.Vdd = Vdd;
+    deserial.g.GND = GND;
+    prs <Vdd, GND> {
+        g_np._sReset<20> => deserial.g.sReset-
+        g_np._pReset<20> => deserial.g.pReset-
+    }
+    deserial.g._pReset = g_np._pReset;
+    deserial.g._sReset = g_np._sReset;
+
+    c1of<N> _b[3]; // buffer
+    _b[2] = deserial._x.m;
+
+    prs<Vdd, GND> {
+        (: n : N :
+            src.d[n] -> _b[0].d[n]-
+            ~src.d[n] -> _b[0].d[n]+
+
+            _b[0].d[n] -> _b[1].d[n]-
+            ~_b[0].d[n] -> _b[1].d[n]+
+
+            _b[1].d[n] -> _b[2].d[n]-
+            ~_b[1].d[n] -> _b[2].d[n]+
+        )
+        deserial._x.a -> src.a-
+        ~deserial._x.a -> src.a+
+    }
+}
+
+wrapper dut;

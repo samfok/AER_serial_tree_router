@@ -3,11 +3,11 @@ import "channel.act";
 import "logic.act";
 
 export
-template <pint M, N>
+template <pint M, N, width>
 defproc VN_aMx1ofN (globals g; aMx1ofN<M, N> d) {
     // detects data validity/neutrality on d
     // [V(d.m)];d.a+;[~V(d.m)];d.a-
-    C_TREE<M> c_tree(g,,);
+    C_TREE<M, width> c_tree(g,,);
     
     [ N > 2 ->
         OR<N> or[M];
@@ -43,12 +43,12 @@ defproc VN_aMx1ofN (globals g; aMx1ofN<M, N> d) {
 }
 
 export
-template <pint N>
+template <pint N, width>
 defproc VN_a1ofN (globals g; a1of<N> d) {
     // detects data validity/neutrality on d
     // [V(d.m)];d.a+;[~V(d.m)];d.a-
     [ N > 2 ->
-        OR<N> or(g, d.d, d.a);
+        OR<N, width> or(g, d.d, d.a);
     [] N = 2 ->
         bool _o;
         NOR nor(g, d.d, _o);
@@ -59,7 +59,7 @@ defproc VN_a1ofN (globals g; a1of<N> d) {
 }
 
 export
-template <pint M, N>
+template <pint M, N, width>
 defproc _VN (globals g; c1of<N> _d[M]; bool _o) {
     // active low version of VN
     _OR<N> _or[M];
@@ -70,7 +70,7 @@ defproc _VN (globals g; c1of<N> _d[M]; bool _o) {
         )
     )
 
-    C_TREE<M> c_tree(g, ,_o);
+    C_TREE<M, width> c_tree(g, ,_o);
 
     (; k : M :
         _or[k]._o = c_tree.i[k];
@@ -78,22 +78,22 @@ defproc _VN (globals g; c1of<N> _d[M]; bool _o) {
 }
 
 export
-template <pint N>
+template <pint N, width>
 defproc VN_e1ofN (globals g; e1of<N> d) {
     // detects data validity/neutrality on d
     // d.e+;[V(d.m)];d.e-;[~V(d.m)]
-    OR<N> or(g, d.d,);
+    OR<N, width> or(g, d.d,);
     prs<g.Vdd, g.GND> {
         or.o => d.e-
     }
 }
 
 export
-template <pint M, N>
+template <pint M, N, width>
 defproc VN_eMx1ofN (globals g; eMx1ofN<M, N> d) {
     // detects data validity/neutrality on d
     // d.e+;[V(d.m)];d.e-;[~V(d.m)]
-    OR<N> or[M];
+    OR<N, width> or[M];
     (; m : M :
         or[m].g = g;
         (; n : N :
@@ -101,14 +101,14 @@ defproc VN_eMx1ofN (globals g; eMx1ofN<M, N> d) {
         )
     )
 
-    C_TREE<M> c_tree(g,,);
+    C_TREE<M, width> c_tree(g,,);
     (; k : M :
         or[k].o = c_tree.i[k];
     )
 
     prs<g.Vdd, g.GND> {
-        g._sReset & c_tree.o -> d.e-
-        ~g._pReset | ~c_tree.o -> d.e+
+        g._sReset<2*width> & c_tree.o<2*width> -> d.e-
+        ~g._pReset<1.5*width> | ~c_tree.o<1.5*width> -> d.e+
     }
 }
 
