@@ -104,7 +104,7 @@ namespace aer {
                 node[m]._so = node[m+1]._si;
             )
             prs<g.Vdd, g.GND> {
-                node[M-1]._so & y.e  -> node[0]._si-
+                g._sReset & node[M-1]._so & y.e  -> node[0]._si-
                 ~g._pReset | ~node[M-1]._so & ~y.e  -> node[0]._si+
             }
         }
