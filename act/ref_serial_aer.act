@@ -94,7 +94,7 @@ namespace aer {
                 prs<g.Vdd, g.GND> {
                     (: n : N :
                         si & x.d[n] -> d.d[n]+
-                        ~si -> d.d[n]-
+                        ~g._pReset | ~si -> d.d[n]-
                     )
             
                     (& : n : N : ~x.d[n]) & vd => so+
@@ -424,7 +424,7 @@ namespace aer {
             // /* // development
                 bool c_[N], u;
                 c1of<N> w;
-                ::arbiter::n_arb_s::N_ARB<N> arb(g, ci, c_);
+                ::arbiter::n_arb_s::N_ARB<N, 1> arb(g, ci, c_);
 
                 prs<g.Vdd, g.GND> {
                     ~u & (| : n : N : c_[n]) -> po+
@@ -496,7 +496,7 @@ namespace aer {
             /*--------------------------------------------------------------*/
             // /* // development
                 bool c[N], u;
-                ::arbiter::n_arb_s::N_ARB<N> arb(g, ci, c);
+                ::arbiter::n_arb_s::N_ARB<N, 1> arb(g, ci, c);
 
                 prs<g.Vdd, g.GND> {
                     ~u & (| : n : N : c[n]) -> po+
@@ -591,7 +591,7 @@ namespace aer {
                 ::aer::interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
                 ::aer::interface::DESERIAL_CHAIN<M, N> deserial(
                     g, out.y,);
-                SINK_eMx1ofN<M, N> snk(g, deserial.y);
+                SINK_eMx1ofN<M, N, 1> snk(g, deserial.y);
             }
 
             export

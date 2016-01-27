@@ -2931,18 +2931,16 @@ Radix 4 transistor approximate accounting:
 \subsubsection*{CMOS-implementable PRS}
 
 \begin{prs2}
-~pi -> _pi+
-pi -> _pi-
+~c0i -> _c0i+
+c0i -> _c0i-
+
+~c1i -> _c1i+
+c1i -> _c1i-
 \end{prs2}
 
 \begin{prs2}
-~u -> _u+
-u -> _u-
-\end{prs2}
-
-\begin{prs2}
-(~_pi & ~c0i & ~c1i) | ~_u -> po+
-(_pi | c0i | c1i) & _u -> po-
+(pi & _c0i & _c1i) | u -> _po-
+(~pi | ~_c0i | ~_c1i) & ~u -> po+
 \end{prs2}
 
 \begin{prs2}
@@ -2951,14 +2949,6 @@ p0 -> _c0o-
 
 p1 -> _c1o-
 ~pi -> _c1o+
-\end{prs2}
-
-\begin{prs2}
-~c0i -> _c0i+
-c0i -> _c0i-
-
-~c1i -> _c1i+
-c1i -> _c1i-
 \end{prs2}
 
 \begin{prs2}
@@ -2972,6 +2962,11 @@ _c0o -> c0o-
 
 ~_c1o -> c1o+
 _c1o -> c1o-
+\end{prs2}
+
+\begin{prs2}
+~_po -> po+
+_po -> po-
 \end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
