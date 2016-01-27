@@ -775,7 +775,7 @@ namespace aer {
             /*--------------------------------------------------------------*/
         }
 
-        template <pint N, root, width>
+        template <pint N, root | pint width>
         defproc LEAF (globals g; bool ci[N], co[N], pi, po; c1of<N> _p) {
             // leaf node of aext tree
             /*--------------------------------------------------------------*/
@@ -995,11 +995,9 @@ namespace aer {
             c1of<N> _p;
             [ ~LAYOUT ->
                 prs<g.Vdd, g.GND> {
-                    ~_cci -> __cci+
-                    _cci -> __cci-
+                    _cci => __cci-
 
-                    ~cco -> _cco+
-                    cco -> _cco-
+                    cco => _cco-
 
                     (pi & _cco | __cci) & _uu => _po-
 
@@ -1007,8 +1005,7 @@ namespace aer {
                         p.d[n] => _p.d[n]-
                     )
 
-                    ~_cco -> __cco+
-                    _cco -> __cco-
+                    _cco => __cco-
 
                     (: n : N :
                         ~_p.d[n] & ~__cco -> u[n]+
@@ -1099,35 +1096,87 @@ namespace aer {
         template <pint N | pint width>
         defproc LEAF (globals g; bool pi, po, ci[N]; c1of<N> p, c[N]) {
             // leaf of AERV tree
-            bool u[N], co[N], cco, cci, uu;
-            prs<g.Vdd, g.GND> {
-                (pi | cco) & ~uu & ~cci -> po+
-                ~pi & ~cco | uu | cci -> po-
-
-                (: n : N :
-                    ~cco & p.d[n] -> u[n]+
-                    g.pReset | cco -> u[n]-
-                )
-                (| : n : N : u[n]) -> uu+
-                (& : n : N : ~u[n]) -> uu-
-
-                (: n : N :
-                    u[n] & ~p.d[n] -> co[n]+
-                    ~pi -> co[n]-
-                )
-                (| : n : N : co[n]) -> cco+
-                (& : n : N : ~co[n]) -> cco-
-
-                (| : n : N : ci[n]) -> cci+
-                (& : n : N : ~ci[n]) -> cci-
-
-                (: nc : N :
+            bool _pi, _u[N], co[N], _cco, _cci, __cci, uu;
+            c1of<N> _c[N];
+            [ ~LAYOUT ->
+                prs<g.Vdd, g.GND> {
+                    pi => _pi-
+    
+                    _cci => __cci-
+    
+                    (~_pi | ~_cco) & ~uu & ~__cci => po+
+    
                     (: n : N :
-                        co[nc] & p.d[n] -> c[nc].d[n]+
-                        ~co[nc] | ~p.d[n] -> c[nc].d[n]-
+                        _cco & p.d[n] -> _u[n]-
+                        ~g._pReset | ~_cco -> _u[n]+
                     )
-                )
-            }
+                    (& : n : N : _u[n]) => uu-
+    
+                    (: n : N :
+                        ~_u[n] & ~p.d[n] -> co[n]+
+                        ~pi -> co[n]-
+                    )
+                    (| : n : N : co[n]) => _cco-
+    
+                    (| : n : N : ci[n]) => _cci-
+    
+                    (: nc : N :
+                        (: n : N :
+                            co[nc] & p.d[n] => _c[nc].d[n]-
+                        )
+                    )
+                }
+                prs<g.Vdd, g.GND> {
+                    (: nc : N :
+                        (: n : N :
+                            _c[nc].d[n] => c[nc].d[n]-
+                        )
+                    )
+                }
+            [] LAYOUT ->
+                prs<g.Vdd, g.GND> {
+                    ~pi<1.5*width> -> _pi+
+                    pi<width> -> _pi-
+    
+                    ~_cci<1.5*width> -> __cci+
+                    _cci<width> -> __cci-
+    
+                    (~_pi<4.5*width> | ~_cco<4.5*width>) & ~uu<4.5*width> & ~__cci<4.5*width> -> po+
+                    _pi<2*width> & _cco<2*width> | uu<width> | __cci<width> -> po-
+    
+                    (: n : N :
+                        _cco<2*width> & p.d[n]<2*width> -> _u[n]-
+                        ~g._pReset<width> | ~_cco<1.5*width> -> _u[n]+
+                    )
+                    (| : n : N : ~_u[n]<1.5*width>) -> uu+
+                    (& : n : N : _u[n]<4*width>) -> uu-
+    
+                    (: n : N :
+                        ~_u[n]<3*width> & ~p.d[n]<3*width> -> co[n]+
+                        ~pi<width> -> co[n]-
+                    )
+                    (| : n : N : co[n]<width>) -> _cco-
+                    (& : n : N : ~co[n]<1.5*width>) -> _cco+
+    
+                    (| : n : N : ci[n]<width>) -> _cci-
+                    (& : n : N : ~ci[n]<1.5*width>) -> _cci+
+    
+                    (: nc : N :
+                        (: n : N :
+                            co[nc]<2*width> & p.d[n]<2*width> -> _c[nc].d[n]-
+                            ~co[nc]<1.5*width> | ~p.d[n]<1.5*width> -> _c[nc].d[n]+
+                        )
+                    )
+                }
+                prs<g.Vdd, g.GND> {
+                    (: nc : N :
+                        (: n : N :
+                            _c[nc].d[n]<width> -> c[nc].d[n]-
+                            ~_c[nc].d[n]<1.5*width> -> c[nc].d[n]+
+                        )
+                    )
+                }
+            ]
         }
 
         template <pint N | pint width>
