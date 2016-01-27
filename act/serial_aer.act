@@ -20,13 +20,13 @@ namespace aer {
         }
 
         export
-        template <pint N>
+        template <pint N, width>
         defproc OUT_a1ofN (globals g; bool xi, xo; c1of<N> x; a1of<N> _y) {
             // convert AEXT/AERV serial protocol to standard a1ofN channel
             bool _xo;
             prs {
-                xi & _y.a -> _xo-
-                ~xi | ~_y.a -> _xo+
+                xi<2*width> & _y.a<2*width> -> _xo-
+                ~xi<2*width> | ~_y.a<2*width> -> _xo+
                 
                 ~_xo -> xo+
                 _xo -> xo-
@@ -40,7 +40,7 @@ namespace aer {
 
         namespace deserial_ring {
             export
-            template <pint M, N>
+            template <pint M, N, width>
             defproc SPLIT (globals g; a1of<N> _x, _y[M]) {
                 bool ya[M];
                 (; m : M :
@@ -58,7 +58,7 @@ namespace aer {
             }
             
             export
-            template <pint N>
+            template <pint N, width>
             defproc NODE (globals g; a1of<N> _x; c1of<N> y; bool _si, _so) {
                 bool _vy, __vy, _s, __s;
                 bool xa = _x.a; // normal sense
@@ -90,11 +90,11 @@ namespace aer {
         } // namespace deserial_ring
         
         export
-        template <pint M, N>
+        template <pint M, N, width>
         defproc DESERIAL_RING (globals g; a1of<N> _x; eMx1ofN<M, N> y) {
             // convert AEXT/AERV serial protocol to eMx1ofN with ring
-            deserial_ring::SPLIT<M, N> split(g, _x,);
-            deserial_ring::NODE<N> node[M];
+            deserial_ring::SPLIT<M, N, width> split(g, _x,);
+            deserial_ring::NODE<N, width> node[M];
             (; m : M :
                 node[m].g = g;
                 node[m]._x = split._y[m];
@@ -593,14 +593,14 @@ namespace aer {
     }
 
     namespace transmitter {
-        template <pint N, root>
+        template <pint N, root, width>
         defproc NODE (globals g; bool ci[N], co[N], pi, po; c1of<N> _c[N], _p) {
             // AEXT tree NODE controller
             /*--------------------------------------------------------------*/
             // /* development
                 bool c_[N], _co[N], _po, u, _u;
                 c1of<N> _w, p;
-                ::arbiter::n_arb_s::N_ARB<N> arb(g, ci, c_);
+                ::arbiter::n_arb_s::N_ARB<N, width> arb(g, ci, c_);
 
                 prs<g.Vdd, g.GND> {
                     _u & (| : n : N : c_[n]) -> _po-
@@ -688,20 +688,20 @@ namespace aer {
             /*--------------------------------------------------------------*/
         }
 
-        template <pint N, root>
+        template <pint N, root, width>
         defproc LEAF (globals g; bool ci[N], co[N], pi, po; c1of<N> _p) {
             // leaf node of aext tree
             /*--------------------------------------------------------------*/
             // /* development
                 bool c[N], _co[N], _u, u, _po;
                 c1of<N> _p_;
-                ::arbiter::n_arb_s::N_ARB<N> arb(g, ci, c);
+                ::arbiter::n_arb_s::N_ARB<N, width> arb(g, ci, c);
 
                 prs<g.Vdd, g.GND> {
-                    _u & (| : n : N : c[n]) -> _po-
-                    ~g._pReset | (| : n : N : ~_co[n] & ~c[n]) -> _po+
+                    _u<1.5*width> & (| : n : N : c[n]<1.5*width>) -> _po-
+                    ~g._pReset | (| : n : N : ~_co[n]<2*width> & ~c[n]<2*width>) -> _po+
 
-                    ~_po -> po+
+                    ~_po<2*width> -> po+
                     _po -> po-
                 
                     (: n : N :
@@ -772,24 +772,24 @@ namespace aer {
             */
         }
 
-        template <pint M, N, NN, root>
+        template <pint M, N, NN, root, width>
         defproc AEXT_ (globals g; bool xi[NN], xo[NN], pi, po; c1of<N> p) {
             // utility for AEXT
             [ M = 0 ->
                 0 = 1;
             [] M = 1 ->
                 NN = N;
-                LEAF<N, root> leaf(g, xi, xo, pi, po, p);
+                LEAF<N, root, width> leaf(g, xi, xo, pi, po, p);
             [] M > 1 ->
                 pint k = NN/N;
-                AEXT_<M-1, N, k, 0> _[N];
+                AEXT_<M-1, N, k, 0, width> _[N];
                 (; n : N :
                     _[n].g = g;
                     _[n].xi = xi[n*k..(n+1)*k-1];
                     _[n].xo = xo[n*k..(n+1)*k-1];
                 )
 
-                NODE<N, root> node(g,,, pi, po,, p);
+                NODE<N, root, width> node(g,,, pi, po,, p);
                 (; n : N :
                     node.ci[n] = _[n].po;
                     node.co[n] = _[n].pi;
@@ -799,10 +799,10 @@ namespace aer {
         }
 
         export
-        template <pint M, N, NN>
+        template <pint M, N, NN, width>
         defproc AEXT (globals g; bool xi[NN], xo[NN], pi, po; c1of<N> p) {
             // Transmitter
-            AEXT_<M, N, NN, 1> _(g, xi, xo, pi, po, p);
+            AEXT_<M, N, NN, 1, width> _(g, xi, xo, pi, po, p);
         }
 
         namespace test {

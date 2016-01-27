@@ -86,6 +86,10 @@ defproc OR (globals g; bool i[N], o) {
     // We don't use 3 input NORs because the pullup chain would be too slow
     [ N=1 ->
         i[0] = o;
+            bool dummy;
+            prs {
+              g.pReset => dummy-
+            }
     [] N=2 ->
         bool _o;
         prs<g.Vdd, g.GND> {
@@ -168,6 +172,8 @@ template <pint N>
 defproc C_TREE (globals g; bool i[N], o) {
     [ N=1 ->
         i[0] = o;
+        bool dummy;
+        prs {g.pReset => dummy-}
     [] N=2 -> 
         bool _o;
         prs<g.Vdd, g.GND> {
