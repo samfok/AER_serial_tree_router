@@ -991,25 +991,28 @@ namespace aer {
         template <pint N | pint width>
         defproc NODE (globals g; bool pi, po, ci[N], co[N]; c1of<N> p, c[N]) {
             // node in AERV tree
-            bool _pi, u[N], _co[N], cco, _cci, _uu, __uu;
+            bool _po, u[N], _co[N], cco, _cco, __cco, _cci, __cci, _uu;
             c1of<N> _p;
             [ ~LAYOUT ->
                 prs<g.Vdd, g.GND> {
-                    pi => _pi-
+                    ~_cci -> __cci+
+                    _cci -> __cci-
 
-                    _uu => __uu-
+                    ~cco -> _cco+
+                    cco -> _cco-
 
-                    // (~_pi & ~cco | ~_cci) & ~__uu => po+
-                    (~_pi & ~cco | ~_cci) & ~__uu -> po+
-                    (_pi | cco) & _cci | __uu -> po-
+                    (pi & _cco | __cci) & _uu => _po-
 
                     (: n : N :
                         p.d[n] => _p.d[n]-
                     )
 
+                    ~_cco -> __cco+
+                    _cco -> __cco-
+
                     (: n : N :
-                        ~_p.d[n] & ~cco -> u[n]+
-                        g.pReset | cco -> u[n]-
+                        ~_p.d[n] & ~__cco -> u[n]+
+                        g.pReset | __cco -> u[n]-
                     )
 
                     (| : n : N : u[n]) => _uu-
@@ -1033,26 +1036,31 @@ namespace aer {
                     (: n : N :
                         _co[n] => co[n]-
                     )
+
+                    _po => po-
                 }
             [] LAYOUT ->
                 prs<g.Vdd, g.GND> {
-                    ~pi<1.5*width> -> _pi+
-                    pi<width> -> _pi-
+                    ~_cci<1.5*width> -> __cci+
+                    _cci<width> -> __cci-
 
-                    ~_uu<1.5*width> -> __uu+
-                    _uu<width> -> __uu-
+                    ~cco<1.5*width> -> _cco+
+                    cco<width> -> _cco-
 
-                    (~_pi<width> & ~cco<width> | ~_cci<width>) & ~__uu<width> -> po+
-                    (_pi<width> | cco<width>) & _cci<width> | __uu<width> -> po-
+                    (pi<width> & _cco<width> | __cci<width>) & _uu<width> -> _po-
+                    (~pi<width> | ~_cco<width>) & ~__cci<width> | ~_uu<width> -> _po+
 
                     (: n : N :
                         ~p.d[n]<1.5*width> -> _p.d[n]+
                         p.d[n]<width> -> _p.d[n]-
                     )
 
+                    ~_cco<1.5*width> -> __cco+
+                    _cco<width> -> __cco-
+
                     (: n : N :
-                        ~_p.d[n]<width> & ~cco<width> -> u[n]+
-                        g.pReset<width> | cco<width> -> u[n]-
+                        ~_p.d[n]<width> & ~__cco<width> -> u[n]+
+                        g.pReset<width> | __cco<width> -> u[n]-
                     )
 
                     (| : n : N : u[n]<width>) -> _uu-
@@ -1081,6 +1089,9 @@ namespace aer {
                         ~_co[n]<1.5*width> -> co[n]+
                         _co[n]<width> -> co[n]-
                     )
+
+                    ~_po<1.5*width> -> po+
+                    _po<width> -> po-
                 }
             ]
         }

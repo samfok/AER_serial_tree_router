@@ -2595,18 +2595,18 @@ designs.
 \subsubsection*{CMOS-implementable PRS}
 
 \begin{prs2}
-~pi -> _pi+
-pi -> _pi-
+~_cci -> __cci+
+_cci -> __cci-
 \end{prs2}
 
 \begin{prs2}
-~_uu -> __uu+
-_uu -> __uu-
+~cco -> _cco+
+cco -> _cco-
 \end{prs2}
 
 \begin{prs2}
-(~_pi & ~cco | ~_cci) & ~__uu -> po+
-(_pi | cco) & _cci | __uu -> po-
+(pi & _cco | __cci) & _uu -> _po-
+(~pi | ~_cco) & ~__cci | ~_uu -> _po+
 \end{prs2}
 
 \begin{prs2}
@@ -2618,11 +2618,16 @@ p1 -> _p1-
 \end{prs2}
 
 \begin{prs2}
-~_p0 & ~cco -> u0+
-cco -> u0-
+~_cco -> __cco+
+_cco -> __cco-
+\end{prs2}
 
-~_p1 & ~cco -> u1+
-cco -> u1-
+\begin{prs2}
+~_p0 & ~__cco -> u0+
+__cco -> u0-
+
+~_p1 & ~__cco -> u1+
+__cco -> u1-
 \end{prs2}
 
 \begin{prs2}
