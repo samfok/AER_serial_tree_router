@@ -24,18 +24,28 @@ namespace aer {
         defproc OUT_a1ofN (globals g; bool xi, xo; c1of<N> x; a1of<N> _y) {
             // convert AEXT/AERV serial protocol to standard a1ofN channel
             bool _xo;
-            prs {
-                xi<2*width> & _y.a<2*width> -> _xo-
-                ~xi<2*width> | ~_y.a<2*width> -> _xo+
-                
-                ~_xo -> xo+
-                _xo -> xo-
+            [ ~LAYOUT ->
+                prs<g.Vdd, g.GND> {
+                    xi & _y.a => _xo-
+                    _xo => xo-
+                    (: n : N :
+                        x.d[n] => _y.d[n]-
+                    )
+                }
+            [] LAYOUT ->
+                prs<g.Vdd, g.GND> {
+                    xi<2*width> & _y.a<2*width> -> _xo-
+                    ~xi<1.5*width> | ~_y.a<1.5*width> -> _xo+
+                    
+                    ~_xo<1.5*width> -> xo+
+                    _xo<width> -> xo-
 
-                (: n : N :
-                    ~x.d[n] -> _y.d[n]+
-                    x.d[n] -> _y.d[n]-
-                )
-            }
+                    (: n : N :
+                        ~x.d[n]<1.5*width> -> _y.d[n]+
+                        x.d[n]<width> -> _y.d[n]-
+                    )
+                }
+            ]
         }
 
         namespace deserial_ring {
@@ -52,8 +62,8 @@ namespace aer {
                     ya[m] = or.i[m];
                 )
                 prs<g.Vdd, g.GND> {
-                    ~or.o -> _x.a+
-                    or.o -> _x.a-
+                    ~or.o<1.5*width> -> _x.a+
+                    or.o<width> -> _x.a-
                 }
             }
             
@@ -64,53 +74,48 @@ namespace aer {
                 bool xa = _x.a; // normal sense
                 [ ~LAYOUT ->
                     prs<g.Vdd, g.GND> {
-                        ~_s -> __s+
-                        _s -> __s-
+                        _s => __s-
 
                         (: n : N :
                             ~__s & ~_si & ~_x.d[n] -> y.d[n]+
                             _si -> y.d[n]-
                         )
             
-                        ~__s & ~_vy -> xa+
-                        __s | _vy -> xa-
+                        ~__s & ~_vy => xa+
             
-                        ~_vy -> __vy+
-                        _vy -> __vy-
+                        _vy => __vy-
 
                         __vy & (& : n : N : _x.d[n]) -> _s-
                         ~g._pReset | ~__vy -> _s+
             
-                        ~__s -> _so+
-                        __s -> _so-
+                        __s => _so-
 
-                        (| : n : N : y.d[n]) -> _vy-
-                        (& : n : N : ~y.d[n]) -> _vy+
+                        (| : n : N : y.d[n]) => _vy-
                     }
                 [] LAYOUT ->
                     prs<g.Vdd, g.GND> {
-                        ~_s -> __s+
-                        _s -> __s-
+                        ~_s<width> -> __s+
+                        _s<width> -> __s-
 
                         (: n : N :
                             ~__s<width*3> & ~_si<width*3> & ~_x.d[n]<width*3> -> y.d[n]+
-                            _si -> y.d[n]-
+                            _si<width> -> y.d[n]-
                         )
             
-                        ~__s & ~_vy -> xa+
-                        __s | _vy -> xa-
+                        ~__s<3*width> & ~_vy<3*width> -> xa+
+                        __s<width> | _vy<width> -> xa-
             
-                        ~_vy -> __vy+
-                        _vy -> __vy-
+                        ~_vy<1.5*width> -> __vy+
+                        _vy<width> -> __vy-
 
                         __vy<width*5> & (& : n : N : _x.d[n]<width*5>) -> _s-
-                        ~g._pReset | ~__vy -> _s+
+                        ~g._pReset<width> | ~__vy<1.5*width> -> _s+
             
-                        ~__s -> _so+
-                        __s -> _so-
+                        ~__s<1.5*width> -> _so+
+                        __s<width> -> _so-
 
-                        (| : n : N : y.d[n]) -> _vy-
-                        (& : n : N : ~y.d[n]) -> _vy+
+                        (| : n : N : y.d[n]<width>) -> _vy-
+                        (& : n : N : ~y.d[n]<5*width>) -> _vy+
                     }
                 ]
             }
@@ -138,7 +143,7 @@ namespace aer {
             [] LAYOUT ->
                 prs<g.Vdd, g.GND> {
                     g._sReset<3*width> & node[M-1]._so<3*width> & y.e<3*width>  -> node[0]._si-
-                    ~g._pReset | ~node[M-1]._so & ~y.e  -> node[0]._si+
+                    ~g._pReset | ~node[M-1]._so<3*width> & ~y.e<3*width>  -> node[0]._si+
                 }
             ]
         }
