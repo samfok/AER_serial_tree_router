@@ -641,53 +641,101 @@ namespace aer {
                 c1of<N> _w, p;
                 ::arbiter::n_arb_s::N_ARB<N, width> arb(g, ci, c_);
 
-                prs<g.Vdd, g.GND> {
-                    _u & (| : n : N : c_[n]) -> _po-
-                    ~g._pReset | (| : n : N : ~_co[n] & ~c_[n]) -> _po+
-
-                    ~_po -> po+
-                    _po -> po-
-                
-                    (: n : N :
-                        c_[n] & pi & _u -> _w.d[n]-
-                        ~g._pReset | ~_u -> _w.d[n]+
-                    )
-
-                    (| : n : N : ~_w.d[n]) & ~pi -> u+
-                    (& : n : N : _co[n]) & _po -> u-
-
-                    ~u -> _u+
-                    u -> _u-
-                    
-                    c_[0] & u & pi & (& : n : 1..N-1 : _co[n]) -> _co[0]-
-                    (: n : 1..N-2:
-                        c_[n] & u & pi & 
-                        (& : nn : 0..n-1 : _co[nn]) & 
-                        (& : nn : n+1..N-1 : _co[nn]) -> _co[n]-
-                    )
-                    c_[N-1] & u & pi & (& : n : 0..N-2 : _co[n]) -> _co[N-1]-
-                    (: n : N :
-                        ~pi -> _co[n]+
-
-                        ~_co[n] -> co[n]+
-                        _co[n] -> co[n]-
-                    )
-
-                    (: n : N :
-                        (| : nc : N : ~_c[nc].d[n]) | ~_w.d[n] -> p.d[n]+
-                        (& : nc : N : _c[nc].d[n]) & _w.d[n] -> p.d[n]-
-                    )
-                }
-
-                [ root = 0 ->
+                [ ~LAYOUT ->
                     prs<g.Vdd, g.GND> {
+                        _u & (| : n : N : c_[n]) -> _po-
+                        ~g._pReset | (| : n : N : ~_co[n] & ~c_[n]) -> _po+
+
+                        _po => po-
+                    
                         (: n : N :
-                            ~p.d[n] -> _p.d[n]+
-                            p.d[n] -> _p.d[n]-
+                            c_[n] & pi & _u -> _w.d[n]-
+                            ~g._pReset | ~_u -> _w.d[n]+
+                        )
+
+                        (| : n : N : ~_w.d[n]) & ~pi -> u+
+                        (& : n : N : _co[n]) & _po -> u-
+
+                        u => _u-
+                        
+                        c_[0] & u & pi & (& : n : 1..N-1 : _co[n]) -> _co[0]-
+                        (: n : 1..N-2:
+                            c_[n] & u & pi & 
+                                (& : nn : 0..n-1 : _co[nn]) & 
+                                (& : nn : n+1..N-1 : _co[nn]) -> _co[n]-
+                        )
+                        c_[N-1] & u & pi & (& : n : 0..N-2 : _co[n]) -> _co[N-1]-
+                        (: n : N :
+                            ~pi -> _co[n]+
+
+                            _co[n] => co[n]-
+                        )
+
+                        (: n : N :
+                            (| : nc : N : ~_c[nc].d[n]) | ~_w.d[n] => p.d[n]+
                         )
                     }
-                [] root = 1 ->
-                    p = _p;
+
+                    [ root = 0 ->
+                        prs<g.Vdd, g.GND> {
+                            (: n : N :
+                                p.d[n] => _p.d[n]-
+                            )
+                        }
+                    [] root = 1 ->
+                        p = _p;
+                    ]
+                [] LAYOUT ->
+                    prs<g.Vdd, g.GND> {
+                        _u<2*width> & (| : n : N : c_[n]<2*width>) -> _po-
+                        ~g._pReset<width> | (| : n : N : ~_co[n]<3*width> & ~c_[n]<3*width>) -> _po+
+
+                        ~_po<1.5*width> -> po+
+                        _po<width> -> po-
+                    
+                        (: n : N :
+                            c_[n]<3*width> & pi<3*width> & _u<3*width> -> _w.d[n]-
+                            ~g._pReset<width> | ~_u<1.5*width> -> _w.d[n]+
+                        )
+
+                        (| : n : N : ~_w.d[n]<3*width>) & ~pi<3*width> -> u+
+                        (& : n : N : _co[n]<5*width>) & _po<5*width> -> u-
+
+                        ~u<1.5*width> -> _u+
+                        u<width> -> _u-
+                        
+                        c_[0]<6*width> & u<6*width> & pi<6*width> & 
+                            (& : n : 1..N-1 : _co[n]<6*width>) -> _co[0]-
+                        (: n : 1..N-2:
+                            c_[n]<6*width> & u<6*width> & pi<6*width> & 
+                                (& : nn : 0..n-1 : _co[nn]<6*width>) & 
+                                (& : nn : n+1..N-1 : _co[nn]<6*width>) -> _co[n]-
+                        )
+                        c_[N-1]<6*width> & u<6*width> & pi<6*width> &
+                            (& : n : 0..N-2 : _co[n]<6*width>) -> _co[N-1]-
+                        (: n : N :
+                            ~pi<1.5*width> -> _co[n]+
+
+                            ~_co[n]<1.5*width> -> co[n]+
+                            _co[n]<width> -> co[n]-
+                        )
+
+                        (: n : N :
+                            (| : nc : N : ~_c[nc].d[n]<1.5*width>) | ~_w.d[n]<1.5*width> -> p.d[n]+
+                            (& : nc : N : _c[nc].d[n]<5*width>) & _w.d[n]<5*width> -> p.d[n]-
+                        )
+                    }
+
+                    [ root = 0 ->
+                        prs<g.Vdd, g.GND> {
+                            (: n : N :
+                                ~p.d[n]<1.5*width> -> _p.d[n]+
+                                p.d[n]<width> -> _p.d[n]-
+                            )
+                        }
+                    [] root = 1 ->
+                        p = _p;
+                    ]
                 ]
 
             // */
@@ -736,49 +784,98 @@ namespace aer {
                 c1of<N> _p_;
                 ::arbiter::n_arb_s::N_ARB<N, width> arb(g, ci, c);
 
-                prs<g.Vdd, g.GND> {
-                    _u<1.5*width> & (| : n : N : c[n]<1.5*width>) -> _po-
-                    ~g._pReset | (| : n : N : ~_co[n]<2*width> & ~c[n]<2*width>) -> _po+
-
-                    ~_po<2*width> -> po+
-                    _po -> po-
-                
-                    (: n : N :
-                        c[n] & pi & _u -> _p_.d[n]-
-                        ~g._pReset | ~_u -> _p_.d[n]+
-                    )
-
-                    (| : n : N : ~_p_.d[n]) & ~pi -> u+
-                    (& : n : N : _co[n]) & _po -> u-
-
-                    ~u -> _u+
-                    u -> _u-
-                    
-                    c[0] & u & pi & (& : n : 1..N-1 : _co[n]) -> _co[0]-
-                    (: n : 1..N-2:
-                        c[n] & u & pi & 
-                        (& : nn : 0..n-1 : _co[nn]) & 
-                        (& : nn : n+1..N-1 : _co[nn]) -> _co[n]-
-                    )
-                    c[N-1] & u & pi & (& : n : 0..N-2 : _co[n]) -> _co[N-1]-
-                    (: n : N :
-                        ~pi -> _co[n]+
-
-                        ~_co[n] -> co[n]+
-                        _co[n] -> co[n]-
-                    )
-                }
-
-                [ root = 0 ->
-                    _p_ = _p;
-                [] root = 1 ->
-                    // present normal sense interface
+                [ ~LAYOUT ->
                     prs<g.Vdd, g.GND> {
+                        _u & (| : n : N : c[n]) -> _po-
+                        ~g._pReset | (| : n : N : ~_co[n] & ~c[n]) -> _po+
+
+                        _po => po-
+                    
                         (: n : N :
-                            ~_p_.d[n] -> _p.d[n]+
-                            _p_.d[n] -> _p.d[n]-
+                            c[n] & pi & _u -> _p_.d[n]-
+                            ~g._pReset | ~_u -> _p_.d[n]+
+                        )
+
+                        (| : n : N : ~_p_.d[n]) & ~pi -> u+
+                        (& : n : N : _co[n]) & _po -> u-
+
+                        ~u -> _u+
+                        u -> _u-
+                        
+                        c[0] & u & pi & (& : n : 1..N-1 : _co[n]) -> _co[0]-
+                        (: n : 1..N-2:
+                            c[n] & u & pi & 
+                            (& : nn : 0..n-1 : _co[nn]) & 
+                            (& : nn : n+1..N-1 : _co[nn]) -> _co[n]-
+                        )
+                        c[N-1] & u & pi & (& : n : 0..N-2 : _co[n]) -> _co[N-1]-
+                        (: n : N :
+                            ~pi -> _co[n]+
+
+                            ~_co[n] -> co[n]+
+                            _co[n] -> co[n]-
                         )
                     }
+
+                    [ root = 0 ->
+                        _p_ = _p;
+                    [] root = 1 ->
+                        // present normal sense interface
+                        prs<g.Vdd, g.GND> {
+                            (: n : N :
+                                ~_p_.d[n] -> _p.d[n]+
+                                _p_.d[n] -> _p.d[n]-
+                            )
+                        }
+                    ]
+                [] LAYOUT ->
+                    prs<g.Vdd, g.GND> {
+                        _u<5*width> & (| : n : N : c[n]<5*width>) -> _po-
+                        ~g._pReset<width> | (| : n : N : ~_co[n]<3*width> &
+                            ~c[n]<3*width>) -> _po+
+
+                        ~_po<1.5*width> -> po+
+                        _po<width> -> po-
+                    
+                        (: n : N :
+                            c[n]<3*width> & pi<3*width> & _u<3*width> -> _p_.d[n]-
+                            ~g._pReset<width> | ~_u<1.5*width> -> _p_.d[n]+
+                        )
+
+                        (| : n : N : ~_p_.d[n]<3*width>) & ~pi<3*width> -> u+
+                        (& : n : N : _co[n]<5*width>) & _po<5*width> -> u-
+
+                        ~u<1.5*width> -> _u+
+                        u<width> -> _u-
+                        
+                        c[0]<6*width> & u<6*width> & pi<6*width> &
+                            (& : n : 1..N-1 : _co[n]<6*width>) -> _co[0]-
+                        (: n : 1..N-2:
+                            c[n]<6*width> & u<6*width> & pi<6*width> & 
+                            (& : nn : 0..n-1 : _co[nn]<6*width>) & 
+                            (& : nn : n+1..N-1 : _co[nn]<6*width>) -> _co[n]-
+                        )
+                        c[N-1]<6*width> & u<6*width> & pi<6*width> &
+                            (& : n : 0..N-2 : _co[n]<6*width>) -> _co[N-1]-
+                        (: n : N :
+                            ~pi<1.5*width> -> _co[n]+
+
+                            ~_co[n]<1.5*width> -> co[n]+
+                            _co[n]<width> -> co[n]-
+                        )
+                    }
+
+                    [ root = 0 ->
+                        _p_ = _p;
+                    [] root = 1 ->
+                        // present normal sense interface
+                        prs<g.Vdd, g.GND> {
+                            (: n : N :
+                                ~_p_.d[n]<1.5*width> -> _p.d[n]+
+                                _p_.d[n]<width> -> _p.d[n]-
+                            )
+                        }
+                    ]
                 ]
             // */
             /*--------------------------------------------------------------*/
