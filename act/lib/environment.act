@@ -17,7 +17,7 @@ defproc SOURCE_random_aMx1ofN (globals g; aMx1ofN<M, N> d) {
         (:m:M:
             (:n:N:
                 ~g.sReset & ~d.a -> d.m[m].n[n]+
-                g.pReset | d.a -> d.m[m].n[n]-
+                g.sReset | d.a -> d.m[m].n[n]-
             )
         )
     }
@@ -81,7 +81,7 @@ defproc SOURCE_random_eMx1ofN (globals g; eMx1ofN<M, N> d) {
         (:m:M:
             (:n:N:
                 ~g.sReset & d.e -> d.m[m].n[n]+
-                g.pReset | ~d.e -> d.m[m].n[n]-
+                g.sReset | ~d.e -> d.m[m].n[n]-
             )
         )
     }
@@ -137,7 +137,7 @@ defproc active_handshaker(globals g; bool i[N], o[N]) {
     (; n : N :
         prs <g.Vdd,g.GND> {
             ~g.sReset & ~i[n] -> o[n]+
-            g.pReset  | i[n]  -> o[n]-
+            g.sReset  | i[n]  -> o[n]-
         }
     )
 }
@@ -149,7 +149,7 @@ defproc _active_handshaker(globals g; bool _i[N], _o[N]) {
     (; n : N :
         prs <g.Vdd,g.GND> {
             g._sReset & _i[n]   -> _o[n]-
-            ~g._pReset | ~_i[n] -> _o[n]+
+            ~g._sReset | ~_i[n] -> _o[n]+
         }
     )
 }

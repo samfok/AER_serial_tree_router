@@ -4,7 +4,7 @@ import "channel.act";
 import "logic.h"; // forward declare functions
 
 export
-template <pint N, width>
+template <pint N | pint width>
 defproc AND (globals g; bool i[N], o) {
     // Logical AND implemented with as few transistors as possible
     // Implemented as an AND tree with 2 and 3 input NANDs and 2 input NORs
@@ -106,7 +106,7 @@ defproc AND_LINE (globals g; bool i[N], o) {
 }
 
 export
-template <pint N, width>
+template <pint N | pint width>
 defproc OR (globals g; bool i[N], o) {
     // Logical OR implemented with as few transistors as possible
     // Implemented as an OR tree with 3 input NANDs and NORs
@@ -157,7 +157,7 @@ defproc OR (globals g; bool i[N], o) {
         [] LAYOUT ->
             prs<g.Vdd, g.GND> {
                 i[0]<width> | i[1]<width> | i[2]<width> -> _x012-
-                ~i[0]<5*width> & ~i[1]<5*width> & ~i[2]<5*width> -> _x012+
+                ~i[0]<5*width> & ~i[1]<5*width> & ~i[1]<5*width> -> _x012+
                 i[3]<width> -> _x3-
                 ~i[3]<1.5*width> -> _x3+
                 _x012<2*width> & _x3<2*width> -> o-
@@ -308,7 +308,7 @@ defproc NOR (globals g; bool i[2], o) {
 }
 
 export
-template <pint N, width>
+template <pint N | pint width>
 defproc C_TREE (globals g; bool i[N], o) {
     [ N=1 ->
         i[0] = o;

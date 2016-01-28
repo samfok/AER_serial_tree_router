@@ -93,14 +93,24 @@ namespace aer {
                         (| : n : N : y.d[n]) => _vy-
                     }
                 [] LAYOUT ->
+                    c1of<N> yy[2]; // to decouple y node capacitances
                     prs<g.Vdd, g.GND> {
-                        ~_s<width> -> __s+
-                        _s<width> -> __s-
+                        ~_s<6*width> -> __s+
+                        _s<4*width> -> __s-
 
+                        // (: n : N :
+                        //     ~_x.d[n]<5*width> & ~__s<5*width> & ~_si<5*width> -> y.d[n]+
+                        //     g.pReset<width> | _si<2*width> -> y.d[n]-
+                        // )
                         (: n : N :
-                            ~__s<width*3> & ~_si<width*3> & ~_x.d[n]<width*3> -> y.d[n]+
-                            _si<width> -> y.d[n]-
+                            ~_x.d[n]<4*width> & ~__s<4*width> & ~_si<4*width> -> yy[0].d[n]+
+                            g.pReset<width> | _si<2*width> -> yy[0].d[n]-
+                            ~yy[0].d[n]<1.5*width> -> yy[1].d[n]+
+                            yy[0].d[n]<width> -> yy[1].d[n]-
+                            ~yy[1].d[n]<1.5*width> -> y.d[n]+
+                            yy[1].d[n]<width> -> y.d[n]-
                         )
+
             
                         ~__s<3*width> & ~_vy<3*width> -> xa+
                         __s<width> | _vy<width> -> xa-
@@ -114,7 +124,7 @@ namespace aer {
                         ~__s<1.5*width> -> _so+
                         __s<width> -> _so-
 
-                        (| : n : N : y.d[n]<width>) -> _vy-
+                        (| : n : N : y.d[n]<2*width>) -> _vy-
                         (& : n : N : ~y.d[n]<5*width>) -> _vy+
                     }
                 ]
@@ -138,12 +148,12 @@ namespace aer {
             [ ~LAYOUT ->
                 prs<g.Vdd, g.GND> {
                     g._sReset & node[M-1]._so & y.e  -> node[0]._si-
-                    ~g._pReset | ~node[M-1]._so & ~y.e  -> node[0]._si+
+                    ~g._sReset | ~node[M-1]._so & ~y.e  -> node[0]._si+
                 }
             [] LAYOUT ->
                 prs<g.Vdd, g.GND> {
-                    g._sReset<3*width> & node[M-1]._so<3*width> & y.e<3*width>  -> node[0]._si-
-                    ~g._pReset | ~node[M-1]._so<3*width> & ~y.e<3*width>  -> node[0]._si+
+                    g._sReset<4*width> & node[M-1]._so<4*width> & y.e<4*width> -> node[0]._si-
+                    ~g._sReset | ~node[M-1]._so<5*width> & ~y.e<5*width> -> node[0]._si+
                 }
             ]
         }
@@ -420,7 +430,7 @@ namespace aer {
             s = yo;
             s = x.e;
             prs<g.Vdd, g.GND> {
-                g.pReset | tail.xe & yi -> s-
+                g.sReset | tail.xe & yi -> s-
                 ~g.sReset & ~tail.xe & ~yi -> s+
             }
         }
@@ -495,7 +505,7 @@ namespace aer {
             yo = s;
             node[0].si = s;
             prs<g.Vdd, g.GND> {
-                g.pReset | node[M-1].so & yi -> s-
+                g.sReset | node[M-1].so & yi -> s-
                 ~g.sReset & ~node[M-1].so & ~yi -> s+
             }
         }
@@ -535,7 +545,7 @@ namespace aer {
             defproc MERGE (globals g; av1of<N> x[M]; c1of<N> y; bool yi, si, so) {
                 prs<g.Vdd, g.GND> {
                     ~g.sReset & ~yi & ~si -> so+
-                    g.pReset | yi & si -> so-
+                    g.sReset | yi & si -> so-
                 }
 
                 c1of<N> u;

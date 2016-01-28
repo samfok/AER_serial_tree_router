@@ -72,8 +72,8 @@ export defproc wrapper(globals_np g_np; a1of<4> src)
             _b[0].d[n] -> _b[1].d[n]-
             ~_b[0].d[n] -> _b[1].d[n]+
 
-            _b[1].d[n] -> _b[2].d[n]-
-            ~_b[1].d[n] -> _b[2].d[n]+
+            _b[1].d[n]<4*width> -> _b[2].d[n]-
+            ~_b[1].d[n]<6*width> -> _b[2].d[n]+
         )
         deserial._x.a -> src.a-
         ~deserial._x.a -> src.a+
