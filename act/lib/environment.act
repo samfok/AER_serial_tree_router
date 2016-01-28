@@ -24,9 +24,9 @@ defproc SOURCE_random_aMx1ofN (globals g; aMx1ofN<M, N> d) {
 }
 
 export
-template <pint M, N, width>
+template <pint M, N>
 defproc SINK_aMx1ofN (globals g; aMx1ofN<M, N> d) {
-    VN_aMx1ofN<M, N, width> vn(g, d);
+    VN_aMx1ofN<M, N> vn(g, d);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -88,15 +88,15 @@ defproc SOURCE_random_eMx1ofN (globals g; eMx1ofN<M, N> d) {
 }
 
 export
-template <pint M, N, width>
+template <pint M, N>
 defproc SINK_eMx1ofN (globals g; eMx1ofN<M, N> d) {
-    VN_eMx1ofN<M, N, width> vn(g, d);
+    VN_eMx1ofN<M, N> vn(g, d);
 }
 
 export
-template <pint N, width>
+template <pint N>
 defproc SINK_e1ofN (globals g; e1of<N> d) {
-    SINK_eMx1ofN<1, N, width> snk(g,);
+    SINK_eMx1ofN<1, N> snk(g,);
     snk.d.m[0] = d.m;
     snk.d.e = d.e;
 }

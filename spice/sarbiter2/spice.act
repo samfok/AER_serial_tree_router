@@ -6,9 +6,8 @@ export defproc wrapper(globals_np g_np; a1of<1> A)
 {
     bool Vdd;
     bool GND;
-    pint width=6;
 
-    arbiter::n_arb_s::N_ARB<2, width> p;
+    arbiter::n_arb_s::N_ARB<2> p;
     p.g.Vdd = Vdd;
     p.g.GND = GND;
     prs <Vdd, GND> {

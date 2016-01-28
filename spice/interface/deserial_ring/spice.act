@@ -47,10 +47,9 @@ export defproc wrapper(globals_np g_np; a1of<4> src)
     bool GND;
     pint M = 1;
     pint N = 4;
-    pint width = 6;
 
-    aer::interface::DESERIAL_RING<M, N, width> deserial;
-    SINK_eMx1ofN<M, N, width> snk(deserial.g, deserial.y);
+    aer::interface::DESERIAL_RING<M, N> deserial;
+    SINK_eMx1ofN<M, N> snk(deserial.g, deserial.y);
 
     deserial.g.Vdd = Vdd;
     deserial.g.GND = GND;
@@ -72,8 +71,8 @@ export defproc wrapper(globals_np g_np; a1of<4> src)
             _b[0].d[n] -> _b[1].d[n]-
             ~_b[0].d[n] -> _b[1].d[n]+
 
-            _b[1].d[n]<4*width> -> _b[2].d[n]-
-            ~_b[1].d[n]<6*width> -> _b[2].d[n]+
+            _b[1].d[n]<24> -> _b[2].d[n]-
+            ~_b[1].d[n]<36> -> _b[2].d[n]+
         )
         deserial._x.a -> src.a-
         ~deserial._x.a -> src.a+

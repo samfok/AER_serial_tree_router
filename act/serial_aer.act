@@ -10,7 +10,7 @@ import "environment.act";
 namespace aer {
     namespace interface {
         export
-        template <pint N | pint width>
+        template <pint N>
         defproc OUT_e1ofN (globals g; bool xi, xo; c1of<N> x; e1of<N> y) {
             // convert AEXT/AERV serial protocol to standard e1ofN channel
             x.d = y.d;
@@ -20,7 +20,7 @@ namespace aer {
         }
 
         export
-        template <pint N | pint width>
+        template <pint N>
         defproc OUT_a1ofN (globals g; bool xi, xo; c1of<N> x; a1of<N> _y) {
             // convert AEXT/AERV serial protocol to standard a1ofN channel
             bool _xo;
@@ -34,15 +34,15 @@ namespace aer {
                 }
             [] LAYOUT ->
                 prs<g.Vdd, g.GND> {
-                    xi<2*width> & _y.a<2*width> -> _xo-
-                    ~xi<1.5*width> | ~_y.a<1.5*width> -> _xo+
+                    xi<2*6> & _y.a<2*6> -> _xo-
+                    ~xi<1.5*6> | ~_y.a<1.5*6> -> _xo+
                     
-                    ~_xo<1.5*width> -> xo+
-                    _xo<width> -> xo-
+                    ~_xo<1.5*6> -> xo+
+                    _xo<6> -> xo-
 
                     (: n : N :
-                        ~x.d[n]<1.5*width> -> _y.d[n]+
-                        x.d[n]<width> -> _y.d[n]-
+                        ~x.d[n]<1.5*6> -> _y.d[n]+
+                        x.d[n]<6> -> _y.d[n]-
                     )
                 }
             ]
@@ -50,25 +50,25 @@ namespace aer {
 
         namespace deserial_ring {
             export
-            template <pint M, N, width>
+            template <pint M, N>
             defproc SPLIT (globals g; a1of<N> _x, _y[M]) {
                 bool ya[M];
                 (; m : M :
                     _y[m].d = _x.d;
                     _y[m].a = ya[m]; // normal sense
                 )
-                OR<M, width> or(g,,);
+                OR<M> or(g,,);
                 (; m : M :
                     ya[m] = or.i[m];
                 )
                 prs<g.Vdd, g.GND> {
-                    ~or.o<1.5*width> -> _x.a+
-                    or.o<width> -> _x.a-
+                    ~or.o<1.5*6> -> _x.a+
+                    or.o<6> -> _x.a-
                 }
             }
             
             export
-            template <pint N | pint width>
+            template <pint N>
             defproc NODE (globals g; a1of<N> _x; c1of<N> y; bool _si, _so) {
                 bool _vy, __vy, _s, __s;
                 bool xa = _x.a; // normal sense
@@ -95,48 +95,48 @@ namespace aer {
                 [] LAYOUT ->
                     c1of<N> yy[2]; // to decouple y node capacitances
                     prs<g.Vdd, g.GND> {
-                        ~_s<6*width> -> __s+
-                        _s<4*width> -> __s-
+                        ~_s<6*6> -> __s+
+                        _s<4*6> -> __s-
 
                         // (: n : N :
-                        //     ~_x.d[n]<5*width> & ~__s<5*width> & ~_si<5*width> -> y.d[n]+
-                        //     g.pReset<width> | _si<2*width> -> y.d[n]-
+                        //     ~_x.d[n]<5*6> & ~__s<5*6> & ~_si<5*6> -> y.d[n]+
+                        //     g.pReset<6> | _si<2*6> -> y.d[n]-
                         // )
                         (: n : N :
-                            ~_x.d[n]<4*width> & ~__s<4*width> & ~_si<4*width> -> yy[0].d[n]+
-                            g.pReset<width> | _si<2*width> -> yy[0].d[n]-
-                            ~yy[0].d[n]<1.5*width> -> yy[1].d[n]+
-                            yy[0].d[n]<width> -> yy[1].d[n]-
-                            ~yy[1].d[n]<1.5*width> -> y.d[n]+
-                            yy[1].d[n]<width> -> y.d[n]-
+                            ~_x.d[n]<5*6> & ~__s<4*6> & ~_si<4*6> -> yy[0].d[n]+
+                            g.pReset<6> | _si<2*6> -> yy[0].d[n]-
+                            ~yy[0].d[n]<1.5*6> -> yy[1].d[n]+
+                            yy[0].d[n]<6> -> yy[1].d[n]-
+                            ~yy[1].d[n]<1.5*6> -> y.d[n]+
+                            yy[1].d[n]<6> -> y.d[n]-
                         )
 
             
-                        ~__s<3*width> & ~_vy<3*width> -> xa+
-                        __s<width> | _vy<width> -> xa-
+                        ~__s<3*6> & ~_vy<3*6> -> xa+
+                        __s<6> | _vy<6> -> xa-
             
-                        ~_vy<1.5*width> -> __vy+
-                        _vy<width> -> __vy-
+                        ~_vy<2*6> -> __vy+
+                        _vy<2*6> -> __vy-
 
-                        __vy<width*5> & (& : n : N : _x.d[n]<width*5>) -> _s-
-                        ~g._pReset<width> | ~__vy<1.5*width> -> _s+
+                        __vy<6*5> & (& : n : N : _x.d[n]<6*5>) -> _s-
+                        ~g._pReset<6> | ~__vy<1.5*6> -> _s+
             
-                        ~__s<1.5*width> -> _so+
-                        __s<width> -> _so-
+                        ~__s<1.5*6> -> _so+
+                        __s<6> -> _so-
 
-                        (| : n : N : y.d[n]<2*width>) -> _vy-
-                        (& : n : N : ~y.d[n]<5*width>) -> _vy+
+                        (| : n : N : y.d[n]<2*6>) -> _vy-
+                        (& : n : N : ~y.d[n]<5*6>) -> _vy+
                     }
                 ]
             }
         } // namespace deserial_ring
         
         export
-        template <pint M, N | pint width>
+        template <pint M, N>
         defproc DESERIAL_RING (globals g; a1of<N> _x; eMx1ofN<M, N> y) {
             // convert AEXT/AERV serial protocol to eMx1ofN with ring
-            deserial_ring::SPLIT<M, N, width> split(g, _x,);
-            deserial_ring::NODE<N, width> node[M];
+            deserial_ring::SPLIT<M, N> split(g, _x,);
+            deserial_ring::NODE<N> node[M];
             (; m : M :
                 node[m].g = g;
                 node[m]._x = split._y[m];
@@ -152,8 +152,8 @@ namespace aer {
                 }
             [] LAYOUT ->
                 prs<g.Vdd, g.GND> {
-                    g._sReset<4*width> & node[M-1]._so<4*width> & y.e<4*width> -> node[0]._si-
-                    ~g._sReset | ~node[M-1]._so<5*width> & ~y.e<5*width> -> node[0]._si+
+                    g._sReset<4*6> & node[M-1]._so<4*6> & y.e<4*6> -> node[0]._si-
+                    ~g._sReset | ~node[M-1]._so<6*6> & ~y.e<6*6> -> node[0]._si+
                 }
             ]
         }
@@ -276,7 +276,7 @@ namespace aer {
         } // namespace deserial_chain
 
         export
-        template <pint M, N | pint width>
+        template <pint M, N>
         defproc DESERIAL_CHAIN (globals g; a1of<N> _x; eMx1ofN<M, N> y) {
             // convert AEXT/AERV serial protocol to eMx1ofN with chain
             [ M = 1 ->
@@ -405,7 +405,7 @@ namespace aer {
         } // namespace serial_chain
 
         export
-        template <pint M, N | pint width>
+        template <pint M, N>
         defproc SERIAL_CHAIN (globals g; eMx1ofN<M, N> x; bool yi, yo; c1of<N> y) {
             // convert eMx1ofN protocol to AEXT/AERV serial with chain
             [ M = 1 ->
@@ -485,7 +485,7 @@ namespace aer {
         } // namespace serial_ring
 
         export
-        template <pint M, N | pint width>
+        template <pint M, N>
         defproc SERIAL_RING (globals g; eMx1ofN<M, N> x; bool yi, yo; c1of<N> y) {
             // convert eMx1ofN protocol to AEXT/AERV serial with ring
             serial_ring::NODE<N> node[M];
@@ -585,7 +585,7 @@ namespace aer {
         } // namespace serial_ring2
 
         export
-        template <pint M, N | pint width>
+        template <pint M, N>
         defproc SERIAL_RING2 (globals g; eMx1ofN<M, N> x; bool yi, yo; c1of<N> y) {
             // convert eMx1ofN protocol to AEXT/AERV serial with ring
             serial_ring2::NODE<N> node[M];
@@ -642,14 +642,14 @@ namespace aer {
     }
 
     namespace transmitter {
-        template <pint N, root | pint width>
+        template <pint N, root>
         defproc NODE (globals g; bool ci[N], co[N], pi, po; c1of<N> _c[N], _p) {
             // AEXT tree NODE controller
             /*--------------------------------------------------------------*/
             // /* development
                 bool c_[N], _co[N], _po, u, _u;
                 c1of<N> _w, p;
-                ::arbiter::n_arb_s::N_ARB<N, width> arb(g, ci, c_);
+                ::arbiter::n_arb_s::N_ARB<N> arb(g, ci, c_);
 
                 [ ~LAYOUT ->
                     prs<g.Vdd, g.GND> {
@@ -697,50 +697,50 @@ namespace aer {
                     ]
                 [] LAYOUT ->
                     prs<g.Vdd, g.GND> {
-                        _u<2*width> & (| : n : N : c_[n]<2*width>) -> _po-
-                        ~g._pReset<width> | (| : n : N : ~_co[n]<3*width> & ~c_[n]<3*width>) -> _po+
+                        _u<2*6> & (| : n : N : c_[n]<2*6>) -> _po-
+                        ~g._pReset<6> | (| : n : N : ~_co[n]<3*6> & ~c_[n]<3*6>) -> _po+
 
-                        ~_po<1.5*width> -> po+
-                        _po<width> -> po-
+                        ~_po<1.5*6> -> po+
+                        _po<6> -> po-
                     
                         (: n : N :
-                            c_[n]<3*width> & pi<3*width> & _u<3*width> -> _w.d[n]-
-                            ~g._pReset<width> | ~_u<1.5*width> -> _w.d[n]+
+                            c_[n]<3*6> & pi<3*6> & _u<3*6> -> _w.d[n]-
+                            ~g._pReset<6> | ~_u<1.5*6> -> _w.d[n]+
                         )
 
-                        (| : n : N : ~_w.d[n]<3*width>) & ~pi<3*width> -> u+
-                        (& : n : N : _co[n]<5*width>) & _po<5*width> -> u-
+                        (| : n : N : ~_w.d[n]<3*6>) & ~pi<3*6> -> u+
+                        (& : n : N : _co[n]<5*6>) & _po<5*6> -> u-
 
-                        ~u<1.5*width> -> _u+
-                        u<width> -> _u-
+                        ~u<1.5*6> -> _u+
+                        u<6> -> _u-
                         
-                        c_[0]<6*width> & u<6*width> & pi<6*width> & 
-                            (& : n : 1..N-1 : _co[n]<6*width>) -> _co[0]-
+                        c_[0]<6*6> & u<6*6> & pi<6*6> & 
+                            (& : n : 1..N-1 : _co[n]<6*6>) -> _co[0]-
                         (: n : 1..N-2:
-                            c_[n]<6*width> & u<6*width> & pi<6*width> & 
-                                (& : nn : 0..n-1 : _co[nn]<6*width>) & 
-                                (& : nn : n+1..N-1 : _co[nn]<6*width>) -> _co[n]-
+                            c_[n]<6*6> & u<6*6> & pi<6*6> & 
+                                (& : nn : 0..n-1 : _co[nn]<6*6>) & 
+                                (& : nn : n+1..N-1 : _co[nn]<6*6>) -> _co[n]-
                         )
-                        c_[N-1]<6*width> & u<6*width> & pi<6*width> &
-                            (& : n : 0..N-2 : _co[n]<6*width>) -> _co[N-1]-
+                        c_[N-1]<6*6> & u<6*6> & pi<6*6> &
+                            (& : n : 0..N-2 : _co[n]<6*6>) -> _co[N-1]-
                         (: n : N :
-                            ~pi<1.5*width> -> _co[n]+
+                            ~pi<1.5*6> -> _co[n]+
 
-                            ~_co[n]<1.5*width> -> co[n]+
-                            _co[n]<width> -> co[n]-
+                            ~_co[n]<1.5*6> -> co[n]+
+                            _co[n]<6> -> co[n]-
                         )
 
                         (: n : N :
-                            (| : nc : N : ~_c[nc].d[n]<1.5*width>) | ~_w.d[n]<1.5*width> -> p.d[n]+
-                            (& : nc : N : _c[nc].d[n]<5*width>) & _w.d[n]<5*width> -> p.d[n]-
+                            (| : nc : N : ~_c[nc].d[n]<1.5*6>) | ~_w.d[n]<1.5*6> -> p.d[n]+
+                            (& : nc : N : _c[nc].d[n]<5*6>) & _w.d[n]<5*6> -> p.d[n]-
                         )
                     }
 
                     [ root = 0 ->
                         prs<g.Vdd, g.GND> {
                             (: n : N :
-                                ~p.d[n]<1.5*width> -> _p.d[n]+
-                                p.d[n]<width> -> _p.d[n]-
+                                ~p.d[n]<1.5*6> -> _p.d[n]+
+                                p.d[n]<6> -> _p.d[n]-
                             )
                         }
                     [] root = 1 ->
@@ -785,14 +785,14 @@ namespace aer {
             /*--------------------------------------------------------------*/
         }
 
-        template <pint N, root | pint width>
+        template <pint N, root>
         defproc LEAF (globals g; bool ci[N], co[N], pi, po; c1of<N> _p) {
             // leaf node of aext tree
             /*--------------------------------------------------------------*/
             // /* development
                 bool c[N], _co[N], _u, u, _po;
                 c1of<N> _p_;
-                ::arbiter::n_arb_s::N_ARB<N, width> arb(g, ci, c);
+                ::arbiter::n_arb_s::N_ARB<N> arb(g, ci, c);
 
                 [ ~LAYOUT ->
                     prs<g.Vdd, g.GND> {
@@ -840,38 +840,38 @@ namespace aer {
                     ]
                 [] LAYOUT ->
                     prs<g.Vdd, g.GND> {
-                        _u<5*width> & (| : n : N : c[n]<5*width>) -> _po-
-                        ~g._pReset<width> | (| : n : N : ~_co[n]<3*width> &
-                            ~c[n]<3*width>) -> _po+
+                        _u<5*6> & (| : n : N : c[n]<5*6>) -> _po-
+                        ~g._pReset<6> | (| : n : N : ~_co[n]<3*6> &
+                            ~c[n]<3*6>) -> _po+
 
-                        ~_po<1.5*width> -> po+
-                        _po<width> -> po-
+                        ~_po<1.5*6> -> po+
+                        _po<6> -> po-
                     
                         (: n : N :
-                            c[n]<3*width> & pi<3*width> & _u<3*width> -> _p_.d[n]-
-                            ~g._pReset<width> | ~_u<1.5*width> -> _p_.d[n]+
+                            c[n]<3*6> & pi<3*6> & _u<3*6> -> _p_.d[n]-
+                            ~g._pReset<6> | ~_u<1.5*6> -> _p_.d[n]+
                         )
 
-                        (| : n : N : ~_p_.d[n]<3*width>) & ~pi<3*width> -> u+
-                        (& : n : N : _co[n]<5*width>) & _po<5*width> -> u-
+                        (| : n : N : ~_p_.d[n]<3*6>) & ~pi<3*6> -> u+
+                        (& : n : N : _co[n]<5*6>) & _po<5*6> -> u-
 
-                        ~u<1.5*width> -> _u+
-                        u<width> -> _u-
+                        ~u<1.5*6> -> _u+
+                        u<6> -> _u-
                         
-                        c[0]<6*width> & u<6*width> & pi<6*width> &
-                            (& : n : 1..N-1 : _co[n]<6*width>) -> _co[0]-
+                        c[0]<6*6> & u<6*6> & pi<6*6> &
+                            (& : n : 1..N-1 : _co[n]<6*6>) -> _co[0]-
                         (: n : 1..N-2:
-                            c[n]<6*width> & u<6*width> & pi<6*width> & 
-                            (& : nn : 0..n-1 : _co[nn]<6*width>) & 
-                            (& : nn : n+1..N-1 : _co[nn]<6*width>) -> _co[n]-
+                            c[n]<6*6> & u<6*6> & pi<6*6> & 
+                            (& : nn : 0..n-1 : _co[nn]<6*6>) & 
+                            (& : nn : n+1..N-1 : _co[nn]<6*6>) -> _co[n]-
                         )
-                        c[N-1]<6*width> & u<6*width> & pi<6*width> &
-                            (& : n : 0..N-2 : _co[n]<6*width>) -> _co[N-1]-
+                        c[N-1]<6*6> & u<6*6> & pi<6*6> &
+                            (& : n : 0..N-2 : _co[n]<6*6>) -> _co[N-1]-
                         (: n : N :
-                            ~pi<1.5*width> -> _co[n]+
+                            ~pi<1.5*6> -> _co[n]+
 
-                            ~_co[n]<1.5*width> -> co[n]+
-                            _co[n]<width> -> co[n]-
+                            ~_co[n]<1.5*6> -> co[n]+
+                            _co[n]<6> -> co[n]-
                         )
                     }
 
@@ -881,8 +881,8 @@ namespace aer {
                         // present normal sense interface
                         prs<g.Vdd, g.GND> {
                             (: n : N :
-                                ~_p_.d[n]<1.5*width> -> _p.d[n]+
-                                _p_.d[n]<width> -> _p.d[n]-
+                                ~_p_.d[n]<1.5*6> -> _p.d[n]+
+                                _p_.d[n]<6> -> _p.d[n]-
                             )
                         }
                     ]
@@ -918,24 +918,24 @@ namespace aer {
             */
         }
 
-        template <pint M, N, NN, root, width>
+        template <pint M, N, NN, root>
         defproc AEXT_ (globals g; bool xi[NN], xo[NN], pi, po; c1of<N> p) {
             // utility for AEXT
             [ M = 0 ->
                 0 = 1;
             [] M = 1 ->
                 NN = N;
-                LEAF<N, root, width> leaf(g, xi, xo, pi, po, p);
+                LEAF<N, root> leaf(g, xi, xo, pi, po, p);
             [] M > 1 ->
                 pint k = NN/N;
-                AEXT_<M-1, N, k, 0, width> _[N];
+                AEXT_<M-1, N, k, 0> _[N];
                 (; n : N :
                     _[n].g = g;
                     _[n].xi = xi[n*k..(n+1)*k-1];
                     _[n].xo = xo[n*k..(n+1)*k-1];
                 )
 
-                NODE<N, root, width> node(g,,, pi, po,, p);
+                NODE<N, root> node(g,,, pi, po,, p);
                 (; n : N :
                     node.ci[n] = _[n].po;
                     node.co[n] = _[n].pi;
@@ -945,10 +945,10 @@ namespace aer {
         }
 
         export
-        template <pint M, N, NN, width>
+        template <pint M, N, NN>
         defproc AEXT (globals g; bool xi[NN], xo[NN], pi, po; c1of<N> p) {
             // Transmitter
-            AEXT_<M, N, NN, 1, width> _(g, xi, xo, pi, po, p);
+            AEXT_<M, N, NN> _(g, xi, xo, pi, po, p);
         }
 
         namespace test {
@@ -959,13 +959,13 @@ namespace aer {
                 // N for 1-of-N encoding
                 // NN = N^M neurons
                 active_handshaker<NN> a(g,,);
-                AEXT<M, N, NN, 1> aext(g, a.o, a.i,,,);
-                ::aer::interface::OUT_a1ofN<N, 1> out(g, aext.po, aext.pi, aext.p,);
-                ::aer::interface::DESERIAL_RING<M, N, 1> deserial(
+                AEXT<M, N, NN> aext(g, a.o, a.i,,,);
+                ::aer::interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
+                ::aer::interface::DESERIAL_RING<M, N> deserial(
                     g, out._y,);
-                // ::aer::interface::DESERIAL_CHAIN<M, N, 1> deserial(
+                // ::aer::interface::DESERIAL_CHAIN<M, N> deserial(
                 //     g, out._y,);
-                SINK_eMx1ofN<M, N, 1> snk(g, deserial.y);
+                SINK_eMx1ofN<M, N> snk(g, deserial.y);
             }
 
             export
@@ -975,11 +975,11 @@ namespace aer {
                 // N for 1-of-N encoding
                 // NN = N^M neurons
                 active_handshaker<1> a(g,,);
-                AEXT<M, N, NN, 1> aext(g,,,,,);
-                ::aer::interface::OUT_a1ofN<N, 1> out(g, aext.po, aext.pi, aext.p,);
-                ::aer::interface::DESERIAL_CHAIN<M, N, 1> deserial(
+                AEXT<M, N, NN> aext(g,,,,,);
+                ::aer::interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
+                ::aer::interface::DESERIAL_CHAIN<M, N> deserial(
                     g, out._y,);
-                SINK_eMx1ofN<M, N, 1> snk(g, deserial.y);
+                SINK_eMx1ofN<M, N> snk(g, deserial.y);
 
                 a.o[0] = aext.xi[nn];
                 a.i[0] = aext.xo[nn];
@@ -998,7 +998,7 @@ namespace aer {
     } // namespace transmitter
 
     namespace receiver {
-        template <pint N | pint width>
+        template <pint N>
         defproc NODE (globals g; bool pi, po, ci[N], co[N]; c1of<N> p, c[N]) {
             // node in AERV tree
             bool _po, u[N], _co[N], cco, _cco, __cco, _cci, __cci, _uu;
@@ -1048,62 +1048,62 @@ namespace aer {
                 }
             [] LAYOUT ->
                 prs<g.Vdd, g.GND> {
-                    ~_cci<1.5*width> -> __cci+
-                    _cci<width> -> __cci-
+                    ~_cci<1.5*6> -> __cci+
+                    _cci<6> -> __cci-
 
-                    ~cco<1.5*width> -> _cco+
-                    cco<width> -> _cco-
+                    ~cco<1.5*6> -> _cco+
+                    cco<6> -> _cco-
 
-                    (pi<width> & _cco<width> | __cci<width>) & _uu<width> -> _po-
-                    (~pi<width> | ~_cco<width>) & ~__cci<width> | ~_uu<width> -> _po+
-
-                    (: n : N :
-                        ~p.d[n]<1.5*width> -> _p.d[n]+
-                        p.d[n]<width> -> _p.d[n]-
-                    )
-
-                    ~_cco<1.5*width> -> __cco+
-                    _cco<width> -> __cco-
+                    (pi<6> & _cco<6> | __cci<6>) & _uu<6> -> _po-
+                    (~pi<6> | ~_cco<6>) & ~__cci<6> | ~_uu<6> -> _po+
 
                     (: n : N :
-                        ~_p.d[n]<width> & ~__cco<width> -> u[n]+
-                        g.pReset<width> | __cco<width> -> u[n]-
+                        ~p.d[n]<1.5*6> -> _p.d[n]+
+                        p.d[n]<6> -> _p.d[n]-
                     )
 
-                    (| : n : N : u[n]<width>) -> _uu-
-                    (& : n : N : ~u[n]<1.5*width>) -> _uu+
+                    ~_cco<1.5*6> -> __cco+
+                    _cco<6> -> __cco-
 
                     (: n : N :
-                        u[n]<2*width> & _p.d[n]<2*width> -> _co[n]-
-                        ~pi<width> -> _co[n]+
+                        ~_p.d[n]<6> & ~__cco<6> -> u[n]+
+                        g.pReset<6> | __cco<6> -> u[n]-
                     )
 
-                    (| : n : N : ~_co[n]<1.5*width>) -> cco+
-                    (& : n : N : _co[n]<4*width>) -> cco-
+                    (| : n : N : u[n]<6>) -> _uu-
+                    (& : n : N : ~u[n]<1.5*6>) -> _uu+
 
-                    (| : n : N : ci[n]<width>) -> _cci-
-                    (& : n : N : ~ci[n]<6*width>) -> _cci+
+                    (: n : N :
+                        u[n]<2*6> & _p.d[n]<2*6> -> _co[n]-
+                        ~pi<6> -> _co[n]+
+                    )
+
+                    (| : n : N : ~_co[n]<1.5*6>) -> cco+
+                    (& : n : N : _co[n]<4*6>) -> cco-
+
+                    (| : n : N : ci[n]<6>) -> _cci-
+                    (& : n : N : ~ci[n]<6*6>) -> _cci+
 
                     (: nc : N :
                         (: n : N :
-                            ~_co[nc]<3*width> & ~_p.d[n]<3*width> -> c[nc].d[n]+
-                            _co[nc]<width> | _p.d[n]<width> -> c[nc].d[n]-
+                            ~_co[nc]<3*6> & ~_p.d[n]<3*6> -> c[nc].d[n]+
+                            _co[nc]<6> | _p.d[n]<6> -> c[nc].d[n]-
                         )
                     )
                 }
                 prs<g.Vdd, g.GND> {
                     (: n : N :
-                        ~_co[n]<1.5*width> -> co[n]+
-                        _co[n]<width> -> co[n]-
+                        ~_co[n]<1.5*6> -> co[n]+
+                        _co[n]<6> -> co[n]-
                     )
 
-                    ~_po<1.5*width> -> po+
-                    _po<width> -> po-
+                    ~_po<1.5*6> -> po+
+                    _po<6> -> po-
                 }
             ]
         }
 
-        template <pint N | pint width>
+        template <pint N>
         defproc LEAF (globals g; bool pi, po, ci[N]; c1of<N> p, c[N]) {
             // leaf of AERV tree
             bool _pi, _u[N], co[N], _cco, _cci, __cci, uu;
@@ -1145,51 +1145,51 @@ namespace aer {
                 }
             [] LAYOUT ->
                 prs<g.Vdd, g.GND> {
-                    ~pi<1.5*width> -> _pi+
-                    pi<width> -> _pi-
+                    ~pi<1.5*6> -> _pi+
+                    pi<6> -> _pi-
     
-                    ~_cci<1.5*width> -> __cci+
-                    _cci<width> -> __cci-
+                    ~_cci<1.5*6> -> __cci+
+                    _cci<6> -> __cci-
     
-                    (~_pi<4.5*width> | ~_cco<4.5*width>) & ~uu<4.5*width> & ~__cci<4.5*width> -> po+
-                    _pi<2*width> & _cco<2*width> | uu<width> | __cci<width> -> po-
-    
-                    (: n : N :
-                        _cco<2*width> & p.d[n]<2*width> -> _u[n]-
-                        ~g._pReset<width> | ~_cco<1.5*width> -> _u[n]+
-                    )
-                    (| : n : N : ~_u[n]<1.5*width>) -> uu+
-                    (& : n : N : _u[n]<4*width>) -> uu-
+                    (~_pi<4.5*6> | ~_cco<4.5*6>) & ~uu<4.5*6> & ~__cci<4.5*6> -> po+
+                    _pi<2*6> & _cco<2*6> | uu<6> | __cci<6> -> po-
     
                     (: n : N :
-                        ~_u[n]<3*width> & ~p.d[n]<3*width> -> co[n]+
-                        ~pi<width> -> co[n]-
+                        _cco<2*6> & p.d[n]<2*6> -> _u[n]-
+                        ~g._pReset<6> | ~_cco<1.5*6> -> _u[n]+
                     )
-                    (| : n : N : co[n]<width>) -> _cco-
-                    (& : n : N : ~co[n]<1.5*width>) -> _cco+
+                    (| : n : N : ~_u[n]<1.5*6>) -> uu+
+                    (& : n : N : _u[n]<4*6>) -> uu-
     
-                    (| : n : N : ci[n]<width>) -> _cci-
-                    (& : n : N : ~ci[n]<1.5*width>) -> _cci+
+                    (: n : N :
+                        ~_u[n]<3*6> & ~p.d[n]<3*6> -> co[n]+
+                        ~pi<6> -> co[n]-
+                    )
+                    (| : n : N : co[n]<6>) -> _cco-
+                    (& : n : N : ~co[n]<1.5*6>) -> _cco+
+    
+                    (| : n : N : ci[n]<6>) -> _cci-
+                    (& : n : N : ~ci[n]<1.5*6>) -> _cci+
     
                     (: nc : N :
                         (: n : N :
-                            co[nc]<2*width> & p.d[n]<2*width> -> _c[nc].d[n]-
-                            ~co[nc]<1.5*width> | ~p.d[n]<1.5*width> -> _c[nc].d[n]+
+                            co[nc]<2*6> & p.d[n]<2*6> -> _c[nc].d[n]-
+                            ~co[nc]<1.5*6> | ~p.d[n]<1.5*6> -> _c[nc].d[n]+
                         )
                     )
                 }
                 prs<g.Vdd, g.GND> {
                     (: nc : N :
                         (: n : N :
-                            _c[nc].d[n]<width> -> c[nc].d[n]-
-                            ~_c[nc].d[n]<1.5*width> -> c[nc].d[n]+
+                            _c[nc].d[n]<6> -> c[nc].d[n]-
+                            ~_c[nc].d[n]<1.5*6> -> c[nc].d[n]+
                         )
                     )
                 }
             ]
         }
 
-        template <pint N | pint width>
+        template <pint N>
         defproc LEAF_NODATA (globals g; bool pi, po, ci[N], co[N]; c1of<N> p) {
             // leaf of AERV tree that does not transmit data
             bool u, _po, _ci[N], _co[N];
@@ -1218,43 +1218,43 @@ namespace aer {
             [] LAYOUT ->
                 prs<g.Vdd, g.GND> {
                     (: n : N :
-                        ~ci[n]<1.5*width> -> _ci[n]+
-                        ci[n]<width> -> _ci[n]-
+                        ~ci[n]<1.5*6> -> _ci[n]+
+                        ci[n]<6> -> _ci[n]-
                     )
 
-                    pi<5*width> & (& : n : N : _ci[n]<5*width>) | u<width> -> _po-
-                    (~pi<3*width> | (| : n : N : ~_ci[n]<3*width>)) & ~u<3*width> -> _po+
+                    pi<5*6> & (& : n : N : _ci[n]<5*6>) | u<6> -> _po-
+                    (~pi<3*6> | (| : n : N : ~_ci[n]<3*6>)) & ~u<3*6> -> _po+
 
                     (: n : N :
-                        p.d[n]<width> -> _co[n]-
-                        ~pi<1.5*width> -> _co[n]+
+                        p.d[n]<6> -> _co[n]-
+                        ~pi<1.5*6> -> _co[n]+
                     )
 
-                    (| : n : N : ~_ci[n]<3*width> & ~p.d[n]<3*width>) -> u+
-                    (& : n : N : _ci[n]<4*width> | p.d[n]<4*width>) -> u-
+                    (| : n : N : ~_ci[n]<3*6> & ~p.d[n]<3*6>) -> u+
+                    (& : n : N : _ci[n]<4*6> | p.d[n]<4*6>) -> u-
                 }
                 prs<g.Vdd, g.GND> {
                     (: n : N :
-                        ~_co[n]<1.5*width> -> co[n]+
-                        _co[n]<width> -> co[n]-
+                        ~_co[n]<1.5*6> -> co[n]+
+                        _co[n]<6> -> co[n]-
                     )
 
-                    ~_po<1.5*width> -> po+
-                    _po<width> -> po-
+                    ~_po<1.5*6> -> po+
+                    _po<6> -> po-
                 }
             ]
         }
 
         export
-        template <pint M, N, NN, width>
+        template <pint M, N, NN>
         defproc AERV_NODATA (globals g; bool yi[NN], yo[NN], pi, po; c1of<N> p) {
             // receiver that does not send data to neurons
             [ M = 1 ->
                 NN = N;
-                LEAF_NODATA<N, width> leaf(g, pi, po, yi, yo, p);
+                LEAF_NODATA<N> leaf(g, pi, po, yi, yo, p);
             [] M > 1 ->
-                AERV_NODATA<M-1, N, NN/N, width> _[N];
-                NODE<N, width> node(g, pi, po,,, p,);
+                AERV_NODATA<M-1, N, NN/N> _[N];
+                NODE<N> node(g, pi, po,,, p,);
                 pint k = NN/N;
                 (; n : N :
                     _[n].g = g;
@@ -1268,15 +1268,15 @@ namespace aer {
         }
 
         export
-        template <pint M, N, NN, width>
+        template <pint M, N, NN>
         defproc AERV_DATA (globals g; bool yi[NN], pi, po; c1of<N> p, c[NN]) {
             // receiver capable of sending data to neuron
             [ M = 1 ->
                 NN = N;
-                LEAF<N, width> leaf(g, pi, po, yi, p, c);
+                LEAF<N> leaf(g, pi, po, yi, p, c);
             [] M > 1 ->
-                AERV_DATA<M-1, N, NN/N, width> _[N];
-                NODE<N, width> node(g, pi, po,,, p,);
+                AERV_DATA<M-1, N, NN/N> _[N];
+                NODE<N> node(g, pi, po,,, p,);
                 pint k = NN/N;
                 (; n : N :
                     _[n].g = g;
@@ -1294,8 +1294,8 @@ namespace aer {
             template <pint M, N, NN>
             defproc TEST_SERIAL_RING (globals g) {
                 SOURCE_random_eMx1ofN<M, N> src(g,);
-                ::aer::interface::SERIAL_RING<M, N, 1> serial(g, src.d,,,);
-                AERV_NODATA<M, N, NN, 1> aerv(g,,, serial.yo, serial.yi, serial.y);
+                ::aer::interface::SERIAL_RING<M, N> serial(g, src.d,,,);
+                AERV_NODATA<M, N, NN> aerv(g,,, serial.yo, serial.yi, serial.y);
                 passive_handshaker<NN> y(aerv.yo, aerv.yi);
             }
 
@@ -1304,7 +1304,7 @@ namespace aer {
             defproc TEST_SERIAL_RING2 (globals g) {
                 SOURCE_random_eMx1ofN<M, N> src(g,);
                 ::aer::interface::SERIAL_RING2<M, N> serial(g, src.d,,,);
-                AERV_NODATA<M, N, NN, 1> aerv(g,,, serial.yo, serial.yi, serial.y);
+                AERV_NODATA<M, N, NN> aerv(g,,, serial.yo, serial.yi, serial.y);
                 passive_handshaker<NN> y(aerv.yo, aerv.yi);
             }
 
@@ -1312,15 +1312,15 @@ namespace aer {
             template <pint M, N, NN>
             defproc TEST_SERIAL_CHAIN (globals g) {
                 SOURCE_random_eMx1ofN<M, N> src(g,);
-                ::aer::interface::SERIAL_CHAIN<M, N, 1> serial(g, src.d,,,);
-                AERV_NODATA<M, N, NN, 1> aerv(g,,, serial.yo, serial.yi, serial.y);
+                ::aer::interface::SERIAL_CHAIN<M, N> serial(g, src.d,,,);
+                AERV_NODATA<M, N, NN> aerv(g,,, serial.yo, serial.yi, serial.y);
                 passive_handshaker<NN> y(aerv.yo, aerv.yi);
             }
         } // namespace test
     } // namespace receiver
 
     export
-    template <pint M, N, NN, width>
+    template <pint M, N, NN>
     defproc AER_NODATA (globals g; bool xi[NN], xo[NN], yi[NN], yo[NN]) {
         // address-event representation tranceiver
         // no data sent to receiving neuron
@@ -1329,12 +1329,12 @@ namespace aer {
         // M groups
         // N items per group
         // NN=N^M
-        transmitter::AEXT<M, N, NN, width> aext(g, xi, xo,,,);
-        interface::OUT_a1ofN<N, width> out(g, aext.po, aext.pi, aext.p,);
-        interface::DESERIAL_RING<M, N, width> deserial(g, out._y,);
-        // interface::DESERIAL_CHAIN<M, N, width> deserial(g, out._y,);
+        transmitter::AEXT<M, N, NN> aext(g, xi, xo,,,);
+        interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
+        interface::DESERIAL_RING<M, N> deserial(g, out._y,);
+        // interface::DESERIAL_CHAIN<M, N> deserial(g, out._y,);
         interface::SERIAL_CHAIN<M, N> serial(g, deserial.y,,,);
-        receiver::AERV_NODATA<M, N, NN, width> aerv(g, yi, yo, serial.yo, serial.yi, serial.y);
+        receiver::AERV_NODATA<M, N, NN> aerv(g, yi, yo, serial.yo, serial.yi, serial.y);
     }
 
     export
@@ -1383,7 +1383,7 @@ namespace aer {
             // NN neurons. NN=N^M
             active_handshaker<NN> x(g,,);
             passive_handshaker<NN> y(,);
-            AER_NODATA<M, N, NN, 1> aer(g, x.o, x.i, y.o, y.i);
+            AER_NODATA<M, N, NN> aer(g, x.o, x.i, y.o, y.i);
         }
 
         template <pint N, NN>
