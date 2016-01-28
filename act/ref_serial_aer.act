@@ -52,7 +52,7 @@ namespace aer {
                         ~si -> y.d[n]-
                     )
             
-                    ~s & vy => x.a+
+                    ~so & vy => x.a+
             
                     vy & (& : n : N : ~x.d[n]) -> s+
                     g.pReset | ~vy -> s-
@@ -79,8 +79,8 @@ namespace aer {
                 node[m].so = node[m+1].si;
             )
             prs<g.Vdd, g.GND> {
-                ~node[M-1].so & y.e  -> node[0].si+
-                g.pReset | node[M-1].so & ~y.e  -> node[0].si-
+                ~g.sReset & ~node[M-1].so & y.e  -> node[0].si+
+                g.sReset | node[M-1].so & ~y.e  -> node[0].si-
             }
         }
 
@@ -591,7 +591,7 @@ namespace aer {
                 ::aer::interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
                 ::aer::interface::DESERIAL_CHAIN<M, N> deserial(
                     g, out.y,);
-                SINK_eMx1ofN<M, N, 1> snk(g, deserial.y);
+                SINK_eMx1ofN<M, N> snk(g, deserial.y);
             }
 
             export

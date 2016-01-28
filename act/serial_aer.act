@@ -51,88 +51,111 @@ namespace aer {
         namespace deserial_ring {
             export
             template <pint M, N>
-            defproc SPLIT (globals g; a1of<N> _x, _y[M]) {
-                bool ya[M];
-                (; m : M :
-                    _y[m].d = _x.d;
-                    _y[m].a = ya[m]; // normal sense
-                )
-                [ M = 1 ->
+            defproc SPLIT (globals g; a1of<N> _x, y[M]) {
+                c1of<N> x;
+                [ ~LAYOUT ->
                     prs<g.Vdd, g.GND> {
-                        ~ya[0]<9> -> _x.a+
-                        ya[0]<6> -> _x.a-
+                        (: n : N:
+                            _x.d[n] => x.d[n]-
+                        )
                     }
-                [] M > 1 ->
-                    OR<M> or(g,,);
                     (; m : M :
-                        ya[m] = or.i[m];
+                        y[m].m = x;
                     )
+                    [ M = 1 ->
+                        prs<g.Vdd, g.GND> {
+                            y[0].a => _x.a-
+                        }
+                    [] M > 1 ->
+                        OR<M> or(g,,);
+                        (; m : M :
+                            y[m].a = or.i[m];
+                        )
+                        prs<g.Vdd, g.GND> {
+                            or.o => _x.a-
+                        }
+                    ]
+                [] LAYOUT ->
                     prs<g.Vdd, g.GND> {
-                        ~or.o<9> -> _x.a+
-                        or.o<6> -> _x.a-
+                        (: n : N:
+                            _x.d[n]<6> -> x.d[n]-
+                            ~_x.d[n]<9> -> x.d[n]+
+                        )
                     }
+                    (; m : M :
+                        y[m].m = x;
+                    )
+                    [ M = 1 ->
+                        prs<g.Vdd, g.GND> {
+                            ~y[0].a<9> -> _x.a+
+                            y[0].a<6> -> _x.a-
+                        }
+                    [] M > 1 ->
+                        OR<M> or(g,,);
+                        (; m : M :
+                            y[m].a = or.i[m];
+                        )
+                        prs<g.Vdd, g.GND> {
+                            ~or.o<9> -> _x.a+
+                            or.o<6> -> _x.a-
+                        }
+                    ]
                 ]
             }
             
             export
             template <pint N>
-            defproc NODE (globals g; a1of<N> _x; c1of<N> y; bool _si, _so) {
-                bool _vy, __vy, _s, __s;
-                bool xa = _x.a; // normal sense
+            defproc NODE (globals g; a1of<N> x; c1of<N> y; bool si, so) {
+                bool s, _s, _vy;
+                c1of<N> _y;
                 [ ~LAYOUT ->
                     prs<g.Vdd, g.GND> {
-                        _s => __s-
+                        s => _s-
 
                         (: n : N :
-                            ~__s & ~_si & ~_x.d[n] -> y.d[n]+
-                            _si -> y.d[n]-
+                            _s & si & x.d[n] -> _y.d[n]-
+                            ~si -> _y.d[n]+
                         )
             
-                        ~__s & ~_vy => xa+
+                        ~so & ~_vy => x.a+
             
-                        _vy => __vy-
+                        ~_vy & (& : n : N : ~x.d[n]) -> s+
+                        g.pReset | _vy -> s-
+            
+                        ~_s => so+
 
-                        __vy & (& : n : N : _x.d[n]) -> _s-
-                        ~g._pReset | ~__vy -> _s+
-            
-                        __s => _so-
+                        (: n : N :
+                            _y.d[n] => y.d[n]-
+                        )
 
                         (| : n : N : y.d[n]) => _vy-
                     }
                 [] LAYOUT ->
-                    c1of<N> yy[2]; // to decouple y node capacitances
                     prs<g.Vdd, g.GND> {
-                        ~_s<36> -> __s+
-                        _s<24> -> __s-
+                        ~s<9> -> _s+
+                        s<6> -> _s-
 
-                        // (: n : N :
-                        //     ~_x.d[n]<30> & ~__s<30> & ~_si<30> -> y.d[n]+
-                        //     g.pReset<6> | _si<18> -> y.d[n]-
-                        // )
                         (: n : N :
-                            ~_x.d[n]<30> & ~__s<24> & ~_si<24> -> yy[0].d[n]+
-                            g.pReset<6> | _si<18> -> yy[0].d[n]-
-                            ~yy[0].d[n]<9> -> yy[1].d[n]+
-                            yy[0].d[n]<6> -> yy[1].d[n]-
-                            ~yy[1].d[n]<9> -> y.d[n]+
-                            yy[1].d[n]<6> -> y.d[n]-
+                            _s<18> & si<18> & x.d[n]<18> -> _y.d[n]-
+                            ~si<9> -> _y.d[n]+
+                        )
+            
+                        ~so<18> & ~_vy<18> -> x.a+
+                        so<6> | _vy<6> -> x.a-
+            
+                        ~_vy<45> & (& : n : N : ~x.d[n]<45>) -> s+
+                        g.pReset | _vy<6> -> s-
+            
+                        ~_s<9> -> so+
+                        _s<6> -> so-
+
+                        (: n : N :
+                            ~_y.d[n]<9> -> y.d[n]+
+                            _y.d[n]<6> -> y.d[n]-
                         )
 
-            
-                        ~__s<24> & ~_vy<24> -> xa+
-                        __s<6> | _vy<6> -> xa-
-            
-                        ~_vy<18> -> __vy+
-                        _vy<18> -> __vy-
-
-                        __vy<6*5> & (& : n : N : _x.d[n]<6*5>) -> _s-
-                        ~g._pReset<6> | ~__vy<9> -> _s+
-            
-                        ~__s<9> -> _so+
-                        __s<6> -> _so-
-
-                        (| : n : N : y.d[n]<18>) -> _vy-
-                        (& : n : N : ~y.d[n]<30>) -> _vy+
+                        (| : n : N : y.d[n]<6>) -> _vy-
+                        (& : n : N : ~y.d[n]<36>) -> _vy+
                     }
                 ]
             }
@@ -146,25 +169,29 @@ namespace aer {
             deserial_ring::NODE<N> node[M];
             (; m : M :
                 node[m].g = g;
-                node[m]._x = split._y[m];
+                node[m].x = split.y[m];
                 node[m].y = y.m[m];
             )
             (; m : M-1 :
-                node[m]._so = node[m+1]._si;
+                node[m].so = node[m+1].si;
             )
+            bool _ye;
             [ ~LAYOUT ->
                 prs<g.Vdd, g.GND> {
-                    g._sReset & node[M-1]._so & y.e  -> node[0]._si-
-                    ~g._sReset | ~node[M-1]._so & ~y.e  -> node[0]._si+
+                    y.e => _ye-
+                    g.sReset | node[M-1].so & _ye  -> node[0].si-
+                    ~g.sReset & ~node[M-1].so & ~_ye  -> node[0].si+
                 }
             [] LAYOUT ->
                 prs<g.Vdd, g.GND> {
-                    g._sReset<24> & node[M-1]._so<24> & y.e<24> -> node[0]._si-
-                    ~g._sReset | ~node[M-1]._so<36> & ~y.e<36> -> node[0]._si+
+                    ~y.e<9> -> _ye+
+                    y.e<6> -> _ye-
+                    g.sReset<24> | node[M-1].so<24> & _ye<24> -> node[0].si-
+                    ~g.sReset<36> & ~node[M-1].so<36> & ~_ye<36> -> node[0].si+
                 }
             ]
         }
-
+        
         namespace deserial_chain {
             export
             template <pint N>
@@ -955,7 +982,7 @@ namespace aer {
         template <pint M, N, NN>
         defproc AEXT (globals g; bool xi[NN], xo[NN], pi, po; c1of<N> p) {
             // Transmitter
-            AEXT_<M, N, NN> _(g, xi, xo, pi, po, p);
+            AEXT_<M, N, NN, 1> _(g, xi, xo, pi, po, p);
         }
 
         namespace test {

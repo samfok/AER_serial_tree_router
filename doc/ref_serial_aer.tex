@@ -4492,8 +4492,8 @@ which would be impossible to make CMOS-implementable.
 \end{prs2}
 
 \begin{prs2}
-~s & vy -> xa+
-s | ~vy -> xa-
+~so & vy -> xa+
+so | ~vy -> xa-
 \end{prs2}
 
 \begin{prs2}
@@ -4544,41 +4544,44 @@ y0 | y1 -> vy+
 \subsubsection*{CMOS-implementable PRS}
 
 \begin{prs2}
-~_s -> __s+
-_s -> __s-
+~s -> _s+
+s -> _s-
 \end{prs2}
 
 \begin{prs2}
-~__s & ~_si & ~_x0 -> y0+
-_si -> y0-
+_s & si & x0 -> _y0-
+~si -> _y0+
 
-~__s & ~_si & ~_x1 -> y1+
-_si -> y1-
+_s & si & x1 -> _y1-
+~si -> _y1+
 \end{prs2}
 
 \begin{prs2}
-~__s & ~_vy -> xa+
-__s | _vy -> xa-
+~so & ~_vy -> xa+
+so | _vy -> xa-
 \end{prs2}
 
 \begin{prs2}
-~_vy -> __vy+
-_vy -> __vy-
+~_vy & ~x0 & ~x1 -> s+
+_vy -> s-
 \end{prs2}
 
 \begin{prs2}
-__vy & _x0 & _x1 -> _s-
-~__vy -> _s+
+~_s -> so+
+_s -> so-
 \end{prs2}
 
 \begin{prs2}
-__s -> _so-
-~__s -> _so+
+~_y0 -> __y0+
+_y0 -> __y0-
+
+~_y1 -> __y1+
+_y1 -> __y1-
 \end{prs2}
 
 \begin{prs2}
-y0 | y1 -> _vy-
-~y0 & ~y1 -> _vy+
+__y0 | __y1 -> vy+
+~__y0 & ~__y1 -> vy-
 \end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

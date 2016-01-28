@@ -1,4 +1,3 @@
-// import "ref_serial_aer.act";
 import "serial_aer.act";
 
 pint M=3;
