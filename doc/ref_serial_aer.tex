@@ -4377,8 +4377,10 @@ in the parallel output.
 For $M$ words per packet,
 
 \begin{hse}
-*[[x0->y00+,..,y(M\-1)0+;[y0a|..|y(M\-1)a];xa+;[~x0];y00-,..,y(M\-1)1-
-  []x1->y01+,..,y(M\-1)1+;[y0a|..|y(M\-1)a];xa+;[~x0];y01-,..,y(M\-1)1-
+*[[x0->y00+,..,y(M\-1)0+;[y0a|..|y(M\-1)a];xa+;
+    [~x0];y00-,..,y(M\-1)1-;[~y0a&..&~y(M\-1)a];xa-
+  []x1->y01+,..,y(M\-1)1+;[y0a|..|y(M\-1)a];xa+;
+    [~x0];y01-,..,y(M\-1)1-;[~y0a&..&~y(M\-1)a];xa-
  ]]
 \end{hse}
 
@@ -4386,8 +4388,10 @@ For $M$ words per packet,
 For a 2-word packet,
 
 \begin{hse}
-*[[x0->y00+,y10+;[y0a|y1a];xa+;[~x0];y00-,y01-
-  []x1->y01+,y11+;[y0a|y1a];xa+;[~x0];y01-,y11-
+*[[x0->y00+,y10+;[y0a|y1a];xa+;
+    [~x0];y00-,y01-;[~y0a&~y1a];xa-
+  []x1->y01+,y11+;[y0a|y1a];xa+;
+    [~x0];y01-,y11-;[~y0a&~y1a];xa-
  ]]
 \end{hse}
 
@@ -4541,7 +4545,7 @@ y0 | y1 -> vy+
 
 \begin{prs2}
 ~_s -> __s+
-_s -> __s0-
+_s -> __s-
 \end{prs2}
 
 \begin{prs2}
