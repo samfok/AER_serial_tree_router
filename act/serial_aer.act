@@ -34,14 +34,14 @@ namespace aer {
                 }
             [] LAYOUT ->
                 prs<g.Vdd, g.GND> {
-                    xi<2*6> & _y.a<2*6> -> _xo-
-                    ~xi<1.5*6> | ~_y.a<1.5*6> -> _xo+
+                    xi<18> & _y.a<18> -> _xo-
+                    ~xi<9> | ~_y.a<9> -> _xo+
                     
-                    ~_xo<1.5*6> -> xo+
+                    ~_xo<9> -> xo+
                     _xo<6> -> xo-
 
                     (: n : N :
-                        ~x.d[n]<1.5*6> -> _y.d[n]+
+                        ~x.d[n]<9> -> _y.d[n]+
                         x.d[n]<6> -> _y.d[n]-
                     )
                 }
@@ -57,14 +57,21 @@ namespace aer {
                     _y[m].d = _x.d;
                     _y[m].a = ya[m]; // normal sense
                 )
-                OR<M> or(g,,);
-                (; m : M :
-                    ya[m] = or.i[m];
-                )
-                prs<g.Vdd, g.GND> {
-                    ~or.o<1.5*6> -> _x.a+
-                    or.o<6> -> _x.a-
-                }
+                [ M = 1 ->
+                    prs<g.Vdd, g.GND> {
+                        ~ya[0]<9> -> _x.a+
+                        ya[0]<6> -> _x.a-
+                    }
+                [] M > 1 ->
+                    OR<M> or(g,,);
+                    (; m : M :
+                        ya[m] = or.i[m];
+                    )
+                    prs<g.Vdd, g.GND> {
+                        ~or.o<9> -> _x.a+
+                        or.o<6> -> _x.a-
+                    }
+                ]
             }
             
             export
@@ -95,37 +102,37 @@ namespace aer {
                 [] LAYOUT ->
                     c1of<N> yy[2]; // to decouple y node capacitances
                     prs<g.Vdd, g.GND> {
-                        ~_s<6*6> -> __s+
-                        _s<4*6> -> __s-
+                        ~_s<36> -> __s+
+                        _s<24> -> __s-
 
                         // (: n : N :
-                        //     ~_x.d[n]<5*6> & ~__s<5*6> & ~_si<5*6> -> y.d[n]+
-                        //     g.pReset<6> | _si<2*6> -> y.d[n]-
+                        //     ~_x.d[n]<30> & ~__s<30> & ~_si<30> -> y.d[n]+
+                        //     g.pReset<6> | _si<18> -> y.d[n]-
                         // )
                         (: n : N :
-                            ~_x.d[n]<5*6> & ~__s<4*6> & ~_si<4*6> -> yy[0].d[n]+
-                            g.pReset<6> | _si<2*6> -> yy[0].d[n]-
-                            ~yy[0].d[n]<1.5*6> -> yy[1].d[n]+
+                            ~_x.d[n]<30> & ~__s<24> & ~_si<24> -> yy[0].d[n]+
+                            g.pReset<6> | _si<18> -> yy[0].d[n]-
+                            ~yy[0].d[n]<9> -> yy[1].d[n]+
                             yy[0].d[n]<6> -> yy[1].d[n]-
-                            ~yy[1].d[n]<1.5*6> -> y.d[n]+
+                            ~yy[1].d[n]<9> -> y.d[n]+
                             yy[1].d[n]<6> -> y.d[n]-
                         )
 
             
-                        ~__s<3*6> & ~_vy<3*6> -> xa+
+                        ~__s<24> & ~_vy<24> -> xa+
                         __s<6> | _vy<6> -> xa-
             
-                        ~_vy<2*6> -> __vy+
-                        _vy<2*6> -> __vy-
+                        ~_vy<18> -> __vy+
+                        _vy<18> -> __vy-
 
                         __vy<6*5> & (& : n : N : _x.d[n]<6*5>) -> _s-
-                        ~g._pReset<6> | ~__vy<1.5*6> -> _s+
+                        ~g._pReset<6> | ~__vy<9> -> _s+
             
-                        ~__s<1.5*6> -> _so+
+                        ~__s<9> -> _so+
                         __s<6> -> _so-
 
-                        (| : n : N : y.d[n]<2*6>) -> _vy-
-                        (& : n : N : ~y.d[n]<5*6>) -> _vy+
+                        (| : n : N : y.d[n]<18>) -> _vy-
+                        (& : n : N : ~y.d[n]<30>) -> _vy+
                     }
                 ]
             }
@@ -152,8 +159,8 @@ namespace aer {
                 }
             [] LAYOUT ->
                 prs<g.Vdd, g.GND> {
-                    g._sReset<4*6> & node[M-1]._so<4*6> & y.e<4*6> -> node[0]._si-
-                    ~g._sReset | ~node[M-1]._so<6*6> & ~y.e<6*6> -> node[0]._si+
+                    g._sReset<24> & node[M-1]._so<24> & y.e<24> -> node[0]._si-
+                    ~g._sReset | ~node[M-1]._so<36> & ~y.e<36> -> node[0]._si+
                 }
             ]
         }
@@ -697,49 +704,49 @@ namespace aer {
                     ]
                 [] LAYOUT ->
                     prs<g.Vdd, g.GND> {
-                        _u<2*6> & (| : n : N : c_[n]<2*6>) -> _po-
-                        ~g._pReset<6> | (| : n : N : ~_co[n]<3*6> & ~c_[n]<3*6>) -> _po+
+                        _u<18> & (| : n : N : c_[n]<18>) -> _po-
+                        ~g._pReset<6> | (| : n : N : ~_co[n]<24> & ~c_[n]<24>) -> _po+
 
-                        ~_po<1.5*6> -> po+
+                        ~_po<9> -> po+
                         _po<6> -> po-
                     
                         (: n : N :
-                            c_[n]<3*6> & pi<3*6> & _u<3*6> -> _w.d[n]-
-                            ~g._pReset<6> | ~_u<1.5*6> -> _w.d[n]+
+                            c_[n]<24> & pi<24> & _u<24> -> _w.d[n]-
+                            ~g._pReset<6> | ~_u<9> -> _w.d[n]+
                         )
 
-                        (| : n : N : ~_w.d[n]<3*6>) & ~pi<3*6> -> u+
-                        (& : n : N : _co[n]<5*6>) & _po<5*6> -> u-
+                        (| : n : N : ~_w.d[n]<24>) & ~pi<24> -> u+
+                        (& : n : N : _co[n]<30>) & _po<30> -> u-
 
-                        ~u<1.5*6> -> _u+
+                        ~u<9> -> _u+
                         u<6> -> _u-
                         
-                        c_[0]<6*6> & u<6*6> & pi<6*6> & 
-                            (& : n : 1..N-1 : _co[n]<6*6>) -> _co[0]-
+                        c_[0]<36> & u<36> & pi<36> & 
+                            (& : n : 1..N-1 : _co[n]<36>) -> _co[0]-
                         (: n : 1..N-2:
-                            c_[n]<6*6> & u<6*6> & pi<6*6> & 
-                                (& : nn : 0..n-1 : _co[nn]<6*6>) & 
-                                (& : nn : n+1..N-1 : _co[nn]<6*6>) -> _co[n]-
+                            c_[n]<36> & u<36> & pi<36> & 
+                                (& : nn : 0..n-1 : _co[nn]<36>) & 
+                                (& : nn : n+1..N-1 : _co[nn]<36>) -> _co[n]-
                         )
-                        c_[N-1]<6*6> & u<6*6> & pi<6*6> &
-                            (& : n : 0..N-2 : _co[n]<6*6>) -> _co[N-1]-
+                        c_[N-1]<36> & u<36> & pi<36> &
+                            (& : n : 0..N-2 : _co[n]<36>) -> _co[N-1]-
                         (: n : N :
-                            ~pi<1.5*6> -> _co[n]+
+                            ~pi<9> -> _co[n]+
 
-                            ~_co[n]<1.5*6> -> co[n]+
+                            ~_co[n]<9> -> co[n]+
                             _co[n]<6> -> co[n]-
                         )
 
                         (: n : N :
-                            (| : nc : N : ~_c[nc].d[n]<1.5*6>) | ~_w.d[n]<1.5*6> -> p.d[n]+
-                            (& : nc : N : _c[nc].d[n]<5*6>) & _w.d[n]<5*6> -> p.d[n]-
+                            (| : nc : N : ~_c[nc].d[n]<9>) | ~_w.d[n]<9> -> p.d[n]+
+                            (& : nc : N : _c[nc].d[n]<30>) & _w.d[n]<30> -> p.d[n]-
                         )
                     }
 
                     [ root = 0 ->
                         prs<g.Vdd, g.GND> {
                             (: n : N :
-                                ~p.d[n]<1.5*6> -> _p.d[n]+
+                                ~p.d[n]<9> -> _p.d[n]+
                                 p.d[n]<6> -> _p.d[n]-
                             )
                         }
@@ -840,37 +847,37 @@ namespace aer {
                     ]
                 [] LAYOUT ->
                     prs<g.Vdd, g.GND> {
-                        _u<5*6> & (| : n : N : c[n]<5*6>) -> _po-
-                        ~g._pReset<6> | (| : n : N : ~_co[n]<3*6> &
-                            ~c[n]<3*6>) -> _po+
+                        _u<30> & (| : n : N : c[n]<30>) -> _po-
+                        ~g._pReset<6> | (| : n : N : ~_co[n]<24> &
+                            ~c[n]<24>) -> _po+
 
-                        ~_po<1.5*6> -> po+
+                        ~_po<9> -> po+
                         _po<6> -> po-
                     
                         (: n : N :
-                            c[n]<3*6> & pi<3*6> & _u<3*6> -> _p_.d[n]-
-                            ~g._pReset<6> | ~_u<1.5*6> -> _p_.d[n]+
+                            c[n]<24> & pi<24> & _u<24> -> _p_.d[n]-
+                            ~g._pReset<6> | ~_u<9> -> _p_.d[n]+
                         )
 
-                        (| : n : N : ~_p_.d[n]<3*6>) & ~pi<3*6> -> u+
-                        (& : n : N : _co[n]<5*6>) & _po<5*6> -> u-
+                        (| : n : N : ~_p_.d[n]<24>) & ~pi<24> -> u+
+                        (& : n : N : _co[n]<30>) & _po<30> -> u-
 
-                        ~u<1.5*6> -> _u+
+                        ~u<9> -> _u+
                         u<6> -> _u-
                         
-                        c[0]<6*6> & u<6*6> & pi<6*6> &
-                            (& : n : 1..N-1 : _co[n]<6*6>) -> _co[0]-
+                        c[0]<36> & u<36> & pi<36> &
+                            (& : n : 1..N-1 : _co[n]<36>) -> _co[0]-
                         (: n : 1..N-2:
-                            c[n]<6*6> & u<6*6> & pi<6*6> & 
-                            (& : nn : 0..n-1 : _co[nn]<6*6>) & 
-                            (& : nn : n+1..N-1 : _co[nn]<6*6>) -> _co[n]-
+                            c[n]<36> & u<36> & pi<36> & 
+                            (& : nn : 0..n-1 : _co[nn]<36>) & 
+                            (& : nn : n+1..N-1 : _co[nn]<36>) -> _co[n]-
                         )
-                        c[N-1]<6*6> & u<6*6> & pi<6*6> &
-                            (& : n : 0..N-2 : _co[n]<6*6>) -> _co[N-1]-
+                        c[N-1]<36> & u<36> & pi<36> &
+                            (& : n : 0..N-2 : _co[n]<36>) -> _co[N-1]-
                         (: n : N :
-                            ~pi<1.5*6> -> _co[n]+
+                            ~pi<9> -> _co[n]+
 
-                            ~_co[n]<1.5*6> -> co[n]+
+                            ~_co[n]<9> -> co[n]+
                             _co[n]<6> -> co[n]-
                         )
                     }
@@ -881,7 +888,7 @@ namespace aer {
                         // present normal sense interface
                         prs<g.Vdd, g.GND> {
                             (: n : N :
-                                ~_p_.d[n]<1.5*6> -> _p.d[n]+
+                                ~_p_.d[n]<9> -> _p.d[n]+
                                 _p_.d[n]<6> -> _p.d[n]-
                             )
                         }
@@ -1048,21 +1055,21 @@ namespace aer {
                 }
             [] LAYOUT ->
                 prs<g.Vdd, g.GND> {
-                    ~_cci<1.5*6> -> __cci+
+                    ~_cci<9> -> __cci+
                     _cci<6> -> __cci-
 
-                    ~cco<1.5*6> -> _cco+
+                    ~cco<9> -> _cco+
                     cco<6> -> _cco-
 
                     (pi<6> & _cco<6> | __cci<6>) & _uu<6> -> _po-
                     (~pi<6> | ~_cco<6>) & ~__cci<6> | ~_uu<6> -> _po+
 
                     (: n : N :
-                        ~p.d[n]<1.5*6> -> _p.d[n]+
+                        ~p.d[n]<9> -> _p.d[n]+
                         p.d[n]<6> -> _p.d[n]-
                     )
 
-                    ~_cco<1.5*6> -> __cco+
+                    ~_cco<9> -> __cco+
                     _cco<6> -> __cco-
 
                     (: n : N :
@@ -1071,33 +1078,33 @@ namespace aer {
                     )
 
                     (| : n : N : u[n]<6>) -> _uu-
-                    (& : n : N : ~u[n]<1.5*6>) -> _uu+
+                    (& : n : N : ~u[n]<9>) -> _uu+
 
                     (: n : N :
-                        u[n]<2*6> & _p.d[n]<2*6> -> _co[n]-
+                        u[n]<18> & _p.d[n]<18> -> _co[n]-
                         ~pi<6> -> _co[n]+
                     )
 
-                    (| : n : N : ~_co[n]<1.5*6>) -> cco+
-                    (& : n : N : _co[n]<4*6>) -> cco-
+                    (| : n : N : ~_co[n]<9>) -> cco+
+                    (& : n : N : _co[n]<24>) -> cco-
 
                     (| : n : N : ci[n]<6>) -> _cci-
-                    (& : n : N : ~ci[n]<6*6>) -> _cci+
+                    (& : n : N : ~ci[n]<36>) -> _cci+
 
                     (: nc : N :
                         (: n : N :
-                            ~_co[nc]<3*6> & ~_p.d[n]<3*6> -> c[nc].d[n]+
+                            ~_co[nc]<24> & ~_p.d[n]<24> -> c[nc].d[n]+
                             _co[nc]<6> | _p.d[n]<6> -> c[nc].d[n]-
                         )
                     )
                 }
                 prs<g.Vdd, g.GND> {
                     (: n : N :
-                        ~_co[n]<1.5*6> -> co[n]+
+                        ~_co[n]<9> -> co[n]+
                         _co[n]<6> -> co[n]-
                     )
 
-                    ~_po<1.5*6> -> po+
+                    ~_po<9> -> po+
                     _po<6> -> po-
                 }
             ]
@@ -1145,36 +1152,36 @@ namespace aer {
                 }
             [] LAYOUT ->
                 prs<g.Vdd, g.GND> {
-                    ~pi<1.5*6> -> _pi+
+                    ~pi<9> -> _pi+
                     pi<6> -> _pi-
     
-                    ~_cci<1.5*6> -> __cci+
+                    ~_cci<9> -> __cci+
                     _cci<6> -> __cci-
     
-                    (~_pi<4.5*6> | ~_cco<4.5*6>) & ~uu<4.5*6> & ~__cci<4.5*6> -> po+
-                    _pi<2*6> & _cco<2*6> | uu<6> | __cci<6> -> po-
+                    (~_pi<4.30> | ~_cco<4.30>) & ~uu<4.30> & ~__cci<4.30> -> po+
+                    _pi<18> & _cco<18> | uu<6> | __cci<6> -> po-
     
                     (: n : N :
-                        _cco<2*6> & p.d[n]<2*6> -> _u[n]-
-                        ~g._pReset<6> | ~_cco<1.5*6> -> _u[n]+
+                        _cco<18> & p.d[n]<18> -> _u[n]-
+                        ~g._pReset<6> | ~_cco<9> -> _u[n]+
                     )
-                    (| : n : N : ~_u[n]<1.5*6>) -> uu+
-                    (& : n : N : _u[n]<4*6>) -> uu-
+                    (| : n : N : ~_u[n]<9>) -> uu+
+                    (& : n : N : _u[n]<24>) -> uu-
     
                     (: n : N :
-                        ~_u[n]<3*6> & ~p.d[n]<3*6> -> co[n]+
+                        ~_u[n]<24> & ~p.d[n]<24> -> co[n]+
                         ~pi<6> -> co[n]-
                     )
                     (| : n : N : co[n]<6>) -> _cco-
-                    (& : n : N : ~co[n]<1.5*6>) -> _cco+
+                    (& : n : N : ~co[n]<9>) -> _cco+
     
                     (| : n : N : ci[n]<6>) -> _cci-
-                    (& : n : N : ~ci[n]<1.5*6>) -> _cci+
+                    (& : n : N : ~ci[n]<9>) -> _cci+
     
                     (: nc : N :
                         (: n : N :
-                            co[nc]<2*6> & p.d[n]<2*6> -> _c[nc].d[n]-
-                            ~co[nc]<1.5*6> | ~p.d[n]<1.5*6> -> _c[nc].d[n]+
+                            co[nc]<18> & p.d[n]<18> -> _c[nc].d[n]-
+                            ~co[nc]<9> | ~p.d[n]<9> -> _c[nc].d[n]+
                         )
                     )
                 }
@@ -1182,7 +1189,7 @@ namespace aer {
                     (: nc : N :
                         (: n : N :
                             _c[nc].d[n]<6> -> c[nc].d[n]-
-                            ~_c[nc].d[n]<1.5*6> -> c[nc].d[n]+
+                            ~_c[nc].d[n]<9> -> c[nc].d[n]+
                         )
                     )
                 }
@@ -1218,28 +1225,28 @@ namespace aer {
             [] LAYOUT ->
                 prs<g.Vdd, g.GND> {
                     (: n : N :
-                        ~ci[n]<1.5*6> -> _ci[n]+
+                        ~ci[n]<9> -> _ci[n]+
                         ci[n]<6> -> _ci[n]-
                     )
 
-                    pi<5*6> & (& : n : N : _ci[n]<5*6>) | u<6> -> _po-
-                    (~pi<3*6> | (| : n : N : ~_ci[n]<3*6>)) & ~u<3*6> -> _po+
+                    pi<30> & (& : n : N : _ci[n]<30>) | u<6> -> _po-
+                    (~pi<24> | (| : n : N : ~_ci[n]<24>)) & ~u<24> -> _po+
 
                     (: n : N :
                         p.d[n]<6> -> _co[n]-
-                        ~pi<1.5*6> -> _co[n]+
+                        ~pi<9> -> _co[n]+
                     )
 
-                    (| : n : N : ~_ci[n]<3*6> & ~p.d[n]<3*6>) -> u+
-                    (& : n : N : _ci[n]<4*6> | p.d[n]<4*6>) -> u-
+                    (| : n : N : ~_ci[n]<24> & ~p.d[n]<24>) -> u+
+                    (& : n : N : _ci[n]<24> | p.d[n]<24>) -> u-
                 }
                 prs<g.Vdd, g.GND> {
                     (: n : N :
-                        ~_co[n]<1.5*6> -> co[n]+
+                        ~_co[n]<9> -> co[n]+
                         _co[n]<6> -> co[n]-
                     )
 
-                    ~_po<1.5*6> -> po+
+                    ~_po<9> -> po+
                     _po<6> -> po-
                 }
             ]

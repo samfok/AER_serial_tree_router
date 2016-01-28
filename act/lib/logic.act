@@ -9,42 +9,42 @@ defproc AND (globals g; bool i[N], o) {
     // Logical AND implemented with as few transistors as possible
     // Implemented as an AND tree with 2 and 3 input NANDs and 2 input NORs
     // We don't use 3 input NORs because the pullup chain would be too slow
-    [ N=1 ->
-        i[0] = o;
-    [] N=2 ->
+    [ N = 1 ->
+        0 = 1; // assert false, cosim's netgen cannot handly empty subcircuits
+    [] N = 2 ->
         bool _x01;
         prs<g.Vdd, g.GND> {
             i[0] & i[1] => _x01-
             _x01 => o-
         }
-    [] N=3 ->
+    [] N = 3 ->
         bool _x012;
         prs<g.Vdd, g.GND> {
             i[0] & i[1] & i[2] => _x012-
             _x012 => o-
         }
-    [] N=4 ->
+    [] N = 4 ->
         bool _x012, _x3;
         prs<g.Vdd, g.GND> {
             i[0] & i[1] & i[2] => _x012-
             i[3] => _x3-
             _x012 | _x3 => o-
         }
-    [] N=5 ->
+    [] N = 5 ->
         bool _x012, _x34;
         prs<g.Vdd, g.GND> {
             i[0] & i[1] & i[2] => _x012-
             i[3] & i[4] => _x34-
             _x012 | _x34 => o-
         }
-    [] N=6 ->
+    [] N = 6 ->
         bool _x012, _x345;
         prs<g.Vdd, g.GND> {
             i[0] & i[1] & i[2] => _x012-
             i[3] & i[4] & i[5] => _x345-
             _x012 | _x345 => o-
         }
-    [] N=7 ->
+    [] N = 7 ->
         bool _x012, _x345, _x6;
         prs<g.Vdd, g.GND> {
             i[0] & i[1] & i[2] => _x012-
@@ -52,7 +52,7 @@ defproc AND (globals g; bool i[N], o) {
             i[6] => _x6-
             _x012 | _x345 | _x6  => o-
         }
-    [] N=8 ->
+    [] N = 8 ->
         bool _x012, _x345, _x67;
         prs<g.Vdd, g.GND> {
             i[0] & i[1] & i[2] => _x012-
@@ -60,17 +60,7 @@ defproc AND (globals g; bool i[N], o) {
             i[6] & i[7] => _x67-
             _x012 | _x345 | _x67  => o-
         }
-    [] N>=9 ->
-        pint k=N/9;
-        AND<k>     and0(g, i[0..k-1],);
-        AND<k>     and1(g, i[k..2*k-1],);
-        AND<k>     and2(g, i[2*k..3*k-1],);
-        AND<k>     and3(g, i[3*k..4*k-1],);
-        AND<k>     and4(g, i[4*k..5*k-1],);
-        AND<k>     and5(g, i[5*k..6*k-1],);
-        AND<k>     and6(g, i[6*k..7*k-1],);
-        AND<k>     and7(g, i[7*k..8*k-1],);
-        AND<N-8*k> and8(g, i[8*k..N-1],);
+    [] N = 9 ->
         bool _x012, _x345, _x678;
         prs<g.Vdd, g.GND> {
             i[0] & i[1] & i[2] => _x012-
@@ -78,6 +68,29 @@ defproc AND (globals g; bool i[N], o) {
             i[6] & i[7] & i[8] => _x678-
             _x012 | _x345 | _x678  => o-
         }
+    [] N > 9 ->
+        [ N < 18 ->
+            AND<9> and9(g,, o);
+            AND<N-8> andr(g, i[8..N-1],);
+            (; n : 8 :
+                and9.i[n] = i[n];
+            )
+            and9.i[8] = andr.o;
+        [] N >= 18 ->
+            pint k = N/9;
+            AND<k> and07[8];
+            (; n : 8 :
+                and07[n].g = g;
+                and07[n].i = i[n*k..(n+1)*k-1];
+            )
+            AND<N-8*k> and8(g, i[8*k..N-1],);
+            AND<9> and9(g,, o);
+            (; n : 8 :
+                and07[n].g = g;
+                and07[n].o = and9.i[n];
+            )
+            and8.o = and9.i[8];
+        ]
     ]
 }
 
@@ -110,13 +123,9 @@ template <pint N>
 defproc OR (globals g; bool i[N], o) {
     // Logical OR implemented with as few transistors as possible
     // Implemented as an OR tree with 3 input NANDs and NORs
-    [ N=1 ->
-        i[0] = o;
-            bool dummy;
-            prs {
-              g.pReset => dummy-
-            }
-    [] N=2 ->
+    [ N = 1 ->
+        0 = 1; // assert false, cosim's netgen cannot handly empty subcircuits
+    [] N = 2 ->
         bool _x01;
         [ ~LAYOUT ->
             prs<g.Vdd, g.GND> {
@@ -131,7 +140,7 @@ defproc OR (globals g; bool i[N], o) {
                 ~_x01<1.5*6> -> o+
             }
         ]
-    [] N=3 ->
+    [] N = 3 ->
         bool _x012;
         [ ~LAYOUT ->
             prs<g.Vdd, g.GND> {
@@ -146,7 +155,7 @@ defproc OR (globals g; bool i[N], o) {
                 ~_x012<1.5*6> -> o+
             }
         ]
-    [] N=4 ->
+    [] N = 4 ->
         bool _x012, _x3;
         [ ~LAYOUT ->
             prs<g.Vdd, g.GND> {
@@ -164,7 +173,7 @@ defproc OR (globals g; bool i[N], o) {
                 ~_x012<2*6> | ~_x3<2*6> -> o+
             }
         ]
-    [] N=5 ->
+    [] N = 5 ->
         bool _x012, _x34;
         [ ~LAYOUT ->
             prs<g.Vdd, g.GND> {
@@ -182,7 +191,7 @@ defproc OR (globals g; bool i[N], o) {
                 ~_x012<1.5*6> | ~_x34<1.5*6> -> o+
             }
         ]
-    [] N=6 ->
+    [] N = 6 ->
         bool _x012, _x345;
         [ ~LAYOUT ->
             prs<g.Vdd, g.GND> {
@@ -200,7 +209,7 @@ defproc OR (globals g; bool i[N], o) {
                 ~_x012<1.5*6> | ~_x345<1.5*6> -> o+
             }
         ]
-    [] N=7 ->
+    [] N = 7 ->
         bool _x012, _x345, _x6;
         [ ~LAYOUT ->
             prs<g.Vdd, g.GND> {
@@ -221,7 +230,7 @@ defproc OR (globals g; bool i[N], o) {
                 ~_x012<1.5*6> | ~_x345<1.5*6> | ~_x6<1.5*6> -> o+
             }
         ]
-    [] N=8 ->
+    [] N = 8 ->
         bool _x012, _x345, _x67;
         [ ~LAYOUT ->
             prs<g.Vdd, g.GND> {
@@ -242,17 +251,7 @@ defproc OR (globals g; bool i[N], o) {
                 ~_x012<1.5*6> | ~_x345<1.5*6> | ~_x67<1.5*6> -> o+
             }
         ]
-    [] N>=9 ->
-        pint k=N/9;
-        OR<k>     or0(g, i[0..k-1],);
-        OR<k>     or1(g, i[k..2*k-1],);
-        OR<k>     or2(g, i[2*k..3*k-1],);
-        OR<k>     or3(g, i[3*k..4*k-1],);
-        OR<k>     or4(g, i[4*k..5*k-1],);
-        OR<k>     or5(g, i[5*k..6*k-1],);
-        OR<k>     or6(g, i[6*k..7*k-1],);
-        OR<k>     or7(g, i[7*k..8*k-1],);
-        OR<N-8*k> or8(g, i[8*k..N-1],);
+    [] N = 9 ->
         bool _x012, _x345, _x678;
         [ ~LAYOUT ->
             prs<g.Vdd, g.GND> {
@@ -272,6 +271,29 @@ defproc OR (globals g; bool i[N], o) {
                 _x012<3*6> & _x345<3*6> & _x678<3*6> -> o-
                 ~_x012<1.5*6> | ~_x345<1.5*6> | ~_x678<1.5*6> -> o+
             }
+        ]
+    [] N > 9 ->
+        [ N < 18 ->
+            OR<9> or9(g,, o);
+            OR<N-8> orr(g, i[8..N-1],);
+            (; n : 8 :
+                or9.i[n] = i[n];
+            )
+            or9.i[8] = orr.o;
+        [] N >= 18 ->
+            pint k = N/9;
+            OR<k> or07[8];
+            (; n : 8 :
+                or07[n].g = g;
+                or07[n].i = i[n*k..(n+1)*k-1];
+            )
+            OR<N-8*k> or8(g, i[8*k..N-1],);
+            OR<9> or9(g,, o);
+            (; n : 8 :
+                or07[n].g = g;
+                or07[n].o = or9.i[n];
+            )
+            or8.o = or9.i[8];
         ]
     ]
 }
@@ -310,25 +332,27 @@ defproc NOR (globals g; bool i[2], o) {
 export
 template <pint N>
 defproc C_TREE (globals g; bool i[N], o) {
-    [ N=1 ->
-        i[0] = o;
-        bool dummy;
-        prs {g.pReset => dummy-}
-    [] N=2 -> 
+    [ N = 1 ->
+        0 = 1; // assert false, cosim's netgen cannot handly empty subcircuits
+    [] N = 2 -> 
         bool _o;
         prs<g.Vdd, g.GND> {
             i[0] & i[1] -> _o-
             ~i[0] & ~i[1] -> _o+
             _o => o-
         }
-    [] N>2 ->
-        C_TREE<N/2> c_tree0(g, i[0..N/2-1],);
-        C_TREE<N-N/2> c_tree1(g, i[N/2..N-1],);
-        bool _o;
-        prs<g.Vdd, g.GND> {
-            c_tree0.o & c_tree1.o -> _o-
-            ~c_tree0.o & ~c_tree1.o -> _o+
-            _o => o-
-        }
+    [] N > 2 ->
+        [ N < 4 ->
+            C_TREE<N-N/2> c_tree1(g, i[N/2..N-1],);
+            C_TREE<2> c_tree2(g,, o);
+            c_tree2.i[0] = i[0];
+            c_tree2.i[1] = c_tree1.o;
+        [] N >= 4 ->
+            C_TREE<N/2> c_tree0(g, i[0..N/2-1],);
+            C_TREE<N-N/2> c_tree1(g, i[N/2..N-1],);
+            C_TREE<2> c_tree2(g,, o);
+            c_tree2.i[0] = c_tree0.o;
+            c_tree2.i[1] = c_tree1.o;
+        ]
     ]
 }

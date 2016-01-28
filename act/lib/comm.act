@@ -101,15 +101,22 @@ defproc VN_eMx1ofN (globals g; eMx1ofN<M, N> d) {
         )
     )
 
-    C_TREE<M> c_tree(g,,);
-    (; k : M :
-        or[k].o = c_tree.i[k];
-    )
+    [ M = 1 ->
+        prs<g.Vdd, g.GND> {
+            g._sReset<18> & or[0].o<18> -> d.e-
+            ~g._sReset | ~or[0].o<18> -> d.e+
+        }
+    [] M > 1 ->
+        C_TREE<M> c_tree(g,,);
+        (; k : M :
+            or[k].o = c_tree.i[k];
+        )
 
-    prs<g.Vdd, g.GND> {
-        [keeper=0] g._sReset<3*6> & c_tree.o<3*6> -> d.e-
-        [keeper=0] ~g._pReset<6> | ~c_tree.o<3*6> -> d.e+
-    }
+        prs<g.Vdd, g.GND> {
+            g._sReset<18> & c_tree.o<18> -> d.e-
+            ~g._sReset | ~c_tree.o<18> -> d.e+
+        }
+    ]
 }
 
 template <pint M, N>
