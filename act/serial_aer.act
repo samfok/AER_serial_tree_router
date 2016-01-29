@@ -53,15 +53,15 @@ namespace aer {
             template <pint M, N>
             defproc SPLIT (globals g; a1of<N> _x, y[M]) {
                 c1of<N> x;
+                (; m : M :
+                    y[m].m = x;
+                )
                 [ ~LAYOUT ->
                     prs<g.Vdd, g.GND> {
                         (: n : N:
                             _x.d[n] => x.d[n]-
                         )
                     }
-                    (; m : M :
-                        y[m].m = x;
-                    )
                     [ M = 1 ->
                         prs<g.Vdd, g.GND> {
                             y[0].a => _x.a-
@@ -78,13 +78,10 @@ namespace aer {
                 [] LAYOUT ->
                     prs<g.Vdd, g.GND> {
                         (: n : N:
-                            _x.d[n]<6> -> x.d[n]-
-                            ~_x.d[n]<9> -> x.d[n]+
+                            _x.d[n]<30> -> x.d[n]-
+                            ~_x.d[n]<45> -> x.d[n]+
                         )
                     }
-                    (; m : M :
-                        y[m].m = x;
-                    )
                     [ M = 1 ->
                         prs<g.Vdd, g.GND> {
                             ~y[0].a<9> -> _x.a+
@@ -131,31 +128,36 @@ namespace aer {
                         (| : n : N : y.d[n]) => _vy-
                     }
                 [] LAYOUT ->
+                    bool _vy_[2];
                     prs<g.Vdd, g.GND> {
-                        ~s<9> -> _s+
-                        s<6> -> _s-
+                        ~s<18> -> _s+
+                        s<12> -> _s-
 
                         (: n : N :
-                            _s<18> & si<18> & x.d[n]<18> -> _y.d[n]-
-                            ~si<9> -> _y.d[n]+
+                            _s<20> & si<20> & x.d[n]<20> -> _y.d[n]-
+                            ~si<20> -> _y.d[n]+
                         )
             
-                        ~so<18> & ~_vy<18> -> x.a+
+                        ~so<24> & ~_vy<24> -> x.a+
                         so<6> | _vy<6> -> x.a-
             
-                        ~_vy<45> & (& : n : N : ~x.d[n]<45>) -> s+
-                        g.pReset | _vy<6> -> s-
+                        ~_vy<56> & (& : n : N : ~x.d[n]<56>) -> s+
+                        g.pReset | _vy<12> -> s-
             
-                        ~_s<9> -> so+
-                        _s<6> -> so-
+                        ~_s<36> -> so+
+                        _s<24> -> so-
 
                         (: n : N :
-                            ~_y.d[n]<9> -> y.d[n]+
-                            _y.d[n]<6> -> y.d[n]-
+                            ~_y.d[n]<27> -> y.d[n]+
+                            _y.d[n]<18> -> y.d[n]-
                         )
 
-                        (| : n : N : y.d[n]<6>) -> _vy-
-                        (& : n : N : ~y.d[n]<36>) -> _vy+
+                        (| : n : N : y.d[n]<8>) -> _vy_[0]-
+                        (& : n : N : ~y.d[n]<36>) -> _vy_[0]+
+                        ~_vy_[0]<9> -> _vy_[1]+
+                        _vy_[0]<6> -> _vy_[1]-
+                        ~_vy_[1]<18> -> _vy+
+                        _vy_[1]<10> -> _vy-
                     }
                 ]
             }
@@ -184,10 +186,10 @@ namespace aer {
                 }
             [] LAYOUT ->
                 prs<g.Vdd, g.GND> {
-                    ~y.e<9> -> _ye+
+                    ~y.e<13> -> _ye+
                     y.e<6> -> _ye-
-                    g.sReset<24> | node[M-1].so<24> & _ye<24> -> node[0].si-
-                    ~g.sReset<36> & ~node[M-1].so<36> & ~_ye<36> -> node[0].si+
+                    g.sReset<24> | _ye<24> & node[M-1].so<24> -> node[0].si-
+                    ~g.sReset<48> & ~_ye<48> & ~node[M-1].so<48> -> node[0].si+
                 }
             ]
         }
