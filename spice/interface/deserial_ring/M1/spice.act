@@ -1,6 +1,6 @@
 import "serial_aer.act";
 
-export defproc wrapper(globals_np g_np; a1of<4> src)
+export defproc wrapper(globals_np g_np; a1of<4> src; eMx1of4<1> snk)
 {
     bool Vdd;
     bool GND;
@@ -8,7 +8,6 @@ export defproc wrapper(globals_np g_np; a1of<4> src)
     pint N = 4;
 
     aer::interface::DESERIAL_RING<M, N> deserial;
-    SINK_eMx1ofN<M, N> snk(deserial.g, deserial.y);
 
     deserial.g.Vdd = Vdd;
     deserial.g.GND = GND;
@@ -19,23 +18,16 @@ export defproc wrapper(globals_np g_np; a1of<4> src)
     deserial.g._pReset = g_np._pReset;
     deserial.g._sReset = g_np._sReset;
 
-    c1of<N> _b[3]; // buffer
-    _b[2] = deserial._x.m;
-
     prs<Vdd, GND> {
         (: n : N :
-            src.d[n] -> _b[0].d[n]-
-            ~src.d[n] -> _b[0].d[n]+
-
-            _b[0].d[n] -> _b[1].d[n]-
-            ~_b[0].d[n] -> _b[1].d[n]+
-
-            _b[1].d[n]<24> -> _b[2].d[n]-
-            ~_b[1].d[n]<36> -> _b[2].d[n]+
+            src.d[n] -> deserial._x.d[n]-
+            ~src.d[n] -> deserial._x.d[n]+
         )
         deserial._x.a -> src.a-
         ~deserial._x.a -> src.a+
     }
+    deserial.y.m[0].n = snk.b[0].d;
+    deserial.y.e = snk.e;
 }
 
 wrapper dut;

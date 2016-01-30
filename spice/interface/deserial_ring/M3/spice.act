@@ -1,10 +1,10 @@
 import "serial_aer.act";
 
-export defproc wrapper(globals_np g_np; a1of<4> src; eMx1of4<2> snk)
+export defproc wrapper(globals_np g_np; a1of<4> src; eMx1of4<3> snk)
 {
     bool Vdd;
     bool GND;
-    pint M = 2;
+    pint M = 3;
     pint N = 4;
 
     aer::interface::DESERIAL_RING<M, N> deserial;
