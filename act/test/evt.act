@@ -1,5 +1,0 @@
-import "lib/globals.act";
-import "transmitter.act";
-
-globals g;
-transmitter::test::TEST_EVT test(g);
