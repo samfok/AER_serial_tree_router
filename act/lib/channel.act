@@ -18,7 +18,8 @@ deftype c1of <: int<1> (bool n[N], d[N]) {
 
 //Codeword: _c1of<N>
 export template<pint N>
-deftype _c1of <: int<1> (bool n[N]) {
+deftype _c1of <: int<1> (bool n[N], d[N]) {
+    n = d;
     set { }
     get { }
 }
@@ -44,7 +45,7 @@ export deftype c1of2 <: int<1> (bool n[2], d[2], t, f) {
 }
 
 //Codeword: c1of4
-export deftype c1of4 <: int<2> (bool n[4],d[4]) {
+export deftype c1of4 <: int<2> (bool n[4], d[4]) {
     n[0] = d[0];
     n[1] = d[1];
     n[2] = d[2];
@@ -53,14 +54,14 @@ export deftype c1of4 <: int<2> (bool n[4],d[4]) {
     get { }
 }
 
-export deftype dualrail <: int<1> (bool n[2],t,f) {
+export deftype dualrail <: int<1> (bool n[2], t, f) {
     n[0] = f;
     n[1] = t;
     set { }
     get { }
 }
 
-export deftype _dualrail <: int<1> (bool n[2],t,f) {
+export deftype _dualrail <: int<1> (bool n[2], t, f) {
     n[0] = f;
     n[1] = t;
     set { }
@@ -68,7 +69,7 @@ export deftype _dualrail <: int<1> (bool n[2],t,f) {
 }
 
 //Codeword: LEDR
-export deftype cledr <: int<1> (bool n[2],d,r) {
+export deftype cledr <: int<1> (bool n[2], d, r) {
     n[0] = d; //Data
     n[1] = r; //Repeat
     set { }
@@ -89,23 +90,26 @@ export deftype cledr <: int<1> (bool n[2],d,r) {
 // Templated e-type channels
 ////////////////////////////////////////
 
-//Channel: eMx1ofN<M,N>
-export template <pint M,N>
-defchan eMx1ofN <: chan(int<M>) (c1of<N> m[M]; bool e) {
+//Channel: eMx1ofN<M, N>
+export template <pint M, N>
+defchan eMx1ofN <: chan(int<M>) (c1of<N> m[M], b[M]; bool e) {
+    m = b;
     send { }
     recv { }
 }
 
-//Channel: evMx1ofN<M,N>
-export template <pint M,N>
-defchan  evMx1ofN <: chan(int<M>) (c1of<N> m[M]; bool e, v) {
+//Channel: evMx1ofN<M, N>
+export template <pint M, N>
+defchan  evMx1ofN <: chan(int<M>) (c1of<N> m[M], b[M]; bool e, v) {
+    m = b;
     send { }
     recv { }
 }
 
 //Channel: e1of<N>
 export template <pint N>
-defchan e1of <: chan(int<1>) (c1of<N> m; bool d[N], e) {
+defchan e1of <: chan(int<1>) (c1of<N> m, b; bool d[N], e) {
+    m = b;
     m.n = d;
     send { }
     recv { }
@@ -113,7 +117,8 @@ defchan e1of <: chan(int<1>) (c1of<N> m; bool d[N], e) {
 
 //Channel: ev1of<N>
 export template <pint N>
-defchan ev1of <: chan(int<1>) (c1of<N> m; bool d[N], e, v) {
+defchan ev1of <: chan(int<1>) (c1of<N> m, b; bool d[N], e, v) {
+    m = b;
     m.n = d;
     send { }
     recv { }
@@ -124,14 +129,16 @@ defchan ev1of <: chan(int<1>) (c1of<N> m; bool d[N], e, v) {
 ////////////////////////////////////////
 
 //Channel: e1of1
-export defchan e1of1 <: chan(int<1>) (c1of1 m; bool d,e) {
+export defchan e1of1 <: chan(int<1>) (c1of1 m, b; bool d, e) {
+    m = b;
     m.n[0] = d;
     send { }
     recv { }
 }
 
 //Channel: e1of2
-export defchan  e1of2 <: chan(int<1>) (c1of2 m; bool d[2],n[2],t,f,e) {
+export defchan  e1of2 <: chan(int<1>) (c1of2 m, b; bool d[2], n[2], t, f, e) {
+    m = b;
     m.n = n;
     m.n = d;
     m.n[0] = f;
@@ -141,7 +148,8 @@ export defchan  e1of2 <: chan(int<1>) (c1of2 m; bool d[2],n[2],t,f,e) {
 }
 
 //Channel: e1of4
-export defchan e1of4 <: chan(int<2>) (c1of4 m; bool d[4],n[4],e) {
+export defchan e1of4 <: chan(int<2>) (c1of4 m, b; bool d[4], n[4], e) {
+    m = b;
     m.n = d;
     m.n = n;
     send { }
@@ -157,23 +165,26 @@ export defchan e1of4 <: chan(int<2>) (c1of4 m; bool d[4],n[4],e) {
 // Templated a-type channels
 ////////////////////////////////////////
 
-//Channel: aMx1ofN<M,N>
-export template <pint M,N>
-defchan aMx1ofN <: chan(int<M>) (c1of<N> m[M]; bool a) {
+//Channel: aMx1ofN<M, N>
+export template <pint M, N>
+defchan aMx1ofN <: chan(int<M>) (c1of<N> m[M], b[M]; bool a) {
+    m = b;
     send { }
     recv { }
 }
 
-//Channel: avMx1ofN<M,N>
-export template <pint M,N>
-defchan  avMx1ofN <: chan(int<M>) (c1of<N> m[M]; bool a,v) {
+//Channel: avMx1ofN<M, N>
+export template <pint M, N>
+defchan  avMx1ofN <: chan(int<M>) (c1of<N> m[M], b[M]; bool a, v) {
+    m = b;
     send { }
     recv { }
 }
 
 //Channel: a1of<N>
 export template <pint N>
-defchan a1of <: chan(int<1>) (c1of<N> m; bool d[N], a) {
+defchan a1of <: chan(int<1>) (c1of<N> m, b; bool d[N], a) {
+    m = b;
     m.n = d;
     send { }
     recv { }
@@ -181,7 +192,8 @@ defchan a1of <: chan(int<1>) (c1of<N> m; bool d[N], a) {
 
 //Channel: av1of<N>
 export template <pint N>
-defchan av1of <: chan(int<1>) (c1of<N> m; bool d[N], a, v) {
+defchan av1of <: chan(int<1>) (c1of<N> m, b; bool d[N], a, v) {
+    m = b;
     m.n = d;
     send { }
     recv { }
@@ -192,14 +204,16 @@ defchan av1of <: chan(int<1>) (c1of<N> m; bool d[N], a, v) {
 ////////////////////////////////////////
 
 //Channel: a1of1
-export defchan a1of1 <: chan(int<1>) (c1of1 m; bool d, a) {
+export defchan a1of1 <: chan(int<1>) (c1of1 m, b; bool d, a) {
+    m = b;
     m.n[0] = d;
     send { }
     recv { }
 }
 
 //Channel: a1of2
-export defchan  a1of2 <: chan(int<1>) (c1of2 m; bool d[2], t,f,a) {
+export defchan  a1of2 <: chan(int<1>) (c1of2 m, b; bool d[2], t, f, a) {
+    m = b;
     m.n[0] = f;
     m.n[1] = t;
     m.n[0] = d[0];
@@ -213,7 +227,7 @@ export defchan  a1of2 <: chan(int<1>) (c1of2 m; bool d[2], t,f,a) {
 ////////////////////////////////////////
 
 //Channel eledr
-export defchan eledr <: chan(int<1>) (cledr m; bool d,r,e) {
+export defchan eledr <: chan(int<1>) (cledr m; bool d, r, e) {
     m.n[0] = d;
     m.n[1] = r;
     send { }
@@ -231,7 +245,7 @@ export defchan eledr <: chan(int<1>) (cledr m; bool d,r,e) {
 //Channel eMxtof1
 //Tenary "Dual-Rails" with Full Rail Acknowledge
 export template <pint M>
-defchan eMxtof1 <: chan(int<M>) (bool d[M],e) {
+defchan eMxtof1 <: chan(int<M>) (bool d[M], e) {
     send { }
     recv { }
 }
@@ -250,7 +264,7 @@ defchan Mxtof1 <: chan(int<M>) (bool d[M]) {
 
 //Channel: etof1
 //Ternary "Dual-Rail" with Full Rail Acknowledge
-export defchan etof1 <: chan(int<1>) (bool d,e) {
+export defchan etof1 <: chan(int<1>) (bool d, e) {
     send { }
     recv { }
 }
