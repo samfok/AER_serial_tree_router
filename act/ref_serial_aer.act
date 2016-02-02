@@ -396,24 +396,6 @@ namespace aer {
             merge.so = node[0].si;
             merge.so = yo; 
         }
-
-        namespace test {
-            export
-            template <pint M, N>
-            defproc TEST_DESERIAL_RING(globals g) {
-                SOURCE_random_a1ofN<N> src(g,);
-                SINK_eMx1ofN<M, N> snk(g,);
-                DESERIAL_RING<M, N> deserial(g, src.d, snk.d);
-            }
-
-            export
-            template <pint M, N>
-            defproc TEST_DESERIAL_CHAIN(globals g) {
-                SOURCE_random_a1ofN<N> src(g,);
-                SINK_eMx1ofN<M, N> snk(g,);
-                DESERIAL_CHAIN<M, N> deserial(g, src.d, snk.d);
-            }
-        } // namespace test
     }
 
     namespace transmitter {
@@ -424,7 +406,7 @@ namespace aer {
             // /* // development
                 bool c_[N], u;
                 c1of<N> w;
-                ::arbiter::n_arb_s::N_ARB<N, 1> arb(g, ci, c_);
+                ::arbiter::n_arb_s::N_ARB<N> arb(g, ci, c_);
 
                 prs<g.Vdd, g.GND> {
                     ~u & (| : n : N : c_[n]) -> po+
@@ -496,7 +478,7 @@ namespace aer {
             /*--------------------------------------------------------------*/
             // /* // development
                 bool c[N], u;
-                ::arbiter::n_arb_s::N_ARB<N, 1> arb(g, ci, c);
+                ::arbiter::n_arb_s::N_ARB<N> arb(g, ci, c);
 
                 prs<g.Vdd, g.GND> {
                     ~u & (| : n : N : c[n]) -> po+
@@ -578,49 +560,6 @@ namespace aer {
                 )
             ]
         }
-
-        namespace test {
-            export
-            template <pint M, N, NN>
-            defproc TEST_AEXT (globals g) {
-                // M layers in the tree
-                // N for 1-of-N encoding
-                // NN = N^M neurons
-                active_handshaker<NN> a(g,,);
-                AEXT<M, N, NN> aext(g, a.o, a.i,,,);
-                ::aer::interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
-                ::aer::interface::DESERIAL_CHAIN<M, N> deserial(
-                    g, out.y,);
-                SINK_eMx1ofN<M, N> snk(g, deserial.y);
-            }
-
-            export
-            template <pint M, N, NN, nn>
-            defproc TEST_AEXT1 (globals g) {
-                // M layers in the tree
-                // N for 1-of-N encoding
-                // NN = N^M neurons
-                active_handshaker<1> a(g,,);
-                AEXT<M, N, NN> aext(g,,,,,);
-                ::aer::interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
-                ::aer::interface::DESERIAL_CHAIN<M, N> deserial(
-                    g, out.y,);
-                SINK_eMx1ofN<M, N> snk(g, deserial.y);
-
-                a.o[0] = aext.xi[nn];
-                a.i[0] = aext.xo[nn];
-                [ nn > 0 ->
-                    (; idx : 0..nn-1 :
-                        aext.xi[idx] = g.GND;
-                    )
-                ]
-                [ nn < NN ->
-                    (; idx : nn+1..NN-1 :
-                        aext.xi[idx] = g.GND;
-                    )
-                ]
-            }
-        } // namespace test
     } // namespace transmitter
 
     namespace receiver {
@@ -742,35 +681,6 @@ namespace aer {
                 )
             ]
         }
-
-        namespace test {
-            export
-            template <pint M, N, NN>
-            defproc TEST_SERIAL_RING (globals g) {
-                SOURCE_random_eMx1ofN<M, N> src(g,);
-                ::aer::interface::SERIAL_RING<M, N> serial(g, src.d,,,);
-                AERV_NODATA<M, N, NN> aerv(g,,, serial.yo, serial.yi, serial.y);
-                passive_handshaker<NN> y(aerv.yo, aerv.yi);
-            }
-
-            export
-            template <pint M, N, NN>
-            defproc TEST_SERIAL_RING2 (globals g) {
-                SOURCE_random_eMx1ofN<M, N> src(g,);
-                ::aer::interface::SERIAL_RING2<M, N> serial(g, src.d,,,);
-                AERV_NODATA<M, N, NN> aerv(g,,, serial.yo, serial.yi, serial.y);
-                passive_handshaker<NN> y(aerv.yo, aerv.yi);
-            }
-
-            export
-            template <pint M, N, NN>
-            defproc TEST_SERIAL_CHAIN (globals g) {
-                SOURCE_random_eMx1ofN<M, N> src(g,);
-                ::aer::interface::SERIAL_CHAIN<M, N> serial(g, src.d,,,);
-                AERV_NODATA<M, N, NN> aerv(g,,, serial.yo, serial.yi, serial.y);
-                passive_handshaker<NN> y(aerv.yo, aerv.yi);
-            }
-        } // namespace test
     } // namespace receiver
 
     export
@@ -806,58 +716,4 @@ namespace aer {
         // aext.po = aerv.pi;
         // aext.p = aerv.p;
     }
-
-    namespace test {
-        export
-        template <pint M, N, NN>
-        defproc TEST_AER1_NODATA (globals g) {
-            // Tests AER with 1 neuron
-            // M groups
-            // N items per group
-            // NN neuron ports. NN=N^M
-            active_handshaker<1> x(g,,);
-            active_handshaker<1> y(g,,);
-            AER_NODATA<M, N, NN> aer(g,,,,);
-            aer.xi[0] = x.o[0];
-            aer.xo[0] = x.i[0];
-            aer.yi[0] = y.o[0];
-            aer.yo[0] = y.i[0];
-            (; nn : 1..NN-1 :
-                aer.xi[nn] = g.GND;
-                aer.yi[nn] = g.GND;
-            )
-        }
-
-        export
-        template <pint M, N, NN>
-        defproc TEST_AER_NODATA (globals g) {
-            // M groups
-            // N items per group
-            // NN neurons. NN=N^M
-            active_handshaker<NN> x(g,,);
-            passive_handshaker<NN> y(,);
-            AER_NODATA<M, N, NN> aer(g, x.o, x.i, y.o, y.i);
-        }
-
-        template <pint N, NN>
-        defproc AERV_NRN_FULL(bool i[NN], o[NN]; c1of<N> d[NN]) {
-            prs {
-                (: nn : NN :
-                    i[nn] & (& : n : N : ~d[nn].d[n]) => o[nn]+
-                )
-            }
-        }
-
-        export
-        template <pint M_AEXT, M_AERV, N, NN_AEXT, NN_AERV>
-        defproc TEST_AER_DATA (globals g) {
-            // M groups
-            // N items per group
-            // NN receiver neurons. NN=N^M
-            // NN*M transmitter neurons generate data for receiver neurons
-            active_handshaker<NN_AEXT> x(g,,);
-            AERV_NRN_FULL<N, NN_AERV> y(,,);
-            AER_DATA<M_AEXT, M_AERV, N, NN_AEXT, NN_AERV> aer(g, x.o, x.i, y.o, y.i, y.d);
-        }
-    } // namespace test
 } // namespace aer

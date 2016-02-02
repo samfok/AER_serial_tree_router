@@ -4,4 +4,7 @@ globals g;
 pint M=3;
 pint N=2;
 pint NN=8; // NN=N^M
-aer::receiver::test::TEST_SERIAL_RING2<M, N, NN> test(g);
+SOURCE_random_eMx1ofN<M, N> src(g,);
+aer::interface::SERIAL_RING2<M, N> serial(g, src.d,,,);
+aer::receiver::AERV_NODATA<M, N, NN> aerv(g,,, serial.yo, serial.yi, serial.y);
+passive_handshaker<NN> y(g, aerv.yo, aerv.yi);

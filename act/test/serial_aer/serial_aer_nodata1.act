@@ -1,0 +1,20 @@
+// Tests AER with 1 neuron
+import "serial_aer.act";
+
+globals g;
+
+pint M=3;
+pint N=2;
+pint NN=8;
+
+active_handshaker<1> x(g,,);
+passive_handshaker<1> y(g,,);
+aer::AER_NODATA<M, N, NN> aer(g,,,,);
+aer.xi[0] = x.o[0];
+aer.xo[0] = x.i[0];
+aer.yi[0] = y.o[0];
+aer.yo[0] = y.i[0];
+(; nn : 1..NN-1 :
+    aer.xi[nn] = g.GND;
+    aer.yi[nn] = g.GND;
+)

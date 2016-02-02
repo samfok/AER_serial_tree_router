@@ -3,4 +3,16 @@ import "serial_aer.act";
 pint M=3;
 pint N=2;
 globals g;
-::aer::interface::test::TEST_DESERIAL_RING<M, N> test(g);
+
+a1of<N> src;
+SINK_eMx1ofN<M, N> snk(g,);
+a1of<N> _d;
+prs<g.Vdd, g.GND> {
+    (: n : N :
+        ~src.d.d[n] -> _d.d[n]+
+        src.d.d[n] -> _d.d[n]-
+    )
+    ~_d.a -> src.d.a+
+    _d.a -> src.d.a-
+}
+aer::interface::DESERIAL_RING<M, N> deserial(g, _d, snk.d);
