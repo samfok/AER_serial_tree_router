@@ -4,7 +4,7 @@ pint M=3;
 pint N=2;
 globals g;
 
-a1of<N> src;
+SOURCE_random_a1ofN<N> src(g,);
 SINK_eMx1ofN<M, N> snk(g,);
 a1of<N> _d;
 prs<g.Vdd, g.GND> {

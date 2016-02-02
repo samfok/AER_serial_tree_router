@@ -1,0 +1,25 @@
+import "serial_aer.act";
+
+pint M=3;
+pint N=4;
+globals g;
+bool Reset = g.sReset;
+
+e1of<N> src;
+SINK_eMx1ofN<M, N> snk(g,);
+a1of<N> _d;
+_d.a = src.e;
+prs<g.Vdd, g.GND> {
+    (: n : N :
+        ~src.d[n] -> _d.d[n]+
+        src.d[n] -> _d.d[n]-
+    )
+}
+aer::interface::DESERIAL_RING<M, N> deserial(g, _d, snk.d);
+
+// break up eMx1ofN into M e1ofN channels for parsing
+e1of<N> snk_[M];
+(; m : M :
+    snk_[m].b = snk.d.b[m];
+    snk_[m].e = snk.d.e;
+)
