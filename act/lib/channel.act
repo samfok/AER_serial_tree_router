@@ -24,6 +24,13 @@ deftype _c1of <: int<1> (bool n[N], d[N]) {
     get { }
 }
 
+export template<pint N>
+deftype d1of <: int<N> (bool d[N])
+{ 
+   set { }
+   get { }
+}
+
 ////////////////////////////////////////
 // Specific Code Words
 ////////////////////////////////////////
@@ -54,9 +61,12 @@ export deftype c1of4 <: int<2> (bool n[4], d[4]) {
     get { }
 }
 
-export deftype dualrail <: int<1> (bool n[2], t, f) {
-    n[0] = f;
-    n[1] = t;
+export deftype dualrail <: int<1> (bool d[2], t, f) {
+    d[0] = f;
+    d[1] = t;
+    spec {
+      exclhi (t,f)
+    }
     set { }
     get { }
 }
@@ -156,6 +166,19 @@ export defchan e1of4 <: chan(int<2>) (c1of4 m, b; bool d[4], n[4], e) {
     recv { }
 }
 
+export template<pint M>
+defchan eMx1of2 <: chan(int<M>) (dualrail b[M]; bool e)
+{
+    send { }
+    recv { }
+}
+
+export template<pint M>
+defchan eMx1of4 <: chan(int<M*2>) (d1of<4> b[M]; bool e)
+{
+  send { }
+  recv { }
+}
 
 ////////////////////////////////////////////////////////////
 // a variants
