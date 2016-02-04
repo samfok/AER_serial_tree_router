@@ -1,0 +1,48 @@
+### Custom WaveView session file (version K-2015.06 build 05/23/15) ###
+### saved at 14:55:33 on Thu Feb  4 2016 ###
+wdf 0 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/aext/client4/single/hsim.fsdb" load=used 
+scalar list
+waveview_begin 1  stack  offset=0 name_b=381 mntr_b=381 name_width=366 dm=slew:1387:1221:1:1:0:9e-01:1e-01:0e+00:0e+00:12:1.13506043964245e-08:1e-01:1.13064458658334e-08:9e-01:0:0e+00:0e+00 dm=slew:1223:1316:1:1:0:9e-01:1e-01:0e+00:0e+00:13:1.10589554510271e-08:1e-01:1.11212763383692e-08:9e-01:0:0e+00:0e+00 dm=slew:714:1120:1:1:0:9e-01:1e-01:0e+00:0e+00:11:1.03402473803414e-08:1e-01:1.02992038085475e-08:9e-01:0:0e+00:0e+00 dm=slew:1428:1033:1:1:0:9e-01:1e-01:0e+00:0e+00:10:1.14110802938487e-08:1e-01:1.13713966703067e-08:9e-01:0:0e+00:0e+00 dm=slew:1412:1118:1:1:0:9e-01:1e-01:0e+00:0e+00:11:1.13397359979525e-08:1e-01:1.14058206567904e-08:9e-01:0:0e+00:0e+00 dm=slew:738:1025:1:1:0:9e-01:1e-01:0e+00:0e+00:10:1.03316977610279e-08:1e-01:1.03851130791863e-08:9e-01:0:0e+00:0e+00 dm=slew:792:830:1:1:0:9e-01:1e-01:0e+00:0e+00:8:1.03949747154171e-08:1e-01:1.04509891351852e-08:9e-01:0:0e+00:0e+00 dm=slew:749:926:1:1:0:9e-01:1e-01:0e+00:0e+00:9:1.04051058517215e-08:1e-01:1.03639481210929e-08:9e-01:0:0e+00:0e+00 dm=slew:904:939:1:1:0:9e-01:1e-01:0e+00:0e+00:9:1.05839597737167e-08:1e-01:1.06354921163012e-08:9e-01:0:0e+00:0e+00 dm=slew:934:839:1:1:0:9e-01:1e-01:0e+00:0e+00:8:1.06442354425702e-08:1e-01:1.06095625737517e-08:9e-01:0:0e+00:0e+00 dm=slew:1517:380:1:1:0:9e-01:1e-01:0e+00:0e+00:3:1.15591688551051e-08:1e-01:1.13868109119927e-08:9e-01:0:0e+00:0e+00 dm=slew:965:289:1:1:0:9e-01:1e-01:0e+00:0e+00:2:1.07153042609979e-08:1e-01:1.06691100940649e-08:9e-01:0:0e+00:0e+00 dm=slew:952:374:1:1:0:9e-01:1e-01:0e+00:0e+00:3:1.06375662413471e-08:1e-01:1.06976383183205e-08:9e-01:0:0e+00:0e+00 dm=slew:1515:187:1:1:0:9e-01:1e-01:0e+00:0e+00:1:1.14704139001811e-08:1e-01:1.15405225049005e-08:9e-01:0:0e+00:0e+00 dm=slew:848:555:1:1:0:9e-01:1e-01:0e+00:0e+00:5:1.05330114920477e-08:1e-01:1.0489073250893e-08:9e-01:0:0e+00:0e+00 dm=slew:912:457:1:1:0:9e-01:1e-01:0e+00:0e+00:4:1.05821080109238e-08:1e-01:1.056499712092e-08:9e-01:0:0e+00:0e+00 dm=slew:1054:563:1:1:0:9e-01:1e-01:0e+00:0e+00:5:1.07839170171261e-08:1e-01:1.0861111642631e-08:9e-01:0:0e+00:0e+00 dm=slew:801:760:1:1:0:9e-01:1e-01:0e+00:0e+00:7:1.04691149313909e-08:1e-01:1.0428355853792e-08:9e-01:0:0e+00:0e+00 dm=slew:988:763:1:1:0:9e-01:1e-01:0e+00:0e+00:7:1.0707687421649e-08:1e-01:1.07717730954362e-08:9e-01:0:0e+00:0e+00 dm=slew:827:648:1:1:0:9e-01:1e-01:0e+00:0e+00:6:1.04570641026359e-08:1e-01:1.05099174892142e-08:9e-01:0:0e+00:0e+00 dm=slew:1152:198:1:1:0:9e-01:1e-01:0e+00:0e+00:1:1.1005501216822e-08:1e-01:1.09548715983869e-08:9e-01:0:0e+00:0e+00 dm=slew:1017:657:1:1:0:9e-01:1e-01:0e+00:0e+00:6:1.0788537180508e-08:1e-01:1.07444708681853e-08:9e-01:0:0e+00:0e+00 dm=slew:1101:473:1:1:0:9e-01:1e-01:0e+00:0e+00:4:1.0863541227517e-08:1e-01:1.08910298308601e-08:9e-01:0:0e+00:0e+00 dm=slew:698:1221:1:1:0:9e-01:1e-01:0e+00:0e+00:12:1.02657136406482e-08:1e-01:1.03290624913662e-08:9e-01:0:0e+00:0e+00 dm=slew:533:1325:1:1:0:9e-01:1e-01:0e+00:0e+00:13:1.00692412922832e-08:1e-01:1.00317998336385e-08:9e-01:0:0e+00:0e+00 dm=slew:1566:285:1:1:0:9e-01:1e-01:0e+00:0e+00:2:1.15452606086621e-08:1e-01:1.16213463591576e-08:9e-01:0:0e+00:0e+00 dm=slew:1566:93:1:1:0:9e-01:1e-01:0e+00:0e+00:0:1.15580959971525e-08:1e-01:1.15169249159255e-08:9e-01:0:0e+00:0e+00 dm=slew:1224:96:1:1:0:9e-01:1e-01:0e+00:0e+00:0:1.0988361325214e-08:1e-01:1.10482151628654e-08:9e-01:0:0e+00:0e+00 "name=waveview 1" 
+  panel_begin linear pidx=0 spath=name+file xlabel=sec xmin=9.88118974036512e-09 xmax=1.25657526580862e-08 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=v(src_2a_dut)" attr=2:7:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=1 spath=name+file xlabel=sec xmin=9.88118974036512e-09 xmax=1.25657526580862e-08 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xaext.x__.xleaf.v(__co_00_1)" attr=7:6:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=2 spath=name+file xlabel=sec xmin=9.88118974036512e-09 xmax=1.25657526580862e-08 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xaext.x__.xleaf.v(__u)" attr=0:6:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=3 spath=name+file xlabel=sec xmin=9.88118974036512e-09 xmax=1.25657526580862e-08 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xaext.x__.xleaf.v(u)" attr=1:7:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=4 spath=name+file xlabel=sec xmin=9.88118974036512e-09 xmax=1.25657526580862e-08 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.v(out_2__y_2a)" attr=4:4:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=5 spath=name+file xlabel=sec xmin=9.88118974036512e-09 xmax=1.25657526580862e-08 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.v(out_2__y_2d_00_1)" attr=0:0:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=6 spath=name+file xlabel=sec xmin=9.88118974036512e-09 xmax=1.25657526580862e-08 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.v(out_2x_2d_00_1)" attr=5:5:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=7 spath=name+file xlabel=sec xmin=9.88118974036512e-09 xmax=1.25657526580862e-08 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xaext.x__.xleaf.v(__p___2d_00_1)" attr=3:1:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=8 spath=name+file xlabel=sec xmin=9.88118974036512e-09 xmax=1.25657526580862e-08 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.v(out_2xo)" attr=2:1:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=9 spath=name+file xlabel=sec xmin=9.88118974036512e-09 xmax=1.25657526580862e-08 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xout.v(__xo)" attr=6:5:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=10 spath=name+file xlabel=sec xmin=9.88118974036512e-09 xmax=1.25657526580862e-08 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.v(out_2xi)" attr=1:0:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=11 spath=name+file xlabel=sec xmin=9.88118974036512e-09 xmax=1.25657526580862e-08 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xaext.x__.xleaf.v(__po)" attr=7:5:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=12 spath=name+file xlabel=sec xmin=9.88118974036512e-09 xmax=1.25657526580862e-08 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xaext.x__.xleaf.v(c_00_1)" attr=2:0:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=13 spath=name+file xlabel=sec xmin=9.88118974036512e-09 xmax=1.25657526580862e-08 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xaext.x__.xleaf.xarb.xn__arb0.v(mu__ex_2__ci_00_1)" attr=6:3:1:0 autoset=true disp=show 
+  panel_end
+waveview_end

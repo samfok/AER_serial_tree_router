@@ -1,0 +1,42 @@
+import "serial_aer.act";
+
+export defproc wrapper(globals_np g_np; a1of<1> src; a1of<4> snk)
+{
+    bool Vdd;
+    bool GND;
+    pint M = 1;
+    pint N = 4;
+    pint NN = 4;
+
+    aer::transmitter::AEXT<M, N, NN> aext;
+    aer::interface::OUT_a1ofN<N, M> out(aext.g, aext.po, aext.pi, aext.p,);
+
+    // rails and reset
+    aext.g.Vdd = Vdd;
+    aext.g.GND = GND;
+    prs <Vdd, GND> {
+        g_np._sReset<20> => aext.g.sReset-
+        g_np._pReset<20> => aext.g.pReset-
+    }
+    aext.g._pReset = g_np._pReset;
+    aext.g._sReset = g_np._sReset;
+
+    // connect src
+    src.d[0] = aext.xi[0];
+    src.a = aext.xo[0];
+    (; nn : 1..NN-1 :
+        GND = aext.xi[nn];
+    )
+
+    // connect snk
+    prs <Vdd, GND> {
+        (: n : N :
+            out._y.d[n] -> snk.d[n]-
+            ~out._y.d[n] -> snk.d[n]+
+        )
+        snk.a -> out._y.a-
+        ~snk.a -> out._y.a+
+    }
+}
+
+wrapper dut;

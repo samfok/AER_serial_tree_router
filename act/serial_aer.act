@@ -853,10 +853,10 @@ namespace aer {
                 [] LAYOUT ->
                     prs<g.Vdd, g.GND> {
                         _u<26> & (| : n : N : c[n]<26>) -> _po-
-                        ~g._pReset | (| : n : N : ~_co[n]<36> &
-                            ~c[n]<36>) -> _po+
+                        ~g._pReset | (| : n : N : ~_co[n]<40> &
+                            ~c[n]<40>) -> _po+
 
-                        ~_po<10> -> po+
+                        ~_po<12> -> po+
                         _po<8> -> po-
                     
                         (: n : N :
@@ -864,10 +864,10 @@ namespace aer {
                             ~g._pReset | ~_u<16> -> _p_.d[n]+
                         )
 
-                        (| : n : N : ~_p_.d[n]<34>) & ~pi<34> -> u+
+                        (| : n : N : ~_p_.d[n]<36>) & ~pi<36> -> u+
                         _po<36> & (& : n : N : _co[n]<36>) -> u-
 
-                        ~u<12> -> _u+
+                        ~u<15> -> _u+
                         u<9> -> _u-
                         
                         c[0]<36> & u<36> & pi<36> &
@@ -880,7 +880,7 @@ namespace aer {
                         c[N-1]<36> & u<36> & pi<36> &
                             (& : n : 0..N-2 : _co[n]<36>) -> _co[N-1]-
                         (: n : N :
-                            ~pi<18> -> _co[n]+
+                            ~pi<20> -> _co[n]+
 
                             ~g.sReset<18> & ~_co[n]<18> -> co[n]+
                             g.sReset | _co[n]<6> -> co[n]-
