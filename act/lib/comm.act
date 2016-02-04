@@ -14,15 +14,11 @@ defproc VN_aMx1ofN (globals g; aMx1ofN<M, N> d) {
             or[m].i[n] = d.m[m].n[n];
         )
     )
-    [ M = 1 ->
-        or[0].o = d.a;
-    [] M > 1 ->
-        C_TREE<M> c_tree(g,,);
-        (; k : M :
-            or[k].o = c_tree.i[k];
-        )
-        c_tree.o = d.a;
-    ]
+    C_TREE<M> c_tree(g,,);
+    (; k : M :
+        or[k].o = c_tree.i[k];
+    )
+    c_tree.o = d.a;
 }
 
 export
@@ -30,15 +26,7 @@ template <pint N>
 defproc VN_a1ofN (globals g; a1of<N> d) {
     // detects data validity/neutrality on d
     // [V(d.m)];d.a+;[~V(d.m)];d.a-
-    [ N > 2 ->
-        OR<N> or(g, d.d, d.a);
-    [] N = 2 ->
-        bool _o;
-        NOR nor(g, d.d, _o);
-        prs<g.Vdd, g.GND> {
-            _o => d.a-
-        }
-    ]
+    OR<N> or(g, d.d, d.a);
 }
 
 export

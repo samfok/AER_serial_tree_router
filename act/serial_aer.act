@@ -99,21 +99,14 @@ namespace aer {
                         }
                     ]
 
-                    [ M = 1 ->
-                        prs<g.Vdd, g.GND> {
-                            ~y[0].a<12> -> _x.a+
-                            y[0].a<6> -> _x.a-
-                        }
-                    [] M > 1 ->
-                        OR<M> or(g,,);
-                        (; m : M :
-                            y[m].a = or.i[m];
-                        )
-                        prs<g.Vdd, g.GND> {
-                            ~or.o<9> -> _x.a+
-                            or.o<6> -> _x.a-
-                        }
-                    ]
+                    OR<M> or(g,,);
+                    (; m : M :
+                        y[m].a = or.i[m];
+                    )
+                    prs<g.Vdd, g.GND> {
+                        ~or.o<9> -> _x.a+
+                        or.o<6> -> _x.a-
+                    }
                 ]
             }
             
@@ -1275,7 +1268,7 @@ namespace aer {
         // N items per group
         // NN=N^M
         transmitter::AEXT<M, N, NN> aext(g, xi, xo,,,);
-        interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
+        interface::OUT_a1ofN<N, M> out(g, aext.po, aext.pi, aext.p,);
         interface::DESERIAL_RING<M, N> deserial(g, out._y,);
         // interface::DESERIAL_CHAIN<M, N> deserial(g, out._y,);
         interface::SERIAL_CHAIN<M, N> serial(g, deserial.y,,,);
