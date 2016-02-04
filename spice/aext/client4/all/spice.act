@@ -1,6 +1,6 @@
 import "serial_aer.act";
 
-export defproc wrapper(globals_np g_np; a1of<1> src; a1of<4> snk)
+export defproc wrapper(globals_np g_np; a1of<1> src0, src1, src2, src3; a1of<4> snk)
 {
     bool Vdd;
     bool GND;
@@ -22,11 +22,14 @@ export defproc wrapper(globals_np g_np; a1of<1> src; a1of<4> snk)
     aext.g._sReset = g_np._sReset;
 
     // connect src
-    src.d[0] = aext.xi[0];
-    src.a = aext.xo[0];
-    (; nn : 1..NN-1 :
-        GND = aext.xi[nn];
-    )
+    src0.d[0] = aext.xi[0];
+    src1.d[0] = aext.xi[1];
+    src2.d[0] = aext.xi[2];
+    src3.d[0] = aext.xi[3];
+    src0.a = aext.xo[0];
+    src1.a = aext.xo[1];
+    src2.a = aext.xo[2];
+    src3.a = aext.xo[3];
 
     // connect snk
     prs <Vdd, GND> {
