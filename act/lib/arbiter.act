@@ -65,11 +65,11 @@ namespace arbiter {
             }
         [] LAYOUT ->
             prs<g.Vdd, g.GND> {
-                [keeper=0] passn<9>(x[0], x[1], _o[0])
-                [keeper=0] ~x[0]<15> -> _o[0]+
+                [keeper=0] passn<8>(x[0], x[1], _o[0])
+                [keeper=0] ~x[0]<12> -> _o[0]+
     
-                [keeper=0] passn<9>(x[1], x[0], _o[1])
-                [keeper=0] ~x[1]<15> -> _o[1]+
+                [keeper=0] passn<8>(x[1], x[0], _o[1])
+                [keeper=0] ~x[1]<12> -> _o[1]+
             }
         ]
     }
@@ -443,17 +443,15 @@ namespace arbiter {
             qi = co;
             [ ~LAYOUT ->
                 prs {
-                    ~co[1] & ~_arb._o[0] -> qo[0]+
-                    co[1] | _arb._o[0] -> qo[0]-
-                    ~co[0] & ~_arb._o[1] -> qo[1]+
-                    co[0] | _arb._o[1] -> qo[1]-
+                    ~co[1] & ~_arb._o[0] => qo[0]+
+                    ~co[0] & ~_arb._o[1] => qo[1]+
                 }
             [] LAYOUT ->
                 prs {
-                    ~co[1]<27> & ~_arb._o[0]<27> -> qo[0]+
-                    ~co[0]<27> & ~_arb._o[1]<27> -> qo[1]+
-                    co[1]<7> | _arb._o[0]<7> -> qo[0]-
-                    co[0]<7> | _arb._o[1]<7> -> qo[1]-
+                    ~co[1]<22> & ~_arb._o[0]<22> -> qo[0]+
+                    ~co[0]<22> & ~_arb._o[1]<22> -> qo[1]+
+                    co[1]<6> | _arb._o[0]<6> -> qo[0]-
+                    co[0]<6> | _arb._o[1]<6> -> qo[1]-
                 }
             ]
         }
@@ -475,15 +473,15 @@ namespace arbiter {
                 }
             [] LAYOUT ->
                 prs<g.Vdd, g.GND> {
-                    qi[0]<9> | qi[1]<9> -> _po-
-                    ~qi[0]<24> & ~qi[1]<24> -> _po+
+                    qi[0]<8> | qi[1]<8> -> _po-
+                    ~qi[0]<22> & ~qi[1]<22> -> _po+
 
                     (: n : 2 :
-                        pi<14> & qi[n]<14> -> _qo[n]-
-                        ~pi<24> -> _qo[n]+
+                        pi<12> & qi[n]<12> -> _qo[n]-
+                        ~pi<18> -> _qo[n]+
 
-                        _qo[n]<8> -> qo[n]-
-                        ~_qo[n]<15> -> qo[n]+
+                        _qo[n]<9> -> qo[n]-
+                        ~_qo[n]<16> -> qo[n]+
                     )
                 }
             ]
@@ -499,8 +497,8 @@ namespace arbiter {
                     }
                 [] LAYOUT ->
                     prs <g.Vdd, g.GND> {
-                        i[0]<9> -> _po-
-                        ~i[0]<15> -> _po+
+                        i[0]<6> -> _po-
+                        ~i[0]<12> -> _po+
                     }
                 ]
                 o[0] = pi;
@@ -535,10 +533,10 @@ namespace arbiter {
                     }
                 [] LAYOUT ->
                     prs<g.Vdd, g.GND> {
-                        _arb._o[0]<8> -> n_arb0.pi-
-                        ~_arb._o[0]<18> -> n_arb0.pi+
-                        _arb._o[1]<8> -> n_arb1.pi-
-                        ~_arb._o[1]<18> -> n_arb1.pi+
+                        _arb._o[0]<6> -> n_arb0.pi-
+                        ~_arb._o[0]<12> -> n_arb0.pi+
+                        _arb._o[1]<6> -> n_arb1.pi-
+                        ~_arb._o[1]<12> -> n_arb1.pi+
                     }
                 ]
             ]

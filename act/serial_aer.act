@@ -34,11 +34,11 @@ namespace aer {
                 }
             [] LAYOUT ->
                 prs<g.Vdd, g.GND> {
-                    xi<18> & _y.a<18> -> _xo-
-                    ~xi<9> | ~_y.a<9> -> _xo+
+                    xi<10> & _y.a<10> -> _xo-
+                    ~xi<12> | ~_y.a<12> -> _xo+
                     
-                    ~_xo<27> -> xo+
-                    _xo<18> -> xo-
+                    ~_xo<18> -> xo+
+                    _xo<15> -> xo-
 
                     (: n : N :
                         ~x.d[n]<9*M> -> _y.d[n]+
@@ -852,23 +852,23 @@ namespace aer {
                     ]
                 [] LAYOUT ->
                     prs<g.Vdd, g.GND> {
-                        _u<30> & (| : n : N : c[n]<30>) -> _po-
-                        ~g._pReset | (| : n : N : ~_co[n]<24> &
-                            ~c[n]<24>) -> _po+
+                        _u<26> & (| : n : N : c[n]<26>) -> _po-
+                        ~g._pReset | (| : n : N : ~_co[n]<36> &
+                            ~c[n]<36>) -> _po+
 
-                        ~_po<9> -> po+
-                        _po<6> -> po-
+                        ~_po<10> -> po+
+                        _po<8> -> po-
                     
                         (: n : N :
-                            c[n]<24> & pi<24> & _u<24> -> _p_.d[n]-
-                            ~g._pReset<6> | ~_u<9> -> _p_.d[n]+
+                            c[n]<18> & pi<18> & _u<18> -> _p_.d[n]-
+                            ~g._pReset | ~_u<16> -> _p_.d[n]+
                         )
 
-                        (| : n : N : ~_p_.d[n]<24>) & ~pi<24> -> u+
-                        (& : n : N : _co[n]<30>) & _po<30> -> u-
+                        (| : n : N : ~_p_.d[n]<34>) & ~pi<34> -> u+
+                        _po<36> & (& : n : N : _co[n]<36>) -> u-
 
-                        ~u<9> -> _u+
-                        u<6> -> _u-
+                        ~u<12> -> _u+
+                        u<9> -> _u-
                         
                         c[0]<36> & u<36> & pi<36> &
                             (& : n : 1..N-1 : _co[n]<36>) -> _co[0]-
@@ -880,7 +880,7 @@ namespace aer {
                         c[N-1]<36> & u<36> & pi<36> &
                             (& : n : 0..N-2 : _co[n]<36>) -> _co[N-1]-
                         (: n : N :
-                            ~pi<9> -> _co[n]+
+                            ~pi<18> -> _co[n]+
 
                             ~g.sReset<18> & ~_co[n]<18> -> co[n]+
                             g.sReset | _co[n]<6> -> co[n]-
@@ -891,10 +891,11 @@ namespace aer {
                         _p_ = _p;
                     [] root = 1 ->
                         // present normal sense interface
+                        c1of<N> p = _p;
                         prs<g.Vdd, g.GND> {
                             (: n : N :
-                                ~_p_.d[n]<9> -> _p.d[n]+
-                                _p_.d[n]<6> -> _p.d[n]-
+                                ~_p_.d[n]<12> -> p.d[n]+
+                                _p_.d[n]<6> -> p.d[n]-
                             )
                         }
                     ]
