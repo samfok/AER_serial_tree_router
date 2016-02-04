@@ -4580,8 +4580,8 @@ _y1 -> __y1-
 \end{prs2}
 
 \begin{prs2}
-__y0 | __y1 -> vy+
-~__y0 & ~__y1 -> vy-
+__y0 | __y1 -> _vy-
+~__y0 & ~__y1 -> _vy+
 \end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -4605,8 +4605,8 @@ A C-element costs 8 transistors.
 \subsubsection*{CMOS-implementable PRS}
 
 \begin{prs2}
-_so & xe -> _si-
-~_so & ~xe -> _si+
+~so & ~_xe -> si+
+so & _xe -> si-
 \end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

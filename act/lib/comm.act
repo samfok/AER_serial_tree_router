@@ -7,38 +7,21 @@ template <pint M, N>
 defproc VN_aMx1ofN (globals g; aMx1ofN<M, N> d) {
     // detects data validity/neutrality on d
     // [V(d.m)];d.a+;[~V(d.m)];d.a-
-    C_TREE<M> c_tree(g,,);
-    
-    [ N > 2 ->
-        OR<N> or[M];
-        (; m : M :
-            or[m].g = g;
-            (; n : N :
-                or[m].i[n] = d.m[m].n[n];
-            )
+    OR<N> or[M];
+    (; m : M :
+        or[m].g = g;
+        (; n : N :
+            or[m].i[n] = d.m[m].n[n];
         )
-
+    )
+    [ M = 1 ->
+        or[0].o = d.a;
+    [] M > 1 ->
+        C_TREE<M> c_tree(g,,);
         (; k : M :
             or[k].o = c_tree.i[k];
         )
         c_tree.o = d.a;
-    [] N = 2 ->
-        NOR nor[M];
-        (; m : M :
-            nor[m].g = g;
-            (; n : N :
-                nor[m].i[n] = d.m[m].n[n];
-            )
-        )
-
-        (; k : M :
-            nor[k].o = c_tree.i[k];
-        )
-        bool _o;
-        c_tree.o = _o;
-        prs<g.Vdd, g.GND> {
-            _o => d.a-
-        }
     ]
 }
 

@@ -20,4 +20,3 @@ export deftype ternary_globals <: int<5> (bool Vdd, Vdd2, GND, _pReset, _sReset)
   set { }
   get { }
 }
-
