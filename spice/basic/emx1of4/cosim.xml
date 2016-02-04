@@ -17,14 +17,14 @@
   <global name="netgen_cfg" value="/ufs/cad/lib/netgen/st28soi.conf" />
 
   <!-- Simulation time settings -->
-  <global name="sim_time" value="75" />
+  <global name="sim_time" value="15" />
   <global name="timescale" value="1ns/10ps" />
-  <global name="_sReset_time" value="70" />
-  <global name="_pReset_time" value="50" />
+  <global name="_sReset_time" value="10" />
+  <global name="_pReset_time" value="5" />
 
   <!-- Measurement start/stop times -->
-  <global name="measurement_start_time" value="70n" />	<!--usually after Reset !-->
-  <global name="measurement_stop_time" value="75n" />	<!--usually end of sim  !-->
+  <global name="measurement_start_time" value="10n" />	<!--usually after Reset !-->
+  <global name="measurement_stop_time" value="15n" />	<!--usually end of sim  !-->
 
   <!-- SPICE models -->
   <global name="additional_spice_files" value="/ufs/cad/lib/spice/st28soi.spi" />
@@ -64,8 +64,8 @@
   <global name="HSIMNTLFMT" value="" />  	<!--if using spectre netlist !-->
   <global name="HSIMTOP" value="" />	<!--top level instance name (if required)!-->
 
-  <global name="HSIMRISE" value="0.01ns" />	
-  <global name="HSIMFALL" value="0.01ns" />
+  <global name="HSIMRISE" value="0.04ns" />	
+  <global name="HSIMFALL" value="0.03ns" />
 
   <global name="extra_hsim_parameters">
 	

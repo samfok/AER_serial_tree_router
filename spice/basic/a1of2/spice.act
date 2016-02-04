@@ -1,0 +1,21 @@
+import "globals.act";
+import "channel.act";
+
+
+export defproc wrapper(globals_np g_np; a1of<2> src, snk)
+{
+    pint N = 2;
+    bool Vdd;
+    bool GND;
+    a1of<N> buff;
+    prs<Vdd, GND> {
+        (: n : N :
+            src.b.d[n] => buff.b.n[n]-
+            buff.b.n[n] => snk.b.d[n]-
+            snk.a => buff.a-
+            buff.a => src.a-
+        )
+    }
+}
+
+wrapper dut;
