@@ -174,10 +174,10 @@ defchan eMx1of2 <: chan(int<M>) (dualrail b[M]; bool e)
 }
 
 export template<pint M>
-defchan eMx1of4 <: chan(int<M*2>) (d1of<4> b[M]; bool e)
+defchan eMx1of4 <: chan(int<M*2>) (c1of<4> b[M]; bool e)
 {
-  send { }
-  recv { }
+    send { }
+    recv { }
 }
 
 ////////////////////////////////////////////////////////////

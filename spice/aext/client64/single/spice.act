@@ -1,6 +1,6 @@
 import "serial_aer.act";
 
-export defproc wrapper(globals_np g_np; a1of<1> src; a1of<4> snk)
+export defproc wrapper(globals_np g_np; a1of<1> src; eMx1of4<3> snk)
 {
     bool Vdd;
     bool GND;
@@ -10,6 +10,7 @@ export defproc wrapper(globals_np g_np; a1of<1> src; a1of<4> snk)
 
     aer::transmitter::AEXT<M, N, NN> aext;
     aer::interface::OUT_a1ofN<N, 6> out(aext.g, aext.po, aext.pi, aext.p,);
+    aer::interface::DESERIAL_RING<M, N> deserial(aext.g, out._y,);
 
     // rails and reset
     aext.g.Vdd = Vdd;
@@ -29,14 +30,10 @@ export defproc wrapper(globals_np g_np; a1of<1> src; a1of<4> snk)
     )
 
     // connect snk
-    prs <Vdd, GND> {
-        (: n : N :
-            out._y.d[n] -> snk.d[n]-
-            ~out._y.d[n] -> snk.d[n]+
-        )
-        snk.a -> out._y.a-
-        ~snk.a -> out._y.a+
-    }
+    (; m : M :
+        deserial.y.b[m].d = snk.b[m].d;
+    )
+    deserial.y.e = snk.e;
 }
 
 wrapper dut;

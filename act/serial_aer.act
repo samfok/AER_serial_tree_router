@@ -104,7 +104,7 @@ namespace aer {
                         y[m].a = or.i[m];
                     )
                     prs<g.Vdd, g.GND> {
-                        ~or.o<9> -> _x.a+
+                        ~or.o<10> -> _x.a+
                         or.o<6> -> _x.a-
                     }
                 ]

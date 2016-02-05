@@ -3,9 +3,7 @@
   <circuit sim_type="spice" file="spice.act" instance="wrapper" file_type="act" name="dut" uses_blackbox="1"> 
     <source type="globals_np" channel="g_np" />
     <source type="random" channel="src0" delay="0" />
-    <source type="random" channel="src1" delay="0.01" />
-    <source type="random" channel="src2" delay="0.02" />
-    <source type="random" channel="src3" delay="0.03" />
+    <source type="random" channel="src0" delay="0.01" />
     <sink type="sink_only" channel="snk" delay="0" />
   </circuit>
 
@@ -76,3 +74,4 @@
  </global>
 
 </cosimulation>
+
