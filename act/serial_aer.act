@@ -675,8 +675,8 @@ namespace aer {
                             ~g._pReset | ~_u -> _w.d[n]+
                         )
 
-                        (| : n : N : ~_w.d[n]) & ~pi -> u+
-                        (& : n : N : _co[n]) & _po -> u-
+                        ~pi & (| : n : N : ~_w.d[n]) -> u+
+                        _po & (& : n : N : _co[n]) -> u-
 
                         u => _u-
                         
@@ -720,7 +720,7 @@ namespace aer {
                             ~g._pReset | ~_u<16> -> _w.d[n]+
                         )
 
-                        (| : n : N : ~_w.d[n]<40>) & ~pi<40> -> u+
+                        ~pi<40> & (| : n : N : ~_w.d[n]<40>) -> u+
                         _po<40> & (& : n : N : _co[n]<40>) -> u-
 
                         ~u<15> -> _u+
@@ -817,8 +817,8 @@ namespace aer {
                             ~g._pReset | ~_u -> _p_.d[n]+
                         )
 
-                        (| : n : N : ~_p_.d[n]) & ~pi -> u+
-                        (& : n : N : _co[n]) & _po -> u-
+                        ~pi & (| : n : N : ~_p_.d[n]) -> u+
+                        _po & (& : n : N : _co[n]) -> u-
 
                         ~u -> _u+
                         u -> _u-
@@ -863,7 +863,7 @@ namespace aer {
                             ~g._pReset | ~_u<16> -> _p_.d[n]+
                         )
 
-                        (| : n : N : ~_p_.d[n]<36>) & ~pi<36> -> u+
+                        ~pi<36> & (| : n : N : ~_p_.d[n]<36>) -> u+
                         _po<36> & (& : n : N : _co[n]<36>) -> u-
 
                         ~u<15> -> _u+
