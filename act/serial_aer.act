@@ -651,6 +651,33 @@ namespace aer {
             merge.so = node[0].si;
             merge.so = yo; 
         }
+
+        export
+        template <pint M, N>
+        defproc SERIAL_MERGE (globals g; bool xi[M], xo[M], yi, yo; c1of<N> x[M], y) {
+            // merges aext/aerv protocol serial streams
+            // M client streams to merge
+            // N 1-of-N data
+            ::arbiter::N_ARB_S_PREQ<M> arb_req(g, xi, xo, yi, yo);
+            c1of<N> b;
+            [ ~LAYOUT ->
+                prs<g.Vdd, g.GND> {
+                    (: n : N :
+                        (| : m : M : x[m].d[n]) => b.d[n]-
+                        b.d[n] => y.d[n]-
+                    )
+                }
+            [] LAYOUT ->
+                prs<g.Vdd, g.GND> {
+                    (: n : N :
+                        (| : m : M : x[m].d[n]<6>) -> b.d[n]-
+                        (& : m : M : ~x[m].d[n]<12>) -> b.d[n]+
+                        b.d[n]<6> -> y.d[n]-
+                        ~b.d[n]<12> -> y.d[n]+
+                    )
+                }
+            ]
+        }
     }
 
     namespace transmitter {
@@ -661,7 +688,7 @@ namespace aer {
             // /* development
                 bool c_[N], _co[N], _po, u, _u;
                 c1of<N> _w, p;
-                ::arbiter::n_arb_s::N_ARB<N> arb(g, ci, c_);
+                ::arbiter::N_ARB_S<N> arb(g, ci, c_);
 
                 [ ~LAYOUT ->
                     prs<g.Vdd, g.GND> {
@@ -764,7 +791,7 @@ namespace aer {
             /* reference
                 bool c_[N], q[N], u;
                 c1of<N> w;
-                ::arbiter::n_arb_s::N_ARB<N> arb(g, ci, c_);
+                ::arbiter::N_ARB_S<N> arb(g, ci, c_);
 
                 prs<g.Vdd, g.GND> {
                     c_[0] & ~co[1] -> q[0]+
@@ -804,7 +831,7 @@ namespace aer {
             // /* development
                 bool c[N], _co[N], _u, u, _po;
                 c1of<N> _p_;
-                ::arbiter::n_arb_s::N_ARB<N> arb(g, ci, c);
+                ::arbiter::N_ARB_S<N> arb(g, ci, c);
 
                 [ ~LAYOUT ->
                     prs<g.Vdd, g.GND> {
@@ -904,7 +931,7 @@ namespace aer {
             /*--------------------------------------------------------------*/
             /* reference
                 bool c[N], q[N], u;
-                ::arbiter::n_arb_s::N_ARB<N> arb(g, ci, c);
+                ::arbiter::N_ARB_S<N> arb(g, ci, c);
 
                 prs<g.Vdd, g.GND> {
                     c[0] & ~co[1] -> q[0]+

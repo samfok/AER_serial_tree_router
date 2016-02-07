@@ -403,14 +403,8 @@ namespace aer {
             // merges aext/aerv protocol serial streams
             // M client streams to merge
             // N 1-of-N data
+            ::arbiter::N_ARB_S_PREQ<M> arb_req(g, xi, xo, yi, yo);
             prs<g.Vdd, g.GND> {
-                (| : m : M : xi[m]) => yo+
-
-                (: m : M :
-                    xi[m] & yi -> xo[m]+
-                    ~yi -> xo[m]-
-                )
-
                 (: n : N :
                     (| : m : M : x[m].d[n]) => y.d[n]+
                 )
@@ -427,7 +421,7 @@ namespace aer {
             // /* // development
                 bool c_[N], u;
                 c1of<N> w;
-                ::arbiter::n_arb_s::N_ARB<N> arb(g, ci, c_);
+                ::arbiter::N_ARB_S<N> arb(g, ci, c_);
 
                 prs<g.Vdd, g.GND> {
                     ~u & (| : n : N : c_[n]) -> po+
@@ -461,7 +455,7 @@ namespace aer {
             /* // reference
                 bool c_[N], q[N], u;
                 c1of<N> w;
-                ::arbiter::n_arb_s::N_ARB<N> arb(g, ci, c_);
+                ::arbiter::N_ARB_S<N> arb(g, ci, c_);
 
                 prs<g.Vdd, g.GND> {
                     c_[0] & ~co[1] -> q[0]+
@@ -500,7 +494,7 @@ namespace aer {
             /*--------------------------------------------------------------*/
             // /* // development
                 bool c[N], u;
-                ::arbiter::n_arb_s::N_ARB<N> arb(g, ci, c);
+                ::arbiter::N_ARB_S<N> arb(g, ci, c);
 
                 prs<g.Vdd, g.GND> {
                     ~u & (| : n : N : c[n]) -> po+
@@ -529,7 +523,7 @@ namespace aer {
             /*--------------------------------------------------------------*/
             /* // reference
                 bool c[N], q[N], u;
-                ::arbiter::n_arb_s::N_ARB<N> arb(g, ci, c);
+                ::arbiter::N_ARB_S<N> arb(g, ci, c);
 
                 prs<g.Vdd, g.GND> {
                     c[0] & ~co[1] -> q[0]+

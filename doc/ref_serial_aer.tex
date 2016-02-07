@@ -6420,18 +6420,8 @@ For M=2 and D=2,
 
 \subsubsection*{PRS}
 
-\begin{prs2}
-(u0 | u1) -> yo+
-~u0 & ~u1 -> yo-
-\end{prs2}
-
-\begin{prs2}
-x0i & yi -> x0o+
-~yi -> x0o-
-
-x1i & yi -> x1o+
-~yi -> x0o-
-\end{prs2}
+The parent requests and grants are handled by a standard n-way arbiter with
+its parent ports exposed. Otherwise,
 
 \begin{prs2}
 x00 | x10 -> y0+
@@ -6442,6 +6432,22 @@ x01 | x11 -> y1+
 \end{prs2}
 
 \subsubsection*{CMOS-implementable PRS}
+
+\begin{prs2}
+x00 | x10 -> _y0+
+~x00 & ~x10 -> _y0-
+
+x01 | x11 -> _y1+
+~x01 & ~x11 -> _y1-
+\end{prs2}
+
+\begin{prs2}
+~_y0 -> __y0-
+_y0 -> __y0+
+
+~_y1 -> __y1-
+_y1 -> __y1+
+\end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Memory \label{sec:memory}}
