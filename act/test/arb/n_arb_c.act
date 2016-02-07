@@ -1,6 +1,13 @@
 // import "ref_arbiter.act";
 import "arbiter.act";
 
+template <pint N>
+defproc TEST_N_ARB_C (globals g) {
+    //tests N_ARB_C
+    active_handshaker<N> c(g,,);
+    arbiter::N_ARB_C<N> n_arb(g, c.o, c.i);
+}
+
 pint N=8;
 globals g;
-arbiter::n_arb_c::test::TEST_N_ARB_C<N> test(g);
+TEST_N_ARB_C<N> test(g);

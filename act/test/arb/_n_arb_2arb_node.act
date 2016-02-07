@@ -1,0 +1,16 @@
+// Tests the n-way active low arbiter
+import "arbiter.act";
+
+template<pint N>
+defproc TEST__N_ARB_2ARB_NODE (globals g) {
+    // tests _N_ARB
+    arbiter::_N_ARB_2ARB_NODE<N> _n_arb(g,,);
+    _active_handshaker<N> _c(g,,);
+
+    _c._o = _n_arb._i;
+    _c._i = _n_arb._o;
+}
+
+pint N=8;
+globals g;
+TEST__N_ARB_2ARB_NODE<N> test(g);

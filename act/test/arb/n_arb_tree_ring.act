@@ -1,7 +1,18 @@
 import "arbiter.act";
 
+template <pint M, K, N>
+defproc TEST_N_ARB_TREE_RING (globals g) {
+    // N=K^M
+    arbiter::N_ARB_TREE_RING<M, K, N> n_arb(g,);
+    SOURCE_random_e1of1 src[N];
+    (; n : N :
+        src[n].g = g;
+        src[n].d = n_arb.c[n];
+    )
+}
+
 globals g;
 pint M=3;
 pint K=2;
 pint N=8;
-arbiter::n_arb_tree_ring::test::TEST_N_ARB<M, K, N> test(g);
+TEST_N_ARB_TREE_RING<M, K, N> test(g);

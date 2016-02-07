@@ -1,6 +1,0 @@
-// Tests the arbiter cell with active S CTRL
-import "lib/globals.act";
-import "arbiter.act";
-
-globals g;
-arbiter::n_arb_2arb_node::test::TEST_H_ARB test(g);

@@ -1,6 +1,14 @@
 // Tests the ARB circuit
-import "lib/globals.act";
 import "arbiter.act";
 
+defproc TEST_ARB (globals g) {
+    // tests ARB
+    active_handshaker<2> c(g,,);
+    arbiter::ARB arb(g,,);
+    
+    c.o = arb.i;
+    c.i = arb.o;
+}
+
 globals g;
-arbiter::test::TEST_ARB test(g);
+TEST_ARB test(g);

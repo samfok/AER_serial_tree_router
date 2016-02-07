@@ -1,6 +1,0 @@
-// Tests C_ARB
-import "lib/globals.act";
-import "arbiter.act";
-
-globals g;
-arbiter::test::TEST_C_ARB test(g);

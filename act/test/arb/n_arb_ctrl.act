@@ -1,6 +1,0 @@
-// Tests the CTRL circuit
-import "lib/globals.act";
-import "arbiter.act";
-
-globals g;
-arbiter::n_arb_2arb_node::test::TEST_CTRL_TEST test(g);

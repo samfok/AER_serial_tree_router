@@ -138,10 +138,9 @@ needs at least 28 bits of memory.
     && chain serializer (Section~\ref{sec:SERIAL_CHAIN})
     &&& \textbf{NODE} (Section~\ref{sec:SERIAL_CHAIN_NODE})
     &&& \textbf{TAIL} (Section~\ref{sec:SERIAL_CHAIN_TAIL})
-    & leaf interface (Section~\ref{sec:RECV_LEAF})
-    && FIFO buffer decomposed into CTRL, BUFFER (Section~\ref{sec:RECV_LEAF_FIFO})
-    &&& \textbf{CTRL} (Section~\ref{sec:RECV_LEAF_FIFO_CTRL})
-    &&& \textbf{BUFFER} (Section~\ref{sec:RECV_LEAF_FIFO_BUFFER})
+    & serial merge excl in (Section~\ref{sec:SERIAL_MERGE})
+    && mutually exclusive input (Section~\ref{sec:SERIAL_MERGE_EXCL})
+    && non-mutually exclusive input (Section~\ref{sec:SERIAL_MERGE_ARB})
 \end{easylist}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -6322,249 +6321,127 @@ xe & po -> s-
 \end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{AERV LEAF/neuron interface (RECVLEAF) \label{sec:RECV_LEAF}}
+\section{Serial merge \label{sec:SERIAL_MERGE}}
 
-Must use radix 4. \\
-Low order bit is spike data indicating which synapse to send to. \\
-High order bit peeled off and stored in a buffer or memory for neuron configuration. \\
-
-\noindent
-We'd like to store 6 bits per neuron and 2 per synapse. \\
-neuron - 2 gain, 1 bias, 1 kill, 1 probe Imem, 1 probe Iin \\
-synapse - 1 probe pulse extender, 1 probe Isyn \\
-The receiver goes down to 1 synapse per 4 neurons, so we'll need 26 bits per synapse (equivalently, 6.5 bits per neuron). \\
+The receiver is responsible for sending spikes to neurons and configuration
+data to the neuron and synapse configuration memory.
+Sending a spike to the neuron and sending a row of configuration data to the configuration memory
 
 \noindent
-Estimations: It takes 8 transistors (back-to-back inverters) to make a state holding cell. We'll need 1 state holding cell per bit at minimum. This comes out to 8 * 6.5 = 52 transistors per neuron at minimum.
+For M inputs and 1-of-D encoding,
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{AERV RECVLEAF MEM \label{sec:RECV_LEAF_MEM}}
-
-We route bits to either the neuron or to a memory array. \\
-First, we detect whether this is a spike or configuration packet with ROUTE. \\
-If it is a spike, we send it to the excitatory or inhibitory synapse. \\
-If it is a configuration packet, we forward subsequent words to the memory array.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{AERV RECVLEAF MEM LEAF \label{sec:RECV_LEAF_MEM_LEAF}}
-
-LEAF decides whether to stimulate a synapse or send neuron configuration bits. \\
-If first word received is 0 or 1, stimulate inhibitory or excitatory synapse, respectively. \\
-If first word received is 2, forward subsequent words to memory to store as neuron configuration. \\
-First word received should not be 3. This packet is invalid. \\
-
-\begin{center}
-  \includegraphics[width=.25\textwidth]{img/serial_aer_aerv_leaf_mem_leaf.pdf}
-\end{center}
+\section{Serial merge with mutually exclusive inputs \label{sec:SERIAL_MERGE_EXCL}}
 
 \begin{hse}
-*[[pi];po+;
-    [p0->u0+;uu+;po-;[~p0];c0o+;cco+;u0-;uu-;[c0i];cci+;
-         po+;[~pi];c0o-;cco-,([~c0i];cci-);po-
-    []p1->u1+;uu+;po-;[~p1];c1o+;cco+;u1-;uu-;[c1i];cci+;
-         po+;[~pi];c1o-;cco-,([~c1i];cci-);po-
-    []p2->u2+;uu+;po-;[~p2];c2o+;cco+;u1-;uu-;
-         po+;[~pi];c2o-;cco-;po-
-    ];
- ]
+*[[
+   \langle[]m:M:xmi->yo+;[yi];xmo+;[~xmi];yo-;[~yi];xmo-\rangle
+ ]]
 
-*[[c2o&p0->c20+;[cdi];cci+;po-;[~p0];c20-;[~c2i];cci-;po+
-  []c2o&p1->c21+;[cdi];cci+;po-;[~p1];c21-;[~c2i];cci-;po+
-  []c2o&p2->c22+;[cdi];cci+;po-;[~p0];c22-;[~c2i];cci-;po+
-  []c2o&p3->c23+;[cdi];cci+;po-;[~p1];c23-;[~c2i];cci-;po+
+*[[
+   \langle[]m:M:\langle[]d:D:xmd->yd+;xmo-;[~xmd];yd-;xmo-\rangle\rangle
  ]]
 \end{hse}
 
-\begin{prs2}
-c2o & p0 -> c20+
-~c2o | ~p0 -> c20-
-
-c2o & p1 -> c21+
-~c2o | ~p1 -> c21-
-
-c2o & p2 -> c22+
-~c2o | ~p2 -> c22-
-
-c2o & p3 -> c23+
-~c2o | ~p3 -> c23-
-\end{prs2}
-
-\noindent Transistor accounting:
-
-\begin{center}
-    \begin{tabular}{|r|l|l|}
-    \hline
-    rule & transistor count & comments \\ \hline
-    \hline total & & \\ \hline
-    \end{tabular}
-\end{center}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{AERV RECVLEAF FIFO \label{sec:RECV_LEAF_FIFO}}
-
-High order bits are split off into cyclic, FIFO buffer. \\
-
 \noindent
-Accounting (1024 synapse interfaces, 4096 neurons):
-
-\begin{center}
-    \begin{tabular}{|r|l|l|l|}
-    \hline
-    component & transistors/component & components/synapse interface & transistors/synapse interface \\ \hline
-    CTRL & 38 & 1 & 38 \\ \hline
-    BUFFER & 40 & 26 & 1040 \\ \hline
-    \hline \multicolumn{3}{|r|}{total transistors/synapse interface} & 1078 \\ \hline
-    \hline \multicolumn{3}{|r|}{total transistors/neuron} & 269.5 \\ \hline
-    \end{tabular}
-\end{center}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{RECVLEAF FIFO CTRL \label{sec:RECV_LEAF_FIFO_CTRL}}
-
-\subsubsection*{CHP}
-
-\begin{csp}
-*[[C=0->S0;C
-  []C=1->S1;C
-  []C=2->B!0;C
-  []C=3->B!1;C
- ]]
-\end{csp}
-
-\subsubsection*{HSE}
+For M=2 and D=2,
 
 \begin{hse}
-*[[c0->s0o+;[s0i];co+;[~c0];s0o-;[~s0i];co-
-  []c1->s1o+;[s1i];co+;[~c0];s1o-;[~s1i];co-
-  []c2->ye+;[xe];x0+;([y0|y1];ye-),(co+;[~c2]);[~xe];x0-;co-;[~y0&~y1]
-  []c3->ye+;[xe];x1+;([y0|y1];ye-),(co+;[~c3]);[~xe];x1-;co-;[~y0&~y1]
+*[[x0i->yo+;[yi];x0o+;[~x0i];yo-;[~yi];x0o-
+  []x1i->yo+;[yi];x1o+;[~x1i];yo-;[~yi];x1o-
+ ]]
+
+*[ [x00->y0+;[~yi];x0o-;[~x00];y0-;[yi];x0o-
+  []x01->y1+;[~yi];x0o-;[~x01];y1-;[yi];x0o-
+  []x10->y0+;[~yi];x1o-;[~x10];y0-;[yi];x1o-
+  []x11->y1+;[~yi];x1o-;[~x11];y1-;[yi];x1o-
  ]]
 \end{hse}
 
 \subsubsection*{PRS}
 
 \begin{prs2}
-c0 -> s0o+
-~c0 -> s0o-
-
-c0 -> s1o+
-~c0 -> s1o-
+x0i | x1i -> yo+
+~x0i & ~x1i -> yo-
 \end{prs2}
 
 \begin{prs2}
-s0i | s1i | x0 | x1 -> co+
-~s0i & ~s1i & ~x0 & ~x1-> co-
+x0i & yi -> x0o+
+~yi -> x0o-
+
+x1i & yi -> x1o+
+~yi -> x0o-
 \end{prs2}
 
 \begin{prs2}
-(c2 | c3) & ~x0 & ~x1 & ~y0 & ~y1 -> ye+
-(x0 | x1) & (y0 | y1) -> ye-
+x00 | x10 -> y0+
+~x00 & ~x10 -> y0-
+
+x01 | x11 -> y1+
+~x01 & ~x11 -> y1-
 \end{prs2}
 
-\begin{prs2}
-xe & c2 -> x0+
-~xe & ~c2 -> x0-
-
-xe & c3 -> x1+
-~xe & ~c3 -> x1-
-\end{prs2}
-
-\noindent
-Transistor accounting:
-
-\begin{center}
-    \begin{tabular}{|r|l|l|}
-    \hline
-    rule & transistor count & comments \\ \hline
-    $s[0,1]_o$ & 0 & wires \\ \hline
-    $c_o$ & 8 & \\ \hline
-    $ye$ & 14 & \\ \hline
-    $x[0,1]$ & 16 & \\ \hline
-    \hline total & 38 & \\ \hline
-    \end{tabular}
-\end{center}
+\subsubsection*{CMOS-implementable PRS}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{RECVLEAF FIFO BUFFER \label{sec:RECV_LEAF_FIFO_BUFFER}}
+\section{Serial merge with non-mutually exclusive inputs \label{sec:SERIAL_MERGE_ARB}}
 
-\subsubsection*{CHP}
-
-\begin{csp}
-*[Y!u;X?u]
-\end{csp}
-
-2-phase expansion
-
-\begin{csp}
-*[Y!u;X?u;Y-;X-]
-\end{csp}
-
-\subsubsection*{HSE}
+This designs adds an arbiter to handle concurrent input, which means we can
+support reprogramming the neuron and synapse configuration data on the fly.
 
 \begin{hse}
-*[[ye];[u0->y0+;u0-[]u1->y1+;u1-];
-    xe+;[x0->u0+[]x1->u1+];
-    [~ye];y0-,y1-;xe-;[~x0&~x1]]
+*[[
+   \langle[]m:M:xmi->yo+;[yi];xmo+;[~xmi];yo-;[~yi];xmo-\rangle
+ ]]
+
+*[[
+   \langle[]m:M:\langle[]d:D:xmd->yd+;xmo-;[~xmd];yd-;xmo-\rangle\rangle
+ ]]
+\end{hse}
+
+\noindent
+For M=2 and D=2,
+
+\begin{hse}
+*[[x0i->u0+;[~x0i];u0-
+  \|x1i->u1+;[~x1i];u1-
+ ]]
+
+*[[u0->yo+;[yi];x0o+;[~u0];yo-;[~yi];x0o-
+  []u1->yo+;[yi];x1o+;[~u1];yo-;[~yi];x1o-
+ ]]
+
+*[ [x00->y0+;[~yi];x0o-;[~x00];y0-;[yi];x0o-
+  []x01->y1+;[~yi];x0o-;[~x01];y1-;[yi];x0o-
+  []x10->y0+;[~yi];x1o-;[~x10];y0-;[yi];x1o-
+  []x11->y1+;[~yi];x1o-;[~x11];y1-;[yi];x1o-
+ ]]
 \end{hse}
 
 \subsubsection*{PRS}
 
 \begin{prs2}
-ye & u0 & ~xe -> y0+
-~ye -> y0-
-
-ye & u1 & ~xe -> y1+
-~ye -> y1-
+(u0 | u1) -> yo+
+~u0 & ~u1 -> yo-
 \end{prs2}
 
 \begin{prs2}
-x0 -> u0+
-y0 & ~xe -> u0-
+x0i & yi -> x0o+
+~yi -> x0o-
 
-x1 -> u1+
-y1 & ~xe -> u1-
+x1i & yi -> x1o+
+~yi -> x0o-
 \end{prs2}
 
 \begin{prs2}
-~u0 & ~u1 -> xe+
-(u0 | u1) & ~y0 & ~y1 -> xe-
+x00 | x10 -> y0+
+~x00 & ~x10 -> y0-
+
+x01 | x11 -> y1+
+~x01 & ~x11 -> y1-
 \end{prs2}
 
-\noindent
-Transistor accounting:
-
-\begin{center}
-    \begin{tabular}{|r|l|l|}
-    \hline
-    rule & transistor count & comments \\ \hline
-    $y[0,1]$ & 16 & \\ \hline
-    $u[0,1]$ & 14 & \\ \hline
-    $xe$ & 10 & \\ \hline
-    \hline total & 40 & ick. per bit. \\ \hline
-    \end{tabular}
-\end{center}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{RECVLEAF FIFO BUFFTESTER (CTRL substitute)}
-
-For testing only.
-
-\begin{hse}
-*[ye+;[xe];x0+,x1+;[y0|y1];ye-;[~xe];x0-,x1-;[~y0&~y1]]
-\end{hse}
-
-\begin{prs2}
-~x0 & ~x1 & ~y0 & ~y1 -> ye+
-(x0 | x1) & (y0 | y1) -> ye-
-\end{prs2}
-
-\begin{prs2}
-xe -> x0+
-~xe -> x0-
-
-xe -> x1+
-~xe -> x1-
-\end{prs2}
+\subsubsection*{CMOS-implementable PRS}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Memory \label{sec:memory}}
