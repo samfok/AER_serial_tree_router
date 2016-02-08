@@ -2681,17 +2681,17 @@ This leaf design does not transmit the $c_o$ signals to the neuron. Rather data 
 
 \begin{hse}
 *[[pi];po+;
-    [p0->u0+;uu+;po-;[~p0];c0o+;cco+;u0-;uu-;
-         po+;[~pi];c0o-;cco-;po-
-    []p1->u1+;uu+;po-;[~p1];c1o+;cco+;u1-;uu-;
-         po+;[~pi];c1o-;cco-;po-
+    [p0->u0+;uu+;po-;[~p0];c0+;cc+;u0-;uu-;
+         po+;[~pi];c0-;cc-;po-
+    []p1->u1+;uu+;po-;[~p1];c1+;cc+;u1-;uu-;
+         po+;[~pi];c1-;cc-;po-
     ];
  ]
 
-*[[c0o&p0->c00+;[c0i];cci+;po-;[~p0];c00-;[~c0i];cci-;po+
-  []c0o&p1->c01+;[c0i];cci+;po-;[~p1];c01-;[~c0i];cci-;po+
-  []c1o&p0->c10+;[c1i];cci+;po-;[~p0];c10-;[~c1i];cci-;po+
-  []c1o&p1->c11+;[c1i];cci+;po-;[~p1];c11-;[~c1i];cci-;po+
+*[[c0&p0->c00+;[c0i];cci+;po-;[~p0];c00-;[~c0i];cci-;po+
+  []c0&p1->c01+;[c0i];cci+;po-;[~p1];c01-;[~c0i];cci-;po+
+  []c1&p0->c10+;[c1i];cci+;po-;[~p0];c10-;[~c1i];cci-;po+
+  []c1&p1->c11+;[c1i];cci+;po-;[~p1];c11-;[~c1i];cci-;po+
  ]]
 \end{hse}
 
@@ -2703,11 +2703,11 @@ This leaf design does not transmit the $c_o$ signals to the neuron. Rather data 
 \end{prs2}
 
 \begin{prs2}
-~cco & p0 -> u0+
-cco -> u0-
+~cc & p0 -> u0+
+cc -> u0-
 
-~cco & p1 -> u1+
-cco -> u1-
+~cc & p1 -> u1+
+cc -> u1-
 \end{prs2}
 
 \begin{prs2}
@@ -2716,33 +2716,33 @@ u0 | u1 -> uu+
 \end{prs2}
 
 \begin{prs2}
-u0 & ~p0 -> c0o+
-~pi -> c0o-
+u0 & ~p0 -> c0+
+~pi -> c0-
 
-u1 & ~p1 -> c1o+
-~pi -> c1o-
+u1 & ~p1 -> c1+
+~pi -> c1-
 \end{prs2}
 
 \begin{prs2}
-c0o | c1o -> cco+
-~c0o & ~c1o -> cco-
+c0 | c1 -> cc+
+~c0 & ~c1 -> cc-
 
 c0i | c1i -> cci+
 ~c0i & ~c1i -> cci-
 \end{prs2}
 
 \begin{prs2}
-c0o & p0 -> c00+
-~c0o | ~p0 -> c00-
+c0 & p0 -> c00+
+~c0 | ~p0 -> c00-
 
-c0o & p1 -> c01+
-~c0o | ~p1 -> c01-
+c0 & p1 -> c01+
+~c0 | ~p1 -> c01-
 
-c1o & p0 -> c10+
-~c1o | ~p0 -> c10-
+c1 & p0 -> c10+
+~c1 | ~p0 -> c10-
 
-c1o & p1 -> c11+
-~c1o | ~p1 -> c11-
+c1 & p1 -> c11+
+~c1 | ~p1 -> c11-
 \end{prs2}
 
 \noindent
@@ -2813,16 +2813,16 @@ _cci -> __cci-
 \end{prs2}
 
 \begin{prs2}
-(~_pi | ~_cco) & ~uu & ~__cci -> po+
-_pi & _cco | uu | __cci -> po-
+(~_pi | ~_cc) & ~uu & ~__cci -> po+
+_pi & _cc | uu | __cci -> po-
 \end{prs2}
 
 \begin{prs2}
-_cco & p0 -> _u0-
-~_cco -> _u0+
+_cc & p0 -> _u0-
+~_cc -> _u0+
 
-_cco & p1 -> _u1-
-~_cco -> _u1+
+_cc & p1 -> _u1-
+~_cc -> _u1+
 \end{prs2}
 
 \begin{prs2}
@@ -2831,33 +2831,33 @@ _u0 & _u1 -> uu-
 \end{prs2}
 
 \begin{prs2}
-~_u0 & ~p0 -> c0o+
-_pi -> c0o-
+~_u0 & ~p0 -> c0+
+_pi -> c0-
 
-~_u1 & ~p1 -> c1o+
-_pi -> c1o-
+~_u1 & ~p1 -> c1+
+_pi -> c1-
 \end{prs2}
 
 \begin{prs2}
-c0o | c1o -> _cco-
-~c0o & ~c1o -> _cco+
+c0 | c1 -> _cco-
+~c0 & ~c1 -> _cco+
 
 c0i | c1i -> _cci-
 ~c0i & ~c1i -> _cci+
 \end{prs2}
 
 \begin{prs2}
-c0o & p0 -> _c00-
-~c0o | ~p0 -> _c00+
+c0 & p0 -> _c00-
+~c0 | ~p0 -> _c00+
 
-c0o & p1 -> _c01-
-~c0o | ~p1 -> _c01+
+c0 & p1 -> _c01-
+~c0 | ~p1 -> _c01+
 
-c1o & p0 -> _c10-
-~c1o | ~p0 -> _c10+
+c1 & p0 -> _c10-
+~c1 | ~p0 -> _c10+
 
-c1o & p1 -> _c11-
-~c1o | ~p1 -> _c11+
+c1 & p1 -> _c11-
+~c1 | ~p1 -> _c11+
 \end{prs2}
 
 \begin{prs2}

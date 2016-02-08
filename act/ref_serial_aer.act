@@ -612,27 +612,27 @@ namespace aer {
         template <pint N>
         defproc LEAF (globals g; bool pi, po, ci[N]; c1of<N> p, c[N]) {
             // leaf of AERV tree
-            bool u[N], co[N], cco, cci, uu;
+            bool u[N], cc[N], ccc, cci, uu;
             prs<g.Vdd, g.GND> {
-                (pi | cco) & ~uu & ~cci => po+
+                (pi | ccc) & ~uu & ~cci => po+
 
                 (: n : N :
-                    ~cco & p.d[n] -> u[n]+
-                    g.pReset | cco -> u[n]-
+                    ~ccc & p.d[n] -> u[n]+
+                    g.pReset | ccc -> u[n]-
                 )
                 (| : n : N : u[n]) => uu+
 
                 (: n : N :
-                    u[n] & ~p.d[n] -> co[n]+
-                    ~pi -> co[n]-
+                    u[n] & ~p.d[n] -> cc[n]+
+                    ~pi -> cc[n]-
                 )
-                (| : n : N : co[n]) => cco+
+                (| : n : N : cc[n]) => ccc+
 
                 (| : n : N : ci[n]) => cci+
 
                 (: nc : N :
                     (: n : N :
-                        co[nc] & p.d[n] => c[nc].d[n]+
+                        cc[nc] & p.d[n] => c[nc].d[n]+
                     )
                 )
             }

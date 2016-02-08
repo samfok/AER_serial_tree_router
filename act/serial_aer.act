@@ -1106,7 +1106,7 @@ namespace aer {
             // leaf of AERV tree
             // F fanout (number of clients)
             // D 1-of-D data
-            bool _pi, _u[F], co[F], _cco, _cci, __cci, uu;
+            bool _pi, _u[F], cc[F], _ccc, _cci, __cci, uu;
             c1of<D> _c[F];
             [ ~LAYOUT ->
                 prs<g.Vdd, g.GND> {
@@ -1114,25 +1114,25 @@ namespace aer {
     
                     _cci => __cci-
     
-                    (~_pi | ~_cco) & ~uu & ~__cci => po+
+                    (~_pi | ~_ccc) & ~uu & ~__cci => po+
     
                     (: f : F :
-                        _cco & p.d[f] -> _u[f]-
-                        ~g._pReset | ~_cco -> _u[f]+
+                        _ccc & p.d[f] -> _u[f]-
+                        ~g._pReset | ~_ccc -> _u[f]+
                     )
                     (& : f : F : _u[f]) => uu-
     
                     (: f : F :
-                        ~_u[f] & ~p.d[f] -> co[f]+
-                        ~pi -> co[f]-
+                        ~_u[f] & ~p.d[f] -> cc[f]+
+                        ~pi -> cc[f]-
                     )
-                    (| : f : F : co[f]) => _cco-
+                    (| : f : F : cc[f]) => _ccc-
     
                     (| : f : F : ci[f]) => _cci-
     
                     (: f : F :
                         (: d : D :
-                            co[f] & p.d[d] => _c[f].d[d]-
+                            cc[f] & p.d[d] => _c[f].d[d]-
                         )
                     )
                 }
@@ -1151,30 +1151,30 @@ namespace aer {
                     ~_cci<9> -> __cci+
                     _cci<6> -> __cci-
     
-                    (~_pi<4.30> | ~_cco<4.30>) & ~uu<4.30> & ~__cci<4.30> -> po+
-                    _pi<18> & _cco<18> | uu<6> | __cci<6> -> po-
+                    (~_pi<4.30> | ~_ccc<4.30>) & ~uu<4.30> & ~__cci<4.30> -> po+
+                    _pi<18> & _ccc<18> | uu<6> | __cci<6> -> po-
     
                     (: f : F :
-                        _cco<18> & p.d[f]<18> -> _u[f]-
-                        ~g._pReset<6> | ~_cco<9> -> _u[f]+
+                        _ccc<18> & p.d[f]<18> -> _u[f]-
+                        ~g._pReset<6> | ~_ccc<9> -> _u[f]+
                     )
                     (| : f : F : ~_u[f]<9>) -> uu+
                     (& : f : F : _u[f]<24>) -> uu-
     
                     (: f : F :
-                        ~_u[f]<24> & ~p.d[f]<24> -> co[f]+
-                        ~pi<6> -> co[f]-
+                        ~_u[f]<24> & ~p.d[f]<24> -> cc[f]+
+                        ~pi<6> -> cc[f]-
                     )
-                    (| : f : F : co[f]<6>) -> _cco-
-                    (& : f : F : ~co[f]<9>) -> _cco+
+                    (| : f : F : cc[f]<6>) -> _ccc-
+                    (& : f : F : ~cc[f]<9>) -> _ccc+
     
                     (| : f : F : ci[f]<6>) -> _cci-
                     (& : f : F : ~ci[f]<9>) -> _cci+
     
                     (: f : F :
                         (: d : D :
-                            co[f]<18> & p.d[d]<18> -> _c[f].d[d]-
-                            ~co[f]<9> | ~p.d[d]<9> -> _c[f].d[d]+
+                            cc[f]<18> & p.d[d]<18> -> _c[f].d[d]-
+                            ~cc[f]<9> | ~p.d[d]<9> -> _c[f].d[d]+
                         )
                     )
                 }
@@ -1299,24 +1299,18 @@ namespace aer {
     }
 
     export
-    template <pint M_SPK, M_MEM, T>
-    defproc BRAIN_AERV (globals g;
-        eMx1ofN<M_SPK, 4> x_spk; eMx1ofN<M_MEM, 4> x_mem;
-        a1of2 y_syn[2*T/3]; eMx1of4 y_mem[T/3]) {
+    template <pint M_SPK, M_MEM, S>
+    defproc BRAIN_AERV (globals g; eMx1ofN<M_SPK, 4> x_spk; 
+                        eMx1ofN<M_MEM, 4> x_mem;
+                        a1of2 y_syn[S]; eMx1of4 y_mem[S/2]) {
         // braindrop / brainstorm receiver system
         // M_SPK packet length to deliver spike to synapse 
         // M_MEM packet length to write config memory
-        // T targets. T = 3 * 4^(M_TREE-1)
-        // 2T/3 targets are synapses
-        // T/3 targets are memories
-        [ (T % 3) != 0 ->
-            1 = 0; // assert false
-        ]
+        // S synapses. S = 2 * 4^(M_SPK-1)
+        // 2 synapses per memory
         pint F_INT = 4;
         pint F_LEAF = 3;
         pint D = 4;
-        pint N_SYN = 4*T/3;
-        pint N_MEM = T/3;
         interface::SERIAL_CHAIN<M_SPK, D> serial_spk(g, x_spk,,,);
         interface::SERIAL_CHAIN<M_MEM, D> serial_mem(g, x_mem,,,);
         // AERV<M, F_INT, F_LEAF, T, D> aerv(g,, serial.yo, serial.yi,, serial.y);
