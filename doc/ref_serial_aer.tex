@@ -138,9 +138,7 @@ needs at least 28 bits of memory.
     && chain serializer (Section~\ref{sec:SERIAL_CHAIN})
     &&& \textbf{NODE} (Section~\ref{sec:SERIAL_CHAIN_NODE})
     &&& \textbf{TAIL} (Section~\ref{sec:SERIAL_CHAIN_TAIL})
-    & serial merge excl in (Section~\ref{sec:SERIAL_MERGE})
-    && mutually exclusive input (Section~\ref{sec:SERIAL_MERGE_EXCL})
-    && non-mutually exclusive input (Section~\ref{sec:SERIAL_MERGE_ARB})
+    & serial merge (Section~\ref{sec:SERIAL_MERGE})
 \end{easylist}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -6323,19 +6321,17 @@ xe & po -> s-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Serial merge \label{sec:SERIAL_MERGE}}
 
-The receiver is responsible for sending spikes to neurons and configuration
+The receiver is responsible for sending spikes to neurons and
 data to the neuron and synapse configuration memory.
-Sending a spike to the neuron and sending a row of configuration data to the configuration memory
+This designs uses an arbiter to handle concurrent input so that we can
+send spikes and write to the configuration memeory on the fly.
 
 \noindent
 For M inputs and 1-of-D encoding,
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Serial merge with mutually exclusive inputs \label{sec:SERIAL_MERGE_EXCL}}
-
 \begin{hse}
 *[[
-   \langle[]m:M:xmi->yo+;[yi];xmo+;[~xmi];yo-;[~yi];xmo-\rangle
+   \langle\|m:M:xmi->yo+;[yi];xmo+;[~xmi];yo-;[~yi];xmo-\rangle
  ]]
 
 *[[
@@ -6348,10 +6344,10 @@ For M=2 and D=2,
 
 \begin{hse}
 *[[x0i->yo+;[yi];x0o+;[~x0i];yo-;[~yi];x0o-
-  []x1i->yo+;[yi];x1o+;[~x1i];yo-;[~yi];x1o-
+  \|x1i->yo+;[yi];x1o+;[~x1i];yo-;[~yi];x1o-
  ]]
 
-*[ [x00->y0+;[~yi];x0o-;[~x00];y0-;[yi];x0o-
+*[[x00->y0+;[~yi];x0o-;[~x00];y0-;[yi];x0o-
   []x01->y1+;[~yi];x0o-;[~x01];y1-;[yi];x0o-
   []x10->y0+;[~yi];x1o-;[~x10];y0-;[yi];x1o-
   []x11->y1+;[~yi];x1o-;[~x11];y1-;[yi];x1o-
@@ -6360,67 +6356,7 @@ For M=2 and D=2,
 
 \subsubsection*{PRS}
 
-\begin{prs2}
-x0i | x1i -> yo+
-~x0i & ~x1i -> yo-
-\end{prs2}
-
-\begin{prs2}
-x0i & yi -> x0o+
-~yi -> x0o-
-
-x1i & yi -> x1o+
-~yi -> x0o-
-\end{prs2}
-
-\begin{prs2}
-x00 | x10 -> y0+
-~x00 & ~x10 -> y0-
-
-x01 | x11 -> y1+
-~x01 & ~x11 -> y1-
-\end{prs2}
-
-\subsubsection*{CMOS-implementable PRS}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Serial merge with non-mutually exclusive inputs \label{sec:SERIAL_MERGE_ARB}}
-
-This designs adds an arbiter to handle concurrent input, which means we can
-support reprogramming the neuron and synapse configuration data on the fly.
-
-\begin{hse}
-*[[
-   \langle[]m:M:xmi->yo+;[yi];xmo+;[~xmi];yo-;[~yi];xmo-\rangle
- ]]
-
-*[[
-   \langle[]m:M:\langle[]d:D:xmd->yd+;xmo-;[~xmd];yd-;xmo-\rangle\rangle
- ]]
-\end{hse}
-
-\noindent
-For M=2 and D=2,
-
-\begin{hse}
-*[[x0i->u0+;[~x0i];u0-
-  \|x1i->u1+;[~x1i];u1-
- ]]
-
-*[[u0->yo+;[yi];x0o+;[~u0];yo-;[~yi];x0o-
-  []u1->yo+;[yi];x1o+;[~u1];yo-;[~yi];x1o-
- ]]
-
-*[ [x00->y0+;[~yi];x0o-;[~x00];y0-;[yi];x0o-
-  []x01->y1+;[~yi];x0o-;[~x01];y1-;[yi];x0o-
-  []x10->y0+;[~yi];x1o-;[~x10];y0-;[yi];x1o-
-  []x11->y1+;[~yi];x1o-;[~x11];y1-;[yi];x1o-
- ]]
-\end{hse}
-
-\subsubsection*{PRS}
-
-The parent requests and grants are handled by a standard n-way arbiter with
+The parent requests and grants are handled by the standard n-way arbiter with
 its parent ports exposed. Otherwise,
 
 \begin{prs2}
