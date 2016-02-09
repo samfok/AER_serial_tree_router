@@ -1,5 +1,5 @@
+// tests ability for brain aerv to deliver spikes
 import "serial_aer.act";
-import "test.act";
 
 pint M     = 2;
 pint M_SPK = M+1;
@@ -8,17 +8,18 @@ pint N_SYN = 16;
 pint N_MEM = N_SYN/4;
 pint D     = 4;
 globals g;
+bool Reset = g.sReset;
 
-SOURCE_BRAIN_AERV<M_SPK, M-1, 0, 2> spk_src(g,);
-SOURCE_BRAIN_AERV<M_MEM, M-1, 2, 1> mem_src(g,);
-SINK_a1ofN<2> spk_snk[N_SYN];
+SINK_e1ofN<2> spk_snk[N_SYN];
 SINK_eMx1ofN<M_MEM-M, D> mem_snk[N_MEM];
 
 a1of2 y_syn[N_SYN];
 (; n : N_SYN :
     spk_snk[n].g = g;
     spk_snk[n].d.d = y_syn[n].d;
-    spk_snk[n].d.a = y_syn[n].a;
+    prs<g.Vdd, g.GND> {
+        spk_snk[n].d.e => y_syn[n].a-
+    }
 )
 eMx1of4<M_MEM-M> y_mem[N_MEM];
 (; n : N_MEM :
@@ -27,5 +28,13 @@ eMx1of4<M_MEM-M> y_mem[N_MEM];
     mem_snk[n].d.e = y_mem[n].e;
 )
 
+eMx1of4<M_SPK> spk_src;
+eMx1of4<M_MEM> mem_src;
+(; m : M_MEM:
+    (; n : D :
+        mem_src.m[m].n[n] = g.GND;
+    )
+)
+
 aer::BRAIN_AERV<M, M_SPK, M_MEM, N_SYN, N_MEM> aerv(
-    g, spk_src.d, mem_src.d, y_syn, y_mem);
+    g, spk_src, mem_src, y_syn, y_mem);

@@ -1,0 +1,103 @@
+channel eMx1of4 3 spk_src
+channel e1ofN 2 spk_snk[0].d
+channel e1ofN 2 spk_snk[1].d
+channel e1ofN 2 spk_snk[2].d
+channel e1ofN 2 spk_snk[3].d
+channel e1ofN 2 spk_snk[4].d
+channel e1ofN 2 spk_snk[5].d
+channel e1ofN 2 spk_snk[6].d
+channel e1ofN 2 spk_snk[7].d
+channel e1ofN 2 spk_snk[8].d
+channel e1ofN 2 spk_snk[9].d
+channel e1ofN 2 spk_snk[10].d
+channel e1ofN 2 spk_snk[11].d
+channel e1ofN 2 spk_snk[12].d
+channel e1ofN 2 spk_snk[13].d
+channel e1ofN 2 spk_snk[14].d
+channel e1ofN 2 spk_snk[15].d
+
+loop-injectfile spk_src test/serial_aer/unit/brain_aerv_spk.in
+loop-expectfile spk_snk[0].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[1].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[2].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[3].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[4].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[5].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[6].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[7].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[8].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[9].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[10].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[11].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[12].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[13].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[14].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[15].d test/serial_aer/unit/brain_aerv_spk.out
+
+source r.scr
+
+# vector spk_src_m0 :1ofN 4 spk_src.m[0].n[0] spk_src.m[0].n[1] spk_src.m[0].n[2] spk_src.m[0].n[3]
+# vector spk_src_m1 :1ofN 4 spk_src.m[1].n[0] spk_src.m[1].n[1] spk_src.m[1].n[2] spk_src.m[1].n[3]
+# vector spk_src_m2 :1ofN 4 spk_src.m[2].n[0] spk_src.m[2].n[1] spk_src.m[2].n[2] spk_src.m[2].n[3]
+# vwatch spk_src_m0
+# vwatch spk_src_m1
+# vwatch spk_src_m2
+# 
+# vector merge_x0 :1ofN 4 aerv.merge.x[0].d[0] aerv.merge.x[0].d[1] aerv.merge.x[0].d[2] aerv.merge.x[0].d[3]
+# vector merge_x1 :1ofN 4 aerv.merge.x[1].d[0] aerv.merge.x[1].d[1] aerv.merge.x[1].d[2] aerv.merge.x[1].d[3]
+# vector merge_y :1ofN 4 aerv.merge.y.d[0] aerv.merge.y.d[1] aerv.merge.y.d[2] aerv.merge.y.d[3]
+# vwatch merge_x0
+# vwatch merge_x1
+# vwatch merge_y
+
+set_principal aerv.serial_spk.node[0].d.d[0]
+set_principal aerv.serial_spk.node[0].d.d[1]
+set_principal aerv.serial_spk.node[0].d.d[2]
+set_principal aerv.serial_spk.node[0].d.d[3]
+set_principal aerv.serial_spk.node[1].d.d[0]
+set_principal aerv.serial_spk.node[1].d.d[1]
+set_principal aerv.serial_spk.node[1].d.d[2]
+set_principal aerv.serial_spk.node[1].d.d[3]
+set_principal aerv.serial_spk.tail.d.d[0]
+set_principal aerv.serial_spk.tail.d.d[1]
+set_principal aerv.serial_spk.tail.d.d[2]
+set_principal aerv.serial_spk.tail.d.d[3]
+watch aerv.serial_spk.node[0].d.d[0]
+watch aerv.serial_spk.node[0].d.d[1]
+watch aerv.serial_spk.node[0].d.d[2]
+watch aerv.serial_spk.node[0].d.d[3]
+watch aerv.serial_spk.node[1].d.d[0]
+watch aerv.serial_spk.node[1].d.d[1]
+watch aerv.serial_spk.node[1].d.d[2]
+watch aerv.serial_spk.node[1].d.d[3]
+watch aerv.serial_spk.tail.d.d[0]
+watch aerv.serial_spk.tail.d.d[1]
+watch aerv.serial_spk.tail.d.d[2]
+watch aerv.serial_spk.tail.d.d[3]
+
+set_principal aerv.merge.xi[0]
+set_principal aerv.merge.xi[1]
+set_principal aerv.merge.xo[0]
+set_principal aerv.merge.xo[1]
+set_principal aerv.merge.yi
+set_principal aerv.merge.yo
+
+watch aerv.merge.xi[0]
+watch aerv.merge.xi[1]
+watch aerv.merge.xo[0]
+watch aerv.merge.xo[1]
+watch aerv.merge.yi
+watch aerv.merge.yo
+
+set_principal aerv.serial_spk.node[0].y.e
+set_principal aerv.serial_spk.node[1].y.e
+set_principal aerv.serial_spk.tail.y.e
+
+set_principal aerv.serial_spk.node[0].y.d[0]
+set_principal aerv.serial_spk.node[0].y.d[1]
+set_principal aerv.serial_spk.node[0].y.d[2]
+set_principal aerv.serial_spk.node[0].y.d[3]
+watch aerv.serial_spk.node[0].y.d[0]
+watch aerv.serial_spk.node[0].y.d[1]
+watch aerv.serial_spk.node[0].y.d[2]
+watch aerv.serial_spk.node[0].y.d[3]
