@@ -1,48 +1,40 @@
-// Defines processes used in testing
-import "lib/globals.act";
+// Processes used in testing
+import "environment.act";
 
-export
-template <pint N>
-defproc active_handshaker(globals g; bool i[N], o[N]) {
-    // a simple active handshaker
-    (; n : N :
-        prs <g.Vdd,g.GND> {
-            ~g.sReset & ~i[n] -> o[n]+
-            g.pReset  | i[n]  -> o[n]-
-        }
+template <pint M, T_PIDX, T_WIDX, T_N>
+defproc SOURCE_BRAIN_AERV (globals g; eMx1of4<M> d) {
+    // generates packets for brainstorm/braindrop receiver
+    // packets consist of route words and payload words
+    // M packet length
+    //     M = 6 (in production for spk packets)
+    //     M = 9 (in production for mem packets)
+    // T_PIDX index in packet of route's tail word
+    //     T_PIDX = 4 (in production for spk/mem packets)
+    // T_WIDX index in tail word of valid values
+    //     T_WIDX = 0 (in production for spk packets)
+    //     T_WIDX = 2 (in production for mem packets)
+    // T_N values for the route tail word
+    //     T_N = 2 (in production for spk packets)
+    //     T_N = 1 (in production for mem packets)
+    SOURCE_random_e1ofN<T_N> tail_src(g,);
+    SOURCE_random_eMx1of4<M-1> src(g,);
+    tail_src.d.e = d.e;
+    src.d.e = d.e;
+
+    d.m[T_PIDX].n[T_WIDX..T_WIDX+T_N-1] = tail_src.d.d;
+    (; widx : T_WIDX :
+        d.m[T_PIDX].n[widx] = g.GND;
     )
-}
+    [ (T_N + T_WIDX) < 4 ->
+        (; widx : T_WIDX+T_N..3 :
+            d.m[T_PIDX].n[widx] = g.GND;
+        )
+    ]
 
-export
-template <pint N>
-defproc _active_handshaker(globals g; bool _i[N], _o[N]) {
-    // active low version of active_handshaker
-    (; n : N :
-        prs <g.Vdd,g.GND> {
-            g._sReset & _i[n]   -> _o[n]-
-            ~g._pReset | ~_i[n] -> _o[n]+
-        }
+    (; m : T_PIDX :
+        d.m[m] = src.d.m[m];
     )
-}
-
-export
-template <pint N>
-defproc passive_handshaker(bool i[N], o[N]) {
-    // a simple passive handshaker
-    (; n : N :
-        prs {
-            i[n]  => o[n]+ // just a wire with delay
-        }
+    (; m : T_PIDX+1..M-1 :
+        d.m[m] = src.d.m[m-1];
     )
-}
-
-export
-template <pint N>
-defproc TEST_TEST(globals g) {
-    // tests active and passive handshakers
-    active_handshaker<N> a(g,,);
-    passive_handshaker<N> p(,);
-    
-    a.i = p.o;
-    a.o = p.i;
 }

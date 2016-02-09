@@ -1,0 +1,35 @@
+import "serial_aer.act";
+import "test.act";
+
+template <pint M, M_SPK, M_MEM, N_SYN, N_MEM>
+defproc TEST_BRAIN_AERV (globals g) {
+    pint D = 4;
+    SOURCE_BRAIN_AERV<M_SPK, M-1, 0, 2> spk_src(g,);
+    SOURCE_BRAIN_AERV<M_MEM, M-1, 2, 1> mem_src(g,);
+    SINK_a1ofN<2> spk_snk[N_SYN];
+    SINK_eMx1ofN<M_MEM-M, D> mem_snk[N_MEM];
+
+    a1of2 y_syn[N_SYN];
+    (; n : N_SYN :
+        spk_snk[n].g = g;
+        spk_snk[n].d.d = y_syn[n].d;
+        spk_snk[n].d.a = y_syn[n].a;
+    )
+    eMx1of4<M_MEM-M> y_mem[N_MEM];
+    (; n : N_MEM :
+        mem_snk[n].g = g;
+        mem_snk[n].d.m = y_mem[n].m;
+        mem_snk[n].d.e = y_mem[n].e;
+    )
+
+    aer::BRAIN_AERV<M, M_SPK, M_MEM, N_SYN, N_MEM> aerv(
+        g, spk_src.d, mem_src.d, y_syn, y_mem);
+}
+
+globals g;
+pint M     = 1;
+pint M_SPK = M+1;
+pint M_MEM = M+4;
+pint N_SYN = 4;
+pint N_MEM = 1;
+TEST_BRAIN_AERV<M, M_SPK, M_MEM, N_SYN, N_MEM> test(g);
