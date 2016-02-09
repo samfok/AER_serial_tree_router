@@ -27,9 +27,9 @@ defproc TEST_BRAIN_AERV (globals g) {
 }
 
 globals g;
-pint M     = 1;
+pint M     = 3;
 pint M_SPK = M+1;
 pint M_MEM = M+4;
-pint N_SYN = 4;
-pint N_MEM = 1;
+pint N_SYN = 64;
+pint N_MEM = N_SYN/4;
 TEST_BRAIN_AERV<M, M_SPK, M_MEM, N_SYN, N_MEM> test(g);

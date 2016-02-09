@@ -1410,11 +1410,11 @@ namespace aer {
 
         c1of<D> aerv_y[AERV_TGTS];
         (; n : AERV_TGTS/3 :
-            aerv_y[n].d[0..1] = y_syn[4*n].d;
-            aerv_y[n].d[2..3] = y_syn[4*n+1].d;
-            aerv_y[n+1].d[0..1] = y_syn[4*n+2].d;
-            aerv_y[n+1].d[2..3] = y_syn[4*n+3].d;
-            aerv_y[n+2].d = mem_deserial[n].x.d;
+            aerv_y[3*n].d[0..1] = y_syn[4*n].d;
+            aerv_y[3*n].d[2..3] = y_syn[4*n+1].d;
+            aerv_y[3*n+1].d[0..1] = y_syn[4*n+2].d;
+            aerv_y[3*n+1].d[2..3] = y_syn[4*n+3].d;
+            aerv_y[3*n+2].d = mem_deserial[n].x.d;
         )
 
         AERV<M, F_INT, F_LEAF, AERV_TGTS, D> aerv(
