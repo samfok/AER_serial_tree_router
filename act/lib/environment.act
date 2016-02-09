@@ -94,6 +94,16 @@ defproc SINK_eMx1ofN (globals g; eMx1ofN<M, N> d) {
 }
 
 export
+template <pint M>
+defproc SINK_eMx1of4 (globals g; eMx1of4<M> d) {
+    SINK_eMx1ofN<M, 4> snk(g,);
+    (; m : M :
+        snk.d.m[m] = d.m[m];
+    )
+    snk.d.e = d.e;
+}
+
+export
 template <pint N>
 defproc SINK_e1ofN (globals g; e1of<N> d) {
     SINK_eMx1ofN<1, N> snk(g,);

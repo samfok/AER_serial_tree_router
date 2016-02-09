@@ -1,6 +1,0 @@
-import "lib/globals.act";
-import "test.act";
-
-globals g;
-pint N=2;
-TEST_TEST<N> test(g);
