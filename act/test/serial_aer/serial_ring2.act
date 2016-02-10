@@ -4,7 +4,6 @@ import "test.act";
 globals g;
 pint M=3;
 pint N=2;
-pint NN=8; // NN=N^M
 SOURCE_random_eMx1ofN<M, N> src(g,);
 aer::interface::SERIAL_RING2<M, N> serial(g, src.d,,,);
 SINK_SERIAL<N> snk(g, serial.yo, serial.yi, serial.y);

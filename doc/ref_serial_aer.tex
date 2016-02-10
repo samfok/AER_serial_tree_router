@@ -132,6 +132,7 @@ needs at least 28 bits of memory.
     & serializer, parallel to serial converter (Section~\ref{sec:SERIAL})
     && ring serializer (Section~\ref{sec:SERIAL_RING})
     &&& \textbf{NODE} (Section~\ref{sec:SERIAL_RING_NODE})
+    &&& \textbf{SEQ} (Section~\ref{sec:SERIAL_RING_SEQ})
     && ring serializer 2 (Section~\ref{sec:SERIAL_RING2})
     &&& \textbf{NODE} (Section~\ref{sec:SERIAL_RING2_NODE})
     &&& \textbf{MERGE} (Section~\ref{sec:SERIAL_RING2_MERGE})
@@ -5754,28 +5755,28 @@ encoded as 1-of-2 or 1-of-4 words, we would need 12 and 6 NODEs, respectively.
 \section{Ring serializer NODE \label{sec:SERIAL_RING_NODE}}
 
 \begin{hse}
-*[[ye&si];
-  [ x0->y0+;[~ye];u+;y0-;so+;[~si&~x0];u-;so-
-  []x1->y1+;[~ye];u+;y1-;so+;[~si&~x1];u-;so-
+*[[si];
+  [ x0->y0+;[ya];u+;y0-;[~ya];so+;[~si];u-;[~x0];so-
+  []x1->y1+;[ya];u+;y1-;[~ya];so+;[~si];u-;[~x1];so-
  ]]
 \end{hse}
 
 \begin{prs2}
-~u & ye & si & x0 -> y0+
-u -> y0-
+x0 & ~u & si -> y0+
+u & ~so -> y0-
 
-ye & ~u & si & x1 -> y1+
-u -> y1-
+x1 & ~u & si -> y1+
+u & ~so -> y1-
 \end{prs2}
 
 \begin{prs2}
-(y0 | y0) & ~ye -> u+
-~x0 & ~x1 & ~si -> u-
+si & ya -> u+
+~si -> u-
 \end{prs2}
 
 \begin{prs2}
-u & ~y0 & ~y1 -> so+
-~u | y0 | y1 -> so-
+u & ~ya -> so+
+~u & ~x0 & ~x1 -> so-
 \end{prs2}
 
 \noindent
@@ -5807,14 +5808,40 @@ u & ~y0 & ~y1 -> so+
 \end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Ring serializer C \label{sec:SERIAL_RING_C}}
+\section{Ring serializer sequencer \label{sec:SERIAL_RING_SEQ}}
 
-The C process in the ring serializer is a C-element and costs 8 transistors.
+\begin{hse}
+*[[si];so+;[x0|x1];yo+;
+  [~si&yi];yo-;[~yi];so-]
+
+*[[x0->y0+;[~yi];xa+;[~x0];y0-;[yi];xa-
+  []x1->y1+;[~yi];xa+;[~x1];y1-;[yi];xa-
+ ]]
+\end{hse}
 
 \begin{prs2}
-so & po -> s-
-~so & ~po -> s+
+x0 | x1 -> yo+
+~si & yi -> yo-
 \end{prs2}
+
+\begin{prs2}
+si -> so+
+~si & ~yi & ~yo -> so-
+\end{prs2}
+
+\begin{prs2}
+yi & x0 -> y0+
+~x0 -> y0-
+
+yi & x1 -> y1+
+~x1 -> y1-
+\end{prs2}
+
+\begin{prs2}
+(y0 | y1) & ~yi -> xa+
+yi -> xa-
+\end{prs2}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Ring serializer 2 \label{sec:SERIAL_RING2}}

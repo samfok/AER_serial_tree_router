@@ -1,4 +1,4 @@
-channel eMx1of4 3 spk_src
+channel eMx1of4 4 spk_src
 channel e1ofN 2 spk_snk[0].d
 channel e1ofN 2 spk_snk[1].d
 channel e1ofN 2 spk_snk[2].d
@@ -15,6 +15,55 @@ channel e1ofN 2 spk_snk[12].d
 channel e1ofN 2 spk_snk[13].d
 channel e1ofN 2 spk_snk[14].d
 channel e1ofN 2 spk_snk[15].d
+channel e1ofN 2 spk_snk[16].d
+channel e1ofN 2 spk_snk[17].d
+channel e1ofN 2 spk_snk[18].d
+channel e1ofN 2 spk_snk[19].d
+channel e1ofN 2 spk_snk[20].d
+channel e1ofN 2 spk_snk[21].d
+channel e1ofN 2 spk_snk[22].d
+channel e1ofN 2 spk_snk[23].d
+channel e1ofN 2 spk_snk[24].d
+channel e1ofN 2 spk_snk[25].d
+channel e1ofN 2 spk_snk[26].d
+channel e1ofN 2 spk_snk[27].d
+channel e1ofN 2 spk_snk[28].d
+channel e1ofN 2 spk_snk[29].d
+channel e1ofN 2 spk_snk[30].d
+channel e1ofN 2 spk_snk[31].d
+channel e1ofN 2 spk_snk[32].d
+channel e1ofN 2 spk_snk[33].d
+channel e1ofN 2 spk_snk[34].d
+channel e1ofN 2 spk_snk[35].d
+channel e1ofN 2 spk_snk[36].d
+channel e1ofN 2 spk_snk[37].d
+channel e1ofN 2 spk_snk[38].d
+channel e1ofN 2 spk_snk[39].d
+channel e1ofN 2 spk_snk[40].d
+channel e1ofN 2 spk_snk[41].d
+channel e1ofN 2 spk_snk[42].d
+channel e1ofN 2 spk_snk[43].d
+channel e1ofN 2 spk_snk[44].d
+channel e1ofN 2 spk_snk[45].d
+channel e1ofN 2 spk_snk[46].d
+channel e1ofN 2 spk_snk[47].d
+channel e1ofN 2 spk_snk[48].d
+channel e1ofN 2 spk_snk[49].d
+channel e1ofN 2 spk_snk[50].d
+channel e1ofN 2 spk_snk[51].d
+channel e1ofN 2 spk_snk[52].d
+channel e1ofN 2 spk_snk[53].d
+channel e1ofN 2 spk_snk[54].d
+channel e1ofN 2 spk_snk[55].d
+channel e1ofN 2 spk_snk[56].d
+channel e1ofN 2 spk_snk[57].d
+channel e1ofN 2 spk_snk[58].d
+channel e1ofN 2 spk_snk[59].d
+channel e1ofN 2 spk_snk[60].d
+channel e1ofN 2 spk_snk[61].d
+channel e1ofN 2 spk_snk[62].d
+channel e1ofN 2 spk_snk[63].d
+
 
 loop-injectfile spk_src test/serial_aer/unit/brain_aerv_spk.in
 loop-expectfile spk_snk[0].d test/serial_aer/unit/brain_aerv_spk.out
@@ -33,71 +82,193 @@ loop-expectfile spk_snk[12].d test/serial_aer/unit/brain_aerv_spk.out
 loop-expectfile spk_snk[13].d test/serial_aer/unit/brain_aerv_spk.out
 loop-expectfile spk_snk[14].d test/serial_aer/unit/brain_aerv_spk.out
 loop-expectfile spk_snk[15].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[16].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[17].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[18].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[19].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[20].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[21].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[22].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[23].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[24].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[25].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[26].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[27].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[28].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[29].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[30].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[31].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[32].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[33].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[34].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[35].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[36].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[37].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[38].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[39].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[40].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[41].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[42].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[43].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[44].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[45].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[46].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[47].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[48].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[49].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[50].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[51].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[52].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[53].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[54].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[55].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[56].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[57].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[58].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[59].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[60].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[61].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[62].d test/serial_aer/unit/brain_aerv_spk.out
+loop-expectfile spk_snk[63].d test/serial_aer/unit/brain_aerv_spk.out
 
 source r.scr
 
-# vector spk_src_m0 :1ofN 4 spk_src.m[0].n[0] spk_src.m[0].n[1] spk_src.m[0].n[2] spk_src.m[0].n[3]
-# vector spk_src_m1 :1ofN 4 spk_src.m[1].n[0] spk_src.m[1].n[1] spk_src.m[1].n[2] spk_src.m[1].n[3]
-# vector spk_src_m2 :1ofN 4 spk_src.m[2].n[0] spk_src.m[2].n[1] spk_src.m[2].n[2] spk_src.m[2].n[3]
-# vwatch spk_src_m0
-# vwatch spk_src_m1
-# vwatch spk_src_m2
-# 
-# vector merge_x0 :1ofN 4 aerv.merge.x[0].d[0] aerv.merge.x[0].d[1] aerv.merge.x[0].d[2] aerv.merge.x[0].d[3]
-# vector merge_x1 :1ofN 4 aerv.merge.x[1].d[0] aerv.merge.x[1].d[1] aerv.merge.x[1].d[2] aerv.merge.x[1].d[3]
-# vector merge_y :1ofN 4 aerv.merge.y.d[0] aerv.merge.y.d[1] aerv.merge.y.d[2] aerv.merge.y.d[3]
-# vwatch merge_x0
-# vwatch merge_x1
-# vwatch merge_y
+vector spk_src_m0 :1ofN 4 spk_src.m[0].n[0] spk_src.m[0].n[1] spk_src.m[0].n[2] spk_src.m[0].n[3]
+vector spk_src_m1 :1ofN 4 spk_src.m[1].n[0] spk_src.m[1].n[1] spk_src.m[1].n[2] spk_src.m[1].n[3]
+vector spk_src_m2 :1ofN 4 spk_src.m[2].n[0] spk_src.m[2].n[1] spk_src.m[2].n[2] spk_src.m[2].n[3]
+vector spk_src_m3 :1ofN 4 spk_src.m[3].n[0] spk_src.m[3].n[1] spk_src.m[3].n[2] spk_src.m[3].n[3]
+vwatch spk_src_m0
+vwatch spk_src_m1
+vwatch spk_src_m2
+vwatch spk_src_m3
 
-set_principal aerv.serial_spk.node[0].d.d[0]
-set_principal aerv.serial_spk.node[0].d.d[1]
-set_principal aerv.serial_spk.node[0].d.d[2]
-set_principal aerv.serial_spk.node[0].d.d[3]
-set_principal aerv.serial_spk.node[1].d.d[0]
-set_principal aerv.serial_spk.node[1].d.d[1]
-set_principal aerv.serial_spk.node[1].d.d[2]
-set_principal aerv.serial_spk.node[1].d.d[3]
-set_principal aerv.serial_spk.tail.d.d[0]
-set_principal aerv.serial_spk.tail.d.d[1]
-set_principal aerv.serial_spk.tail.d.d[2]
-set_principal aerv.serial_spk.tail.d.d[3]
-watch aerv.serial_spk.node[0].d.d[0]
-watch aerv.serial_spk.node[0].d.d[1]
-watch aerv.serial_spk.node[0].d.d[2]
-watch aerv.serial_spk.node[0].d.d[3]
-watch aerv.serial_spk.node[1].d.d[0]
-watch aerv.serial_spk.node[1].d.d[1]
-watch aerv.serial_spk.node[1].d.d[2]
-watch aerv.serial_spk.node[1].d.d[3]
-watch aerv.serial_spk.tail.d.d[0]
-watch aerv.serial_spk.tail.d.d[1]
-watch aerv.serial_spk.tail.d.d[2]
-watch aerv.serial_spk.tail.d.d[3]
+vector spk_snk0 :1ofN 2 spk_snk[0].d.d[0] spk_snk[0].d.d[1]
+vector spk_snk1 :1ofN 2 spk_snk[1].d.d[0] spk_snk[1].d.d[1]
+vector spk_snk2 :1ofN 2 spk_snk[2].d.d[0] spk_snk[2].d.d[1]
+vector spk_snk3 :1ofN 2 spk_snk[3].d.d[0] spk_snk[3].d.d[1]
+vector spk_snk4 :1ofN 2 spk_snk[4].d.d[0] spk_snk[4].d.d[1]
+vector spk_snk5 :1ofN 2 spk_snk[5].d.d[0] spk_snk[5].d.d[1]
+vector spk_snk6 :1ofN 2 spk_snk[6].d.d[0] spk_snk[6].d.d[1]
+vector spk_snk7 :1ofN 2 spk_snk[7].d.d[0] spk_snk[7].d.d[1]
+vector spk_snk8 :1ofN 2 spk_snk[8].d.d[0] spk_snk[8].d.d[1]
+vector spk_snk9 :1ofN 2 spk_snk[9].d.d[0] spk_snk[9].d.d[1]
+vector spk_snk10 :1ofN 2 spk_snk[10].d.d[0] spk_snk[10].d.d[1]
+vector spk_snk11 :1ofN 2 spk_snk[11].d.d[0] spk_snk[11].d.d[1]
+vector spk_snk12 :1ofN 2 spk_snk[12].d.d[0] spk_snk[12].d.d[1]
+vector spk_snk13 :1ofN 2 spk_snk[13].d.d[0] spk_snk[13].d.d[1]
+vector spk_snk14 :1ofN 2 spk_snk[14].d.d[0] spk_snk[14].d.d[1]
+vector spk_snk15 :1ofN 2 spk_snk[15].d.d[0] spk_snk[15].d.d[1]
+vector spk_snk16 :1ofN 2 spk_snk[16].d.d[0] spk_snk[16].d.d[1]
+vector spk_snk17 :1ofN 2 spk_snk[17].d.d[0] spk_snk[17].d.d[1]
+vector spk_snk18 :1ofN 2 spk_snk[18].d.d[0] spk_snk[18].d.d[1]
+vector spk_snk19 :1ofN 2 spk_snk[19].d.d[0] spk_snk[19].d.d[1]
+vector spk_snk20 :1ofN 2 spk_snk[20].d.d[0] spk_snk[20].d.d[1]
+vector spk_snk21 :1ofN 2 spk_snk[21].d.d[0] spk_snk[21].d.d[1]
+vector spk_snk22 :1ofN 2 spk_snk[22].d.d[0] spk_snk[22].d.d[1]
+vector spk_snk23 :1ofN 2 spk_snk[23].d.d[0] spk_snk[23].d.d[1]
+vector spk_snk24 :1ofN 2 spk_snk[24].d.d[0] spk_snk[24].d.d[1]
+vector spk_snk25 :1ofN 2 spk_snk[25].d.d[0] spk_snk[25].d.d[1]
+vector spk_snk26 :1ofN 2 spk_snk[26].d.d[0] spk_snk[26].d.d[1]
+vector spk_snk27 :1ofN 2 spk_snk[27].d.d[0] spk_snk[27].d.d[1]
+vector spk_snk28 :1ofN 2 spk_snk[28].d.d[0] spk_snk[28].d.d[1]
+vector spk_snk29 :1ofN 2 spk_snk[29].d.d[0] spk_snk[29].d.d[1]
+vector spk_snk30 :1ofN 2 spk_snk[30].d.d[0] spk_snk[30].d.d[1]
+vector spk_snk31 :1ofN 2 spk_snk[31].d.d[0] spk_snk[31].d.d[1]
+vector spk_snk32 :1ofN 2 spk_snk[32].d.d[0] spk_snk[32].d.d[1]
+vector spk_snk33 :1ofN 2 spk_snk[33].d.d[0] spk_snk[33].d.d[1]
+vector spk_snk34 :1ofN 2 spk_snk[34].d.d[0] spk_snk[34].d.d[1]
+vector spk_snk35 :1ofN 2 spk_snk[35].d.d[0] spk_snk[35].d.d[1]
+vector spk_snk36 :1ofN 2 spk_snk[36].d.d[0] spk_snk[36].d.d[1]
+vector spk_snk37 :1ofN 2 spk_snk[37].d.d[0] spk_snk[37].d.d[1]
+vector spk_snk38 :1ofN 2 spk_snk[38].d.d[0] spk_snk[38].d.d[1]
+vector spk_snk39 :1ofN 2 spk_snk[39].d.d[0] spk_snk[39].d.d[1]
+vector spk_snk40 :1ofN 2 spk_snk[40].d.d[0] spk_snk[40].d.d[1]
+vector spk_snk41 :1ofN 2 spk_snk[41].d.d[0] spk_snk[41].d.d[1]
+vector spk_snk42 :1ofN 2 spk_snk[42].d.d[0] spk_snk[42].d.d[1]
+vector spk_snk43 :1ofN 2 spk_snk[43].d.d[0] spk_snk[43].d.d[1]
+vector spk_snk44 :1ofN 2 spk_snk[44].d.d[0] spk_snk[44].d.d[1]
+vector spk_snk45 :1ofN 2 spk_snk[45].d.d[0] spk_snk[45].d.d[1]
+vector spk_snk46 :1ofN 2 spk_snk[46].d.d[0] spk_snk[46].d.d[1]
+vector spk_snk47 :1ofN 2 spk_snk[47].d.d[0] spk_snk[47].d.d[1]
+vector spk_snk48 :1ofN 2 spk_snk[48].d.d[0] spk_snk[48].d.d[1]
+vector spk_snk49 :1ofN 2 spk_snk[49].d.d[0] spk_snk[49].d.d[1]
+vector spk_snk50 :1ofN 2 spk_snk[50].d.d[0] spk_snk[50].d.d[1]
+vector spk_snk51 :1ofN 2 spk_snk[51].d.d[0] spk_snk[51].d.d[1]
+vector spk_snk52 :1ofN 2 spk_snk[52].d.d[0] spk_snk[52].d.d[1]
+vector spk_snk53 :1ofN 2 spk_snk[53].d.d[0] spk_snk[53].d.d[1]
+vector spk_snk54 :1ofN 2 spk_snk[54].d.d[0] spk_snk[54].d.d[1]
+vector spk_snk55 :1ofN 2 spk_snk[55].d.d[0] spk_snk[55].d.d[1]
+vector spk_snk56 :1ofN 2 spk_snk[56].d.d[0] spk_snk[56].d.d[1]
+vector spk_snk57 :1ofN 2 spk_snk[57].d.d[0] spk_snk[57].d.d[1]
+vector spk_snk58 :1ofN 2 spk_snk[58].d.d[0] spk_snk[58].d.d[1]
+vector spk_snk59 :1ofN 2 spk_snk[59].d.d[0] spk_snk[59].d.d[1]
+vector spk_snk60 :1ofN 2 spk_snk[60].d.d[0] spk_snk[60].d.d[1]
+vector spk_snk61 :1ofN 2 spk_snk[61].d.d[0] spk_snk[61].d.d[1]
+vector spk_snk62 :1ofN 2 spk_snk[62].d.d[0] spk_snk[62].d.d[1]
+vector spk_snk63 :1ofN 2 spk_snk[63].d.d[0] spk_snk[63].d.d[1]
+vwatch spk_snk0
+vwatch spk_snk1
+vwatch spk_snk2
+vwatch spk_snk3
+vwatch spk_snk4
+vwatch spk_snk5
+vwatch spk_snk6
+vwatch spk_snk7
+vwatch spk_snk8
+vwatch spk_snk9
+vwatch spk_snk10
+vwatch spk_snk11
+vwatch spk_snk12
+vwatch spk_snk13
+vwatch spk_snk14
+vwatch spk_snk15
+vwatch spk_snk16
+vwatch spk_snk17
+vwatch spk_snk18
+vwatch spk_snk19
+vwatch spk_snk20
+vwatch spk_snk21
+vwatch spk_snk22
+vwatch spk_snk23
+vwatch spk_snk24
+vwatch spk_snk25
+vwatch spk_snk26
+vwatch spk_snk27
+vwatch spk_snk28
+vwatch spk_snk29
+vwatch spk_snk30
+vwatch spk_snk31
+vwatch spk_snk32
+vwatch spk_snk33
+vwatch spk_snk34
+vwatch spk_snk35
+vwatch spk_snk36
+vwatch spk_snk37
+vwatch spk_snk38
+vwatch spk_snk39
+vwatch spk_snk40
+vwatch spk_snk41
+vwatch spk_snk42
+vwatch spk_snk43
+vwatch spk_snk44
+vwatch spk_snk45
+vwatch spk_snk46
+vwatch spk_snk47
+vwatch spk_snk48
+vwatch spk_snk49
+vwatch spk_snk50
+vwatch spk_snk51
+vwatch spk_snk52
+vwatch spk_snk53
+vwatch spk_snk54
+vwatch spk_snk55
+vwatch spk_snk56
+vwatch spk_snk57
+vwatch spk_snk58
+vwatch spk_snk59
+vwatch spk_snk60
+vwatch spk_snk61
+vwatch spk_snk62
+vwatch spk_snk63
 
-set_principal aerv.merge.xi[0]
-set_principal aerv.merge.xi[1]
-set_principal aerv.merge.xo[0]
-set_principal aerv.merge.xo[1]
-set_principal aerv.merge.yi
-set_principal aerv.merge.yo
-
-watch aerv.merge.xi[0]
-watch aerv.merge.xi[1]
-watch aerv.merge.xo[0]
-watch aerv.merge.xo[1]
-watch aerv.merge.yi
-watch aerv.merge.yo
-
-set_principal aerv.serial_spk.node[0].y.e
-set_principal aerv.serial_spk.node[1].y.e
-set_principal aerv.serial_spk.tail.y.e
-
-set_principal aerv.serial_spk.node[0].y.d[0]
-set_principal aerv.serial_spk.node[0].y.d[1]
-set_principal aerv.serial_spk.node[0].y.d[2]
-set_principal aerv.serial_spk.node[0].y.d[3]
-watch aerv.serial_spk.node[0].y.d[0]
-watch aerv.serial_spk.node[0].y.d[1]
-watch aerv.serial_spk.node[0].y.d[2]
-watch aerv.serial_spk.node[0].y.d[3]
+# cycle

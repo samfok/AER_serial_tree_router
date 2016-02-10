@@ -126,3 +126,27 @@ defproc A_TO_E (globals g; aMx1ofN<M, N> i; eMx1ofN<M, N> o) {
     }
 }
 
+export
+template <pint M, N>
+defproc REVERSE_WORDS (globals g; c1of<N> i[M], o[M]) {
+    // converts between big and little endian word orders
+    (; m : M :
+        i[m] = o[M-1-m];
+    )
+}
+
+export
+template <pint M, N>
+defproc eREVERSE_WORDS (globals g; eMx1ofN<M, N> i, o) {
+    // converts between big and little endian word orders for e channels
+    i.e = o.e;
+    REVERSE_WORDS<M, N> _(g, i.m, o.m);
+}
+
+export
+template <pint M>
+defproc eMx1of4_REVERSE_WORDS (globals g; eMx1of4<M> i, o) {
+    // converts between big and little endian word orders for eMx1of4 channels
+    i.e = o.e;
+    REVERSE_WORDS<M, 4> _(g, i.m, o.m);
+}

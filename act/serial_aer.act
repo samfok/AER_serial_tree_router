@@ -528,54 +528,40 @@ namespace aer {
         namespace serial_ring {
             export
             template <pint N>
-            defproc NODE (globals g; c1of<N> x; e1of<N> y; bool si, so) {
-                // incomplete, bubble reshuffling is not correct
-                bool _u, _ye, __ye;
-                c1of<N> _y;
-                c1of<N> __y = y.m;
+            defproc NODE (globals g; bool si, so; c1of<N> x; a1of<N> y) {
+                bool u;
                 prs<g.Vdd, g.GND> {
-                    ~_ye -> __ye+
-                    _ye -> __ye-
-
                     (: n : N :
-                        _u & __ye & si & x.d[n] -> _y.d[n]-
-                        g.pReset | ~_u & ~__ye -> _y.d[n]+
+                        x.d[n] & ~u & si -> y.d[n]+
+                        g.pReset | u & ~so -> y.d[n]-
                     )
-
-                    (: n : N :
-                        ~_y.d[n] -> __y.d[n]+
-                        _y.d[n] -> __y.d[n]-
-                    )
-
-                    ~y.e -> _ye+
-                    y.e -> _ye-
-
-                    (| : n : N : y.d[n]) & _ye -> _u-
-                    ~si & (& : n : N : ~x.d[n]) -> _u+
-
-                    ~_u & (& : n : N : ~y.d[n]) -> so+
-                    _u | (| : n : N : y.d[n]) -> so-
+            
+                    si & y.a -> u+
+                    g.pReset | ~si -> u-
+            
+                    u & ~y.a -> so+
+                    ~u & (& : n : N : ~x.d[n]) -> so-
                 }
             }
-
+            
             export
-            template <pint M, N>
-            defproc MERGE (globals g; e1of<N> x[M], y) {
-                [ M = 1 ->
-                    x[0] = y;
-                [] M > 1 ->
-                    OR<M> or[N];
-                    (; n : N :
-                        or[n].g = g;
-                        or[n].o = y.d[n];
-                        (; m : M :
-                            or[n].i[m] = x[m].d[n];
-                        )
+            template <pint N>
+            defproc MERGE (globals g; bool si, so, yi, yo; a1of<N> x; c1of<N> y) {
+                prs<g.Vdd, g.GND> {
+                    (| : n : N : x.d[n]) -> yo+
+                    g.pReset | ~si & yi -> yo-
+            
+                    si -> so+
+                    ~si & ~yi & ~yo -> so-
+            
+                    (: n : N :
+                        yi & x.d[n] -> y.d[n]+
+                        ~x.d[n] -> y.d[n]-
                     )
-                    (; m : M :
-                        x[m].e = y.e;
-                    )
-                ]
+            
+                    (| : n : N : y.d[n]) & ~yi -> x.a+
+                    g.pReset | yi -> x.a-
+                }
             }
         } // namespace serial_ring
 
@@ -583,25 +569,19 @@ namespace aer {
         template <pint M, N>
         defproc SERIAL_RING (globals g; eMx1ofN<M, N> x; bool yi, yo; c1of<N> y) {
             // convert eMx1ofN protocol to AEXT/AERV serial with ring
+            bool s = x.e;
             serial_ring::NODE<N> node[M];
-            serial_ring::MERGE<M, N> merge(g,,);
+            serial_ring::MERGE<N> merge(g, s, node[0].si, yi, yo,, y);
             (; m : M :
                 node[m].g = g;
                 node[m].x = x.m[m];
-                node[m].y = merge.x[m];
+                node[m].y = merge.x;
             )
-            merge.y.m = y;
-            merge.y.e = yi;
-            (; m : M-1:
+            (; m : M-1 :
                 node[m].so = node[m+1].si;
             )
-            bool s; 
-            x.e = s;
-            yo = s;
-            node[0].si = s;
             prs<g.Vdd, g.GND> {
-                g.sReset | node[M-1].so & yi -> s-
-                ~g.sReset & ~node[M-1].so & ~yi -> s+
+                node[M-1].so => s-
             }
         }
 
@@ -1369,12 +1349,14 @@ namespace aer {
         pint F_LEAF = 3;
         pint D = 4;
         pint AERV_TGTS = N_SYN/2 + N_MEM;
-        interface::SERIAL_CHAIN<M_SPK, D> serial_spk(g,,,,);
-        interface::SERIAL_CHAIN<M_MEM, D> serial_mem(g,,,,);
-        serial_spk.x.m = x_spk.m;
-        serial_mem.x.m = x_mem.m;
-        serial_spk.x.e = x_spk.e;
-        serial_mem.x.e = x_mem.e;
+        eMx1of4_REVERSE_WORDS<M_SPK> r_spk(g, x_spk,);
+        eMx1of4_REVERSE_WORDS<M_MEM> r_mem(g, x_mem,);
+        interface::SERIAL_RING<M_SPK, D> serial_spk(g,,,,);
+        interface::SERIAL_RING<M_MEM, D> serial_mem(g,,,,);
+        serial_spk.x.m = r_spk.o.m;
+        serial_mem.x.m = r_mem.o.m;
+        serial_spk.x.e = r_spk.o.e;
+        serial_mem.x.e = r_mem.o.e;
 
         bool merge_xi[2];
         bool merge_xo[2];
