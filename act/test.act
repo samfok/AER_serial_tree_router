@@ -38,3 +38,12 @@ defproc SOURCE_BRAIN_AERV (globals g; eMx1of4<M> d) {
         d.m[m] = src.d.m[m-1];
     )
 }
+
+export
+template <pint N>
+defproc SINK_SERIAL (globals g; bool i, o; c1of<N> d) {
+    // sink for the serial aer protocol
+    prs<g.Vdd, g.GND> {
+        i & (& : n : N : ~d.d[n]) => o+
+    }
+}

@@ -5,7 +5,7 @@ pint M=3;
 pint N=2;
 pint NN=8; // NN=N^M
 active_handshaker<NN> a(g,,);
-aer::transmitter::AEXT<M, N, NN> aext(g, a.o, a.i,,,);
+aer::AEXT<M, N, NN> aext(g, a.o, a.i,,,);
 aer::interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
 aer::interface::DESERIAL_RING<M, N> deserial(g, out._y,);
 // aer::interface::DESERIAL_CHAIN<M, N> deserial(g, out._y,);

@@ -8,7 +8,7 @@ pint nn=0;
 globals g;
 
 active_handshaker<1> a(g,,);
-aer::transmitter::AEXT<M, N, NN> aext(g,,,,,);
+aer::AEXT<M, N, NN> aext(g,,,,,);
 aer::interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
 aer::interface::DESERIAL_CHAIN<M, N> deserial(
     g, out._y,);
