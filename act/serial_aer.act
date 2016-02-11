@@ -187,12 +187,13 @@ namespace aer {
         template <pint M, N>
         defproc DESERIAL_RING (globals g; a1of<N> x; eMx1ofN<M, N> y) {
             // convert AEXT/AERV serial protocol to eMx1ofN with ring
+            // first word in input is highest order word in output
             deserial_ring::SPLIT<M, N> split(g, x,);
             deserial_ring::NODE<N> node[M];
             (; m : M :
                 node[m].g = g;
                 node[m].x = split.y[m];
-                node[m].y = y.m[m];
+                node[m].y = y.m[M-1-m];
             )
 
             (; m : M-1 :
@@ -219,13 +220,14 @@ namespace aer {
         template <pint M, N>
         defproc _DESERIAL_RING (globals g; a1of<N> _x; eMx1ofN<M, N> y) {
             // convert AEXT/AERV serial protocol to eMx1ofN with ring
+            // first word in input is highest order word in output
             // active low input _x
             deserial_ring::_SPLIT<M, N> split(g, _x,);
             deserial_ring::NODE<N> node[M];
             (; m : M :
                 node[m].g = g;
                 node[m].x = split.y[m];
-                node[m].y = y.m[m];
+                node[m].y = y.m[M-1-m];
             )
 
             (; m : M-1 :
@@ -245,161 +247,6 @@ namespace aer {
                     g.sReset | node[M-1].so<14> & _ye<14> -> node[0].si-
                     ~g.sReset<45> & ~_ye<45> & ~node[M-1].so<45> -> node[0].si+
                 }
-            ]
-        }
-        
-        namespace deserial_chain {
-            export
-            template <pint N>
-            defproc HEAD (globals g; a1of<N> x; c1of<N> d; bool si, so) {
-                // deserializer chain head link
-                // parallel output word 0
-                bool vd, _vd, _so;
-                bool _xa;
-                c1of<N> _d;
-                prs<g.Vdd, g.GND> {
-                    (: n : N :
-                        si & x.d[n] -> _d.d[n]-
-                        ~g._pReset | ~si -> _d.d[n]+
-
-                        ~_d.d[n] -> d.d[n]+
-                        _d.d[n] -> d.d[n]-
-                    )
-            
-                    (& : n : N : ~x.d[n]) & ~_vd -> so+
-                    (| : n : N : x.d[n]) | _vd -> so-
-
-                    ~so -> _so+
-                    so -> _so-
-
-                    _so & vd -> _xa-
-                    ~_so | ~vd -> _xa+
-            
-                    (| : n : N : ~_d.d[n]) -> vd+
-                    (& : n : N : _d.d[n]) -> vd-
-
-                    ~vd -> _vd+
-                    vd -> _vd-
-                }
-
-                prs<g.Vdd, g.GND> {
-                    ~_xa -> x.a+
-                    _xa -> x.a-
-                }
-            }
-            
-            export
-            template <pint N>
-            defproc NODE (globals g; a1of<N> x, y; c1of<N> d; bool si, so) {
-                // deserializer chain intermediate link
-                // parallel output words 1 to M-2
-                bool _xa, vd, _vd, _si, _so, ___so;
-                c1of<N> _x;
-                prs<g.Vdd, g.GND> {
-                    (: n : N :
-                        ~x.d[n] -> _x.d[n]+
-                        x.d[n] -> _x.d[n]-
-                    )
-
-                    (: n : N :
-                        ~si & ~_x.d[n] -> y.d[n]+
-                        si | _x.d[n] -> y.d[n]-
-                    )
-
-                    ~si -> _si+
-                    si -> _si-
-
-                    (: n : N :
-                        ~_si & ~_x.d[n] -> d.d[n]+
-                        _si -> d.d[n]-
-                    )
-
-                    ~_vd -> vd+
-                    _vd -> vd-
-
-                    (& : n : N : _x.d[n]) & vd -> _so-
-                    (| : n : N : ~_x.d[n]) | ~vd -> _so+
-
-                    ~so -> ___so+
-                    so -> ___so-
-
-                    y.a | ___so & vd -> _xa-
-                    ~y.a & (~___so | ~vd) ->_xa+
-            
-                    (| : n : N : d.d[n]) -> _vd-
-                    (& : n : N : ~d.d[n]) -> _vd+
-                }
-                prs<g.Vdd, g.GND> {
-                    ~_xa -> x.a+
-                    _xa -> x.a-
-
-                    ~_so -> so+
-                    _so -> so-
-                }
-
-            }
-
-            export
-            template <pint N>
-            defproc TAIL (globals g; a1of<N> _x, y; c1of<N> d; bool si) {
-                // deserializer chain tail link
-                // parallel output word M-1
-                bool _si;
-                prs<g.Vdd, g.GND> {
-                    (: n : N :
-                        ~si & ~_x.d[n] & ~d.d[n] -> y.d[n]+
-                        si | _x.d[n] | d.d[n] -> y.d[n]-
-                    )
-
-                    ~si -> _si+
-                    si -> _si-
-
-                    (: n : N :
-                        ~_si & ~_x.d[n] -> d.d[n]+
-                        _si & _x.d[n] -> d.d[n]-
-                    )
-            
-                    y.a | (| : n : N : d.d[n]) -> _x.a-
-                    ~y.a & (& : n : N : ~d.d[n]) -> _x.a+
-                }
-            }
-        } // namespace deserial_chain
-
-        export
-        template <pint M, N>
-        defproc DESERIAL_CHAIN (globals g; a1of<N> _x; eMx1ofN<M, N> y) {
-            // convert AEXT/AERV serial protocol to eMx1ofN with chain
-            [ M = 1 ->
-                _x.a = y.e;
-                prs<g.Vdd, g.GND> {
-                    (: n : N :
-                        ~_x.m.n[n] -> y.m[0].n[n]+
-                        _x.m.n[n] -> y.m[0].n[n]-
-                    )
-                }
-            [] M > 1 ->
-                deserial_chain::HEAD<N> head(g,, y.m[0], y.e,);
-                deserial_chain::TAIL<N> tail(g, _x,, y.m[M-1],);
-            ]
-
-            [ M = 2 ->
-                head.x = tail.y;
-                head.so = tail.si;
-            [] M > 2 ->
-                pint MM = M-2;
-                deserial_chain::NODE<N> node[MM];
-                (; mm : MM :
-                    node[mm].g = g;
-                    node[mm].d = y.m[mm+1];
-                )
-                node[0].y = head.x;
-                node[0].si = head.so;
-                node[MM-1].x = tail.y;
-                node[MM-1].so = tail.si;
-                (; mm : MM-1 :
-                    node[mm].x = node[mm+1].y;
-                    node[mm].so = node[mm+1].si;
-                )
             ]
         }
 
@@ -569,12 +416,13 @@ namespace aer {
         template <pint M, N>
         defproc SERIAL_RING (globals g; eMx1ofN<M, N> x; bool yi, yo; c1of<N> y) {
             // convert eMx1ofN protocol to AEXT/AERV serial with ring
+            // highest order in word in input is first word in output
             bool s = x.e;
             serial_ring::NODE<N> node[M];
             serial_ring::MERGE<N> merge(g, s, node[0].si, yi, yo,, y);
             (; m : M :
                 node[m].g = g;
-                node[m].x = x.m[m];
+                node[m].x = x.m[M-1-m];
                 node[m].y = merge.x;
             )
             (; m : M-1 :
@@ -1349,14 +1197,13 @@ namespace aer {
         pint F_LEAF = 3;
         pint D = 4;
         pint AERV_TGTS = N_SYN/2 + N_MEM;
-        eMx1of4_REVERSE_WORDS<M_SPK> r_spk(g, x_spk,);
-        eMx1of4_REVERSE_WORDS<M_MEM> r_mem_src(g, x_mem,);
+
         interface::SERIAL_RING<M_SPK, D> serial_spk(g,,,,);
         interface::SERIAL_RING<M_MEM, D> serial_mem(g,,,,);
-        serial_spk.x.m = r_spk.o.m;
-        serial_mem.x.m = r_mem_src.o.m;
-        serial_spk.x.e = r_spk.o.e;
-        serial_mem.x.e = r_mem_src.o.e;
+        serial_spk.x.m = x_spk.m;
+        serial_mem.x.m = x_mem.m;
+        serial_spk.x.e = x_spk.e;
+        serial_mem.x.e = x_mem.e;
 
         bool merge_xi[2];
         bool merge_xo[2];
@@ -1371,13 +1218,10 @@ namespace aer {
         interface::SERIAL_MERGE<2, D> merge(g, merge_xi, merge_xo,,, merge_x,);
 
         interface::DESERIAL_RING<M_MEM-M, D> mem_deserial[N_MEM];
-        eMx1of4_REVERSE_WORDS<M_MEM-M> r_mem_snk[N_MEM];
         (; n : N_MEM :
             mem_deserial[n].g = g;
-            r_mem_snk[n].g = g;
-            r_mem_snk[n].i.m = mem_deserial[n].y.m;
-            r_mem_snk[n].i.e = mem_deserial[n].y.e;
-            r_mem_snk[n].o = y_mem[n];
+            mem_deserial[n].y.m = y_mem[n].m;
+            mem_deserial[n].y.e = y_mem[n].e;
         )
         
         OR<2> or_a[N_SYN/2];
@@ -1419,8 +1263,7 @@ namespace aer {
         AEXT<M, N, NN> aext(g, xi, xo,,,);
         interface::OUT_a1ofN<N, M> out(g, aext.po, aext.pi, aext.p,);
         interface::_DESERIAL_RING<M, N> deserial(g, out._y,);
-        // interface::DESERIAL_CHAIN<M, N> deserial(g, out._y,);
-        interface::SERIAL_CHAIN<M, N> serial(g, deserial.y,,,);
+        interface::SERIAL_RING<M, N> serial(g, deserial.y,,,);
         AERV_NODATA<M, N, NN> aerv(g, yi, yo, serial.yo, serial.yi, serial.y);
     }
 } // namespace aer
