@@ -1350,13 +1350,13 @@ namespace aer {
         pint D = 4;
         pint AERV_TGTS = N_SYN/2 + N_MEM;
         eMx1of4_REVERSE_WORDS<M_SPK> r_spk(g, x_spk,);
-        eMx1of4_REVERSE_WORDS<M_MEM> r_mem(g, x_mem,);
+        eMx1of4_REVERSE_WORDS<M_MEM> r_mem_src(g, x_mem,);
         interface::SERIAL_RING<M_SPK, D> serial_spk(g,,,,);
         interface::SERIAL_RING<M_MEM, D> serial_mem(g,,,,);
         serial_spk.x.m = r_spk.o.m;
-        serial_mem.x.m = r_mem.o.m;
+        serial_mem.x.m = r_mem_src.o.m;
         serial_spk.x.e = r_spk.o.e;
-        serial_mem.x.e = r_mem.o.e;
+        serial_mem.x.e = r_mem_src.o.e;
 
         bool merge_xi[2];
         bool merge_xo[2];
@@ -1371,10 +1371,13 @@ namespace aer {
         interface::SERIAL_MERGE<2, D> merge(g, merge_xi, merge_xo,,, merge_x,);
 
         interface::DESERIAL_RING<M_MEM-M, D> mem_deserial[N_MEM];
+        eMx1of4_REVERSE_WORDS<M_MEM-M> r_mem_snk[N_MEM];
         (; n : N_MEM :
             mem_deserial[n].g = g;
-            mem_deserial[n].y.m = y_mem[n].m;
-            mem_deserial[n].y.e = y_mem[n].e;
+            r_mem_snk[n].g = g;
+            r_mem_snk[n].i.m = mem_deserial[n].y.m;
+            r_mem_snk[n].i.e = mem_deserial[n].y.e;
+            r_mem_snk[n].o = y_mem[n];
         )
         
         OR<2> or_a[N_SYN/2];
