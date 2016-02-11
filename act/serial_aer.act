@@ -1126,7 +1126,7 @@ namespace aer {
     export
     template <pint M, F_INT, F_LEAF, T, D>
     defproc AERV (globals g; bool yi[T], pi, po; c1of<D> y[T], p) {
-        // receiver for braindrop and brainstorm
+        // receiver capable of sending data to neuron
         // M tree levels
         // F_INT intermediate node fanout (radix)
         // F_LEAF leaf node fanout (radix)
