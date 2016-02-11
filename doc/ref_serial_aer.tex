@@ -5702,9 +5702,9 @@ Note the shared $ye$ and $y[0,1]$ between the NODE processes.
     \begin{tabular}{|r|l|l|l|}
     \hline
     component & transistors/component & components/serializer & transistors/serializer \\ \hline
-    NODE & 40 & $M$ & $40M$ \\ \hline
-    C & 8 & $1$ & $8$ \\ \hline
-    \hline \multicolumn{3}{|r|}{approx. transistors/serializer} & $40M+8$ \\ \hline
+    NODE & 34 & $M$ & $34M$ \\ \hline
+    SEQ & 38 & 1 & 38 \\ \hline
+    \hline \multicolumn{3}{|r|}{approx. transistors/serializer} & $34M+38$ \\ \hline
     \end{tabular}
 \end{center}
 
@@ -5715,9 +5715,9 @@ Note the shared $ye$ and $y[0,1]$ between the NODE processes.
     \begin{tabular}{|r|l|l|l|}
     \hline
     component & transistors/component & components/serializer & transistors/serializer \\ \hline
-    NODE & 56 & $M$ & $56M$ \\ \hline
-    C & 8 & $1$ & $8$ \\ \hline
-    \hline \multicolumn{3}{|r|}{approx. transistors/serializer} & $56M+8$ \\ \hline
+    NODE & 54 & $M$ & $54M$ \\ \hline
+    SEQ & 56 & 1 & 56 \\ \hline
+    \hline \multicolumn{3}{|r|}{approx. transistors/serializer} & $54M+56$ \\ \hline
     \end{tabular}
 \end{center}
 
@@ -5732,9 +5732,9 @@ encoded as 1-of-2 or 1-of-4 words, we would need 12 and 6 NODEs, respectively.
     \begin{tabular}{|r|l|l|l|}
     \hline
     component & transistors/component & components/serializer & transistors/serializer \\ \hline
-    NODE & 40 & 12 & 480 \\ \hline
-    C & 8 & 1 & 8 \\ \hline
-    \hline \multicolumn{3}{|r|}{total transistors/serializer} & 488 \\ \hline
+    NODE & 34 & 12 & 408 \\ \hline
+    SEQ & 38 & 1 & 38 \\ \hline
+    \hline \multicolumn{3}{|r|}{total transistors/serializer} & 446 \\ \hline
     \end{tabular}
 \end{center}
 
@@ -5745,9 +5745,9 @@ encoded as 1-of-2 or 1-of-4 words, we would need 12 and 6 NODEs, respectively.
     \begin{tabular}{|r|l|l|l|}
     \hline
     component & transistors/component & components/serializer & transistors/serializer \\ \hline
-    NODE & 56 & 6 & 336 \\ \hline
-    C & 8 & 1 & 8 \\ \hline
-    \hline \multicolumn{3}{|r|}{total transistors/serializer} & 344 \\ \hline
+    NODE & 54 & 6 & 324 \\ \hline
+    SEQ & 56 & 1 & 56 \\ \hline
+    \hline \multicolumn{3}{|r|}{total transistors/serializer} & 380 \\ \hline
     \end{tabular}
 \end{center}
 
@@ -5760,6 +5760,8 @@ encoded as 1-of-2 or 1-of-4 words, we would need 12 and 6 NODEs, respectively.
   []x1->y1+;[ya];u+;y1-;[~ya];so+;[~si];u-;[~x1];so-
  ]]
 \end{hse}
+
+\subsubsection*{PRS}
 
 \begin{prs2}
 x0 & ~u & si -> y0+
@@ -5786,10 +5788,10 @@ u & ~ya -> so+
     \begin{tabular}{|r|l|l|}
     \hline
     rule & transistor count & comments \\ \hline
-    $y[0,1]$ & 20 & \\ \hline
-    $u$ & 12 & \\ \hline
-    $s_o$ & 8 & \\ \hline
-    \hline total & 40 & \\ \hline
+    $y[0,1]$ & 18 & \\ \hline
+    $u$ & 7 & \\ \hline
+    $s_o$ & 9 & \\ \hline
+    \hline total & 34 & \\ \hline
     \end{tabular}
 \end{center}
 
@@ -5800,12 +5802,52 @@ u & ~ya -> so+
     \begin{tabular}{|r|l|l|}
     \hline
     rule & transistor count & comments \\ \hline
-    $y[0,1]$ & 40 & \\ \hline
-    $u$ & 16 & \\ \hline
-    $s_o$ & 10 & \\ \hline
-    \hline total & 56 & \\ \hline
+    $y[0,1,2,3]$ & 36 & \\ \hline
+    $u$ & 7 & \\ \hline
+    $s_o$ & 11 & \\ \hline
+    \hline total & 54 & \\ \hline
     \end{tabular}
 \end{center}
+
+\subsubsection*{CMOS-implementable PRS}
+
+\begin{prs2}
+~u -> _u+
+u -> _u-
+\end{prs2}
+
+\begin{prs2}
+x0 & _u & si -> _y0-
+~_u & ~so -> _y0+
+
+x1 & _u & si -> _y1-
+~_u & ~so -> _y1+
+\end{prs2}
+
+\begin{prs2}
+~si -> _si+
+si -> _si-
+\end{prs2}
+
+\begin{prs2}
+~_si & ~_ya -> u+
+_si -> u-
+\end{prs2}
+
+\begin{prs2}
+~_u -> __u+
+_u -> __u-
+\end{prs2}
+
+\begin{prs2}
+__u & _ya -> _so-
+~__u & ~x0 & ~x1 -> _so+
+\end{prs2}
+
+\begin{prs2}
+~_so -> so+
+_so -> so-
+\end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Ring serializer sequencer \label{sec:SERIAL_RING_SEQ}}
@@ -5818,6 +5860,8 @@ u & ~ya -> so+
   []x1->y1+;[~yi];xa+;[~x1];y1-;[yi];xa-
  ]]
 \end{hse}
+
+\subsubsection*{PRS}
 
 \begin{prs2}
 x0 | x1 -> yo+
@@ -5842,12 +5886,89 @@ yi & x1 -> y1+
 yi -> xa-
 \end{prs2}
 
+\noindent
+1-of-2 transistor accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $y_o$ & 8 & \\ \hline
+    $s_o$ & 8 & \\ \hline
+    $y[0,1]$ & 14 & \\ \hline
+    $xa$ & 8 & \\ \hline
+    \hline total & 38 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+1-of-4 transistor accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $y_o$ & 10 & \\ \hline
+    $s_o$ & 8 & \\ \hline
+    $y[0,1,2,3]$ & 28 & \\ \hline
+    $xa$ & 10 & \\ \hline
+    \hline total & 56 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\subsubsection*{CMOS-implementable PRS}
+
+\begin{prs2}
+~yi -> _yi+
+yi -> _yi-
+\end{prs2}
+
+\begin{prs2}
+x0 | x1 -> _yo-
+~si & ~_yi -> _yo+
+\end{prs2}
+
+\begin{prs2}
+~si -> _si+
+si -> _si-
+\end{prs2}
+
+\begin{prs2}
+~_si -> so+
+_si & _yi & _yo -> so-
+\end{prs2}
+
+\begin{prs2}
+~x0 -> _x0+
+x0 -> _x0-
+
+~x1 -> _x1+
+x1 -> _x1-
+\end{prs2}
+
+\begin{prs2}
+~_yi & ~_x0 -> y0+
+_x0 -> y0-
+
+~_yi & ~_x1 -> y1+
+_x1 -> y1-
+\end{prs2}
+
+\begin{prs2}
+(y0 | y1) & _yi -> _xa-
+~_yi -> _xa+
+\end{prs2}
+
+\begin{prs2}
+~_yo -> yo+
+_yo -> yo-
+\end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Ring serializer 2 \label{sec:SERIAL_RING2}}
 
 The previous ring serializer (Section~\ref{sec:SERIAL_RING}) used a lot
-of isochronic forks and was too difficult to bubble reshuffle. This design
+of isochronic forks and was difficult to bubble reshuffle. This design
 uses more conventional channels and more sequencing. Since there's only one
 serializer per neuron array, the cost per neuron is still trivial.
 

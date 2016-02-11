@@ -375,39 +375,61 @@ namespace aer {
         namespace serial_ring {
             export
             template <pint N>
-            defproc NODE (globals g; bool si, so; c1of<N> x; a1of<N> y) {
-                bool u;
+            defproc NODE (globals g; bool si, so; c1of<N> x; a1of<N> _y) {
+                bool u, _u, __u, _si, _so;
                 prs<g.Vdd, g.GND> {
+                    u => _u-
+
                     (: n : N :
-                        x.d[n] & ~u & si -> y.d[n]+
-                        g.pReset | u & ~so -> y.d[n]-
+                        x.d[n] & _u & si -> _y.d[n]-
+                        ~g._pReset | ~_u & ~so -> _y.d[n]+
                     )
+                    
+                    si => _si-
+
+                    ~_si & ~_y.a -> u+
+                    g.pReset | _si -> u-
             
-                    si & y.a -> u+
-                    g.pReset | ~si -> u-
-            
-                    u & ~y.a -> so+
-                    ~u & (& : n : N : ~x.d[n]) -> so-
+                    _u => __u-
+
+                    __u & _y.a -> _so-
+                    ~__u & (& : n : N : ~x.d[n]) -> _so+
+
+                    _so => so-
                 }
             }
             
             export
             template <pint N>
             defproc MERGE (globals g; bool si, so, yi, yo; a1of<N> x; c1of<N> y) {
+                bool _yi, _yo, _si;
+                c1of<N> _x;
+                bool _xa = x.a; // active low
                 prs<g.Vdd, g.GND> {
-                    (| : n : N : x.d[n]) -> yo+
-                    g.pReset | ~si & yi -> yo-
+                    yi => _yi-
+
+                    (| : n : N : x.d[n]) -> _yo-
+                    ~g._pReset | ~si & ~_yi -> _yo+
+
+                    si => _si-
             
-                    si -> so+
-                    ~si & ~yi & ~yo -> so-
-            
+                    ~_si -> so+
+                    _si & _yi & _yo -> so-
+
                     (: n : N :
-                        yi & x.d[n] -> y.d[n]+
-                        ~x.d[n] -> y.d[n]-
+                        x.d[n] => _x.d[n]-
                     )
             
-                    (| : n : N : y.d[n]) & ~yi -> x.a+
-                    g.pReset | yi -> x.a-
+                    (: n : N :
+                        ~_yi & ~_x.d[n] -> y.d[n]+
+                        _x.d[n] -> y.d[n]-
+                    )
+            
+                    (| : n : N : y.d[n]) & _yi -> _xa-
+                    ~g._pReset | ~_yi -> _xa+
+                }
+                prs<g.Vdd, g.GND> {
+                    _yo => yo-
                 }
             }
         } // namespace serial_ring
@@ -420,11 +442,18 @@ namespace aer {
             bool s = x.e;
             serial_ring::NODE<N> node[M];
             serial_ring::MERGE<N> merge(g, s, node[0].si, yi, yo,, y);
+            c1of<N> _d;
             (; m : M :
                 node[m].g = g;
                 node[m].x = x.m[M-1-m];
-                node[m].y = merge.x;
+                node[m]._y.d = _d.d;
+                node[m]._y.a = merge.x.a;
             )
+            prs<g.Vdd, g.GND> {
+                (: n : N :
+                    _d.d[n] => merge.x.d[n]-
+                )
+            }
             (; m : M-1 :
                 node[m].so = node[m+1].si;
             )
