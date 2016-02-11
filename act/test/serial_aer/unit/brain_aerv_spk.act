@@ -1,4 +1,4 @@
-// tests ability for brain aerv to deliver spikes
+// tests that brain aerv can deliver spikes
 import "serial_aer.act";
 
 pint M     = 3;

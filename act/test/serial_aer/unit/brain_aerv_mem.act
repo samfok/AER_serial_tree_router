@@ -1,4 +1,4 @@
-// tests ability for brain aerv to deliver memory packets
+// tests that brain aerv can deliver memory packets
 import "serial_aer.act";
 
 pint M     = 3;

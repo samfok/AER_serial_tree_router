@@ -9,6 +9,7 @@ defproc SOURCE_BRAIN_AERV (globals g; eMx1of4<M> d) {
     //     M = 6 (in production for spk packets)
     //     M = 9 (in production for mem packets)
     // T_PIDX index in packet of route's tail word
+    //     T_PIDX = 1 (in production for spk/mem packets)
     //     T_PIDX = 4 (in production for spk/mem packets)
     // T_WIDX index in tail word of valid values
     //     T_WIDX = 0 (in production for spk packets)
