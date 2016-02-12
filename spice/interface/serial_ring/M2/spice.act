@@ -1,11 +1,11 @@
 import "serial_aer.act";
 import "test.act";
 
-defproc wrapper (globals_np g_np; eMx1of4<6> src) {
+defproc wrapper (globals_np g_np; eMx1of4<2> src) {
     bool Vdd;
     bool GND;
 
-    pint M = 6;
+    pint M = 2;
     pint N = 4;
     aer::interface::SERIAL_RING<M, N> serial;
 

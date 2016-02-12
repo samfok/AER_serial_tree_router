@@ -2,9 +2,7 @@
 
   <circuit sim_type="spice" file="spice.act" instance="wrapper" file_type="act" name="dut" uses_blackbox="1"> 
     <source type="globals_np" channel="g_np" />
-    <source type="random" channel="src0" delay="0" />
-    <source type="random" channel="src0" delay="0.01" />
-    <sink type="sink_only" channel="snk" delay="0" />
+    <source type="random" channel="src" delay="0" />
   </circuit>
 
 	<!---GLOBAL PARAMETERS !-->
@@ -18,7 +16,7 @@
   <global name="netgen_cfg" value="/ufs/cad/lib/netgen/st28soi.conf" />
 
   <!-- Simulation time settings -->
-  <global name="sim_time" value="20" />
+  <global name="sim_time" value="15" />
   <global name="timescale" value="1ns/10ps" />
   <global name="_sReset_time" value="10" />
   <global name="_pReset_time" value="5" />
@@ -70,8 +68,6 @@
 
   <global name="extra_hsim_parameters">
 	
-	
  </global>
 
 </cosimulation>
-
