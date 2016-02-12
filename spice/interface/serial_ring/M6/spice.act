@@ -1,0 +1,26 @@
+import "serial_aer.act";
+import "test.act";
+
+export defproc wrapper(globals_np g_np; eMx1of4<6> src)
+{
+    bool Vdd;
+    bool GND;
+    pint M = 6;
+    pint N = 4;
+
+    aer::interface::SERIAL_RING<M, N> serial;
+    SINK_SERIAL<N> snk(g, serial.yo, serial.yi, serial.y);
+    serial.x.m = src.m;
+    serial.x.e = src.e;
+
+    serial.g.Vdd = Vdd;
+    serial.g.GND = GND;
+    prs <Vdd, GND> {
+        g_np._sReset<20> => serial.g.sReset-
+        g_np._pReset<20> => serial.g.pReset-
+    }
+    serial.g._pReset = g_np._pReset;
+    serial.g._sReset = g_np._sReset;
+}
+
+wrapper dut;

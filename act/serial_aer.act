@@ -36,7 +36,7 @@ namespace aer {
                 prs<g.Vdd, g.GND> {
                     xi<10> & _y.a<10> -> _xo-
                     ~xi<12> | ~_y.a<12> -> _xo+
-                    
+
                     ~_xo<18> -> xo+
                     _xo<15> -> xo-
 
@@ -123,7 +123,7 @@ namespace aer {
                     }
                 ]
             }
-            
+
             export
             template <pint N>
             defproc NODE (globals g; a1of<N> x; c1of<N> y; bool si, so) {
@@ -137,12 +137,12 @@ namespace aer {
                             _s & si & x.d[n] -> _y.d[n]-
                             ~si -> _y.d[n]+
                         )
-            
+
                         ~so & ~_vy => x.a+
-            
+
                         ~_vy & (& : n : N : ~x.d[n]) -> s+
                         g.pReset | _vy -> s-
-            
+
                         ~_s => so+
 
                         (: n : N :
@@ -161,13 +161,13 @@ namespace aer {
                             _s<15> & si<15> & x.d[n]<15> -> _y.d[n]-
                             ~si<18> -> _y.d[n]+
                         )
-            
+
                         ~so<18> & ~_vy<18> -> x.a+
                         so<8> | _vy<8> -> x.a-
-            
+
                         ~_vy<63> & (& : n : N : ~x.d[n]<63>) -> s+
                         g.pReset | _vy<14> -> s-
-            
+
                         ~_s<12> -> so+
                         _s<6> -> so-
 
@@ -182,7 +182,7 @@ namespace aer {
                 ]
             }
         } // namespace deserial_ring
-        
+
         export
         template <pint M, N>
         defproc DESERIAL_RING (globals g; a1of<N> x; eMx1ofN<M, N> y) {
@@ -215,7 +215,7 @@ namespace aer {
                 }
             ]
         }
-        
+
         export
         template <pint M, N>
         defproc _DESERIAL_RING (globals g; a1of<N> _x; eMx1ofN<M, N> y) {
@@ -377,60 +377,120 @@ namespace aer {
             template <pint N>
             defproc NODE (globals g; bool si, so; c1of<N> x; a1of<N> _y) {
                 bool u, _u, __u, _si, _so;
-                prs<g.Vdd, g.GND> {
-                    u => _u-
+                [ ~LAYOUT ->
+                    prs<g.Vdd, g.GND> {
+                        u => _u-
 
-                    (: n : N :
-                        x.d[n] & _u & si -> _y.d[n]-
-                        ~g._pReset | ~_u & ~so -> _y.d[n]+
-                    )
-                    
-                    si => _si-
+                        (: n : N :
+                            x.d[n] & _u & si -> _y.d[n]-
+                            ~g._pReset | ~_u & ~so -> _y.d[n]+
+                        )
 
-                    ~_si & ~_y.a -> u+
-                    g.pReset | _si -> u-
-            
-                    _u => __u-
+                        si => _si-
 
-                    __u & _y.a -> _so-
-                    ~__u & (& : n : N : ~x.d[n]) -> _so+
+                        ~_si & ~_y.a -> u+
+                        g.pReset | _si -> u-
 
-                    _so => so-
-                }
+                        _u => __u-
+
+                        __u & _y.a -> _so-
+                        ~__u & (& : n : N : ~x.d[n]) -> _so+
+
+                        _so => so-
+                    }
+                [] LAYOUT ->
+                    prs<g.Vdd, g.GND> {
+                        ~u<18> -> _u+
+                        u<12> -> _u-
+
+                        (: n : N :
+                            x.d[n]<18> & _u<18> & si<18> -> _y.d[n]-
+                            ~g._pReset | ~_u<18> & ~so<18> -> _y.d[n]+
+                        )
+
+                        ~si<9> -> _si+
+                        si<6> -> _si-
+
+                        ~_si<18> & ~_y.a<18> -> u+
+                        g.pReset | _si<6> -> u-
+
+                        ~_u<12> -> __u+
+                        _u<9> -> __u-
+
+                        __u<12> & _y.a<12> -> _so-
+                        ~__u<45> & (& : n : N : ~x.d[n]<45>) -> _so+
+
+                        ~_so<9> -> so+
+                        _so<6> -> so-
+                    }
+                ]
             }
-            
+
             export
             template <pint N>
             defproc MERGE (globals g; bool si, so, yi, yo; a1of<N> x; c1of<N> y) {
                 bool _yi, _yo, _si;
                 c1of<N> _x;
                 bool _xa = x.a; // active low
-                prs<g.Vdd, g.GND> {
-                    yi => _yi-
+                [ ~LAYOUT ->
+                    prs<g.Vdd, g.GND> {
+                        yi => _yi-
 
-                    (| : n : N : x.d[n]) -> _yo-
-                    ~g._pReset | ~si & ~_yi -> _yo+
+                        (| : n : N : x.d[n]) -> _yo-
+                        ~g._pReset | ~si & ~_yi -> _yo+
 
-                    si => _si-
-            
-                    ~_si -> so+
-                    _si & _yi & _yo -> so-
+                        si => _si-
 
-                    (: n : N :
-                        x.d[n] => _x.d[n]-
-                    )
-            
-                    (: n : N :
-                        ~_yi & ~_x.d[n] -> y.d[n]+
-                        _x.d[n] -> y.d[n]-
-                    )
-            
-                    (| : n : N : y.d[n]) & _yi -> _xa-
-                    ~g._pReset | ~_yi -> _xa+
-                }
-                prs<g.Vdd, g.GND> {
-                    _yo => yo-
-                }
+                        ~_si -> so+
+                        _si & _yi & _yo -> so-
+
+                        (: n : N :
+                            x.d[n] => _x.d[n]-
+                        )
+
+                        (: n : N :
+                            ~_yi & ~_x.d[n] -> y.d[n]+
+                            _x.d[n] -> y.d[n]-
+                        )
+
+                        (| : n : N : y.d[n]) & _yi -> _xa-
+                        ~g._pReset | ~_yi -> _xa+
+                    }
+                    prs<g.Vdd, g.GND> {
+                        _yo => yo-
+                    }
+                [] LAYOUT ->
+                    prs<g.Vdd, g.GND> {
+                        ~yi<18> -> _yi+
+                        yi<12> -> _yi-
+
+                        (| : n : N : x.d[n]<6>) -> _yo-
+                        ~g._pReset | ~si<18> & ~_yi<18> -> _yo+
+
+                        ~si<9> -> _si+
+                        si<6> -> _si-
+
+                        ~_si<9> -> so+
+                        _si<18> & _yi<18> & _yo<18> -> so-
+
+                        (: n : N :
+                            ~x.d[n]<9> -> _x.d[n]+
+                            x.d[n]<6> -> _x.d[n]-
+                        )
+
+                        (: n : N :
+                            ~_yi<18> & ~_x.d[n]<18> -> y.d[n]+
+                            _x.d[n]<6> -> y.d[n]-
+                        )
+
+                        (| : n : N : y.d[n]<12>) & _yi<12> -> _xa-
+                        ~g._pReset | ~_yi<9> -> _xa+
+                    }
+                    prs<g.Vdd, g.GND> {
+                        ~_yo<9> -> yo+
+                        _yo<9> -> yo-
+                    }
+                ]
             }
         } // namespace serial_ring
 
@@ -449,17 +509,26 @@ namespace aer {
                 node[m]._y.d = _d.d;
                 node[m]._y.a = merge.x.a;
             )
-            prs<g.Vdd, g.GND> {
-                (: n : N :
-                    _d.d[n] => merge.x.d[n]-
-                )
-            }
             (; m : M-1 :
                 node[m].so = node[m+1].si;
             )
-            prs<g.Vdd, g.GND> {
-                node[M-1].so => s-
-            }
+            [ ~LAYOUT ->
+                prs<g.Vdd, g.GND> {
+                    (: n : N :
+                        _d.d[n] => merge.x.d[n]-
+                    )
+                    node[M-1].so => s-
+                }
+            [] LAYOUT ->
+                prs<g.Vdd, g.GND> {
+                    (: n : N :
+                        ~_d.d[n]<9> -> merge.x.d[n]+
+                        _d.d[n]<6> -> merge.x.d[n]-
+                    )
+                    ~node[M-1].so<9> -> s+
+                    node[M-1].so<6> -> s-
+                }
+            ]
         }
 
         namespace serial_ring2 {
@@ -600,7 +669,7 @@ namespace aer {
                         ~g._pReset | (| : n : N : ~_co[n] & ~c_[n]) -> _po+
 
                         _po => po-
-                    
+
                         (: n : N :
                             c_[n] & pi & _u -> _w.d[n]-
                             ~g._pReset | ~_u -> _w.d[n]+
@@ -610,7 +679,7 @@ namespace aer {
                         _po & (& : n : N : _co[n]) -> u-
 
                         u => _u-
-                        
+
                         c_[0] & u & pi & (& : n : 1..N-1 : _co[n]) -> _co[0]-
                         (: n : 1..N-2:
                             c_[n] & u & pi & 
@@ -645,7 +714,7 @@ namespace aer {
 
                         ~_po<12> -> po+
                         _po<8> -> po-
-                    
+
                         (: n : N :
                             c_[n]<20> & pi<20> & _u<20> -> _w.d[n]-
                             ~g._pReset | ~_u<16> -> _w.d[n]+
@@ -656,7 +725,7 @@ namespace aer {
 
                         ~u<15> -> _u+
                         u<9> -> _u-
-                        
+
                         c_[0]<48> & u<48> & pi<48> & 
                             (& : n : 1..N-1 : _co[n]<48>) -> _co[0]-
                         (: n : 1..N-2:
@@ -705,7 +774,7 @@ namespace aer {
 
                     (| : n : N : q[n]) -> po+
                     (& : n : N : ~q[n]) -> po-
-                
+
                     (: n : N :
                         q[n] & pi & ~u -> w.d[n]+
                         g.pReset | u -> w.d[n]-
@@ -713,7 +782,7 @@ namespace aer {
 
                     (| : n : N : w.d[n]) & ~pi -> u+
                     ~po -> u-
-                    
+
                     (: nc : N :
                         q[nc] & u & pi -> co[nc]+
                         (~u | (| : n : N : p.d[n])) & ~pi -> co[nc]-
@@ -743,7 +812,7 @@ namespace aer {
                         ~g._pReset | (| : n : N : ~_co[n] & ~c[n]) -> _po+
 
                         _po => po-
-                    
+
                         (: n : N :
                             c[n] & pi & _u -> _p_.d[n]-
                             ~g._pReset | ~_u -> _p_.d[n]+
@@ -754,7 +823,7 @@ namespace aer {
 
                         ~u -> _u+
                         u -> _u-
-                        
+
                         c[0] & u & pi & (& : n : 1..N-1 : _co[n]) -> _co[0]-
                         (: n : 1..N-2:
                             c[n] & u & pi & 
@@ -789,7 +858,7 @@ namespace aer {
 
                         ~_po<12> -> po+
                         _po<8> -> po-
-                    
+
                         (: n : N :
                             c[n]<18> & pi<18> & _u<18> -> _p_.d[n]-
                             ~g._pReset | ~_u<16> -> _p_.d[n]+
@@ -800,7 +869,7 @@ namespace aer {
 
                         ~u<15> -> _u+
                         u<9> -> _u-
-                        
+
                         c[0]<40> & u<40> & pi<40> &
                             (& : n : 1..N-1 : _co[n]<40>) -> _co[0]-
                         (: n : 1..N-2:
@@ -845,7 +914,7 @@ namespace aer {
 
                     (| : n : N : q[n]) -> po+
                     (& : n : N : ~q[n]) -> po-
-                
+
                     (: n : N :
                         q[n] & pi & ~u -> p.d[n]+
                         g.pReset | u -> p.d[n]-
@@ -853,7 +922,7 @@ namespace aer {
 
                     (| : n : N : p.d[n]) & ~pi -> u+
                     ~po -> u-
-                    
+
                     (: n : N :
                         q[n] & u & pi -> co[n]+
                         ~u & ~pi -> co[n]-
@@ -1015,25 +1084,25 @@ namespace aer {
             [ ~LAYOUT ->
                 prs<g.Vdd, g.GND> {
                     pi => _pi-
-    
+
                     _cci => __cci-
-    
+
                     (~_pi | ~_ccc) & ~uu & ~__cci => po+
-    
+
                     (: f : F :
                         _ccc & p.d[f] -> _u[f]-
                         ~g._pReset | ~_ccc -> _u[f]+
                     )
                     (& : f : F : _u[f]) => uu-
-    
+
                     (: f : F :
                         ~_u[f] & ~p.d[f] -> cc[f]+
                         ~pi -> cc[f]-
                     )
                     (| : f : F : cc[f]) => _ccc-
-    
+
                     (| : f : F : ci[f]) => _cci-
-    
+
                     (: f : F :
                         (: d : D :
                             cc[f] & p.d[d] => _c[f].d[d]-
@@ -1051,30 +1120,30 @@ namespace aer {
                 prs<g.Vdd, g.GND> {
                     ~pi<9> -> _pi+
                     pi<6> -> _pi-
-    
+
                     ~_cci<9> -> __cci+
                     _cci<6> -> __cci-
-    
+
                     (~_pi<4.30> | ~_ccc<4.30>) & ~uu<4.30> & ~__cci<4.30> -> po+
                     _pi<18> & _ccc<18> | uu<6> | __cci<6> -> po-
-    
+
                     (: f : F :
                         _ccc<18> & p.d[f]<18> -> _u[f]-
                         ~g._pReset<6> | ~_ccc<9> -> _u[f]+
                     )
                     (| : f : F : ~_u[f]<9>) -> uu+
                     (& : f : F : _u[f]<24>) -> uu-
-    
+
                     (: f : F :
                         ~_u[f]<24> & ~p.d[f]<24> -> cc[f]+
                         ~pi<6> -> cc[f]-
                     )
                     (| : f : F : cc[f]<6>) -> _ccc-
                     (& : f : F : ~cc[f]<9>) -> _ccc+
-    
+
                     (| : f : F : ci[f]<6>) -> _cci-
                     (& : f : F : ~ci[f]<9>) -> _cci+
-    
+
                     (: f : F :
                         (: d : D :
                             cc[f]<18> & p.d[d]<18> -> _c[f].d[d]-
@@ -1118,7 +1187,7 @@ namespace aer {
                     (: n : N :
                         _co[n] => co[n]-
                     )
-                    
+
                     _po => po-
                 }
             [] LAYOUT ->
@@ -1252,7 +1321,7 @@ namespace aer {
             mem_deserial[n].y.m = y_mem[n].m;
             mem_deserial[n].y.e = y_mem[n].e;
         )
-        
+
         OR<2> or_a[N_SYN/2];
         bool aerv_yi[AERV_TGTS];
         (; n : N_SYN/2 :
