@@ -133,6 +133,7 @@ needs at least 28 bits of memory.
     && ring serializer (Section~\ref{sec:SERIAL_RING})
     &&& \textbf{NODE} (Section~\ref{sec:SERIAL_RING_NODE})
     &&& \textbf{SEQ} (Section~\ref{sec:SERIAL_RING_SEQ})
+    &&& \textbf{RING} (Section~\ref{sec:SERIAL_RING_RING})
     && ring serializer 2 (Section~\ref{sec:SERIAL_RING2})
     &&& \textbf{NODE} (Section~\ref{sec:SERIAL_RING2_NODE})
     &&& \textbf{MERGE} (Section~\ref{sec:SERIAL_RING2_MERGE})
@@ -5965,11 +5966,221 @@ _yo -> yo-
 \end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Ring serializer ring \label{sec:SERIAL_RING_RING}}
+
+It's helpful to combine the nodes into a single ring process. This allows
+netgen to more intelligently size the staticizers on the output data lines.
+Having separate processes caused netgen to create a separate staticizer for each
+process. Combining the processes gives netgen the information it needs to size
+a single staticizer on the data line.
+
+\begin{hse}
+*[[si];
+  [x00->y0+;[ya];u0+;y0-;[~ya];s01+;
+  []x01->y1+;[ya];u0+;y1-;[~ya];s01+;
+  ];
+  ..
+  [xm0->y0+;[ya];um+;y0-;[~ya];sm(m\+1)+;
+  []xm1->y1+;[ya];um+;y1-;[~ya];sm(m\+1)+;
+  ];
+  ..
+  [x(M\-1)0->y0+;[ya];u(M\-1)+;y0-;[~ya];so+;
+  []x(M\-1)1->y1+;[ya];u(M\-1)+;y1-;[~ya];so+;
+  ];
+  [~si];
+  u0-;[~x00&~x01];s01-;
+  ..
+  um-;[~xm0&~xm1];sm(m\+1)-;
+  ..
+  u(M\-1)-;[~xm0&~xm1];so-
+ ]
+\end{hse}
+
+\subsubsection*{PRS}
+
+\begin{prs2}
+x00 & ~u0 & s0 -> y0+
+u0 & ~s1 -> y0-
+
+x01 & ~u0 & s0 -> y1+
+u0 & ~s1 -> y1-
+\end{prs2}
+
+\begin{prs2}
+s0 & ya -> u0+
+~s0 -> u0-
+\end{prs2}
+
+\begin{prs2}
+u0 & ~ya -> s0+
+~u0 & ~x00 & ~x01 -> s0-
+\end{prs2}
+
+..
+
+\begin{prs2}
+xm0 & ~um & sm -> y0+
+um & ~s(m\+1) -> y0-
+
+xm1 & ~um & sm -> y1+
+um & ~s(m\+1) -> y1-
+\end{prs2}
+
+\begin{prs2}
+sm & ya -> um+
+~sm -> um-
+\end{prs2}
+
+\begin{prs2}
+um & ~ya -> s(m\+1)+
+~um & ~xm0 & ~xm1 -> s(m\+1)-
+\end{prs2}
+
+..
+
+\begin{prs2}
+x(M\-1)0 & ~u(M\-1) & s(M\-1) -> y0+
+u(M\-1) & ~sM -> y0-
+
+x(M\-1)1 & ~u(M\-1) & s(M\-1) -> y1+
+u(M\-1) & ~sM -> y1-
+\end{prs2}
+
+\begin{prs2}
+s(M\-1) & ya -> u(M\-1)+
+~s(M\-1) -> u(M\-1)-
+\end{prs2}
+
+\begin{prs2}
+u(M\-1) & ~ya -> sM+
+~u(M\-1) & ~x(M\-1)0 & ~x(M\-1)1 -> sM-
+\end{prs2}
+
+\subsubsection*{CMOS-implementable PRS}
+
+\begin{prs2}
+~u0 -> _u0+
+u0 -> _u0-
+\end{prs2}
+
+\begin{prs2}
+x00 & _u0 & s0 -> _y0-
+~_u0 & ~s1 -> _y0+
+
+x01 & _u0 & s0 -> _y1-
+~_u0 & ~s1 -> _y1+
+\end{prs2}
+
+\begin{prs2}
+~s0 -> _s0+
+s0 -> _s0-
+\end{prs2}
+
+\begin{prs2}
+~_s0 & ~_ya -> u0+
+_s0 -> u0-
+\end{prs2}
+
+\begin{prs2}
+~_u0 -> __u0+
+_u0 -> __u0-
+\end{prs2}
+
+\begin{prs2}
+__u0 & _ya -> _s1-
+~__u0 & ~x00 & ~x01 -> _s1+
+\end{prs2}
+
+\begin{prs2}
+~_s1 -> s1+
+_s1 -> s1-
+\end{prs2}
+
+..
+
+\begin{prs2}
+~um -> _um+
+um -> _um-
+\end{prs2}
+
+\begin{prs2}
+xm0 & _um & sm -> _y0-
+~_um & ~s(m\+1) -> _y0+
+
+xm1 & _um & sm -> _y1-
+~_um & ~s(m\+1) -> _y1+
+\end{prs2}
+
+\begin{prs2}
+~sm -> _sm+
+sm -> _sm-
+\end{prs2}
+
+\begin{prs2}
+~_sm & ~_ya -> um+
+_sm -> um-
+\end{prs2}
+
+\begin{prs2}
+~_um -> __um+
+_um -> __um-
+\end{prs2}
+
+\begin{prs2}
+__um & _ya -> _s(m\+1)-
+~__um & ~xm0 & ~xm1 -> _s(m\+1)+
+\end{prs2}
+
+\begin{prs2}
+~_s(m\+1) -> s(m\+1)+
+_s(m\+1) -> s(m\+1)-
+\end{prs2}
+
+..
+
+\begin{prs2}
+~u(M\-1) -> _u(M\-1)+
+u(M\-1) -> _u(M\-1)-
+\end{prs2}
+
+\begin{prs2}
+x(M\-1)0 & _u(M\-1) & s(M\-1) -> _y0-
+~_u(M\-1) & ~sM -> _y0+
+
+x(M\-1)1 & _u(M\-1) & s(M\-1) -> _y1-
+~_u(M\-1) & ~sM -> _y1+
+\end{prs2}
+
+\begin{prs2}
+~s(M\-1) -> _s(M\-1)+
+s(M\-1) -> _s(M\-1)-
+\end{prs2}
+
+\begin{prs2}
+~_s(M\-1) & ~_ya -> u(M\-1)+
+_s(M\-1) -> u(M\-1)-
+\end{prs2}
+
+\begin{prs2}
+~_u(M\-1) -> __u(M\-1)+
+_u(M\-1) -> __u(M\-1)-
+\end{prs2}
+
+\begin{prs2}
+__u(M\-1) & _ya -> _sM-
+~__u(M\-1) & ~x(M\-1)0 & ~x(M\-1)1 -> _sM+
+\end{prs2}
+
+\begin{prs2}
+~_sM -> sM+
+_sM -> sM-
+\end{prs2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Ring serializer 2 \label{sec:SERIAL_RING2}}
 
-The previous ring serializer (Section~\ref{sec:SERIAL_RING}) used a lot
-of isochronic forks and was difficult to bubble reshuffle. This design
-uses more conventional channels and more sequencing. Since there's only one
+This design uses more conventional channels and more sequencing than 
+the previous serial ring. Since there's only one
 serializer per neuron array, the cost per neuron is still trivial.
 
 \begin{center}

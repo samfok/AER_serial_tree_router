@@ -163,26 +163,32 @@ namespace aer {
 
         namespace serial_ring {
             export
-            template <pint N>
-            defproc NODE (globals g; bool si, so; c1of<N> x; a1of<N> y) {
-                bool u;
+            template <pint M, N>
+            defproc RING (globals g; bool si, so; c1of<N> x[M]; a1of<N> y) {
+                bool u[M], s[M+1];
+                si = s[0];
+                so = s[M];
                 prs<g.Vdd, g.GND> {
                     (: n : N :
-                        x.d[n] & ~u & si -> y.d[n]+
-                        g.pReset | u & ~so -> y.d[n]-
+                        (| : m : M : x[m].d[n] & ~u[m] & s[m]) -> y.d[n]+
+                        g.pReset | (| : m : M : u[m] & ~s[m+1]) -> y.d[n]-
                     )
             
-                    si & y.a -> u+
-                    g.pReset | ~si -> u-
+                    (: m : M :
+                        s[m] & y.a -> u[m]+
+                        g.pReset | ~s[m] -> u[m]-
+                    )
             
-                    u & ~y.a -> so+
-                    ~u & (& : n : N : ~x.d[n]) -> so-
+                    (: m : M :
+                        u[m] & ~y.a -> s[m+1]+
+                        ~u[m] & (& : n : N : ~x[m].d[n]) -> s[m+1]-
+                    )
                 }
             }
             
             export
             template <pint N>
-            defproc MERGE (globals g; bool si, so, yi, yo; a1of<N> x; c1of<N> y) {
+            defproc SEQ (globals g; bool si, so, yi, yo; a1of<N> x; c1of<N> y) {
                 prs<g.Vdd, g.GND> {
                     (| : n : N : x.d[n]) -> yo+
                     g.pReset | ~si & yi -> yo-
@@ -207,18 +213,13 @@ namespace aer {
             // convert eMx1ofN protocol to AEXT/AERV serial with ring
             // highest order in word in input is first word in output
             bool s = x.e;
-            serial_ring::NODE<N> node[M];
-            serial_ring::MERGE<N> merge(g, s, node[0].si, yi, yo,, y);
+            serial_ring::RING<M, N> ring(g,,,,);
+            serial_ring::SEQ<N> seq(g, s, ring.si, yi, yo, ring.y, y);
             (; m : M :
-                node[m].g = g;
-                node[m].x = x.m[M-1-m];
-                node[m].y = merge.x;
-            )
-            (; m : M-1 :
-                node[m].so = node[m+1].si;
+                ring.x[m] = x.m[M-1-m];
             )
             prs<g.Vdd, g.GND> {
-                node[M-1].so => s-
+                ring.so => s-
             }
         }
 

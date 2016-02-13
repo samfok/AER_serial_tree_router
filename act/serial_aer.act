@@ -374,61 +374,105 @@ namespace aer {
 
         namespace serial_ring {
             export
-            template <pint N>
-            defproc NODE (globals g; bool si, so; c1of<N> x; a1of<N> _y) {
-                bool u, _u, __u, _si, _so;
+            template <pint M, N>
+            defproc RING (globals g; bool si, so; c1of<N> x[M]; a1of<N> y) {
+                bool u[M], _u[M], __u[M], si_[M], _si[M], _so[M], so_[M];
+                si = si_[0];
+                so = so_[M-1];
+                bool _ya = y.a; // active low
+                [ M > 1 ->
+                    (; m : 1..M-1 :
+                        si_[m] = so_[m-1];
+                    )
+                ]
+                c1of<N> _y;
                 [ ~LAYOUT ->
                     prs<g.Vdd, g.GND> {
-                        u => _u-
-
-                        (: n : N :
-                            x.d[n] & _u & si -> _y.d[n]-
-                            ~g._pReset | ~_u & ~so -> _y.d[n]+
+                        (: m : M :
+                            u[m] => _u[m]-
                         )
 
-                        si => _si-
+                        (: n : N :
+                            (| : m : M : x[m].d[n] & _u[m] & si_[m]) -> _y.d[n]-
+                            ~g._pReset | (| : m : M : ~so_[m] & ~_u[m]) -> _y.d[n]+
+                        )
 
-                        ~_si & ~_y.a -> u+
-                        g.pReset | _si -> u-
+                        (: m : M :
+                            si_[m] => _si[m]-
+                        )
 
-                        _u => __u-
+                        (: m : M :
+                            ~_si[m] & ~_ya -> u[m]+
+                            g.pReset | _si[m] -> u[m]-
+                        )
 
-                        __u & _y.a -> _so-
-                        ~__u & (& : n : N : ~x.d[n]) -> _so+
+                        (: m : M :
+                            _u[m] => __u[m]-
+                        )
 
-                        _so => so-
+                        (: m : M :
+                            __u[m] & _ya -> _so[m]-
+                            ~__u[m] & (& : n : N : ~x[m].d[n]) -> _so[m]+
+                        )
+
+                        (: m : M :
+                            _so[m] => so_[m]-
+                        )
+                    }
+                    prs<g.Vdd, g.GND> {
+                        (: n : N :
+                            _y.d[n] => y.d[n]-
+                        )
                     }
                 [] LAYOUT ->
                     prs<g.Vdd, g.GND> {
-                        ~u<21> -> _u+
-                        u<15> -> _u-
-
-                        (: n : N :
-                            x.d[n]<48> & _u<48> & si<48> -> _y.d[n]-
-                            ~g._pReset | ~so<45> & ~_u<45> -> _y.d[n]+
+                        (: m : M :
+                            ~u[m]<21> -> _u[m]+
+                            u[m]<15> -> _u[m]-
                         )
 
-                        ~si<12> -> _si+
-                        si<8> -> _si-
+                        (: n : N :
+                            (| : m : M : x[m].d[n]<48> & _u[m]<48> & si_[m]<48>) -> _y.d[n]-
+                            ~g._pReset | (| : m : M : ~so_[m]<45> & ~_u[m]<45>) -> _y.d[n]+
+                        )
 
-                        ~_si<27> & ~_y.a<27> -> u+
-                        g.pReset | _si<9> -> u-
+                        (: m : M :
+                            ~si_[m]<12> -> _si[m]+
+                            si_[m]<8> -> _si[m]-
+                        )
 
-                        ~_u<12> -> __u+
-                        _u<9> -> __u-
+                        (: m : M :
+                            ~_si[m]<27> & ~_ya<27> -> u[m]+
+                            g.pReset | _si[m]<9> -> u[m]-
+                        )
 
-                        __u<27> & _y.a<27> -> _so-
-                        ~__u<63> & (& : n : N : ~x.d[n]<63>) -> _so+
+                        (: m : M :
+                            ~_u[m]<12> -> __u[m]+
+                            _u[m]<9> -> __u[m]-
+                        )
 
-                        ~_so<24> -> so+
-                        _so<15> -> so-
+                        (: m : M :
+                            __u[m]<27> & _ya<27> -> _so[m]-
+                            ~__u[m]<63> & (& : n : N : ~x[m].d[n]<63>) -> _so[m]+
+                        )
+
+                        (: m : M :
+                            ~_so[m]<24> -> so_[m]+
+                            _so[m]<15> -> so_[m]-
+                        )
+                    }
+                    prs<g.Vdd, g.GND> {
+                        (: n : N :
+                            ~_y.d[n]<12> -> y.d[n]+
+                            _y.d[n]<6> -> y.d[n]-
+                        )
                     }
                 ]
             }
 
             export
             template <pint N>
-            defproc MERGE (globals g; bool si, so, yi, yo; a1of<N> x; c1of<N> y) {
+            defproc SEQ (globals g; bool si, so, yi, yo; a1of<N> x; c1of<N> y) {
                 bool _yi, _yo, _si;
                 c1of<N> _x;
                 bool _xa = x.a; // active low
@@ -500,33 +544,19 @@ namespace aer {
             // convert eMx1ofN protocol to AEXT/AERV serial with ring
             // highest order in word in input is first word in output
             bool s = x.e;
-            serial_ring::NODE<N> node[M];
-            serial_ring::MERGE<N> merge(g, s, node[0].si, yi, yo,, y);
-            c1of<N> _d;
+            serial_ring::RING<M, N> ring(g,,,,);
+            serial_ring::SEQ<N> seq(g, s, ring.si, yi, yo, ring.y, y);
             (; m : M :
-                node[m].g = g;
-                node[m].x = x.m[M-1-m];
-                node[m]._y.d = _d.d;
-                node[m]._y.a = merge.x.a;
-            )
-            (; m : M-1 :
-                node[m].so = node[m+1].si;
+                ring.x[m] = x.m[M-1-m];
             )
             [ ~LAYOUT ->
                 prs<g.Vdd, g.GND> {
-                    (: n : N :
-                        _d.d[n] => merge.x.d[n]-
-                    )
-                    node[M-1].so => s-
+                    ring.so => s-
                 }
             [] LAYOUT ->
                 prs<g.Vdd, g.GND> {
-                    (: n : N :
-                        ~_d.d[n]<12> -> merge.x.d[n]+
-                        _d.d[n]<6> -> merge.x.d[n]-
-                    )
-                    ~node[M-1].so<12> -> s+
-                    node[M-1].so<6> -> s-
+                    ~ring.so<12> -> s+
+                    ring.so<6> -> s-
                 }
             ]
         }
