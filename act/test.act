@@ -49,7 +49,7 @@ defproc SINK_SERIAL (globals g; bool i, o; c1of<N> d) {
         ~i<18> -> _i+
         i<10> -> _i-
 
-        ~_i<60> & (& : n : N : ~d.d[n]<60>) -> o+
+        ~_i<54> & (& : n : N : ~d.d[n]<54>) -> o+
         _i<10> | (| : n : N : d.d[n]<10>) -> o-
     }
 }
