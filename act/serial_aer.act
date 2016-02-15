@@ -948,7 +948,7 @@ namespace aer {
 
                     (: f : F :
                         ~_u[f] & ~p.d[f] -> cc[f]+
-                        ~pi -> cc[f]-
+                        _pi -> cc[f]-
                     )
                     (| : f : F : cc[f]) => _ccc-
 
@@ -987,7 +987,7 @@ namespace aer {
 
                     (: f : F :
                         ~_u[f]<24> & ~p.d[f]<24> -> cc[f]+
-                        ~pi<6> -> cc[f]-
+                        _pi<6> -> cc[f]-
                     )
                     (| : f : F : cc[f]<6>) -> _ccc-
                     (& : f : F : ~cc[f]<9>) -> _ccc+
