@@ -969,43 +969,43 @@ namespace aer {
                 }
             [] LAYOUT ->
                 prs<g.Vdd, g.GND> {
-                    ~pi<9> -> _pi+
-                    pi<6> -> _pi-
+                    ~pi<14> -> _pi+
+                    pi<8> -> _pi-
 
-                    ~_cci<9> -> __cci+
-                    _cci<6> -> __cci-
+                    ~_cci<12> -> __cci+
+                    _cci<9> -> __cci-
 
-                    (~_pi<4.30> | ~_ccc<4.30>) & ~uu<4.30> & ~__cci<4.30> -> po+
-                    _pi<18> & _ccc<18> | uu<6> | __cci<6> -> po-
-
-                    (: f : F :
-                        _ccc<18> & p.d[f]<18> -> _u[f]-
-                        ~g._pReset<6> | ~_ccc<9> -> _u[f]+
-                    )
-                    (| : f : F : ~_u[f]<9>) -> uu+
-                    (& : f : F : _u[f]<24>) -> uu-
+                    (~_pi<36> | ~_ccc<30>) & ~uu<27> & ~__cci<27> -> po+
+                    _pi<18> & _ccc<18> | uu<9> | __cci<9> -> po-
 
                     (: f : F :
-                        ~_u[f]<24> & ~p.d[f]<24> -> cc[f]+
-                        _pi<6> -> cc[f]-
+                        _ccc<15> & p.d[f]<15> -> _u[f]-
+                        ~g._pReset | ~_ccc<15> -> _u[f]+
                     )
-                    (| : f : F : cc[f]<6>) -> _ccc-
-                    (& : f : F : ~cc[f]<9>) -> _ccc+
+                    (| : f : F : ~_u[f]<14>) -> uu+
+                    (& : f : F : _u[f]<18>) -> uu-
+
+                    (: f : F :
+                        ~_u[f]<34> & ~p.d[f]<34> -> cc[f]+
+                        _pi<12> -> cc[f]-
+                    )
+                    (| : f : F : cc[f]<9>) -> _ccc-
+                    (& : f : F : ~cc[f]<36>) -> _ccc+
 
                     (| : f : F : ci[f]<6>) -> _cci-
-                    (& : f : F : ~ci[f]<9>) -> _cci+
+                    (& : f : F : ~ci[f]<36>) -> _cci+
 
                     (: f : F :
                         (: d : D :
-                            cc[f]<18> & p.d[d]<18> -> _c[f].d[d]-
-                            ~cc[f]<9> | ~p.d[d]<9> -> _c[f].d[d]+
+                            cc[f]<15> & p.d[d]<15> -> _c[f].d[d]-
+                            ~cc[f]<12> | ~p.d[d]<12> -> _c[f].d[d]+
                         )
                     )
                 }
                 prs<g.Vdd, g.GND> {
                     (: f : F :
                         (: d : D :
-                            ~_c[f].d[d]<12> -> c[f].d[d]+
+                            ~_c[f].d[d]<10> -> c[f].d[d]+
                             _c[f].d[d]<6> -> c[f].d[d]-
                         )
                     )

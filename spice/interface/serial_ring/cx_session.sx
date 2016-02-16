@@ -1,5 +1,5 @@
 ### Custom WaveView session file (version K-2015.06 build 05/23/15) ###
-### saved at 21:17:25 on Fri Feb 12 2016 ###
+### saved at 21:20:47 on Fri Feb 12 2016 ###
 wdf 0 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/interface/serial_ring/M2/hsim.fsdb" load=used "title=M2" 
 wdf 1 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/interface/serial_ring/M6/hsim.fsdb" load=used "title=M6" 
 wdf 2 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/interface/serial_ring/M9/hsim.fsdb" load=used "title=M9" 
