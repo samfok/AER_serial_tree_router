@@ -1,0 +1,24 @@
+import "comm.act";
+
+defproc wrapper (globals_np g_np; eMx1of2<2> src; eMx1of4<1> snk) {
+    bool Vdd;
+    bool GND;
+
+    pint M_1of2 = 2;
+    pint M_1of4 = 1;
+    eMx1of2_to_eMx1of4<M_1of2, M_1of4> converter;
+
+    converter.g.Vdd = Vdd;
+    converter.g.GND = GND;
+    prs <Vdd, GND> {
+        g_np._sReset<20> => converter.g.sReset-
+        g_np._pReset<20> => converter.g.pReset-
+    }
+    converter.g._pReset = g_np._pReset;
+    converter.g._sReset = g_np._sReset;
+
+    src = converter.x;
+    snk = converter.y;
+}
+
+wrapper dut;
