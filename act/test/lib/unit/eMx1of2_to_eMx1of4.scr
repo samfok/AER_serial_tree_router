@@ -1,8 +1,8 @@
 channel eMx1of2 4 src
 channel eMx1of4 2 snk
 
-loop-injectfile src test/lib/unit/1of2_to_1of4.in
-loop-expectfile snk test/lib/unit/1of2_to_1of4.out
+loop-injectfile src test/lib/unit/eMx1of2_to_eMx1of4.in
+loop-expectfile snk test/lib/unit/eMx1of2_to_eMx1of4.out
 source r.scr
 
 set_principal src.m[0].d[0]

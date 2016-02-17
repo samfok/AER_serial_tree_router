@@ -166,3 +166,30 @@ defproc eMx1of2_to_eMx1of4 (globals g; eMx1of2<M_1of2> x; eMx1of4<M_1of4> y) {
     _.y = y.m;
     x.e = y.e;
 }
+
+export
+template <pint M_1of4, M_1of2>
+defproc Mx1of4_to_Mx1of2 (globals g; c1of4 x[M_1of4]; c1of2 y[M_1of2]) {
+    // converts an Mx1of4 channel to an Mx1of2 channel
+    [ M_1of2 != (M_1of4*2) ->
+        0 = 1; // assert false
+    ]
+    prs<g.Vdd, g.GND> {
+        (: m4 : M_1of4 :
+            x[m4].d[0] | x[m4].d[2] => y[m4*2].d[0]+
+            x[m4].d[1] | x[m4].d[3] => y[m4*2].d[1]+
+            x[m4].d[0] | x[m4].d[1] => y[m4*2+1].d[0]+
+            x[m4].d[2] | x[m4].d[3] => y[m4*2+1].d[1]+
+        )
+    }
+}
+
+export
+template <pint M_1of4, M_1of2>
+defproc eMx1of4_to_eMx1of2 (globals g; eMx1of4<M_1of4> x; eMx1of2<M_1of2> y) {
+    // converts an eMx1of2 channel to an eMx1of4 channel
+    Mx1of4_to_Mx1of2<M_1of4, M_1of2> _(g,,);
+    _.x = x.m;
+    _.y = y.m;
+    x.e = y.e;
+}

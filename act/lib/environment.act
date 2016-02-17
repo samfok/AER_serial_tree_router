@@ -92,25 +92,6 @@ template <pint M, N>
 defproc SINK_eMx1ofN (globals g; eMx1ofN<M, N> d) {
     VN_eMx1ofN<M, N> vn(g, d);
 }
-
-export
-template <pint M>
-defproc SINK_eMx1of4 (globals g; eMx1of4<M> d) {
-    SINK_eMx1ofN<M, 4> snk(g,);
-    (; m : M :
-        snk.d.m[m].d = d.m[m].d;
-    )
-    snk.d.e = d.e;
-}
-
-export
-template <pint N>
-defproc SINK_e1ofN (globals g; e1of<N> d) {
-    SINK_eMx1ofN<1, N> snk(g,);
-    snk.d.m[0] = d.m;
-    snk.d.e = d.e;
-}
-
 /*---------------------------------------------------------------------------*/
 
 export
@@ -167,6 +148,35 @@ defproc SOURCE_random_e1of1 (globals g; e1of1 d) {
     src.d.m[0].d[0] = d.d;
     src.d.e = d.e;
 }
+
+export
+template <pint N>
+defproc SINK_e1ofN (globals g; e1of<N> d) {
+    SINK_eMx1ofN<1, N> snk(g,);
+    snk.d.m[0] = d.m;
+    snk.d.e = d.e;
+}
+
+export
+template <pint M>
+defproc SINK_eMx1of2 (globals g; eMx1of2<M> d) {
+    SINK_eMx1ofN<M, 2> snk(g,);
+    (; m : M :
+        snk.d.m[m].d = d.m[m].d;
+    )
+    snk.d.e = d.e;
+}
+
+export
+template <pint M>
+defproc SINK_eMx1of4 (globals g; eMx1of4<M> d) {
+    SINK_eMx1ofN<M, 4> snk(g,);
+    (; m : M :
+        snk.d.m[m].d = d.m[m].d;
+    )
+    snk.d.e = d.e;
+}
+
 
 /*---------------------------------------------------------------------------*/
 
