@@ -98,7 +98,7 @@ template <pint M>
 defproc SINK_eMx1of4 (globals g; eMx1of4<M> d) {
     SINK_eMx1ofN<M, 4> snk(g,);
     (; m : M :
-        snk.d.m[m] = d.m[m];
+        snk.d.m[m].d = d.m[m].d;
     )
     snk.d.e = d.e;
 }
@@ -118,6 +118,17 @@ template <pint M>
 defproc SOURCE_random_eMx1of4 (globals g; eMx1of4<M> d) {
     // sources random eMx1of4 data
     SOURCE_random_eMx1ofN<M, 4> src(g,);
+    (; m : M :
+        src.d.m[m].d = d.m[m].d;
+        src.d.e = d.e;
+    )
+}
+
+export
+template <pint M>
+defproc SOURCE_random_eMx1of2 (globals g; eMx1of2<M> d) {
+    // sources random eMx1of4 data
+    SOURCE_random_eMx1ofN<M, 2> src(g,);
     (; m : M :
         src.d.m[m].d = d.m[m].d;
         src.d.e = d.e;

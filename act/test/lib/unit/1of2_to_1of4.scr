@@ -1,0 +1,37 @@
+channel eMx1of2 4 src
+channel eMx1of4 2 snk
+
+loop-injectfile src test/lib/unit/1of2_to_1of4.in
+loop-expectfile snk test/lib/unit/1of2_to_1of4.out
+source r.scr
+
+set_principal src.m[0].d[0]
+set_principal src.m[0].d[1]
+set_principal src.m[1].d[0]
+set_principal src.m[1].d[1]
+set_principal src.m[2].d[0]
+set_principal src.m[2].d[1]
+set_principal src.m[3].d[0]
+set_principal src.m[3].d[1]
+
+set_principal snk.m[0].d[0]
+set_principal snk.m[0].d[1]
+set_principal snk.m[0].d[2]
+set_principal snk.m[0].d[3]
+set_principal snk.m[1].d[0]
+set_principal snk.m[1].d[1]
+set_principal snk.m[1].d[2]
+set_principal snk.m[1].d[3]
+
+vector x0 :1ofN 2 src.m[0].d[0] src.m[0].d[1]
+vector x1 :1ofN 2 src.m[1].d[0] src.m[1].d[1]
+vector x2 :1ofN 2 src.m[2].d[0] src.m[2].d[1]
+vector x3 :1ofN 2 src.m[3].d[0] src.m[3].d[1]
+vector y0 :1ofN 4 snk.m[0].d[0] snk.m[0].d[1] snk.m[0].d[2] snk.m[0].d[3]
+vector y1 :1ofN 4 snk.m[1].d[0] snk.m[1].d[1] snk.m[1].d[2] snk.m[1].d[3]
+vwatch x0
+vwatch x1
+vwatch x2
+vwatch x3
+vwatch y0
+vwatch y1

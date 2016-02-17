@@ -1,0 +1,12 @@
+import "comm.act";
+import "environment.act";
+
+pint M_1of2 = 4;
+pint M_1of4 = 2;
+
+globals g;
+bool Reset = g.sReset;
+eMx1of2<M_1of2> src;
+eMx1of4<M_1of4> snk;
+SINK_eMx1of4<M_1of4> snk_proc(g, snk);
+eMx1of2_to_eMx1of4<M_1of2, M_1of4> converter(g, src, snk);

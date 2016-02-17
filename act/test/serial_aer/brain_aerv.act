@@ -25,7 +25,9 @@ a1of2 y_syn[N_SYN];
 eMx1of4<M_MEM-M> y_mem[N_MEM];
 (; n : N_MEM :
     mem_snk[n].g = g;
-    mem_snk[n].d.m = y_mem[n].m;
+    (; m : M_MEM - M :
+        mem_snk[n].d.m[m].d = y_mem[n].m[m].d;
+    )
     mem_snk[n].d.e = y_mem[n].e;
 )
 

@@ -175,7 +175,7 @@ defchan eMx1of2 <: chan(int<M>) (c1of2 m[M], b[M]; bool e)
 }
 
 export template<pint M>
-defchan eMx1of4 <: chan(int<M*2>) (c1of<4> m[M], b[M]; bool e)
+defchan eMx1of4 <: chan(int<M*2>) (c1of4 m[M], b[M]; bool e)
 {
     m = b;
     send { }

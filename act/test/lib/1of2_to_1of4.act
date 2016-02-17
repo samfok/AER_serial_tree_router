@@ -1,0 +1,10 @@
+import "comm.act";
+import "environment.act";
+
+pint M_1of2 = 4;
+pint M_1of4 = 2;
+
+globals g;
+SOURCE_random_eMx1of2<M_1of2> src(g,);
+SINK_eMx1of4<M_1of4> snk(g,);
+eMx1of2_to_eMx1of4<M_1of2, M_1of4> converter(g, src.d, snk.d);

@@ -1,4 +1,4 @@
-channel eMx1of4 4 spk_src
+channel eMx1of2 8 spk_src
 channel e1ofN 2 spk_snk[0].d
 channel e1ofN 2 spk_snk[1].d
 channel e1ofN 2 spk_snk[2].d
@@ -133,14 +133,22 @@ loop-expectfile spk_snk[63].d test/serial_aer/unit/brain_aerv_spk.out
 
 source r.scr
 
-vector spk_src_m0 :1ofN 4 spk_src.m[0].n[0] spk_src.m[0].n[1] spk_src.m[0].n[2] spk_src.m[0].n[3]
-vector spk_src_m1 :1ofN 4 spk_src.m[1].n[0] spk_src.m[1].n[1] spk_src.m[1].n[2] spk_src.m[1].n[3]
-vector spk_src_m2 :1ofN 4 spk_src.m[2].n[0] spk_src.m[2].n[1] spk_src.m[2].n[2] spk_src.m[2].n[3]
-vector spk_src_m3 :1ofN 4 spk_src.m[3].n[0] spk_src.m[3].n[1] spk_src.m[3].n[2] spk_src.m[3].n[3]
+vector spk_src_m0 :1ofN 2 spk_src.m[0].n[0] spk_src.m[0].n[1]
+vector spk_src_m1 :1ofN 2 spk_src.m[1].n[0] spk_src.m[1].n[1]
+vector spk_src_m2 :1ofN 2 spk_src.m[2].n[0] spk_src.m[2].n[1]
+vector spk_src_m3 :1ofN 2 spk_src.m[3].n[0] spk_src.m[3].n[1]
+vector spk_src_m4 :1ofN 2 spk_src.m[4].n[0] spk_src.m[4].n[1]
+vector spk_src_m5 :1ofN 2 spk_src.m[5].n[0] spk_src.m[5].n[1]
+vector spk_src_m6 :1ofN 2 spk_src.m[6].n[0] spk_src.m[6].n[1]
+vector spk_src_m7 :1ofN 2 spk_src.m[7].n[0] spk_src.m[7].n[1]
 vwatch spk_src_m0
 vwatch spk_src_m1
 vwatch spk_src_m2
 vwatch spk_src_m3
+vwatch spk_src_m4
+vwatch spk_src_m5
+vwatch spk_src_m6
+vwatch spk_src_m7
 
 vector spk_snk0 :1ofN 2 spk_snk[0].d.d[0] spk_snk[0].d.d[1]
 vector spk_snk1 :1ofN 2 spk_snk[1].d.d[0] spk_snk[1].d.d[1]

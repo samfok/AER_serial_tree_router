@@ -1,4 +1,4 @@
-channel eMx1of4 7 mem_src
+channel eMx1of2 14 mem_src
 channel eMx1of4 4 mem_snk[0].d
 channel eMx1of4 4 mem_snk[1].d
 channel eMx1of4 4 mem_snk[2].d

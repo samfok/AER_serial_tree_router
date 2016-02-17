@@ -127,26 +127,42 @@ defproc A_TO_E (globals g; aMx1ofN<M, N> i; eMx1ofN<M, N> o) {
 }
 
 export
-template <pint M, N>
-defproc REVERSE_WORDS (globals g; c1of<N> i[M], o[M]) {
-    // converts between big and little endian word orders
-    (; m : M :
-        i[m] = o[M-1-m];
-    )
+template <pint M_1of2, M_1of4>
+defproc Mx1of2_to_Mx1of4 (globals g; c1of2 x[M_1of2]; c1of4 y[M_1of4]) {
+    // converts an Mx1of2 channel to an Mx1of4 channel
+    [ M_1of2 != (M_1of4*2) ->
+        0 = 1; // assert false
+    ]
+    c1of4 _y[M_1of4];
+    prs<g.Vdd, g.GND> {
+        (: m4 : M_1of4 :
+            x[m4*2].d[0] & x[m4*2+1].d[0] -> _y[m4].d[0]-
+            ~x[m4*2].d[0] & ~x[m4*2+1].d[0] -> _y[m4].d[0]+
+
+            x[m4*2].d[1] & x[m4*2+1].d[0] -> _y[m4].d[1]-
+            ~x[m4*2].d[1] & ~x[m4*2+1].d[0] -> _y[m4].d[1]+
+
+            x[m4*2].d[0] & x[m4*2+1].d[1] -> _y[m4].d[2]-
+            ~x[m4*2].d[0] & ~x[m4*2+1].d[1] -> _y[m4].d[2]+
+
+            x[m4*2].d[1] & x[m4*2+1].d[1] -> _y[m4].d[3]-
+            ~x[m4*2].d[1] & ~x[m4*2+1].d[1] -> _y[m4].d[3]+
+        )
+        (: m4 : M_1of4 :
+            (: n : 4 :
+                ~_y[m4].d[n] -> y[m4].d[n]+
+                _y[m4].d[n] -> y[m4].d[n]-
+            )
+        )
+    }
 }
 
 export
-template <pint M, N>
-defproc eREVERSE_WORDS (globals g; eMx1ofN<M, N> i, o) {
-    // converts between big and little endian word orders for e channels
-    i.e = o.e;
-    REVERSE_WORDS<M, N> _(g, i.m, o.m);
-}
-
-export
-template <pint M>
-defproc eMx1of4_REVERSE_WORDS (globals g; eMx1of4<M> i, o) {
-    // converts between big and little endian word orders for eMx1of4 channels
-    i.e = o.e;
-    REVERSE_WORDS<M, 4> _(g, i.m, o.m);
+template <pint M_1of2, M_1of4>
+defproc eMx1of2_to_eMx1of4 (globals g; eMx1of2<M_1of2> x; eMx1of4<M_1of4> y) {
+    // converts an eMx1of2 channel to an eMx1of4 channel
+    Mx1of2_to_Mx1of4<M_1of2, M_1of4> _(g,,);
+    _.x = x.m;
+    _.y = y.m;
+    x.e = y.e;
 }
