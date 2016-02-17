@@ -895,8 +895,8 @@ namespace aer {
                     (& : f : F : ~u[f]<36>) -> _uu+
 
                     (: f : F :
-                        u[f]<20> & _p.d[f]<20> -> _co[f]-
-                        ~pi<24> -> _co[f]+
+                        _p.d[f]<22> & u[f]<22>  -> _co[f]-
+                        ~pi<26> -> _co[f]+
                     )
 
                     (| : f : F : ~_co[f]<16>) -> cco+
@@ -914,7 +914,7 @@ namespace aer {
                 }
                 prs<g.Vdd, g.GND> {
                     (: d : D :
-                        ~_co[d]<12> -> co[d]+
+                        ~_co[d]<15> -> co[d]+
                         _co[d]<9> -> co[d]-
                     )
 

@@ -1,9 +1,10 @@
 ### Custom WaveView session file (version K-2015.06 build 05/23/15) ###
-### saved at 17:13:13 on Tue Feb 16 2016 ###
-wdf 0 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/aerv/N4/hsim.fsdb" load=used "title=M4" 
-wdf 1 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/aerv/N16/hsim.fsdb" load=used "title=M16" 
+### saved at 18:33:30 on Tue Feb 16 2016 ###
+wdf 0 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/aerv/N4/hsim.fsdb" load=used "title=N4" 
+wdf 1 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/aerv/N16/hsim.fsdb" load=used "title=N16" 
+wdf 2 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/aerv/N64/hsim.fsdb" load=used "title=N64" 
 scalar list
-waveview_begin 1  stack  offset=0 name_b=382 mntr_b=382 name_width=367 "name=M4" 
+waveview_begin 1  stack  offset=0 name_b=382 mntr_b=382 name_width=367 "name=N4" 
   panel_begin linear pidx=0 spath=name+file xlabel=sec xmin=9.71603563474388e-09 xmax=4.95267260579065e-08 
     line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.xleaf.v(____cci)" attr=6:4:1:0 autoset=true disp=show 
   panel_end
@@ -78,26 +79,26 @@ waveview_begin 1  stack  offset=0 name_b=382 mntr_b=382 name_width=367 "name=M4"
     line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xaerv.v(aerv_2pi)" attr=7:5:1:0 autoset=true disp=show 
   panel_end
 waveview_end
-waveview_begin 2  stack  offset=0 name_b=306 mntr_b=306 name_width=291 dm=slew:809:105:1:1:0:9e-01:1e-01:0e+00:0e+00:0:1.25831584286386e-08:1e-01:1.2542327174205e-08:9e-01:0:0e+00:0e+00 "name=M16" 
-  panel_begin linear pidx=0 spath=name+file xlabel=sec xmin=1.01175213675214e-08 xmax=2e-08 
+waveview_begin 2  stack  offset=0 name_b=306 mntr_b=306 name_width=291 dm=slew:1401:1159:1:1:0:9e-01:1e-01:0e+00:0e+00:13:2.75877997281409e-08:1e-01:2.76464252024695e-08:9e-01:0:0e+00:0e+00 "name=N16" 
+  panel_begin linear pidx=0 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.xnode.v(____cci)" attr=0:0:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=1 spath=name+file xlabel=sec xmin=1.01175213675214e-08 xmax=2e-08 
+  panel_begin linear pidx=1 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.xnode.v(__cci)" attr=1:1:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=2 spath=name+file xlabel=sec xmin=1.01175213675214e-08 xmax=2e-08 
+  panel_begin linear pidx=2 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.v(___00_1_2po)" attr=1:7:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.v(___01_1_2po)" attr=2:0:1:0 autoset=true disp=show 
     line src=wdf lidx=2 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.v(___02_1_2po)" attr=3:1:1:0 autoset=true disp=show 
     line src=wdf lidx=3 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.v(___03_1_2po)" attr=4:2:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=3 spath=name+file xlabel=sec xmin=1.01175213675214e-08 xmax=2e-08 
+  panel_begin linear pidx=3 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.v(___00_1_2pi)" attr=3:1:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.v(___01_1_2pi)" attr=4:2:1:0 autoset=true disp=show 
     line src=wdf lidx=2 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.v(___02_1_2pi)" attr=5:3:1:0 autoset=true disp=show 
     line src=wdf lidx=3 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.v(___03_1_2pi)" attr=6:4:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=4 nvpos=0 spath=name+file xlabel=sec xmin=1.01175213675214e-08 xmax=2e-08 
+  panel_begin linear pidx=4 nvpos=0 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.v(___00_1_2p_2d_00_1)" attr=7:4:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.v(___00_1_2p_2d_01_1)" attr=0:5:1:0 autoset=true disp=show 
     line src=wdf lidx=2 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.v(___00_1_2p_2d_02_1)" attr=1:6:1:0 autoset=true disp=show 
@@ -115,49 +116,51 @@ waveview_begin 2  stack  offset=0 name_b=306 mntr_b=306 name_width=291 dm=slew:8
     line src=wdf lidx=14 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.v(___03_1_2p_2d_02_1)" attr=5:2:1:0 autoset=true disp=show 
     line src=wdf lidx=15 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.v(___03_1_2p_2d_03_1)" attr=6:3:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=5 spath=name+file xlabel=sec xmin=1.01175213675214e-08 xmax=2e-08 
+  panel_begin linear pidx=5 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.xnode.v(____cco)" attr=2:2:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=6 spath=name+file xlabel=sec xmin=1.01175213675214e-08 xmax=2e-08 
+  panel_begin linear pidx=6 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.xnode.v(__cco)" attr=3:3:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=7 spath=name+file xlabel=sec xmin=1.01175213675214e-08 xmax=2e-08 
+  panel_begin linear pidx=7 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.xnode.v(cco)" attr=6:5:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=8 spath=name+file xlabel=sec xmin=1.01175213675214e-08 xmax=2e-08 
+  panel_begin linear pidx=8 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.xnode.v(__co_00_1)" attr=4:4:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.xnode.v(__co_01_1)" attr=5:5:1:0 autoset=true disp=show 
     line src=wdf lidx=2 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.xnode.v(__co_02_1)" attr=6:6:1:0 autoset=true disp=show 
     line src=wdf lidx=3 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.xnode.v(__co_03_1)" attr=7:7:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=9 spath=name+file xlabel=sec xmin=1.01175213675214e-08 xmax=2e-08 
-    line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.xnode.v(__uu)" attr=5:4:1:0 autoset=true disp=show 
+  panel_begin linear pidx=9 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.xnode.v(__uu)" attr=0:4:1:0 disp=show 
   panel_end
-  panel_begin linear pidx=10 spath=name+file xlabel=sec xmin=1.01175213675214e-08 xmax=2e-08 
+  panel_begin linear pidx=10 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.xnode.v(u_00_1)" attr=7:6:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.xnode.v(u_01_1)" attr=0:7:1:0 autoset=true disp=show 
     line src=wdf lidx=2 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.xnode.v(u_02_1)" attr=1:0:1:0 autoset=true disp=show 
     line src=wdf lidx=3 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.xnode.v(u_03_1)" attr=2:1:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=11 spath=name+file xlabel=sec xmin=1.01175213675214e-08 xmax=2e-08 
+  panel_begin linear pidx=11 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.xnode.v(__p_2d_00_1)" attr=0:0:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.xnode.v(__p_2d_01_1)" attr=1:1:1:0 autoset=true disp=show 
     line src=wdf lidx=2 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.xnode.v(__p_2d_02_1)" attr=2:2:1:0 autoset=true disp=show 
     line src=wdf lidx=3 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.xnode.v(__p_2d_03_1)" attr=3:3:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=12 spath=name+file xlabel=sec xmin=1.01175213675214e-08 xmax=2e-08 
+  panel_begin linear pidx=12 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.v(aerv_2p_2d_00_1)" attr=7:2:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.v(aerv_2p_2d_01_1)" attr=0:3:1:0 autoset=true disp=show 
     line src=wdf lidx=2 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.v(aerv_2p_2d_02_1)" attr=1:4:1:0 autoset=true disp=show 
     line src=wdf lidx=3 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.v(aerv_2p_2d_03_1)" attr=2:5:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=13 spath=name+file xlabel=sec xmin=1.01175213675214e-08 xmax=2e-08 
+  panel_begin linear pidx=13 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.v(aerv_2po)" attr=6:3:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=14 spath=name+file xlabel=sec xmin=1.01175213675214e-08 xmax=2e-08 
+  panel_begin linear pidx=14 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.xaerv.xnode.v(__po)" attr=4:3:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=15 spath=name+file xlabel=sec xmin=1.01175213675214e-08 xmax=2e-08 
-    line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.v(aerv_2pi)" attr=5:2:1:0 autoset=true disp=show 
+  panel_begin linear pidx=15 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xaerv.v(aerv_2pi)" attr=0:2:1:0 disp=show 
   panel_end
+waveview_end
+waveview_begin 3  stack  offset=0 name_b=0 mntr_b=0 name_width=66 "name=N64" 
 waveview_end
