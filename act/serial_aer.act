@@ -244,35 +244,24 @@ namespace aer {
         namespace serial_ring {
             export
             template <pint M, N>
-            defproc RING (globals g; bool si, so; c1of<N> x[M]; a1of<N> y) {
-                bool u[M], _u[M], __u[M], si_[M], _si[M], _so[M], so_[M];
-                si = si_[0];
-                so = so_[M-1];
-                bool _ya = y.a; // active low
+            defproc RING (globals g; bool _si, _so; c1of<N> x[M]; a1of<N> _y) {
+                bool _u[M], __u[M], ___u[M], _si_[M], __si[M], so[M], _so_[M];
+                _si = _si_[0];
+                _so = _so_[M-1];
+                bool ya = _y.a; // active high
                 [ M > 1 ->
                     (; m : 1..M-1 :
-                        si_[m] = so_[m-1];
+                        _si_[m] = _so_[m-1];
                     )
                 ]
-                c1of<N> _y;
+                c1of<N> _x[M];
+                c1of<N> y;
                 [ ~LAYOUT ->
                     prs<g.Vdd, g.GND> {
                         (: m : M :
-                            u[m] => _u[m]-
-                        )
-
-                        (: n : N :
-                            (| : m : M : x[m].d[n] & _u[m] & si_[m]) -> _y.d[n]-
-                            ~g._pReset | (| : m : M : ~so_[m] & ~_u[m]) -> _y.d[n]+
-                        )
-
-                        (: m : M :
-                            si_[m] => _si[m]-
-                        )
-
-                        (: m : M :
-                            ~_si[m] & ~_ya -> u[m]+
-                            g.pReset | _si[m] -> u[m]-
+                            (: n : N :
+                                x[m].d[n] => _x[m].d[n]-
+                            )
                         )
 
                         (: m : M :
@@ -280,77 +269,103 @@ namespace aer {
                         )
 
                         (: m : M :
-                            __u[m] & _ya -> _so[m]-
-                            ~__u[m] & (& : n : N : ~x[m].d[n]) -> _so[m]+
+                            so[m] => _so_[m]-
+                        )
+
+                        (: n : N :
+                            (| : m : M : ~_x[m].d[n] & ~__u[m] & ~_si_[m]) -> y.d[n]+
+                            g.pReset | (| : m : M : _so_[m] & __u[m]) -> y.d[n]-
                         )
 
                         (: m : M :
-                            _so[m] => so_[m]-
+                            _si_[m] => __si[m]-
+                        )
+
+                        (: m : M :
+                            __si[m] & ya -> _u[m]-
+                            ~g._pReset | ~__si[m] -> _u[m]+
+                        )
+
+                        (: m : M :
+                            __u[m] => ___u[m]-
+                        )
+
+                        (: m : M :
+                            ~___u[m] & ~ya -> so[m]+
+                            ___u[m] & (& : n : N : _x[m].d[n]) -> so[m]-
                         )
                     }
                     prs<g.Vdd, g.GND> {
                         (: n : N :
-                            _y.d[n] => y.d[n]-
+                            ~y.d[n] -> _y.d[n]+
+                            y.d[n] -> _y.d[n]-
                         )
                     }
                 [] LAYOUT ->
                     [ M = 6 ->
                         prs<g.Vdd, g.GND> {
                             (: n : N :
-                                (| : m : M : si_[m]<48> & x[m].d[n]<48> & _u[m]<48>) -> _y.d[n]-
-                                ~g._pReset | (| : m : M : ~so_[m]<60> & ~_u[m]<60>) -> _y.d[n]+
+                                (| : m : M : ~_si_[m]<48> & ~_x[m].d[n]<48> & ~__u[m]<48>) -> y.d[n]+
+                                g.pReset | (| : m : M : _so_[m]<60> & __u[m]<60>) -> y.d[n]-
                             )
                         }
                     [] M = 9 ->
                         prs<g.Vdd, g.GND> {
                             (: n : N :
-                                (| : m : M : si_[m]<54> & x[m].d[n]<54> & _u[m]<54>) -> _y.d[n]-
-                                ~g._pReset | (| : m : M : ~so_[m]<90> & ~_u[m]<90>) -> _y.d[n]+
+                                (| : m : M : ~_si_[m]<54> & ~_x[m].d[n]<54> & ~__u[m]<54>) -> y.d[n]+
+                                g.pReset | (| : m : M : _so_[m]<90> & __u[m]<90>) -> y.d[n]-
                             )
                         }
                     [] (M != 6) & (M != 9) ->
                         prs<g.Vdd, g.GND> {
                             (: n : N :
-                                (| : m : M : si_[m]<48> & x[m].d[n]<48> & _u[m]<48>) -> _y.d[n]-
-                                ~g._pReset | (| : m : M : ~so_[m]<45> & ~_u[m]<45>) -> _y.d[n]+
+                                (| : m : M : ~_si_[m]<48> & ~_x[m].d[n]<48> & ~__u[m]<48>) -> y.d[n]+
+                                g.pReset | (| : m : M : _so_[m]<45> & __u[m]<45>) -> y.d[n]-
                             )
                         }
                     ]
                     prs<g.Vdd, g.GND> {
                         (: m : M :
-                            ~u[m]<27> -> _u[m]+
-                            u[m]<18> -> _u[m]-
+                            (: n : N :
+                                ~x[m].d[n]<12> -> _x[m].d[n]+
+                                x[m].d[n]<6> -> _x[m].d[n]-
+                            )
                         )
 
                         (: m : M :
-                            ~si_[m]<12> -> _si[m]+
-                            si_[m]<8> -> _si[m]-
+                            ~_u[m]<27> -> __u[m]+
+                            _u[m]<18> -> __u[m]-
                         )
 
                         (: m : M :
-                            ~_ya<27> & ~_si[m]<27> -> u[m]+
-                            g.pReset | _si[m]<9> -> u[m]-
+                            ~so[m]<24> -> _so_[m]+
+                            so[m]<15> -> _so_[m]-
                         )
 
                         (: m : M :
-                            ~_u[m]<12> -> __u[m]+
-                            _u[m]<9> -> __u[m]-
+                            ~_si_[m]<12> -> __si[m]+
+                            _si_[m]<8> -> __si[m]-
                         )
 
                         (: m : M :
-                            __u[m]<27> & _ya<27> -> _so[m]-
-                            ~__u[m]<63> & (& : n : N : ~x[m].d[n]<63>) -> _so[m]+
+                            ya<27> & __si[m]<27> -> _u[m]-
+                            ~g._pReset | ~__si[m]<9> -> _u[m]+
                         )
 
                         (: m : M :
-                            ~_so[m]<24> -> so_[m]+
-                            _so[m]<15> -> so_[m]-
+                            ~__u[m]<12> -> ___u[m]+
+                            __u[m]<9> -> ___u[m]-
+                        )
+
+                        (: m : M :
+                            ~___u[m]<27> & ~ya<27> -> so[m]+
+                            ___u[m]<63> & (& : n : N : _x[m].d[n]<63>) -> so[m]-
                         )
                     }
                     prs<g.Vdd, g.GND> {
                         (: n : N :
-                            ~_y.d[n]<12> -> y.d[n]+
-                            _y.d[n]<6> -> y.d[n]-
+                            ~y.d[n]<12> -> _y.d[n]+
+                            y.d[n]<6> -> _y.d[n]-
                         )
                     }
                 ]
@@ -358,87 +373,81 @@ namespace aer {
 
             export
             template <pint N | pint M>
-            defproc SEQ (globals g; bool si, so, yi, yo; a1of<N> x; c1of<N> y) {
-                bool _yi, _yo, _si;
-                c1of<N> _x;
-                bool _xa = x.a; // active low
+            defproc SEQ (globals g; bool _si, _so, yi, yo; a1of<N> _x; c1of<N> y) {
+                bool __si;
+                bool xa = _x.a; // active high
+                c1of<N> __x, _y;
+                c1of<N> __y = y;
                 [ ~LAYOUT ->
                     prs<g.Vdd, g.GND> {
-                        yi => _yi-
+                        (| : n : N : ~_x.d[n]) -> yo+
+                        g.pReset | _si & yi -> yo-
 
-                        (| : n : N : x.d[n]) -> _yo-
-                        ~g._pReset | ~si & ~_yi -> _yo+
+                        _si => __si-
 
-                        si => _si-
-
-                        ~_si -> so+
-                        _si & _yi & _yo -> so-
+                        __si -> _so-
+                        ~__si & ~yi & ~yo -> _so+
 
                         (: n : N :
-                            x.d[n] => _x.d[n]-
+                            _x.d[n] => __x.d[n]-
                         )
 
                         (: n : N :
-                            ~_yi & ~_x.d[n] -> y.d[n]+
-                            _x.d[n] -> y.d[n]-
+                            yi & __x.d[n] -> _y.d[n]-
+                            ~__x.d[n] -> _y.d[n]+
                         )
 
-                        (| : n : N : y.d[n]) & _yi -> _xa-
-                        ~g._pReset | ~_yi -> _xa+
+                        (| : n : N : ~_y.d[n]) & ~yi -> xa+
+                        g.pReset | yi -> xa-
                     }
                     prs<g.Vdd, g.GND> {
-                        _yo => yo-
+                        (: n : N :
+                            _y.d[n] => __y.d[n]-
+                        )
                     }
                 [] LAYOUT ->
                     [ M = 6 ->
                         prs<g.Vdd, g.GND> {
-                            ~yi<20> -> _yi+
-                            yi<14> -> _yi-
-
-                            (| : n : N : y.d[n]<32>) & _yi<32> -> _xa-
-                            ~g._pReset | ~_yi<24> -> _xa+
+                            (| : n : N : y.d[n]<32>) & ~yi<32> -> xa+
+                            g.pReset | yi<24> -> xa-
                         }
                     [] M = 9 ->
                         prs<g.Vdd, g.GND> {
-                            ~yi<24> -> _yi+
-                            yi<18> -> _yi-
-
-                            (| : n : N : y.d[n]<36>) & _yi<36> -> _xa-
-                            ~g._pReset | ~_yi<27> -> _xa+
+                            (| : n : N : y.d[n]<36>) & ~yi<36> -> xa+
+                            g.pReset | yi<27> -> xa-
                         }
                     [] (M != 6) & (M !=9) ->
                         prs<g.Vdd, g.GND> {
-                            ~yi<M*9> -> _yi+
-                            yi<M*6> -> _yi-
-
-                            (| : n : N : y.d[n]<M*12>) & _yi<M*12> -> _xa-
-                            ~g._pReset | ~_yi<M*9> -> _xa+
+                            (| : n : N : y.d[n]<M*12>) & ~yi<M*12> -> xa+
+                            g.pReset | yi<M*9> -> xa-
                         }
                     ]
                     prs<g.Vdd, g.GND> {
-                        (| : n : N : x.d[n]<12>) -> _yo-
-                        ~g._pReset | ~si<27> & ~_yi<27> -> _yo+
+                        (| : n : N : ~_x.d[n]<12>) -> yo+
+                        g.pReset | _si<27> & yi<27> -> yo-
 
-                        ~si<12> -> _si+
-                        si<6> -> _si-
+                        ~_si<12> -> __si+
+                        _si<6> -> __si-
 
-                        ~_si<20> -> so+
-                        _si<20> & _yi<20> & _yo<20> -> so-
+                        __si<20> -> _so-
+                        ~__si<20> & ~yi<20> & ~yo<20> -> _so+
 
                         (: n : N :
-                            ~x.d[n]<12> -> _x.d[n]+
-                            x.d[n]<9> -> _x.d[n]-
+                            ~_x.d[n]<12> -> __x.d[n]+
+                            _x.d[n]<9> -> __x.d[n]-
                         )
 
                         (: n : N :
-                            ~_yi<27> & ~_x.d[n]<27> -> y.d[n]+
-                            _x.d[n]<9> -> y.d[n]-
+                            yi<27> & __x.d[n]<27> -> _y.d[n]-
+                            ~__x.d[n]<9> -> _y.d[n]+
                         )
 
                     }
                     prs<g.Vdd, g.GND> {
-                        ~_yo<12> -> yo+
-                        _yo<9> -> yo-
+                        (: n : N :
+                            ~_y.d[n]<9> -> __y.d[n]+
+                            _y.d[n]<6> -> __y.d[n]-
+                        )
                     }
                 ]
             }
@@ -449,20 +458,20 @@ namespace aer {
         defproc SERIAL_RING (globals g; eMx1ofN<M, N> x; bool yi, yo; c1of<N> y) {
             // convert eMx1ofN protocol to AEXT/AERV serial with ring
             // highest order in word in input is first word in output
-            bool s = x.e;
-            serial_ring::RING<M, N> ring(g,,,,);
-            serial_ring::SEQ<N, M> seq(g, s, ring.si, yi, yo, ring.y, y);
+            bool _s = x.e;
+            serial_ring::RING<M, N> ring(g,, _s,,);
+            serial_ring::SEQ<N, M> seq(g,, ring._si, yi, yo, ring._y, y);
             (; m : M :
                 ring.x[m] = x.m[M-1-m];
             )
             [ ~LAYOUT ->
                 prs<g.Vdd, g.GND> {
-                    ring.so => s-
+                    _s => seq._si-
                 }
             [] LAYOUT ->
                 prs<g.Vdd, g.GND> {
-                    ~ring.so<12> -> s+
-                    ring.so<6> -> s-
+                    ~_s<9> -> seq._si+
+                    _s<6> -> seq._si-
                 }
             ]
         }
