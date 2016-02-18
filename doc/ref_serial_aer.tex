@@ -4467,6 +4467,20 @@ y0a | y1a -> _xa-
 ~y0a & ~y1a -> _xa+
 \end{prs2}
 
+\begin{prs2}
+~_y00 -> y00+
+_y00 -> y00-
+           
+~_y10 -> y10+
+_y10 -> y10-
+           
+~_y01 -> y01+
+_y01 -> y01-
+           
+~_y11 -> y11+
+_y11 -> y11-
+\end{prs2}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{NODE \label{sec:DESERIAL_RING_NODE}}
 
@@ -4548,44 +4562,44 @@ y0 | y1 -> vy+
 \subsubsection*{CMOS-implementable PRS}
 
 \begin{prs2}
-~s -> _s+
-s -> _s-
+~_s -> __s+
+_s -> __s-
 \end{prs2}
 
 \begin{prs2}
-_s & si & x0 -> _y0-
-~si -> _y0+
+~__s & ~_si & ~_x0 -> y0+
+_si -> y0-
 
-_s & si & x1 -> _y1-
-~si -> _y1+
+~__s & ~_si & ~_x1 -> y1+
+_si -> y1-
 \end{prs2}
 
 \begin{prs2}
-~so & ~_vy -> xa+
-so | _vy -> xa-
+_so & vy -> _xa-
+~_so | ~vy -> _xa+
 \end{prs2}
 
 \begin{prs2}
-~_vy & ~x0 & ~x1 -> s+
-_vy -> s-
+vy & _x0 & _x1 -> _s-
+~vy -> _s+
 \end{prs2}
 
 \begin{prs2}
-~_s -> so+
-_s -> so-
+__s -> _so-
+~__s -> _so+
 \end{prs2}
 
 \begin{prs2}
-~_y0 -> __y0+
-_y0 -> __y0-
+~y0 -> _y0+
+y0 -> _y0-
 
-~_y1 -> __y1+
-_y1 -> __y1-
+~y1 -> _y1+
+y1 -> _y1-
 \end{prs2}
 
 \begin{prs2}
-__y0 | __y1 -> _vy-
-~__y0 & ~__y1 -> _vy+
+~_y0 | ~_y1 -> vy+
+_y0 & _y1 -> vy-
 \end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -4609,8 +4623,8 @@ A C-element costs 8 transistors.
 \subsubsection*{CMOS-implementable PRS}
 
 \begin{prs2}
-~so & ~_xe -> si+
-so & _xe -> si-
+_so & xe -> _si-
+~_so & ~xe -> _si+
 \end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
