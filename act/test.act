@@ -44,12 +44,18 @@ export
 template <pint N>
 defproc SINK_SERIAL (globals g; bool i, o; c1of<N> d) {
     // sink for the serial aer protocol
-    bool _i;
+    bool _o;
+    c1of<N> _d;
     prs<g.Vdd, g.GND> {
-        ~i<18> -> _i+
-        i<10> -> _i-
+        (: n : N :
+            ~d.d[n]<12> -> _d.d[n]+
+            d.d[n]<9> -> _d.d[n]-
+        )
 
-        ~_i<54> & (& : n : N : ~d.d[n]<54>) -> o+
-        _i<10> | (| : n : N : d.d[n]<10>) -> o-
+        i<26> & (& : n : N : _d.d[n]<26>) -> _o-
+        ~i<15> | (| : n : N : ~_d.d[n]<15>) -> _o+
+
+        ~_o<16> -> o+
+        _o<12> -> o-
     }
 }
