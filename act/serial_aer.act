@@ -77,11 +77,11 @@ namespace aer {
                         }
                     ]
                 [] LAYOUT ->
-                    [ M = 1 ->
+                    [ M = 4 ->
                         prs<g.Vdd, g.GND> {
                             (: n : N:
-                                x.d[n]<9> -> _x.d[n]-
-                                ~x.d[n]<12> -> _x.d[n]+
+                                x.d[n]<8> -> _x.d[n]-
+                                ~x.d[n]<16> -> _x.d[n]+
                             )
                         }
                     [] M = 6 ->
@@ -91,7 +91,7 @@ namespace aer {
                                 ~x.d[n]<18> -> _x.d[n]+
                             )
                         }
-                    [] ((M != 1) | (M != 6)) ->
+                    [] ((M != 4) | (M != 6)) ->
                         prs<g.Vdd, g.GND> {
                             (: n : N:
                                 x.d[n]<6*M> -> _x.d[n]-
@@ -153,30 +153,30 @@ namespace aer {
                     }
                 [] LAYOUT ->
                     prs<g.Vdd, g.GND> {
-                        ~_s<12> -> __s+
-                        _s<9> -> __s-
+                        ~_s<16> -> __s+
+                        _s<10> -> __s-
 
                         (: n : N :
-                            ~__s<15> & ~_si<15> & ~_x.d[n]<15> -> y.d[n]+
-                            _si<18> -> y.d[n]-
+                            ~__s<35> & ~_si<35> & ~_x.d[n]<35> -> y.d[n]+
+                            _si<15> -> y.d[n]-
                         )
 
-                        _so<18> & vy<18> -> _x.a-
-                        ~_so<8> | ~vy<8> -> _x.a+
+                        _so<12> & vy<12> -> _x.a-
+                        ~_so<12> | ~vy<12> -> _x.a+
 
-                        vy<63> & (& : n : N : _x.d[n]<63>) -> _s-
-                        ~g._pReset | ~vy<14> -> _s+
+                        vy<34> & (& : n : N : _x.d[n]<34>) -> _s-
+                        ~g._pReset | ~vy<19> -> _s+
 
                         __s<12> -> _so-
-                        ~__s<6> -> _so+
+                        ~__s<18> -> _so+
 
                         (: n : N :
-                            ~y.d[n]<14> -> _y.d[n]+
-                            y.d[n]<8> -> _y.d[n]-
+                            ~y.d[n]<12> -> _y.d[n]+
+                            y.d[n]<12> -> _y.d[n]-
                         )
 
-                        (| : n : N : ~_y.d[n]<12>) -> vy+
-                        (& : n : N : _y.d[n]<48>) -> vy-
+                        (| : n : N : ~_y.d[n]<16>) -> vy+
+                        (& : n : N : _y.d[n]<24>) -> vy-
                     }
                 ]
             }
@@ -205,8 +205,8 @@ namespace aer {
                 }
             [] LAYOUT ->
                 prs<g.Vdd, g.GND> {
-                    ~g._sReset | ~node[M-1]._so<14> & ~y.e<14> -> node[0]._si+
-                    g._sReset<45> & y.e<45> & node[M-1]._so<45> -> node[0]._si-
+                    ~g._sReset | ~node[M-1]._so<30> & ~y.e<30> -> node[0]._si+
+                    g._sReset<20> & y.e<20> & node[M-1]._so<20> -> node[0]._si-
                 }
             ]
         }
