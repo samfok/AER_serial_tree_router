@@ -1,0 +1,36 @@
+Spice coverage
+
+aerv
+- N4
+- N16
+- N64
+
+aext
+- N16
+  - all
+  - single
+- N4
+  - all
+  - single
+- N4096
+  - single
+- N64
+  - single
+
+interface
+- deserial_ring
+  - M4
+  - M6
+- serial_ring
+  - M6
+  - M9
+
+lib
+- eMx1of2_to_eMx1of4
+- eMx1of4_to_eMx1of2
+
+sarbiter2
+
+sarbiter4
+- all
+- single
