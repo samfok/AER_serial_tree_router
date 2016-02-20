@@ -1,0 +1,23 @@
+// measure latency and minimum throughput of transmitter
+import "serial_aer.act";
+pint M=6;
+pint N=4;
+pint NN=4096; // NN=N^M
+
+globals g;
+bool Reset = g.sReset;
+
+e1of<2> src;
+
+aer::AEXT<M, N, NN> aext(g,,,,,);
+aer::interface::OUT_a1ofN<N, 1> out(g, aext.po, aext.pi, aext.p,);
+aer::interface::DESERIAL_RING<M, N> deserial(g, out.y,);
+SINK_eMx1ofN<M, N> snk_(g, deserial.y);
+
+src.d[0] = aext.xi[0];
+(; nn : 1..NN-1 :
+    aext.xi[nn] = g.GND;
+)
+prs<g.Vdd, g.GND> {
+    (| : nn : NN : aext.xo[nn]) => src.e-
+}

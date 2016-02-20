@@ -1,0 +1,10 @@
+channel e1ofN 2 src
+
+injectfile src benchmark/aext.in
+
+source rd.scr
+
+watch src.d[0]
+
+cycle
+exit
