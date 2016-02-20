@@ -6,7 +6,6 @@ pint N=2;
 pint NN=8; // NN=N^M
 active_handshaker<NN> a(g,,);
 aer::AEXT<M, N, NN> aext(g, a.o, a.i,,,);
-aer::interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
-aer::interface::DESERIAL_RING<M, N> deserial(g, out._y,);
-// aer::interface::DESERIAL_CHAIN<M, N> deserial(g, out._y,);
+aer::interface::OUT_a1ofN<N, 1> out(g, aext.po, aext.pi, aext.p,);
+aer::interface::DESERIAL_RING<M, N> deserial(g, out.y,);
 SINK_eMx1ofN<M, N> snk(g, deserial.y);

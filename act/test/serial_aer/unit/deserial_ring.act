@@ -7,15 +7,12 @@ bool Reset = g.sReset;
 
 e1of<N> src;
 SINK_eMx1ofN<M, N> snk(g,);
-a1of<N> _d;
-_d.a = src.e;
+a1of<N> d;
+d.d = src.d;
 prs<g.Vdd, g.GND> {
-    (: n : N :
-        ~src.d[n] -> _d.d[n]+
-        src.d[n] -> _d.d[n]-
-    )
+    d.a => src.e-
 }
-aer::interface::DESERIAL_RING<M, N> deserial(g, _d, snk.d);
+aer::interface::DESERIAL_RING<M, N> deserial(g, d, snk.d);
 
 // break up eMx1ofN into M e1ofN channels for parsing
 e1of<N> snk_[M];

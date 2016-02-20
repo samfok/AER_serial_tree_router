@@ -21,29 +21,22 @@ namespace aer {
 
         export
         template <pint N | pint M>
-        defproc OUT_a1ofN (globals g; bool xi, xo; c1of<N> x; a1of<N> _y) {
+        defproc OUT_a1ofN (globals g; bool xi, xo; c1of<N> x; a1of<N> y) {
             // convert AEXT/AERV serial protocol to standard a1ofN channel
-            bool _xo;
+            bool _xi;
+            x.d = y.d;
             [ ~LAYOUT ->
                 prs<g.Vdd, g.GND> {
-                    xi & _y.a => _xo-
-                    _xo => xo-
-                    (: n : N :
-                        x.d[n] => _y.d[n]-
-                    )
+                    xi => _xi-
+                    ~_xi & ~y.a => xo+
                 }
             [] LAYOUT ->
                 prs<g.Vdd, g.GND> {
-                    xi<10> & _y.a<10> -> _xo-
-                    ~xi<12> | ~_y.a<12> -> _xo+
+                    ~xi<18> -> _xi+
+                    xi<15> -> _xi-
 
-                    ~_xo<18> -> xo+
-                    _xo<15> -> xo-
-
-                    (: n : N :
-                        ~x.d[n]<9*M> -> _y.d[n]+
-                        x.d[n]<6*M> -> _y.d[n]-
-                    )
+                    ~_xi<10> & ~y.a<10> -> xo+
+                    _xi<12> | y.a<12> -> xo-
                 }
             ]
         }
@@ -109,19 +102,6 @@ namespace aer {
                         or._o<6> -> x.a-
                     }
                 ]
-            }
-
-            export
-            template <pint M, N>
-            defproc _SPLIT (globals g; a1of<N> _x, _y[M]) {
-                // SPLIT with active low input
-                (; m : M :
-                    _y[m].m = _x.m;
-                )
-                _OR<M> or(g,, _x.a);
-                (; m : M :
-                    _y[m].a = or._i[m];
-                )
             }
 
             export
@@ -207,36 +187,6 @@ namespace aer {
                 prs<g.Vdd, g.GND> {
                     ~g._sReset | ~node[M-1]._so<30> & ~y.e<30> -> node[0]._si+
                     g._sReset<20> & y.e<20> & node[M-1]._so<20> -> node[0]._si-
-                }
-            ]
-        }
-
-        export
-        template <pint M, N>
-        defproc _DESERIAL_RING (globals g; a1of<N> _x; eMx1ofN<M, N> y) {
-            // convert AEXT/AERV serial protocol to eMx1ofN with ring
-            // first word in input is highest order word in output
-            // active low input _x
-            deserial_ring::_SPLIT<M, N> split(g, _x,);
-            deserial_ring::NODE<N> node[M];
-            (; m : M :
-                node[m].g = g;
-                node[m]._x = split._y[m];
-                node[m].y = y.m[M-1-m];
-            )
-
-            (; m : M-1 :
-                node[m]._so = node[m+1]._si;
-            )
-            [ ~LAYOUT ->
-                prs<g.Vdd, g.GND> {
-                    ~g._sReset | ~node[M-1]._so & ~y.e -> node[0]._si+
-                    g._sReset & node[M-1]._so & y.e -> node[0]._si-
-                }
-            [] LAYOUT ->
-                prs<g.Vdd, g.GND> {
-                    ~g._sReset | ~node[M-1]._so<14> & ~y.e<14> -> node[0]._si+
-                    g._sReset<45> & y.e<45> & node[M-1]._so<45> -> node[0]._si-
                 }
             ]
         }
@@ -1149,7 +1099,7 @@ namespace aer {
         // NN=N^M
         AEXT<M, N, NN> aext(g, xi, xo,,,);
         interface::OUT_a1ofN<N, M> out(g, aext.po, aext.pi, aext.p,);
-        interface::_DESERIAL_RING<M, N> deserial(g, out._y,);
+        interface::DESERIAL_RING<M, N> deserial(g, out.y,);
         interface::SERIAL_RING<M, N> serial(g, deserial.y,,,);
         AERV_NODATA<M, N, NN> aerv(g, yi, yo, serial.yo, serial.yi, serial.y);
     }
