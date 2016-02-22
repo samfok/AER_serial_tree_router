@@ -1,0 +1,10 @@
+channel eMx1of2 12 spk_src
+
+injectfile spk_src benchmark/aext.in
+
+source rd.scr
+
+watch spk_src.b[0].d[0]
+
+cycle
+exit

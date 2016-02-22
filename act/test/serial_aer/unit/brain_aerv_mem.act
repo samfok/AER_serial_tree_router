@@ -4,7 +4,7 @@ import "serial_aer.act";
 pint M     = 3;
 pint M_SPK = M+1;
 pint M_MEM = M+4;
-pint N_SYN = 64; // 4*M
+pint N_SYN = 64; // 4^M
 pint N_MEM = N_SYN/4;
 pint D     = 4;
 globals g;

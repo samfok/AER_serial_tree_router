@@ -20,7 +20,7 @@ namespace aer {
         }
 
         export
-        template <pint N>
+        template <pint N | pint M>
         defproc OUT_a1ofN (globals g; bool xi, xo; c1of<N> x; a1of<N> y) {
             // convert AEXT/AERV serial protocol to standard a1ofN channel
             x.d = y.d;
@@ -485,8 +485,12 @@ namespace aer {
 
         interface::SERIAL_RING<M_SPK, D> serial_spk(g,,,,);
         interface::SERIAL_RING<M_MEM, D> serial_mem(g,,,,);
-        serial_spk.x.m = x_spk.m;
-        serial_mem.x.m = x_mem.m;
+        (; m : M_SPK :
+            serial_spk.x.m[m].d = x_spk.m[m].d;
+        )
+        (; m : M_MEM :
+            serial_mem.x.m[m].d = x_mem.m[m].d;
+        )
         serial_spk.x.e = x_spk.e;
         serial_mem.x.e = x_mem.e;
 
@@ -505,7 +509,9 @@ namespace aer {
         interface::DESERIAL_RING<M_MEM-M, D> mem_deserial[N_MEM];
         (; n : N_MEM :
             mem_deserial[n].g = g;
-            mem_deserial[n].y.m = y_mem[n].m;
+            (; m : M_MEM - M :
+                mem_deserial[n].y.m[m].d = y_mem[n].m[m].d;
+            )
             mem_deserial[n].y.e = y_mem[n].e;
         )
         
@@ -549,6 +555,6 @@ namespace aer {
         AERV_NODATA<M, N, NN> aerv(g, yi, yo,,,);
         interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
         interface::DESERIAL_RING<M, N> deserial(g, out.y,);
-        interface::SERIAL_CHAIN<M, N> serial(g, deserial.y, aerv.po, aerv.pi, aerv.p);
+        interface::SERIAL_RING<M, N> serial(g, deserial.y, aerv.po, aerv.pi, aerv.p);
     }
 } // namespace aer
