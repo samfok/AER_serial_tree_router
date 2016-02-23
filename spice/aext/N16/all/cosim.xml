@@ -2,22 +2,22 @@
 
   <circuit sim_type="spice" file="spice.act" instance="wrapper" file_type="act" name="dut" uses_blackbox="1"> 
     <source type="globals_np" channel="g_np" />
-    <source type="random" channel="src0" delay="0" />
-    <source type="random" channel="src1" delay="0.01" />
-    <source type="random" channel="src2" delay="0.02" />
-    <source type="random" channel="src3" delay="0.03" />
-    <source type="random" channel="src4" delay="0.04" />
-    <source type="random" channel="src5" delay="0.05" />
-    <source type="random" channel="src6" delay="0.06" />
-    <source type="random" channel="src7" delay="0.07" />
-    <source type="random" channel="src8" delay="0.08" />
-    <source type="random" channel="src9" delay="0.09" />
-    <source type="random" channel="src10" delay="0.10" />
-    <source type="random" channel="src11" delay="0.11" />
-    <source type="random" channel="src12" delay="0.12" />
-    <source type="random" channel="src13" delay="0.13" />
-    <source type="random" channel="src14" delay="0.14" />
-    <source type="random" channel="src15" delay="0.15" />
+    <source type="random" channel="src[0]" delay="0" />
+    <source type="random" channel="src[1]" delay="0.01" />
+    <source type="random" channel="src[2]" delay="0.02" />
+    <source type="random" channel="src[3]" delay="0.03" />
+    <source type="random" channel="src[4]" delay="0.04" />
+    <source type="random" channel="src[5]" delay="0.05" />
+    <source type="random" channel="src[6]" delay="0.06" />
+    <source type="random" channel="src[7]" delay="0.07" />
+    <source type="random" channel="src[8]" delay="0.08" />
+    <source type="random" channel="src[9]" delay="0.09" />
+    <source type="random" channel="src[10]" delay="0.10" />
+    <source type="random" channel="src[11]" delay="0.11" />
+    <source type="random" channel="src[12]" delay="0.12" />
+    <source type="random" channel="src[13]" delay="0.13" />
+    <source type="random" channel="src[14]" delay="0.14" />
+    <source type="random" channel="src[15]" delay="0.15" />
     <sink type="sink_only" channel="snk" delay="0" />
   </circuit>
 

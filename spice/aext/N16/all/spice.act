@@ -1,9 +1,6 @@
 import "serial_aer.act";
 
-export defproc wrapper(globals_np g_np;
-    a1of<1> src0, src1, src2, src3, src4, src5, src6, src7,
-    src8, src9, src10, src11, src12, src13, src14, src15;
-    eMx1of4<2> snk)
+export defproc wrapper(globals_np g_np; a1of<1> src[16]; eMx1of4<2> snk)
 {
     bool Vdd;
     bool GND;
@@ -11,9 +8,9 @@ export defproc wrapper(globals_np g_np;
     pint N = 4;
     pint NN = 16;
 
-    aer::transmitter::AEXT<M, N, NN> aext;
-    aer::interface::OUT_a1ofN<N, 6> out(aext.g, aext.po, aext.pi, aext.p,);
-    aer::interface::DESERIAL_RING<M, N> deserial(aext.g, out._y,);
+    aer::AEXT<M, N, NN> aext;
+    aer::interface::OUT_a1ofN<N> out(aext.g, aext.po, aext.pi, aext.p,);
+    aer::interface::DESERIAL_RING<M, N> deserial(aext.g, out.y,);
 
     // rails and reset
     aext.g.Vdd = Vdd;
@@ -26,38 +23,10 @@ export defproc wrapper(globals_np g_np;
     aext.g._sReset = g_np._sReset;
 
     // connect src
-    src0.d[0] = aext.xi[0];
-    src1.d[0] = aext.xi[1];
-    src2.d[0] = aext.xi[2];
-    src3.d[0] = aext.xi[3];
-    src4.d[0] = aext.xi[4];
-    src5.d[0] = aext.xi[5];
-    src6.d[0] = aext.xi[6];
-    src7.d[0] = aext.xi[7];
-    src8.d[0] = aext.xi[8];
-    src9.d[0] = aext.xi[9];
-    src10.d[0] = aext.xi[10];
-    src11.d[0] = aext.xi[11];
-    src12.d[0] = aext.xi[12];
-    src13.d[0] = aext.xi[13];
-    src14.d[0] = aext.xi[14];
-    src15.d[0] = aext.xi[15];
-    src0.a = aext.xo[0];
-    src1.a = aext.xo[1];
-    src2.a = aext.xo[2];
-    src3.a = aext.xo[3];
-    src4.a = aext.xo[4];
-    src5.a = aext.xo[5];
-    src6.a = aext.xo[6];
-    src7.a = aext.xo[7];
-    src8.a = aext.xo[8];
-    src9.a = aext.xo[9];
-    src10.a = aext.xo[10];
-    src11.a = aext.xo[11];
-    src12.a = aext.xo[12];
-    src13.a = aext.xo[13];
-    src14.a = aext.xo[14];
-    src15.a = aext.xo[15];
+    (; nn : NN :
+        src[nn].d[0] = aext.xi[nn];
+        src[nn].a = aext.xo[nn];
+    )
 
     // connect snk
     (; m : M :
