@@ -10,7 +10,17 @@ import "environment.act";
 namespace aer {
     namespace interface {
         export
-        template <pint N | pint M>
+        template <pint N>
+        defproc OUT_e1ofN (globals g; bool xi, xo; c1of<N> x; e1of<N> y) {
+            // convert AEXT/AERV serial protocol to standard e1ofN channel
+            x.d = y.d;
+            prs {
+                xi & y.e => xo+
+            }
+        }
+
+        export
+        template <pint N>
         defproc OUT_a1ofN (globals g; bool xi, xo; c1of<N> x; a1of<N> y) {
             // convert AEXT/AERV serial protocol to standard a1ofN channel
             bool _xi;
@@ -22,11 +32,11 @@ namespace aer {
                 }
             [] LAYOUT ->
                 prs<g.Vdd, g.GND> {
-                    ~xi<18> -> _xi+
-                    xi<15> -> _xi-
+                    ~xi<12> -> _xi+
+                    xi<9> -> _xi-
 
-                    ~_xi<10> & ~y.a<10> -> xo+
-                    _xi<12> | y.a<12> -> xo-
+                    ~_xi<40> & ~y.a<40> -> xo+
+                    _xi<16> | y.a<16> -> xo-
                 }
             ]
         }
@@ -94,7 +104,6 @@ namespace aer {
                             or._o<6> -> x.a-
                         }
                     ]
-
                 ]
             }
 
@@ -503,7 +512,7 @@ namespace aer {
             [] LAYOUT ->
                 prs<g.Vdd, g.GND> {
                     _u<26> & (| : n : N : c_[n]<26>) -> _po-
-                    ~g._pReset | (| : n : N : ~_co[n]<40> & ~c_[n]<40>) -> _po+
+                    ~g._pReset | (| : n : N : ~_co[n]<45> & ~c_[n]<45>) -> _po+
 
                     ~_po<12> -> po+
                     _po<8> -> po-
@@ -513,7 +522,7 @@ namespace aer {
                         ~g._pReset | ~_u<16> -> _w.d[n]+
                     )
 
-                    ~pi<40> & (| : n : N : ~_w.d[n]<40>) -> u+
+                    ~pi<45> & (| : n : N : ~_w.d[n]<45>) -> u+
                     _po<40> & (& : n : N : _co[n]<40>) -> u-
 
                     ~u<15> -> _u+
@@ -531,8 +540,8 @@ namespace aer {
                     (: n : N :
                         ~pi<27> -> _co[n]+
 
-                        ~_co[n]<20> -> co[n]+
-                        _co[n]<12> -> co[n]-
+                        ~_co[n]<24> -> co[n]+
+                        _co[n]<15> -> co[n]-
                     )
 
                     (: n : N :
@@ -545,7 +554,7 @@ namespace aer {
                     prs<g.Vdd, g.GND> {
                         (: n : N :
                             ~p.d[n]<12> -> _p.d[n]+
-                            p.d[n]<6> -> _p.d[n]-
+                            p.d[n]<9> -> _p.d[n]-
                         )
                     }
                 [] root = 1 ->
@@ -609,8 +618,8 @@ namespace aer {
             [] LAYOUT ->
                 prs<g.Vdd, g.GND> {
                     _u<26> & (| : n : N : c[n]<26>) -> _po-
-                    ~g._pReset | (| : n : N : ~_co[n]<40> &
-                        ~c[n]<40>) -> _po+
+                    ~g._pReset | (| : n : N : ~_co[n]<44> &
+                        ~c[n]<44>) -> _po+
 
                     ~_po<12> -> po+
                     _po<8> -> po-
@@ -620,26 +629,26 @@ namespace aer {
                         ~g._pReset | ~_u<16> -> _p_.d[n]+
                     )
 
-                    ~pi<36> & (| : n : N : ~_p_.d[n]<36>) -> u+
-                    _po<36> & (& : n : N : _co[n]<36>) -> u-
+                    (| : n : N : ~_p_.d[n]<45>) & ~pi<45> -> u+
+                    _po<40> & (& : n : N : _co[n]<40>) -> u-
 
                     ~u<15> -> _u+
-                    u<9> -> _u-
+                    u<10> -> _u-
 
-                    c[0]<40> & u<40> & pi<40> &
-                        (& : n : 1..N-1 : _co[n]<40>) -> _co[0]-
+                    c[0]<45> & u<45> & pi<45> &
+                        (& : n : 1..N-1 : _co[n]<45>) -> _co[0]-
                     (: n : 1..N-2:
-                        c[n]<40> & u<40> & pi<40> & 
-                        (& : nn : 0..n-1 : _co[nn]<40>) & 
-                        (& : nn : n+1..N-1 : _co[nn]<40>) -> _co[n]-
+                        c[n]<45> & u<45> & pi<45> & 
+                        (& : nn : 0..n-1 : _co[nn]<45>) & 
+                        (& : nn : n+1..N-1 : _co[nn]<45>) -> _co[n]-
                     )
-                    c[N-1]<40> & u<40> & pi<40> &
-                        (& : n : 0..N-2 : _co[n]<40>) -> _co[N-1]-
+                    c[N-1]<45> & u<45> & pi<45> &
+                        (& : n : 0..N-2 : _co[n]<45>) -> _co[N-1]-
                     (: n : N :
-                        ~pi<27> -> _co[n]+
+                        ~pi<30> -> _co[n]+
 
                         ~_co[n]<12> -> co[n]+
-                        _co[n]<6> -> co[n]-
+                        _co[n]<9> -> co[n]-
                     )
                 }
 
@@ -1092,7 +1101,7 @@ namespace aer {
         // N items per group
         // NN=N^M
         AEXT<M, N, NN> aext(g, xi, xo,,,);
-        interface::OUT_a1ofN<N, M> out(g, aext.po, aext.pi, aext.p,);
+        interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
         interface::DESERIAL_RING<M, N> deserial(g, out.y,);
         interface::SERIAL_RING<M, N> serial(g, deserial.y,,,);
         AERV_NODATA<M, N, NN> aerv(g, yi, yo, serial.yo, serial.yi, serial.y);

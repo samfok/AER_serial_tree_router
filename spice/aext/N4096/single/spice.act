@@ -8,9 +8,9 @@ export defproc wrapper(globals_np g_np; a1of<1> src; eMx1of4<6> snk)
     pint N = 4;
     pint NN = 4096;
 
-    aer::transmitter::AEXT<M, N, NN> aext;
-    aer::interface::OUT_a1ofN<N, 6> out(aext.g, aext.po, aext.pi, aext.p,);
-    aer::interface::DESERIAL_RING<M, N> deserial(aext.g, out._y,);
+    aer::AEXT<M, N, NN> aext;
+    aer::interface::OUT_a1ofN<N> out(aext.g, aext.po, aext.pi, aext.p,);
+    aer::interface::DESERIAL_RING<M, N> deserial(aext.g, out.y,);
 
     // rails and reset
     aext.g.Vdd = Vdd;
