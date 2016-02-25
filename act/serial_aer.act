@@ -10,16 +10,6 @@ import "environment.act";
 namespace aer {
     namespace interface {
         export
-        template <pint N>
-        defproc OUT_e1ofN (globals g; bool xi, xo; c1of<N> x; e1of<N> y) {
-            // convert AEXT/AERV serial protocol to standard e1ofN channel
-            x.d = y.d;
-            prs {
-                xi & y.e => xo+
-            }
-        }
-
-        export
         template <pint N | pint M>
         defproc OUT_a1ofN (globals g; bool xi, xo; c1of<N> x; a1of<N> y) {
             // convert AEXT/AERV serial protocol to standard a1ofN channel
@@ -56,20 +46,15 @@ namespace aer {
                             x.d[n] => _x.d[n]-
                         )
                     }
-                    [ M = 1 ->
-                        prs<g.Vdd, g.GND> {
-                            _y[0].a => x.a-
-                        }
-                    [] M > 1 ->
-                        _OR<M> or(g,,);
-                        (; m : M :
-                            _y[m].a = or._i[m];
-                        )
-                        prs<g.Vdd, g.GND> {
-                            or._o => x.a-
-                        }
-                    ]
+                    _OR<M> or(g,,);
+                    (; m : M :
+                        _y[m].a = or._i[m];
+                    )
+                    prs<g.Vdd, g.GND> {
+                        or._o => x.a-
+                    }
                 [] LAYOUT ->
+                    // _x.d[0..N]
                     [ M = 4 ->
                         prs<g.Vdd, g.GND> {
                             (: n : N:
@@ -93,14 +78,23 @@ namespace aer {
                         }
                     ]
 
-                    _OR<M> or(g,,);
-                    (; m : M :
-                        _y[m].a = or._i[m];
-                    )
-                    prs<g.Vdd, g.GND> {
-                        ~or._o<10> -> x.a+
-                        or._o<6> -> x.a-
-                    }
+                    // x.a
+                    [ M = 4 ->
+                        prs<g.Vdd, g.GND> {
+                            (| : m : M : ~_y[m].a<12>) -> x.a+
+                            (& : m : M : _y[m].a<24>) -> x.a-
+                        }
+                    [] (M != 4) ->
+                        _OR<M> or(g,,);
+                        (; m : M :
+                            _y[m].a = or._i[m];
+                        )
+                        prs<g.Vdd, g.GND> {
+                            ~or._o<10> -> x.a+
+                            or._o<6> -> x.a-
+                        }
+                    ]
+
                 ]
             }
 

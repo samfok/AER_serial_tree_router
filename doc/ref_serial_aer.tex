@@ -1089,19 +1089,6 @@ This gives us
 
 142 + 8 = \textbf{150 transistors/neuron}
 
-% The lowest level nodes don't need FWDT components as the INTs can interface directly with
-% MERGE. This leaves out
-%
-% 30 transistors / node * 2048 nodes / 4096 neurons = 15.0 transistors/neuron
-%
-% In addition, the lowest level node MERGE component can be simplified because only tail words arrive from the INTs. The non-tail word rules simply become wires. This leaves out
-%
-% 12 transistors / node * 2048 nodes / 4096 neurons = 6.0 transistors/neuron
-%
-% After simplifications, we'll have a total of
-%
-% 165-15-6 = \textbf{144.0 transistors/neuron}
-
 \noindent
 Radix 4 transistor accounting (1365 nodes / 4096 neurons):
 
@@ -1125,19 +1112,6 @@ We also need
 This gives us
 
 122 + 8 = \textbf{130 transistors/neuron}
-
-% The lowest level nodes don't need FWDT components as the INTs can interface directly with
-% MERGE. This leaves out
-%
-% 60 transistors / node * 1024 nodes / 4096 neurons = 15.0 transistors/neuron
-%
-% In addition, the lowest level node MERGE component can be simplified because only tail words arrive from the INTs. The non-tail word rules simply become wires. This leaves out
-%
-% 40 transistors / node * 1024 nodes / 4096 neurons  = 10.0 transistors/neuron
-%
-% After simplifications, we'll have a total of
-%
-% 139-15-10 = \textbf{114.0 transistors/neuron}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{AEXT CD TW CTRL \label{sec:AEXT_CD_TW_CTRL}}

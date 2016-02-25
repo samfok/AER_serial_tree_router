@@ -1,6 +1,6 @@
 import "serial_aer.act";
 
-pint M=3;
+pint M=6;
 pint N=2;
 globals g;
 

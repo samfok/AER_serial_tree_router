@@ -7,8 +7,7 @@ export
 template <pint N>
 defproc AND (globals g; bool i[N], o) {
     // Logical AND implemented with as few transistors as possible
-    // Implemented as an AND tree with 2 and 3 input NANDs and 2 input NORs
-    // We don't use 3 input NORs because the pullup chain would be too slow
+    // Implemented as an AND tree with 3 input NANDs and NORs
     [ N = 1 ->
         i[0] = o;
         prs<g.Vdd, g.GND> {} // HACK so netgen -B doesn't complain

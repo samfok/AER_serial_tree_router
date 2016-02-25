@@ -10,16 +10,6 @@ import "environment.act";
 namespace aer {
     namespace interface {
         export
-        template <pint N>
-        defproc OUT_e1ofN (globals g; bool xi, xo; c1of<N> x; e1of<N> y) {
-            // convert AEXT/AERV serial protocol to standard e1ofN channel
-            x.d = y.d;
-            prs {
-                xi & y.e => xo+
-            }
-        }
-
-        export
         template <pint N | pint M>
         defproc OUT_a1ofN (globals g; bool xi, xo; c1of<N> x; a1of<N> y) {
             // convert AEXT/AERV serial protocol to standard a1ofN channel
