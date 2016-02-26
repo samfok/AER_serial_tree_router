@@ -11,16 +11,6 @@ namespace aer {
     namespace interface {
         export
         template <pint N>
-        defproc OUT_e1ofN (globals g; bool xi, xo; c1of<N> x; e1of<N> y) {
-            // convert AEXT/AERV serial protocol to standard e1ofN channel
-            x.d = y.d;
-            prs {
-                xi & y.e => xo+
-            }
-        }
-
-        export
-        template <pint N>
         defproc OUT_a1ofN (globals g; bool xi, xo; c1of<N> x; a1of<N> y) {
             // convert AEXT/AERV serial protocol to standard a1ofN channel
             bool _xi;
@@ -39,6 +29,17 @@ namespace aer {
                     _xi<16> | y.a<16> -> xo-
                 }
             ]
+        }
+
+        export
+        template <pint N>
+        defproc OUT_e1ofN (globals g; bool xi, xo; c1of<N> x; e1of<N> y) {
+            // convert AEXT/AERV serial protocol to standard e1ofN channel
+            OUT_a1ofN<N> _(g, xi, xo, x,);
+            y.d = _.y.d;
+            prs<g.Vdd, g.GND> {
+                y.e => _.y.a-
+            }
         }
 
         namespace deserial_ring {

@@ -7,8 +7,3 @@ loop-injectfile src01 test/serial_aer/unit/serial_merge_src01.in
 loop-expectfile snk.d test/serial_aer/unit/serial_merge_snk.out
 
 source r.scr
-
-# vector in :1ofN 4 serial0.y.d[0] serial0.y.d[1] serial0.y.d[2] serial0.y.d[3]
-# vector out :1ofN 4 merge.y.d[0] merge.y.d[1] merge.y.d[2] merge.y.d[3]
-# vwatch in
-# vwatch out

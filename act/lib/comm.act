@@ -90,42 +90,6 @@ defproc VN_eMx1ofN (globals g; eMx1ofN<M, N> d) {
     ]
 }
 
-template <pint M, N>
-defproc Mx1ofN_WIRES (globals g; c1of<N> d[M]; bool o[M*N]) {
-    // Connect a Mx1ofN channel to NN wires
-    pint MN = M*N;
-    (; n : N :
-        d[0].n[n] = o[n];
-    )
-    [ M > 1 ->
-        Mx1ofN_WIRES<M-1, N> w(g, d[1..M-1], o[N..MN-1]);
-    ]
-}
-
-export
-template <pint M, N, NN>
-defproc N_DETECT (globals g; aMx1ofN<M, N> d) {
-    // detects data neutrality on d
-    bool x[NN];
-    Mx1ofN_WIRES<M, N> wires(g, d.m, x);
-    OR<NN> or(g, x, d.a);
-}
-
-export
-template <pint M, N>
-defproc A_TO_E (globals g; aMx1ofN<M, N> i; eMx1ofN<M, N> o) {
-    // converts aMx1ofN to eMx1ofN
-    // [o.e];i.a-;[I];O+;[~o.e];i.a+;[~I];O-
-    prs<g.Vdd, g.GND> {
-        (: m : M :
-            (: n : N :
-                i.m[m].n[n] => o.m[m].n[n]+ // wires. prs to test delays
-            )
-        )
-        o.e => i.a-
-    }
-}
-
 export
 template <pint M_1of2, M_1of4>
 defproc Mx1of2_to_Mx1of4 (globals g; c1of2 x[M_1of2]; c1of4 y[M_1of4]) {
