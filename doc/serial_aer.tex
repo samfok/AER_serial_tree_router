@@ -9,7 +9,7 @@
 \tableofcontents
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Introduction}
+\section{Introduction \label{sec:intro}}
 
 The serial-data AER system interfaces between the neurons and the datapath
 circuitry. The system is responsible for the following:
@@ -30,85 +30,165 @@ circuitry. The system is responsible for the following:
 
 A simplified view of the AER system is shown in Figure~\ref{fig:aer_system}.
 The main components of the system are the transmitter (AEXT) and receiver (AERV).
-The transmitter encodes and transmits the spikes from 4096 neurons to the datapath circuitry.
-The receiver decodes packets from the datapath circuitry and targets 1024 synapses and 256 memory blocks.
-Each synapse delivers input current to 4 neurons. 
-Each memory stores the configuration bits for 1 syanpse and 4 neurons.
+The transmitter encodes and transmits the spikes from 4096 neurons to the 
+datapath circuitry. The receiver decodes packets from the datapath circuitry 
+and targets 1024 synapses and 256 memory blocks. Each synapse delivers input 
+current to 4 neurons. Each memory stores the configuration bits for 1 syanpse 
+and 4 neurons.
 
-In this document, we sometimes give block diagrams, HSE, and PRS for 2-ary trees and 
-1-of-2 (dualrail) channel configurations of processes with the understanding that they 
-are readily extensible to other configurations.
+In this document, we sometimes give block diagrams, HSE, and PRS for 2-ary 
+trees and 1-of-2 (dualrail) channel configurations of processes with the 
+understanding that they are readily extensible to other configurations.
 In practice, we use 3-ary or 4-ary tree configurations and 1-of-4 channels.
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Serial protocol}
 
-The bulk of this work can be understood in context of the serial protocol.
-For example, the transmitter simply implements this protocol on top of merging
-and arbitration, and the receiver simply implements this protocol on top of
-splitting.
+The bulk of this work can be understood in context of the serial protocol
+used by the receiver and transmitter. 
+The transmitter simply implements this protocol on top of merging and arbitration, 
+and the receiver simply implements this protocol on top of splitting.
 
-Consider a source and a sink connected through a buffer.
+Consider a 1-bit source and a sink connected through a buffer.
+
 \begin{center}
     \includegraphics[width=.5\textwidth]{img/serial_protocol_block_diagram.pdf}
 \end{center}
 
 \noindent
-The serial protocol is best understood by considering the buffer.
-The buffer's HSE is given by
-\begin{hse}
-*[[xi];yo+;[yi];xo+;[~xi];yo-;[~yi];xo-]
+The channels can carry four symbols:
 
-*[[x0->y0+;[~yi];xo-;[~x0];y0-;[yi];xo+
-  []x1->y1+;[~yi];xo-;[~x1];y1-;[yi];xo+
- ]]
-\end{hse}
+\begin{center}
+    \begin{tabular}{r|l}
+    \hline
+    symbol & meaning \\ \hline
+    $\neg\emptyset$ & channel is not empty (i.e. channel will have data) \\
+    0 & channel data is 0 \\
+    1 & channel data is 1 \\
+    $\emptyset$ & channel is empty (i.e. channel will no longer have data) \\
+    \hline
+    \end{tabular}
+\end{center}
+
+A packet of data is a sequence of 0s and 1s. Its beginning and end are the 
+$\neg\emptyset$ and $\emptyset$ symbols. There is no limit on the length of
+the packet.
+
+\subsection{Serial Buffer}
 
 \noindent
-In pseudo-code,
+The serial protocol is best understood by considering the buffer.
+
+\subsubsection*{Pseudo-code}
+
 \begin{lstlisting}[mathescape]
 Repeat {
-    Wait for the source request ([$x_i$]).
-    Ouput the sink request ($y_o\uparrow$),
-        and wait for the sink grant ($[y_i]$).
-    Output the source grant ($x_o\uparrow$).
-
-    While (source request is active ($x_i$ is true)) {
-        Wait for source data ($x0$ or $x1$).
-        Output data to sink ($y0$ or $y1$).
+    Wait for $\neg\emptyset$ from the source.
+    Relay $\neg\emptyset$ from source to sink.
+    While (source is not sending $\emptyset$)) {
+        Relay data from source to sink
     }
-    Reset sink request ($y_o\downarrow$),
-        and wait for the sink grant to reset ($[\neg y_i]$).
-    Reset the source grant ($x_o\downarrow$).
+    Relay $\emptyset$ from source to sink.
 }
 \end{lstlisting}
 
+\subsubsection*{CHP}
+
+\begin{csp}
+*[[#{X=\neg\emptyset}->Y!X?
+  []#{X=0}|#{X=1}->Y!X?
+  []#{X=\emptyset}->Y!X?
+ ]]
+\end{csp}
+
 \noindent
-For completion, the source HSE is given by
+In the $\overline{X=\neg\emptyset}$ and $\overline{X=\emptyset}$ branches,
+the $Y!X?$ communications are 2-phase. \\
+In the $\overline{X=0}\ \vee \overline{X=1}$ branch,
+the $Y!X?$ communication is 4-phase.
+
+
+\subsubsection*{HSE}
+
 \begin{hse}
-*[[~yi->yo+;[yi]
-  []yi->[true->y0+;[~yi];y0-;[yi]
+*[[xi->yo+;[yi];xo+
+  []x0->y0+;[~yi];xo-;[~x0];y0-;[yi];xo+
+  []x1->y1+;[~yi];xo-;[~x1];y1-;[yi];xo+
+  []~xi->yo-;[~yi];xo-
+ ]]
+\end{hse}
+
+\noindent
+The source sends the $\neg\emptyset$ symbol by raising $x_i$, and the buffer
+acknowledges with $x_o\uparrow$. \\
+The buffer relays the $\neg\emptyset$ to the sink with $yo\uparrow$, and the
+sink acknowledges by raising $y_i$. \\
+Data from the source is relayed to the sink with standard, unpipelined,
+4-phase handshakes. Note that the source is acknowledged with $x_o\downarrow$, 
+and that the sink acknowledges the data by lowering $y_i$. 
+The second half of the 4-phase handshakes returns the process to the state 
+ready to receive data. \\
+The source sends the $\emptyset$ symbol by lowering $x_i$, and the buffer
+acknowledges with $x_o\downarrow$. \\
+The buffer relays the $\emptyset$ to the sink with $yo\downarrow$, and the
+sink acknowledges by lowering $y_i$. \\
+
+\noindent
+The buffer's sequencing can be visualized in Figure~\ref{fig:protocol_net}.
+
+\subsection{Serial Source}
+
+The source outputs random data.
+
+\subsubsection*{CHP}
+
+\begin{csp}
+*[[~u->Y!\neg\emptyset;u+
+  []u->[true->Y!0
+         \|true->Y!1
+         \|true->Y!\emptyset;u-
+         ]
+ ]]
+\end{csp}
+
+\noindent
+The nondeterministic selection between $true$ guards implements the random
+data generation.
+
+\subsubsection*{HSE}
+
+\begin{hse}
+*[[~u->yo+;[yi];u+
+  []u->[true->y0+;[~yi];y0-;[yi]
          \|true->y1+;[~yi];y1-;[yi]
-         \|true->yo-;[~yi]
+         \|true->yo-;[~yi];u-
          ]
  ]]
 \end{hse}
-It follows the serial protocol and outputs random sequences of data.
 
-\noindent
-The sink HSE is given by
+\subsection{Serial Sink}
+
+The sink does as sinks do.
+
+\subsubsection*{CHP}
+
+\begin{csp}
+*[[#{X=\neg\emptyset}->X?
+  []#{X=0}|#{X=1}->X?
+  []#{X=\emptyset}->X?
+ ]]
+\end{csp}
+
+\subsubsection*{HSE}
+
 \begin{hse}
-*[[xi];xo+;[~xi]xo-]
-
-*[[x0->xo-;[~x0];xo+
+*[[xi->xo+
+  []x0->xo-;[~x0];xo+
   []x1->xo-;[~x1];xo+
+  []~xi->xo-
  ]]
 \end{hse}
-It simply follows the serial protocol and sinks its incoming data
 
-The sequencing can be visualized from the buffer's perspective by the 
-following petri-net in Figure~\ref{fig:protocol_net}.
 \begin{figure}
     \centering
     \includegraphics[width=.95\textwidth]{img/serial_protocol_petri_net.pdf}
@@ -130,11 +210,13 @@ nodes (NODE) and leaf nodes (LEAF).
 \begin{center}
     \includegraphics[width=.7\textwidth]{img/aext.pdf}
 \end{center}
-Neurons connect to the transmitter at the leaves of the tree.
-When a neuron spikes, a packet travels from the attached leaf to the root of the tree.
-Neurons spike asynchronously and so may signal the transmitter simultaneously. 
-We thus use an arbiter in each node to sequence the incoming spike packets into a combined output packet stream.
-At each node, each spike packet is prepended with a word indicating which branch it came from.
+Neurons (NRNs) connect to the transmitter at the leaves of the tree.
+When a neuron spikes, a packet travels from the attached leaf to the root of 
+the tree. Neurons spike asynchronously and so may signal the transmitter at 
+arbitrary times. We thus use an arbiter in each LEAF and NODE to sequence the 
+incoming spike packets into a combined output packet stream. Further, at each 
+LEAF and NODE, a spike packet is prepended with a word indicating which 
+branch it came from.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{AEXT LEAF \label{sec:AEXT_LEAF}}
@@ -147,53 +229,118 @@ packets to send up the tree. The input/output ports are shown as follows:
 \end{center}
 
 \noindent
-In pseudo-code, LEAF operates as follows:
+As mentioned in Section~\ref{sec:intro}, 
+we give diagrams and code for a binary tree and 1-of-2 words
+even though the design uses a 4-ary tree and 1-of-4 words
+for the sake of compactness.
 
-\begin{lstlisting}
+\subsubsection*{Pseudo-code}
+
+Neurons simply transmit $\neg\emptyset$ when emitting a spike and 
+$\emptyset$ when reset.
+
+\begin{lstlisting}[mathescape]
 Repeat {
-    Wait for one or more neurons to spike.
-    Select a neuron that has spiked.
-    Send a request to the parent
-        and then wait for the parent to grant.
-    Send a word indicating which neuron was selected
-        and then wait for the parent to acknowledge.
-    Signal the neuron to reset
-        and then lower request to the parent.
+    Wait for and arbitrate between $\neg\emptyset$ from the neurons.
+    Relay $\neg\emptyset$ from the arbiter-selected neuron to parent.
+    Send 0, 1, 2, or 3 to the parent indicating which neuron was selected.
+    Relay $\emptyset$ from selected neuron to the parent.
 }
 \end{lstlisting}
 
 \subsubsection*{CHP}
 
 \begin{csp}
-*[[#{C0}->P!0\*C0
-  \|#{C1}->P!1\*C1
+*[[#{C0=\neg\emptyset}->P!C0?;P!0;P!C0?
+  \|#{C1=\neg\emptyset}->P!C1?;P!1;P!C0?
  ]]
 \end{csp}
 
 \subsubsection*{HSE}
 
-First, we nondeterministically select between spiking input.
+We implement the HSE
 
 \begin{hse}
 *[[c0i->c0+;[~c0i];c0-
   \|c1i->c1+;[~c1i];c1-
  ]]
-\end{hse}
 
-\noindent
-We then propagate a packet up the tree indicating which neuron's spike was selected.
-
-\begin{hse}
-*[[c0->po+;[pi];
-       p0+;[~pi];u+;p0-;[pi];
-       c0o+;[~c0];po-;u-;[~pi];c0o-;u-
- []c1->po+;[pi];
-       p1+;[~pi];u+;p1-;[pi];
-       c1o+;[~c1];po-;u-;[~pi];c1o-;u-
+*[[c0->po+;[pi];p0+;[~pi];u+;p0-;[pi];c0o+;[~c0];po-;[~pi];c0o-;u-
+  []c1->po+;[pi];p1+;[~pi];u+;p1-;[pi];c1o+;[~c1];po-;[~pi];c1o-;u-
  ]]
 \end{hse}
 
+\noindent
+To get there, we first directly translate the CHP.
+
+\begin{hse}
+*[[c0i->po+;[pi];c0o+;p0+;[~pi];p0-;[pi];[~c0i];po-;[~pi];c0o-
+  \|c1i->po+;[pi];c1o+;p1+;[~pi];p1-;[pi];[~c1i];po-;[~pi];c1o-
+ ]]
+\end{hse}
+
+\noindent
+Consider the $c0_i$ branch, \\
+$c0i\rightarrow\ p_o\uparrow;[p_i];c0o\uparrow;$ expands the 2-phase
+$\overline{C0=\neg\emptyset}\rightarrow\ P!C0?$. \\
+$p0\uparrow;[\neg p_i];p0\downarrow[pi];$ expands the 4-phase $P!0$. \\
+$[\neg c0i];p_o\downarrow;[\neg p_i];c0o\downarrow;$ expands the 2-phase
+$P!C0?$ at the end of the branch. \\
+
+\noindent
+We overlap the first $P!C0?$ ($P!C1?$) across the $P!0$ ($P!1$).
+
+\begin{hse}
+*[[c0i->po+;[pi];p0+;[~pi];p0-;[pi];\textcolor{red}{c0o+};[~c0i];po-;[~pi];c0o-
+  \|c1i->po+;[pi];p1+;[~pi];p1-;[pi];\textcolor{red}{c1o+};[~c1i];po-;[~pi];c1o-
+ ]]
+\end{hse}
+
+\noindent
+We introduce state variables $c0$ and $c1$ to represent the arbitration
+
+\begin{hse}
+*[[c0i->\textcolor{red}{c0+};po+;[pi];p0+;[~pi];p0-;[pi];c0o+;[~c0i];\textcolor{red}{c0-};po-;[~pi];c0o-
+  \|c1i->\textcolor{red}{c1+};po+;[pi];p1+;[~pi];p1-;[pi];c1o+;[~c1i];\textcolor{red}{c1-};po-;[~pi];c1o-
+ ]]
+\end{hse}
+
+\noindent
+and break out the arbitration into its own process
+
+\begin{hse}
+*[[c0i->\textcolor{red}{c0+};[~c0i];\textcolor{red}{c0-}
+  \|c1i->\textcolor{red}{c1+};[~c1i];\textcolor{red}{c1-}
+ ]]
+\end{hse}
+
+\begin{hse}
+*[[\textcolor{red}{c0}->po+;[pi];p0+;[~pi];p0-;[pi];c0o+;[\textcolor{red}{~c0}];po-;[~pi];c0o-
+  []\textcolor{red}{c1}->po+;[pi];p1+;[~pi];p1-;[pi];c1o+;[\textcolor{red}{~c1}];po-;[~pi];c1o-
+ ]]
+\end{hse}
+
+\noindent
+Finally, we introduce state variable $u$ to distinguish between indistinguishable
+states in the program.
+
+\begin{hse}
+*[[c0i->c0+;[~c0i];c0-
+  \|c1i->c1+;[~c1i];c1-
+ ]]
+
+*[[c0->po+;[pi];p0+;[~pi];\textcolor{red}{u+};p0-;[pi];c0o+;[~c0];po-;[~pi];c0o-;\textcolor{red}{u-}
+  []c1->po+;[pi];p1+;[~pi];\textcolor{red}{u+};p1-;[pi];c1o+;[~c1];po-;[~pi];c1o-;\textcolor{red}{u-}
+ ]]
+\end{hse}
+
+\noindent
+which completes our derivation.
+
 \subsubsection*{PRS}
+
+The $c0$ and $c1$ state variables are the outputs of a standard N-way arbiter
+with inputs $c0_i$ and $c1_i$.
 
 \begin{prs2}
 ~u & c0 | c1 -> po+
@@ -313,11 +460,15 @@ Repeat {
 \subsubsection*{CHP}
 
 \begin{csp}
-*[[#{C0}->P\*(w:=0;C0)
-  \|#{C1}->P\*(w:=1;C1)
+*[[#{C0=\neg\emptyset}->P!C0?;P!0;U!0
+  \|#{C1=\neg\emptyset}->P!C1?;P!1;U!1
  ]]
 
-*[[P!w[]P!C0?[]P!C1?]]
+*[[(#{C0=0}|#{C0=1})&#{U=0}->P!C0?
+  [](#{C1=0}|#{C1=1})&#{U=1}->P!C1?
+  []#{C0=\emptyset}&#{U=0}->P!C0?;U
+  []#{C1=\emptyset}&#{U=1}->P!C1?;U
+ ]]
 \end{csp}
 
 \subsubsection*{HSE}
@@ -334,6 +485,8 @@ As in LEAF, we first nondeterministically select between child requests.
 We then propagate a word up the tree indicating which child was selected
 and then forward the child's data up the tree.
 
+reference:
+
 \begin{hse}
 *[[c0->po+;[pi];
        w0+;[~pi];u+;w0-;[pi];
@@ -343,14 +496,14 @@ and then forward the child's data up the tree.
        c1o+;[~c1];po-;[~pi];c1o-;u-
  ]]
 
-*[[c00|c10|w0->p0+;[~pi];c0o-;[~c00&~c10&~w0];p0-;[pi&c0];c0o+
-  []c01|c11|w1->p1+;[~pi];c1o-;[~c01&~c10&~w1];p1-;[pi&c1];c1o+
+*[[c00|c10|w0->p0+;[~pi];c0o-;[~c00&~c10&~w0];p0-;[pi];c0o+
+  []c01|c11|w1->p1+;[~pi];c1o-;[~c01&~c11&~w1];p1-;[pi];c1o+
  ]]
 \end{hse}
 
 \noindent 
 To match the pseudo-code with the HSE, 
-tt's helpful to consider the projection of the HSE on to the parent's 
+it's helpful to consider the projection of the HSE on to the parent's 
 control ($p_o$, $p_i$) and data ($P$) lines.
 
 \begin{hse}
@@ -532,18 +685,18 @@ traverse down the tree. At each node, the head word of the packet is peeled
 off to set the direction to forward the rest of the packet.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{AERV LEAF \label{sec:AERV_LEAF}}
+\subsection{AERV NODE \label{sec:AERV_NODE}}
 
 The leaf node receives packets its parent and directs their payload to the
 child specified by the head word of the packet. 
 The input/output ports are shown as follows:
 
 \begin{center}
-  \includegraphics[width=.2\textwidth]{img/aerv_leaf.pdf}
+  \includegraphics[width=.25\textwidth]{img/aerv_node.pdf}
 \end{center}
 
 \noindent
-In pseudo-code, LEAF operates as follows:
+In pseudo-code, NODE operates as follows:
 
 \begin{lstlisting}
 Repeat {
@@ -558,181 +711,15 @@ Repeat {
 }
 \end{lstlisting}
 
-\subsubsection*{HSE}
+\subsubsection*{CHP}
 
-\begin{hse}
-*[[pi];po+;
-    [p0->u0+;uu+;po-;[~p0];c0+;cc+;u0-;uu-;
-         po+;[~pi];c0-;cc-;po-
-    []p1->u1+;uu+;po-;[~p1];c1+;cc+;u1-;uu-;
-         po+;[~pi];c1-;cc-;po-
-    ];
- ]
-
-*[[c0&p0->c00+;[c0i];cci+;po-;[~p0];c00-;[~c0i];cci-;po+
-  []c0&p1->c01+;[c0i];cci+;po-;[~p1];c01-;[~c0i];cci-;po+
-  []c1&p0->c10+;[c1i];cci+;po-;[~p0];c10-;[~c1i];cci-;po+
-  []c1&p1->c11+;[c1i];cci+;po-;[~p1];c11-;[~c1i];cci-;po+
+\begin{csp}
+*[[#{P=\neg\emptyset}->P;P?u;[u=0->C0!\neg\emptyset[]u=1->C1!\neg\emptyset]
+  [](#{P=0}|#{P=1})&u=0->C0!P?
+  [](#{P=0}|#{P=1})&u=1->C1!P?
+  []#{P=\emptyset}->P;[u=0->C0!\emptyset[]u=1->C1!\emptyset]
  ]]
-\end{hse}
-
-\subsubsection*{PRS}
-
-\begin{prs2}
-(pi | cco) & ~uu & ~cci -> po+
-~pi & ~cco | uu | cci -> po-
-\end{prs2}
-
-\begin{prs2}
-~cc & p0 -> u0+
-cc -> u0-
-
-~cc & p1 -> u1+
-cc -> u1-
-\end{prs2}
-
-\begin{prs2}
-u0 | u1 -> uu+
-~u0 & ~u1 -> uu-
-\end{prs2}
-
-\begin{prs2}
-u0 & ~p0 -> c0+
-~pi -> c0-
-
-u1 & ~p1 -> c1+
-~pi -> c1-
-\end{prs2}
-
-\begin{prs2}
-c0 | c1 -> cc+
-~c0 & ~c1 -> cc-
-
-c0i | c1i -> cci+
-~c0i & ~c1i -> cci-
-\end{prs2}
-
-\begin{prs2}
-c0 & p0 -> c00+
-~c0 | ~p0 -> c00-
-
-c0 & p1 -> c01+
-~c0 | ~p1 -> c01-
-
-c1 & p0 -> c10+
-~c1 | ~p0 -> c10-
-
-c1 & p1 -> c11+
-~c1 | ~p1 -> c11-
-\end{prs2}
-
-\subsubsection*{CMOS-implementable PRS}
-
-\begin{prs2}
-~pi -> _pi+
-pi -> _pi-
-\end{prs2}
-
-\begin{prs2}
-~_cci -> __cci+
-_cci -> __cci-
-\end{prs2}
-
-\begin{prs2}
-(~_pi | ~_cc) & ~uu & ~__cci -> po+
-_pi & _cc | uu | __cci -> po-
-\end{prs2}
-
-\begin{prs2}
-_cc & p0 -> _u0-
-~_cc -> _u0+
-
-_cc & p1 -> _u1-
-~_cc -> _u1+
-\end{prs2}
-
-\begin{prs2}
-~_u0 | ~_u1 -> uu+
-_u0 & _u1 -> uu-
-\end{prs2}
-
-\begin{prs2}
-~_u0 & ~p0 -> c0+
-_pi -> c0-
-
-~_u1 & ~p1 -> c1+
-_pi -> c1-
-\end{prs2}
-
-\begin{prs2}
-c0 | c1 -> _cc-
-~c0 & ~c1 -> _cc+
-
-c0i | c1i -> _cci-
-~c0i & ~c1i -> _cci+
-\end{prs2}
-
-\begin{prs2}
-c0 & p0 -> _c00-
-~c0 | ~p0 -> _c00+
-
-c0 & p1 -> _c01-
-~c0 | ~p1 -> _c01+
-
-c1 & p0 -> _c10-
-~c1 | ~p0 -> _c10+
-
-c1 & p1 -> _c11-
-~c1 | ~p1 -> _c11+
-\end{prs2}
-
-\begin{prs2}
-~_c00 -> c00+
-_c00 -> c00-
-
-~_c01 -> c01+
-_c01 -> c01-
-
-~_c10 -> c10+
-_c10 -> c10-
-
-~_c11 -> c11+
-_c11 -> c11-
-\end{prs2}
-
-\noindent
-Radix 3, 1-of-4 accounting:
-
-\begin{center}
-    \begin{tabular}{|r|l|l|}
-    \hline
-    rule & transistor count & comments \\ \hline
-    $\_p_i$ & 2 & \\ \hline
-    $\_\_cc_i$ & 2 & \\ \hline
-    $p_o$ & 8 & \\ \hline
-    $\_u[0,1,2]$ & 21 & \\ \hline
-    $uu$ & 6 & \\ \hline
-    $c[0,1,2]$ & 21 & \\ \hline
-    $\_cc$ & 6 & \\ \hline
-    $\_cc_i$ & 6 & \\ \hline
-    $\_c[0,1,2][0,1,2,3]$ & 48 & \\ \hline
-    $c[0,1,2][0,1,2,3]$ &  24 & \\ \hline
-    \hline total & 144 & \\ \hline
-    \end{tabular}
-\end{center}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{AERV NODE \label{sec:AERV_NODE}}
-
-The leaf node receives packets its parent and directs their payload to the
-child specified by the head word of the packet. 
-The input/output ports are shown as follows:
-
-\begin{center}
-  \includegraphics[width=.25\textwidth]{img/aerv_node.pdf}
-\end{center}
-
-NODE operates with the same pseudo-code as LEAF
+\end{csp}
 
 \subsubsection*{HSE}
 
@@ -927,6 +914,182 @@ Radix 4, 1-of-4 accounting:
     $c[0,1,2,3]_o$ & 16 & staticizes $\_c[0,1,2,3]$ \\ \hline
     $p_o$ & 2 & \\ \hline
     \hline total & 168 & \\ \hline
+    \end{tabular}
+\end{center}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{AERV LEAF \label{sec:AERV_LEAF}}
+
+The leaf node receives packets its parent and directs their payload to the
+child specified by the head word of the packet. 
+The input/output ports are shown as follows:
+
+\begin{center}
+  \includegraphics[width=.2\textwidth]{img/aerv_leaf.pdf}
+\end{center}
+
+\noindent
+LEAF operates with the same pseudo-code as NODE
+
+\subsubsection*{HSE}
+
+\begin{hse}
+*[[pi];po+;
+    [p0->u0+;uu+;po-;[~p0];c0+;cc+;u0-;uu-;
+         po+;[~pi];c0-;cc-;po-
+    []p1->u1+;uu+;po-;[~p1];c1+;cc+;u1-;uu-;
+         po+;[~pi];c1-;cc-;po-
+    ];
+ ]
+
+*[[c0&p0->c00+;[c0i];cci+;po-;[~p0];c00-;[~c0i];cci-;po+
+  []c0&p1->c01+;[c0i];cci+;po-;[~p1];c01-;[~c0i];cci-;po+
+  []c1&p0->c10+;[c1i];cci+;po-;[~p0];c10-;[~c1i];cci-;po+
+  []c1&p1->c11+;[c1i];cci+;po-;[~p1];c11-;[~c1i];cci-;po+
+ ]]
+\end{hse}
+
+\subsubsection*{PRS}
+
+\begin{prs2}
+(pi | cco) & ~uu & ~cci -> po+
+~pi & ~cco | uu | cci -> po-
+\end{prs2}
+
+\begin{prs2}
+~cc & p0 -> u0+
+cc -> u0-
+
+~cc & p1 -> u1+
+cc -> u1-
+\end{prs2}
+
+\begin{prs2}
+u0 | u1 -> uu+
+~u0 & ~u1 -> uu-
+\end{prs2}
+
+\begin{prs2}
+u0 & ~p0 -> c0+
+~pi -> c0-
+
+u1 & ~p1 -> c1+
+~pi -> c1-
+\end{prs2}
+
+\begin{prs2}
+c0 | c1 -> cc+
+~c0 & ~c1 -> cc-
+
+c0i | c1i -> cci+
+~c0i & ~c1i -> cci-
+\end{prs2}
+
+\begin{prs2}
+c0 & p0 -> c00+
+~c0 | ~p0 -> c00-
+
+c0 & p1 -> c01+
+~c0 | ~p1 -> c01-
+
+c1 & p0 -> c10+
+~c1 | ~p0 -> c10-
+
+c1 & p1 -> c11+
+~c1 | ~p1 -> c11-
+\end{prs2}
+
+\subsubsection*{CMOS-implementable PRS}
+
+\begin{prs2}
+~pi -> _pi+
+pi -> _pi-
+\end{prs2}
+
+\begin{prs2}
+~_cci -> __cci+
+_cci -> __cci-
+\end{prs2}
+
+\begin{prs2}
+(~_pi | ~_cc) & ~uu & ~__cci -> po+
+_pi & _cc | uu | __cci -> po-
+\end{prs2}
+
+\begin{prs2}
+_cc & p0 -> _u0-
+~_cc -> _u0+
+
+_cc & p1 -> _u1-
+~_cc -> _u1+
+\end{prs2}
+
+\begin{prs2}
+~_u0 | ~_u1 -> uu+
+_u0 & _u1 -> uu-
+\end{prs2}
+
+\begin{prs2}
+~_u0 & ~p0 -> c0+
+_pi -> c0-
+
+~_u1 & ~p1 -> c1+
+_pi -> c1-
+\end{prs2}
+
+\begin{prs2}
+c0 | c1 -> _cc-
+~c0 & ~c1 -> _cc+
+
+c0i | c1i -> _cci-
+~c0i & ~c1i -> _cci+
+\end{prs2}
+
+\begin{prs2}
+c0 & p0 -> _c00-
+~c0 | ~p0 -> _c00+
+
+c0 & p1 -> _c01-
+~c0 | ~p1 -> _c01+
+
+c1 & p0 -> _c10-
+~c1 | ~p0 -> _c10+
+
+c1 & p1 -> _c11-
+~c1 | ~p1 -> _c11+
+\end{prs2}
+
+\begin{prs2}
+~_c00 -> c00+
+_c00 -> c00-
+
+~_c01 -> c01+
+_c01 -> c01-
+
+~_c10 -> c10+
+_c10 -> c10-
+
+~_c11 -> c11+
+_c11 -> c11-
+\end{prs2}
+
+\noindent
+Radix 3, 1-of-4 accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $\_p_i$ & 2 & \\ \hline
+    $\_\_cc_i$ & 2 & \\ \hline
+    $p_o$ & 8 & \\ \hline
+    $\_u[0,1,2]$ & 21 & \\ \hline
+    $uu$ & 6 & \\ \hline
+    $c[0,1,2]$ & 21 & \\ \hline
+    $\_cc$ & 6 & \\ \hline
+    $\_cc_i$ & 6 & \\ \hline
+    $\_c[0,1,2][0,1,2,3]$ & 48 & \\ \hline
+    $c[0,1,2][0,1,2,3]$ &  24 & \\ \hline
+    \hline total & 144 & \\ \hline
     \end{tabular}
 \end{center}
 
@@ -1671,22 +1834,28 @@ to write. Here are some memory configurations:
 
 \subsubsection*{Ideas for saving area}
 
-\noindent
-Memory banking to add a level of address heirarchy could reduce
-the number of address words we need to send. \\
+We might need to reduce the aer system area depending on the neuron area
+requirements. Here are some ideas to try in this case:
 
 \noindent
-The memory currently takes in 1-of-2 data only, so we need to convert
-1-of-4 data from the receiver to 1-of-2 data for the memory. 
-Converting 1-of-4 to 1-of-2 is necessar for data words because the bitcells 
+The config memory takes in 1-of-2 data, so we convert 1-of-4 data from the 
+receiver to 1-of-2 data for the memory. 
+This conversion is necessary for data words because the bitcells 
 are written by dual rails.
-However, the row and column addresses are converted from 1-of-2 to 1-of-N 
-for the enable lines. 
-We can eliminate row and column address converters by converting directly 
-from 1-of-4 to 1-of-N. \\
+However, the row and column addresses are converted inside the memory
+from 1-of-2 to 1-of-N for selecting individual words. We could
+eliminate a conversion stage for row and column address data by converting
+directly from 1-of-4 to 1-of-N. \\
 
 \noindent
-We could do away with the column decoder if we just write a whole row at a time
+The config memory allows us to select words based on row and column addresses
+encoded as 1-of-2 words. Perhaps we could do away with the column decoder if 
+we wrote a whole row at a time
+
+\noindent
+Memory banking adds a level of address heirarchy could reduce
+the number of address words we need to send. However, the ability to bank
+will cost extra circuitry so this idea might turn out to be a wash. \\
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Accounting \label{sec:accounting}}
