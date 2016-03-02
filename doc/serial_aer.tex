@@ -244,7 +244,7 @@ Repeat {
     Wait for and arbitrate between $\neg\emptyset$ from the neurons.
     Relay $\neg\emptyset$ from the arbiter-selected neuron to parent.
     Send 0, 1, 2, or 3 to the parent indicating which neuron was selected.
-    Relay $\emptyset$ from selected neuron to the parent.
+    Relay $\emptyset$ from the selected neuron to the parent.
 }
 \end{lstlisting}
 
@@ -291,17 +291,27 @@ $P!C0?$ at the end of the branch. \\
 We overlap the first $P!C0?$ ($P!C1?$) across the $P!0$ ($P!1$).
 
 \begin{hse}
-*[[c0i->po+;[pi];p0+;[~pi];p0-;[pi];\textcolor{red}{c0o+};[~c0i];po-;[~pi];c0o-
-  \|c1i->po+;[pi];p1+;[~pi];p1-;[pi];\textcolor{red}{c1o+};[~c1i];po-;[~pi];c1o-
+*[[c0i->po+;[pi];p0+;[~pi];p0-;[pi];\red{c0o+};[~c0i];po-;[~pi];c0o-
+  \|c1i->po+;[pi];p1+;[~pi];p1-;[pi];\red{c1o+};[~c1i];po-;[~pi];c1o-
  ]]
 \end{hse}
 
 \noindent
-We introduce state variables $c0$ and $c1$ to represent the arbitration
+We introduce state variable $u$ to distinguish between indistinguishable
+states in the process.
 
 \begin{hse}
-*[[c0i->\textcolor{red}{c0+};po+;[pi];p0+;[~pi];p0-;[pi];c0o+;[~c0i];\textcolor{red}{c0-};po-;[~pi];c0o-
-  \|c1i->\textcolor{red}{c1+};po+;[pi];p1+;[~pi];p1-;[pi];c1o+;[~c1i];\textcolor{red}{c1-};po-;[~pi];c1o-
+*[[c0i->po+;[pi];p0+;[~pi];\red{u+};p0-;[pi];c0o+;[~c0i];po-;[~pi];c0o-;\red{u-}
+  \|c1i->po+;[pi];p1+;[~pi];\red{u+};p1-;[pi];c1o+;[~c1i];po-;[~pi];c1o-;\red{u-}
+ ]]
+\end{hse}
+
+\noindent
+Finally, we introduce state variables $c0$ and $c1$ to represent the arbitration
+
+\begin{hse}
+*[[c0i->\red{c0+};po+;[pi];p0+;[~pi];u+;p0-;[pi];c0o+;[~c0i];\red{c0-};po-;[~pi];c0o-;u-
+  \|c1i->\red{c1+};po+;[pi];p1+;[~pi];u+;p1-;[pi];c1o+;[~c1i];\red{c1-};po-;[~pi];c1o-;u-
  ]]
 \end{hse}
 
@@ -309,33 +319,19 @@ We introduce state variables $c0$ and $c1$ to represent the arbitration
 and break out the arbitration into its own process
 
 \begin{hse}
-*[[c0i->\textcolor{red}{c0+};[~c0i];\textcolor{red}{c0-}
-  \|c1i->\textcolor{red}{c1+};[~c1i];\textcolor{red}{c1-}
+*[[c0i->\red{c0+};[~c0i];\red{c0-}
+  \|c1i->\red{c1+};[~c1i];\red{c1-}
  ]]
 \end{hse}
 
 \begin{hse}
-*[[\textcolor{red}{c0}->po+;[pi];p0+;[~pi];p0-;[pi];c0o+;[\textcolor{red}{~c0}];po-;[~pi];c0o-
-  []\textcolor{red}{c1}->po+;[pi];p1+;[~pi];p1-;[pi];c1o+;[\textcolor{red}{~c1}];po-;[~pi];c1o-
+*[[\red{c0}->po+;[pi];p0+;[~pi];u+;p0-;[pi];c0o+;[\red{~c0}];po-;[~pi];c0o-;u-
+  []\red{c1}->po+;[pi];p1+;[~pi];u+;p1-;[pi];c1o+;[\red{~c1}];po-;[~pi];c1o-;u-
  ]]
 \end{hse}
 
 \noindent
-Finally, we introduce state variable $u$ to distinguish between indistinguishable
-states in the program.
-
-\begin{hse}
-*[[c0i->c0+;[~c0i];c0-
-  \|c1i->c1+;[~c1i];c1-
- ]]
-
-*[[c0->po+;[pi];p0+;[~pi];\textcolor{red}{u+};p0-;[pi];c0o+;[~c0];po-;[~pi];c0o-;\textcolor{red}{u-}
-  []c1->po+;[pi];p1+;[~pi];\textcolor{red}{u+};p1-;[pi];c1o+;[~c1];po-;[~pi];c1o-;\textcolor{red}{u-}
- ]]
-\end{hse}
-
-\noindent
-which completes our derivation.
+which completes our expansion.
 
 \subsubsection*{PRS}
 
@@ -431,95 +427,179 @@ _c1o -> c1o-
 \subsection{AEXT NODE \label{sec:AEXT_NODE}}
 
 The intermediate node propagates spike packets from its children to its parent.
-It prepends a word to each packet indicating the child from which the packet
-originated. The input/output ports are shown as follows:
+It prepends a word to each packet indicating which child the packet is from. 
+The input/output ports are shown as follows:
 
 \begin{center}
   \includegraphics[width=.25\textwidth]{img/aext_node.pdf}
 \end{center}
 
-\noindent
-In pseudo-code, NODE operates as follows:
+\subsubsection*{Pseudo-code}
 
-\begin{lstlisting}
+\begin{lstlisting}[mathescape]
 Repeat {
-    Wait for one or more children to raise requests.
-    Select a children that has requested.
-    Send a request to the parent
-        and then wait for the parent to grant.
-    Send a word indicating which children was selected
-        and then wait for the parent to acknowledge.
-    While (child is sending data) {
-        Forward data to the parent.
+    Wait for and arbitrate between $\neg\emptyset$ from the children.
+    Relay $\neg\emptyset$ from the arbiter-selected child to parent.
+    Send 0, 1, 2, or 3 to the parent indicating which child was selected.
+    While (selected child is not sending $\emptyset$) {
+        Relay data from the selected child to parent
     }
-    Signal the children to reset
-        and then lower request to the parent.
+    Relay $\emptyset$ from the selected child to the parent.
 }
 \end{lstlisting}
 
 \subsubsection*{CHP}
 
 \begin{csp}
-*[[#{C0=\neg\emptyset}->P!C0?;P!0;U!0
-  \|#{C1=\neg\emptyset}->P!C1?;P!1;U!1
+*[[#{C0=\neg\emptyset}->P!C0?;P!0;[#{C0=\emptyset}->P!C0?]
+  \|#{C1=\neg\emptyset}->P!C1?;P!1;[#{C1=\emptyset}->P!C1?]
  ]]
 
-*[[(#{C0=0}|#{C0=1})&#{U=0}->P!C0?
-  [](#{C1=0}|#{C1=1})&#{U=1}->P!C1?
-  []#{C0=\emptyset}&#{U=0}->P!C0?;U
-  []#{C1=\emptyset}&#{U=1}->P!C1?;U
+*[[(#{C0=0}|#{C0=1})->P!C0?
+  [](#{C1=0}|#{C1=1})->P!C1?
+ ]]
+\end{csp}
+
+\noindent
+To match the CHP with the psuedo-code, consider the top process. \\
+First, we arbitrate between $\overline{C0=\neg\emptyset}$ and 
+$\overline{C1=\neg\emptyset}$. \\
+$P!C0?$ or $P!C1?$ relay $\neg\emptyset$ to the parent. \\
+$P!0$ and $P!1$ prepend a word to the parent indicating which child was 
+selected. \\
+Next, we wait for $\overline{C0=\emptyset}$ or $\overline{C1=\emptyset}$ 
+and relay $\emptyset$ to the parent with $P!C0?$ or $P!C1?$ \\
+
+\noindent
+In the bottom process, we simply relay data from the children to the parent.
+Following the serial protocol, a child will only send data after having 
+its $\neg\emptyset$ communication completed. Therefore the arbitration in
+the top process ensures that branches in the bottom process are mutually 
+exclusive. \\
+
+\noindent
+To ensure that we prepend a word indicating which child was selected before
+the child sends data, we overlap the $\neg\emptyset$ communication with the 
+prepend communication.
+
+\begin{csp}
+*[[#{C0=\neg\emptyset}->P!C0?\*P!0;[#{C0=\emptyset}->P!C0?]
+  \|#{C1=\neg\emptyset}->P!C1?\*P!1;[#{C1=\emptyset}->P!C1?]
+ ]]
+
+*[[(#{C0=0}|#{C0=1})->P!C0?
+  [](#{C1=0}|#{C1=1})->P!C1?
  ]]
 \end{csp}
 
 \subsubsection*{HSE}
 
-As in LEAF, we first nondeterministically select between child requests.
+We implement the HSE
 
 \begin{hse}
 *[[c0i->c0+;[~c0i];c0-
   \|c1i->c1+;[~c1i];c1-
  ]]
-\end{hse}
 
-\noindent
-We then propagate a word up the tree indicating which child was selected
-and then forward the child's data up the tree.
-
-reference:
-
-\begin{hse}
-*[[c0->po+;[pi];
-       w0+;[~pi];u+;w0-;[pi];
-       c0o+;[~c0];po-;[~pi];c0o-;u-
-  []c1->po+;[pi];
-       w1+;[~pi];u+;w1-;[pi];
-       c1o+;[~c1];po-;[~pi];c1o-;u-
+*[[c0->po+;[pi];w0+;p0+[~pi];u+;w0-;p0-;[pi];c0o+;[~c0];po-;[~pi];c0o-;u-
+  []c1->po+;[pi];w1+;p1+;[~pi];u+;w1-;p1-;[pi];c1o+;[~c1];po-;[~pi];c1o-;u-
  ]]
 
-*[[c00|c10|w0->p0+;[~pi];c0o-;[~c00&~c10&~w0];p0-;[pi];c0o+
-  []c01|c11|w1->p1+;[~pi];c1o-;[~c01&~c11&~w1];p1-;[pi];c1o+
+*[[c00->p0+;[~pi];c0o-;[~c00];p0-;[pi];c0o+
+  []c01->p1+;[~pi];c1o-;[~c01];p1-;[pi];c1o+
+  []c10->p0+;[~pi];c0o-;[~c10];p0-;[pi];c0o+
+  []c11->p1+;[~pi];c1o-;[~c11];p1-;[pi];c1o+
  ]]
 \end{hse}
 
-\noindent 
-To match the pseudo-code with the HSE, 
-it's helpful to consider the projection of the HSE on to the parent's 
-control ($p_o$, $p_i$) and data ($P$) lines.
+\noindent
+To get there, we first directly translate the CHP.
 
 \begin{hse}
-*[po+;[pi];
-    P+;[~pi];P-;[pi];
-    (P+;[~pi];P-;[pi])\times(m\-1)
-  po-;[~pi]
- ]
+*[[c0i->po+;[pi];p0+;[~pi];p0-;[pi];c0o+;[~c0i];po-;[~pi];c0o-
+  \|c1i->po+;[pi];p1+;[~pi];p1-;[pi];c1o+;[~c1i];po-;[~pi];c1o-
+ ]]
+
+*[[c00->p0+;[~pi];c0o-;[~c00];p0-;[pi];c0o+
+  []c01->p1+;[~pi];c1o-;[~c01];p1-;[pi];c1o+
+  []c10->p0+;[~pi];c0o-;[~c10];p0-;[pi];c0o+
+  []c11->p1+;[~pi];c1o-;[~c11];p1-;[pi];c1o+
+ ]]
 \end{hse}
 
 \noindent
-In the first line, we propagate the child request up the tree and wait for the parent to acknowledge. \\
-In the second line, we prepend a new word to the packet. \\
-In the third line, we forward the child's data to the parent and 
-repeat this $(m-1)$ times where $m$ is this node's level in the tree. \\
-In the fourth line, we propagate the child reset up the tree.
+The top process is very similar to the initial LEAF HSE only with 
+$P!C0?$ ($P!C1?$) already overlapped across $P!0$ ($P!1$). \\
+The bottom process is the standard, unpipelined 4-phase handshake expansion 
+of relaying data from the children to the parent.
+
+\noindent
+We introduce state variables $w0$ and $w1$.
+
+\begin{hse}
+*[[c0i->po+;[pi];\red{w0+};p0+;[~pi];\red{w0-};p0-;[pi];c0o+;[~c0i];po-;[~pi];c0o-
+  \|c1i->po+;[pi];\red{w1+};p1+;[~pi];\red{w1-};p1-;[pi];c1o+;[~c1i];po-;[~pi];c1o-
+ ]]
+
+*[[c00->p0+;[~pi];c0o-;[~c00];p0-;[pi];c0o+
+  []c01->p1+;[~pi];c1o-;[~c01];p1-;[pi];c1o+
+  []c10->p0+;[~pi];c0o-;[~c10];p0-;[pi];c0o+
+  []c11->p1+;[~pi];c1o-;[~c11];p1-;[pi];c1o+
+ ]]
+\end{hse}
+
+\noindent
+We introduce state variable $u$.
+
+\begin{hse}
+*[[c0i->po+;[pi];w0+;p0+;[~pi];\red{u+};w0-;p0-;[pi];c0o+;[~c0i];po-;[~pi];c0o-;\red{u-}
+  \|c1i->po+;[pi];w0+;p1+;[~pi];\red{u+};w1-;p1-;[pi];c1o+;[~c1i];po-;[~pi];c1o-;\red{u-}
+ ]]
+
+*[[c00->p0+;[~pi];c0o-;[~c00];p0-;[pi];c0o+
+  []c01->p1+;[~pi];c1o-;[~c01];p1-;[pi];c1o+
+  []c10->p0+;[~pi];c0o-;[~c10];p0-;[pi];c0o+
+  []c11->p1+;[~pi];c1o-;[~c11];p1-;[pi];c1o+
+ ]]
+\end{hse}
+
+\noindent
+Finally, we introduce state variables $c0$ and $c1$ to represent the arbitration
+
+\begin{hse}
+*[[c0i->\red{c0+};po+;[pi];w0+;p0+;[~pi];u+;w0-;p0-;[pi];c0o+;[~c0i];\red{c0-};po-;[~pi];c0o-;u-
+  \|c1i->\red{c1+};po+;[pi];w1+;p1+;[~pi];u+;w1-;p1-;[pi];c1o+;[~c1i];\red{c1-};po-;[~pi];c1o-;u-
+ ]]
+
+*[[c00->p0+;[~pi];c0o-;[~c00];p0-;[pi];c0o+
+  []c01->p1+;[~pi];c1o-;[~c01];p1-;[pi];c1o+
+  []c10->p0+;[~pi];c0o-;[~c10];p0-;[pi];c0o+
+  []c11->p1+;[~pi];c1o-;[~c11];p1-;[pi];c1o+
+ ]]
+\end{hse}
+
+
+\noindent
+and break out the arbitration into its own process
+
+\begin{hse}
+*[[c0i->\red{c0+};[~c0i];\red{c0-}
+  \|c1i->\red{c1+};[~c1i];\red{c1-}
+ ]]
+
+*[[\red{c0}->po+;[pi];w0+;p0+[~pi];u+;w0-;p0-;[pi];c0o+;[\red{~c0}];po-;[~pi];c0o-;u-
+  []\red{c1}->po+;[pi];w1+;p1+;[~pi];u+;w1-;p1-;[pi];c1o+;[\red{~c1}];po-;[~pi];c1o-;u-
+ ]]
+
+*[[c00->p0+;[~pi];c0o-;[~c00];p0-;[pi];c0o+
+  []c01->p1+;[~pi];c1o-;[~c01];p1-;[pi];c1o+
+  []c10->p0+;[~pi];c0o-;[~c10];p0-;[pi];c0o+
+  []c11->p1+;[~pi];c1o-;[~c11];p1-;[pi];c1o+
+ ]]
+\end{hse}
+
+\noindent
+which completes our expansion.
 
 \subsubsection*{PRS}
 

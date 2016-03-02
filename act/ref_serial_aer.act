@@ -155,138 +155,70 @@ namespace aer {
         export
         template <pint N>
         defproc NODE (globals g; bool ci[N], co[N], pi, po; c1of<N> c[N], p) {
-            // AEXT tree NODE controller
-            /*--------------------------------------------------------------*/
-            // /* // development
-                bool c_[N], u;
-                c1of<N> w;
-                ::arbiter::N_ARB_S<N> arb(g, ci, c_);
+            // AEXT tree NODE
+            bool c_[N], u;
+            c1of<N> w;
+            ::arbiter::N_ARB_S<N> arb(g, ci, c_);
 
-                prs<g.Vdd, g.GND> {
-                    ~u & (| : n : N : c_[n]) -> po+
-                    g.pReset | (| : n : N : co[n] & ~c_[n]) -> po-
+            prs<g.Vdd, g.GND> {
+                ~u & (| : n : N : c_[n]) -> po+
+                g.pReset | (| : n : N : co[n] & ~c_[n]) -> po-
+            
+                (: n : N :
+                    c_[n] & pi & ~u -> w.d[n]+
+                    g.pReset | u -> w.d[n]-
+                )
+
+                (| : n : N : w.d[n]) & ~pi -> u+
+                (& : n : N : ~co[n]) & ~po -> u-
                 
-                    (: n : N :
-                        c_[n] & pi & ~u -> w.d[n]+
-                        g.pReset | u -> w.d[n]-
-                    )
+                c_[0] & u & pi & (& : n : 1..N-1 : ~co[n]) -> co[0]+
+                (: n : 1..N-2:
+                    c_[n] & u & pi & 
+                    (& : nn : 0..n-1 : ~co[nn]) & 
+                    (& : nn : n+1..N-1 : ~co[nn]) -> co[n]+
+                )
+                c_[N-1] & u & pi & (& : n : 0..N-2 : ~co[n]) -> co[N-1]+
+                (: n : N :
+                    ~pi -> co[n]-
+                )
 
-                    (| : n : N : w.d[n]) & ~pi -> u+
-                    (& : n : N : ~co[n]) & ~po -> u-
-                    
-                    c_[0] & u & pi & (& : n : 1..N-1 : ~co[n]) -> co[0]+
-                    (: n : 1..N-2:
-                        c_[n] & u & pi & 
-                        (& : nn : 0..n-1 : ~co[nn]) & 
-                        (& : nn : n+1..N-1 : ~co[nn]) -> co[n]+
-                    )
-                    c_[N-1] & u & pi & (& : n : 0..N-2 : ~co[n]) -> co[N-1]+
-                    (: n : N :
-                        ~pi -> co[n]-
-                    )
-
-                    (: n : N :
-                        (| : nc : N : c[nc].d[n]) | w.d[n] => p.d[n]+
-                    )
-                }
-            // */
-            /*--------------------------------------------------------------*/
-            /* // reference
-                bool c_[N], q[N], u;
-                c1of<N> w;
-                ::arbiter::N_ARB_S<N> arb(g, ci, c_);
-
-                prs<g.Vdd, g.GND> {
-                    c_[0] & ~co[1] -> q[0]+
-                    g.pReset | ~c_[0] & co[0] -> q[0]-
-                    c_[1] & ~co[0] -> q[1]+
-                    g.pReset | ~c_[1] & co[1] -> q[1]-
-
-                    (| : n : N : q[n]) -> po+
-                    (& : n : N : ~q[n]) -> po-
-                
-                    (: n : N :
-                        q[n] & pi & ~u -> w.d[n]+
-                        g.pReset | u -> w.d[n]-
-                    )
-
-                    (| : n : N : w.d[n]) & ~pi -> u+
-                    ~po -> u-
-                    
-                    (: nc : N :
-                        q[nc] & u & pi -> co[nc]+
-                        (~u | (| : n : N : p.d[n])) & ~pi -> co[nc]-
-                    )
-
-                    (: n : N :
-                        (| : nc : N : c[nc].d[n]) | w.d[n] => p.d[n]+
-                    )
-                }
-            */
-            /*--------------------------------------------------------------*/
+                (: n : N :
+                    (| : nc : N : c[nc].d[n]) | w.d[n] => p.d[n]+
+                )
+            }
         }
 
         export
         template <pint N>
         defproc LEAF (globals g; bool ci[N], co[N], pi, po; c1of<N> p) {
-            // leaf node of aext tree
-            /*--------------------------------------------------------------*/
-            // /* // development
-                bool c[N], u;
-                ::arbiter::N_ARB_S<N> arb(g, ci, c);
+            // AEXT tree LEAF
+            bool c[N], u;
+            ::arbiter::N_ARB_S<N> arb(g, ci, c);
 
-                prs<g.Vdd, g.GND> {
-                    ~u & (| : n : N : c[n]) -> po+
-                    g.pReset | (| : n : N : co[n] & ~c[n]) -> po-
+            prs<g.Vdd, g.GND> {
+                ~u & (| : n : N : c[n]) -> po+
+                g.pReset | (| : n : N : co[n] & ~c[n]) -> po-
+            
+                (: n : N :
+                    c[n] & pi & ~u -> p.d[n]+
+                    g.pReset | u -> p.d[n]-
+                )
+
+                (| : n : N : p.d[n]) & ~pi -> u+
+                (& : n : N : ~co[n]) & ~po -> u-
                 
-                    (: n : N :
-                        c[n] & pi & ~u -> p.d[n]+
-                        g.pReset | u -> p.d[n]-
-                    )
-
-                    (| : n : N : p.d[n]) & ~pi -> u+
-                    (& : n : N : ~co[n]) & ~po -> u-
-                    
-                    c[0] & u & pi & (& : n : 1..N-1 : ~co[n]) -> co[0]+
-                    (: n : 1..N-2:
-                        c[n] & u & pi & 
-                        (& : nn : 0..n-1 : ~co[nn]) & 
-                        (& : nn : n+1..N-1 : ~co[nn]) -> co[n]+
-                    )
-                    c[N-1] & u & pi & (& : n : 0..N-2 : ~co[n]) -> co[N-1]+
-                    (: n : N :
-                        ~pi -> co[n]-
-                    )
-                }
-            // */
-            /*--------------------------------------------------------------*/
-            /* // reference
-                bool c[N], q[N], u;
-                ::arbiter::N_ARB_S<N> arb(g, ci, c);
-
-                prs<g.Vdd, g.GND> {
-                    c[0] & ~co[1] -> q[0]+
-                    g.pReset | ~c[0] & co[0] -> q[0]-
-                    c[1] & ~co[0] -> q[1]+
-                    g.pReset | ~c[1] & co[1] -> q[1]-
-
-                    (| : n : N : q[n]) -> po+
-                    (& : n : N : ~q[n]) -> po-
-                
-                    (: n : N :
-                        q[n] & pi & ~u -> p.d[n]+
-                        g.pReset | u -> p.d[n]-
-                    )
-
-                    (| : n : N : p.d[n]) & ~pi -> u+
-                    ~po -> u-
-                    
-                    (: n : N :
-                        q[n] & u & pi -> co[n]+
-                        ~u & ~pi -> co[n]-
-                    )
-                }
-            */
+                c[0] & u & pi & (& : n : 1..N-1 : ~co[n]) -> co[0]+
+                (: n : 1..N-2:
+                    c[n] & u & pi & 
+                    (& : nn : 0..n-1 : ~co[nn]) & 
+                    (& : nn : n+1..N-1 : ~co[nn]) -> co[n]+
+                )
+                c[N-1] & u & pi & (& : n : 0..N-2 : ~co[n]) -> co[N-1]+
+                (: n : N :
+                    ~pi -> co[n]-
+                )
+            }
         }
     } // namespace transmitter
 
