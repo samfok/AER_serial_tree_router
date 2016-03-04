@@ -52,7 +52,7 @@
      inkscape:window-width="1600"
      inkscape:window-height="876"
      inkscape:window-x="0"
-     inkscape:window-y="174"
+     inkscape:window-y="24"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata5826">
@@ -62,7 +62,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -149,7 +149,7 @@
          y="222.87549"
          x="192.08554"
          id="tspan6593"
-         sodipodi:role="line">pi</tspan></text>
+         sodipodi:role="line">pΦ</tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text6595"

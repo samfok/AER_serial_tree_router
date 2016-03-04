@@ -13,8 +13,8 @@
    height="214.97144"
    id="svg5821"
    version="1.1"
-   inkscape:version="0.48.3.1 r9886"
-   sodipodi:docname="aext_node.svg">
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="aext_leaf.svg">
   <defs
      id="defs5823">
     <marker
@@ -49,9 +49,9 @@
      fit-margin-left="10"
      fit-margin-right="10"
      fit-margin-bottom="5"
-     inkscape:window-width="2560"
-     inkscape:window-height="1576"
-     inkscape:window-x="2560"
+     inkscape:window-width="1600"
+     inkscape:window-height="876"
+     inkscape:window-x="0"
      inkscape:window-y="24"
      inkscape:window-maximized="1" />
   <metadata
@@ -93,63 +93,63 @@
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="161.63034"
+       x="157.63034"
        y="323.58154"
        id="text6489"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan6491"
-         x="161.63034"
+         x="157.63034"
          y="323.58154"
-         style="font-size:12px">c0i</tspan></text>
+         style="font-size:12px">c0Φ</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="182.08554"
+       x="184.08554"
        y="323.47607"
        id="text6489-6"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan6491-8"
-         x="182.08554"
+         x="184.08554"
          y="323.47607"
          style="font-size:12px">c0o</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="221.93744"
+       x="217.93744"
        y="323.58154"
        id="text6489-8"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan6491-5"
-         x="221.93744"
+         x="217.93744"
          y="323.58154"
-         style="font-size:12px">c1i</tspan></text>
+         style="font-size:12px">c1Φ</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="242.41295"
+       x="244.41295"
        y="323.39697"
        id="text6489-6-6"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan6491-8-2"
-         x="242.41295"
+         x="244.41295"
          y="323.39697"
          style="font-size:12px">c1o</tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text6587"
        y="222.87549"
-       x="171.63034"
+       x="169.63034"
        style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
        xml:space="preserve"><tspan
          style="font-size:12px"
          y="222.87549"
-         x="171.63034"
+         x="169.63034"
          id="tspan6589"
-         sodipodi:role="line">po</tspan></text>
+         sodipodi:role="line">pΦ</tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text6591"

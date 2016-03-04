@@ -29,40 +29,40 @@
 
 \node [transition] (yi+) [left=of yi+xo+, label=above:$y_i$] {}
     edge [post] (yi+xo+);
-\node [place] (yo+yi+) [left=of yi+] {}
+\node [place] (yphi+yi+) [left=of yi+] {}
     edge [post] (yi+);
 
-\node [transition] (yo+) [left=of yo+yi+, label=above:$y_o\!\uparrow$] {}
-    edge [post] (yo+yi+);
-\node [place] (xi+yo+) [left=of yo+] {}
-    edge [post] (yo+);
+\node [transition] (yphi+) [left=of yphi+yi+, label=above:$y\phi\!\uparrow$] {}
+    edge [post] (yphi+yi+);
+\node [place] (xphi+yphi+) [left=of yphi+] {}
+    edge [post] (yphi+);
 
-\node [transition] (xi+) [left=of xi+yo+, label=above:$x_i$] {}
-    edge [post] (xi+yo+);
-\node (x0) [below=of xi+] {};
-\node [place] (xo-xi+) [left= of x0] {}
-    edge [post, bend right=30] (xi+);
-\node [token] at (xo-xi+) {};
+\node [transition] (xphi+) [left=of xphi+yphi+, label=above:$x\phi$] {}
+    edge [post] (xphi+yphi+);
+\node (x0) [below=of xphi+] {};
+\node [place] (xo-xphi+) [left= of x0] {}
+    edge [post, bend right=30] (xphi+);
+\node [token] at (xo-xphi+) {};
 
 % reset branch
-\node [transition] (xi-) [below=of l, label=above:$\neg x_i$] {}
+\node [transition] (xphi-) [below=of l, label=above:$\neg x\phi$] {}
     edge [pre, bend left=30] (ready);
-\node [place] (xi-yo-) [left=of xi-] {}
-    edge [pre] (xi-);
+\node [place] (xphi-yphi-) [left=of xphi-] {}
+    edge [pre] (xphi-);
 
-\node [transition] (yo-) [left=of xi-yo-, label=above:$y_o\!\downarrow$] {}
-    edge [pre] (xi-yo-);
-\node [place] (yo-yi-) [left=of yo-] {}
-    edge [pre] (yo-);
+\node [transition] (yphi-) [left=of xphi-yphi-, label=above:$y\phi\!\downarrow$] {}
+    edge [pre] (xphi-yphi-);
+\node [place] (yphi-yi-) [left=of yphi-] {}
+    edge [pre] (yphi-);
 
-\node [transition] (yi-) [left=of yo-yi-, label=above:$\neg y_i$] {}
-    edge [pre] (yo-yi-);
+\node [transition] (yi-) [left=of yphi-yi-, label=above:$\neg y_i$] {}
+    edge [pre] (yphi-yi-);
 \node [place] (yi-xo-) [left=of yi-] {}
     edge [pre] (yi-);
 
 \node [transition] (xo-) [left=of yi-xo-, label=above:$x_o\!\downarrow$] {}
     edge [pre] (yi-xo-)
-    edge [post, bend right=30] (xo-xi+);
+    edge [post, bend right=30] (xo-xphi+);
 
 
 % data branch
