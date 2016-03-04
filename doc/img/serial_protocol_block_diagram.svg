@@ -13,7 +13,7 @@
    height="80.285698"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.3.1 r9886"
+   inkscape:version="0.48.4 r9939"
    sodipodi:docname="serial_protocol_block_diagram.svg">
   <defs
      id="defs4">
@@ -54,7 +54,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.8"
-     inkscape:cx="237.43332"
+     inkscape:cx="163.68332"
      inkscape:cy="108.01303"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -63,10 +63,10 @@
      fit-margin-left="10"
      fit-margin-right="10"
      fit-margin-bottom="10"
-     inkscape:window-width="2560"
-     inkscape:window-height="1576"
-     inkscape:window-x="2560"
-     inkscape:window-y="24"
+     inkscape:window-width="1600"
+     inkscape:window-height="876"
+     inkscape:window-x="0"
+     inkscape:window-y="174"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata7">
@@ -76,7 +76,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -153,7 +153,7 @@
          y="214.32648"
          x="85.10218"
          id="tspan4646"
-         sodipodi:role="line">yo</tspan></text>
+         sodipodi:role="line">yΦ</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
@@ -203,7 +203,7 @@
            y="214.32648"
            x="140.46429"
            id="tspan3763"
-           sodipodi:role="line">xi</tspan></text>
+           sodipodi:role="line">xΦ</tspan></text>
       <text
          xml:space="preserve"
          style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
@@ -251,7 +251,7 @@
            y="214.32648"
            x="222.07172"
            id="tspan3779"
-           sodipodi:role="line">yo</tspan></text>
+           sodipodi:role="line">yΦ</tspan></text>
       <text
          xml:space="preserve"
          style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
@@ -303,7 +303,7 @@
            id="tspan4664"
            x="343.47443"
            y="214.32648"
-           style="font-size:10px">xi</tspan></text>
+           style="font-size:10px">xΦ</tspan></text>
       <text
          sodipodi:linespacing="125%"
          id="text4666"
