@@ -1,0 +1,124 @@
+\documentclass{article}
+\usepackage{mystyle}
+
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Source}
+
+\subsection*{CHP}
+
+\begin{csp}
+*[[~u->Y!\phi;u+
+  []u->[true->Y!0
+         \|true->Y!1
+         \|true->Y!\neg\phi;u-
+         ]
+ ]]
+\end{csp}
+
+\subsection*{HSE}
+
+\begin{hse}
+*[[~u->y\phi+;[yi];u+
+  []u->[true->y0+;[~yi];y0-;[yi]
+         \|true->y1+;[~yi];y1-;[yi]
+         \|true->y\phi-;[~yi];u-
+         ]
+ ]]
+\end{hse}
+
+\subsection*{PRS}
+
+\begin{prs2}
+~u -> y\phi+
+yi & u  -> y\phi-
+\end{prs2}
+
+\begin{prs2}
+u & yi -> y0+
+~yi -> y0-
+
+u & yi -> y1+
+~yi -> y1-
+\end{prs2}
+
+\begin{prs2}
+y\phi & yi -> u+
+~y\phi & ~yi -> u-
+\end{prs2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Buffer}
+
+\subsection*{CHP}
+
+\begin{csp}
+*[[#{X=\phi}->Y!X?
+  []#{X=0}|#{X=1}->Y!X?
+  []#{X=\neg\phi}->Y!X?
+ ]]
+\end{csp}
+
+\subsection*{HSE}
+
+\begin{hse}
+*[[x\phi->y\phi+;[yi];xo+
+  []x0->y0+;[~yi];xo-;[~x0];y0-;[yi];xo+
+  []x1->y1+;[~yi];xo-;[~x1];y1-;[yi];xo+
+  []~x\phi->y\phi-;[~yi];xo-
+ ]]
+\end{hse}
+
+\subsection*{PRS}
+
+\begin{prs2}
+x\phi -> y\phi+
+~x\phi -> y\phi-
+\end{prs2}
+
+\begin{prs2}
+yi -> xo+
+~yi -> xo-
+\end{prs2}
+
+\begin{prs2}
+x0 -> y0+
+~x0 -> y0-
+
+x1 -> y1+
+~x1 -> y1-
+\end{prs2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Sink}
+
+\subsection*{CHP}
+
+\begin{csp}
+*[[#{X=\phi}->X?
+  []#{X=0}|#{X=1}->X?
+  []#{X=\neg\phi}->X?
+ ]]
+\end{csp}
+
+\subsection*{HSE}
+
+\begin{hse}
+*[[x\phi->xo+
+  []x0->xo-;[~x0];xo+
+  []x1->xo-;[~x1];xo+
+  []~x\phi->xo-
+ ]]
+\end{hse}
+
+\subsection*{PRS}
+
+\begin{prs2}
+x\phi & ~x0 & ~x1 -> xo+
+~x\phi | x0 | x1 -> xo-
+\end{prs2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}
