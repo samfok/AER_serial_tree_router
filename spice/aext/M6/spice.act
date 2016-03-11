@@ -1,0 +1,72 @@
+import "serial_aer.act";
+
+export defproc wrapper(globals_np g_np; a1of<1> src; eMx1of4<6> snk)
+{
+    bool Vdd;
+    bool GND;
+    pint M = 6;
+    pint N = 4;
+    pint NN = 4096;
+
+    globals g;
+    aer::transmitter::NODE<N, 1> root(g,,,,,,);
+    aer::transmitter::NODE<N, 0> node[4];
+    aer::transmitter::LEAF<N, 0> leaf(g,,, node[0].co[0], node[0].ci[0], node[0]._c[0]);
+    aer::interface::OUT_a1ofN<N> out(g, root.po, root.pi, root._p,);
+    aer::interface::DESERIAL_RING<M, N> deserial(g, out.y,);
+    (; m : 4 : 
+        node[m].g = g;
+    )
+
+    // rails and reset
+    g.Vdd = Vdd;
+    g.GND = GND;
+    prs <Vdd, GND> {
+        g_np._sReset<20> => g.sReset-
+        g_np._pReset<20> => g.pReset-
+    }
+    g._pReset = g_np._pReset;
+    g._sReset = g_np._sReset;
+
+    // connect src
+    src.d[0] = leaf.ci[0];
+    src.a = leaf.co[0];
+
+    // connect snk
+    (; m : M :
+        deserial.y.b[m].d = snk.b[m].d;
+    )
+    deserial.y.e = snk.e;
+
+    // connect nodes
+    (; m : 0..2 :
+        node[m].po = node[m+1].ci[0];
+        node[m].pi = node[m+1].co[0];
+        node[m]._p = node[m+1]._c[0];
+    )
+
+    node[3].pi = root.co[0];
+    node[3].po = root.ci[0];
+    node[3]._p = root._c[0];
+
+    // connect dangling ports
+    (; m : 0..3 :
+        (; n : 1..N-1 :
+            GND = node[m].ci[n];
+            (; d : N :
+                Vdd = node[m]._c[n].d[d];
+            )
+        )
+    )
+    (; n : 1..N-1 :
+        GND = leaf.ci[n];
+        GND = root.ci[n];
+        (; d : N :
+            Vdd = root._c[n].d[d];
+        )
+    )
+}
+
+wrapper dut;
+
+
