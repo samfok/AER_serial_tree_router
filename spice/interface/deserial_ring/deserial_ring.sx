@@ -1,9 +1,9 @@
 ### Custom WaveView session file (version K-2015.06 build 05/23/15) ###
-### saved at 13:07:26 on Fri Feb 19 2016 ###
+### saved at 14:51:37 on Thu Feb 25 2016 ###
 wdf 0 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/interface/deserial_ring/M6/hsim.fsdb" load=used "title=M6" 
 wdf 1 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/interface/deserial_ring/M4/hsim.fsdb" load=used "title=M4" 
 scalar list
-waveview_begin 4  stack  offset=0 name_b=310 mntr_b=310 name_width=295 dm=slew:927:114:1:1:0:9e-01:1e-01:0e+00:0e+00:0:1.33598489906537e-08:1e-01:1.33296541428813e-08:9e-01:0:0e+00:0e+00 "name=M6" 
+waveview_begin 1  stack  offset=0 name_b=310 mntr_b=310 name_width=295 dm=slew:927:124:1:1:0:9e-01:1e-01:0e+00:0e+00:0:1.33598489906537e-08:1e-01:1.33296541428813e-08:9e-01:0:0e+00:0e+00 "name=M6" 
   panel_begin linear pidx=0 spath=name+file xlabel=sec xmin=9.88553590010406e-09 xmax=2e-08 
     line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=v(snk_2b_05_1_2d_00_1_dut)" attr=6:0:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=v(snk_2b_05_1_2d_01_1_dut)" attr=7:1:1:0 autoset=true disp=show 
@@ -57,7 +57,7 @@ waveview_begin 4  stack  offset=0 name_b=310 mntr_b=310 name_width=295 dm=slew:9
     line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xdeserial.v(node_00_1_2__si)" attr=2:4:1:0 autoset=true disp=show 
   panel_end
 waveview_end
-waveview_begin 5  stack  offset=0 name_b=278 mntr_b=278 name_width=263 dm=slew:756:109:1:1:0:9e-01:1e-01:0e+00:0e+00:0:1.22186626614882e-08:1e-01:1.21879354991712e-08:9e-01:0:0e+00:0e+00 "name=M4" 
+waveview_begin 2  stack  offset=0 name_b=278 mntr_b=278 name_width=263 dm=slew:434:515:1:1:0:9e-01:1e-01:0e+00:0e+00:4:1.04559043532876e-08:1e-01:1.04242213185901e-08:9e-01:0:0e+00:0e+00 "name=M4" 
   panel_begin linear pidx=0 spath=name+file xlabel=sec xmin=9.85670419651996e-09 xmax=1.99897645854657e-08 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=v(snk_2b_03_1_2d_00_1_dut)" attr=4:3:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=1 "delim=." sigtype=1 "name=v(snk_2b_03_1_2d_01_1_dut)" attr=5:0:1:0 autoset=true disp=show 
@@ -83,7 +83,7 @@ waveview_begin 5  stack  offset=0 name_b=278 mntr_b=278 name_width=263 dm=slew:7
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=v(src_2a_dut)" attr=0:7:1:0 autoset=true disp=show 
   panel_end
   panel_begin linear pidx=5 spath=name+file xlabel=sec xmin=9.85670419651996e-09 xmax=1.99897645854657e-08 
-    line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xdeserial.v(split_2or_2__i_00_1)" attr=3:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xdeserial.v(split_2__y_00_1_2a)" attr=4:2:1:0 autoset=true disp=show 
   panel_end
   panel_begin linear pidx=6 spath=name+file xlabel=sec xmin=9.85670419651996e-09 xmax=1.99897645854657e-08 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xdeserial.v(node_03_1_2__so)" attr=5:1:1:0 autoset=true disp=show 

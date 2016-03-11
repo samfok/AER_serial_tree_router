@@ -459,6 +459,7 @@ namespace aer {
     }
 
     namespace transmitter {
+        export
         template <pint N, root>
         defproc NODE (globals g; bool ci[N], co[N], pi, po; c1of<N> _c[N], _p) {
             // AEXT tree NODE
