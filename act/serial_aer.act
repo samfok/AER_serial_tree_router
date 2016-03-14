@@ -705,199 +705,48 @@ namespace aer {
     namespace receiver {
         export
         template <pint F, D>
-        defproc NODE (globals g; bool pi, po, ci[F], co[F]; c1of<D> p, c[F]) {
+        defproc NODE (globals g; bool _pi, _po, _ci[F], _co[F]; c1of<D> p, c[F]) {
             // AERV tree NODE
             // F fanout (radix)
             // D 1-of-D data
-            bool _po, u[F], _co[F], cco, _cco, __cco, _cci, __cci, _uu;
+            bool u[F], _u[F], uu, _v, __v, po;
             c1of<D> _p;
-            [ ~LAYOUT ->
-                prs<g.Vdd, g.GND> {
-                    _cci => __cci-
+            prs<g.Vdd, g.GND> {
+                (: f : F :
+                    u[f] => _u[f]-
+                )
 
-                    cco => _cco-
+                (| : f : F : ~_u[f]) => uu+
 
-                    (pi & _cco | __cci) & _uu => _po-
+                ~_pi & ~uu | (| : f : F : ~_ci[f]) => po+
 
+                _v => __v-
+
+                (: d : D :
+                    p.d[d] => _p.d[d]-
+                )
+
+                (: f : F :
+                    ~_p.d[f] & ~__v -> u[f]+
+                    _pi -> u[f]-
+                )
+
+                uu & (& : f : F : _p.d[f]) -> _v-
+                ~uu -> _v+
+
+                (: f : F :
+                    __v & u[f] => _co[f]-
+                )
+
+                (: f : F :
                     (: d : D :
-                        p.d[d] => _p.d[d]-
+                        ~_p.d[d] & ~_co[f] => c[f].d[d]+
                     )
-
-                    _cco => __cco-
-
-                    (: f : F :
-                        ~_p.d[f] & ~__cco -> u[f]+
-                        g.pReset | __cco -> u[f]-
-                    )
-
-                    (| : f : F : u[f]) => _uu-
-
-                    (: f : F :
-                        u[f] & _p.d[f] -> _co[f]-
-                        ~pi -> _co[f]+
-                    )
-
-                    (& : f : F : _co[f]) => cco-
-
-                    (| : f : F : ci[f]) => _cci-
-
-                    (: f : F :
-                        (: d : D :
-                            ~_co[f] & ~_p.d[d] => c[f].d[d]+
-                        )
-                    )
-                }
-                prs<g.Vdd, g.GND> {
-                    (: f : F :
-                        _co[f] => co[f]-
-                    )
-
-                    _po => po-
-                }
-            [] LAYOUT ->
-                prs<g.Vdd, g.GND> {
-                    ~_cci<12> -> __cci+
-                    _cci<6> -> __cci-
-
-                    ~cco<12> -> _cco+
-                    cco<9> -> _cco-
-
-                    (pi<18> & _cco<18> | __cci<12>) & _uu<12> -> _po-
-                    (~pi<22> | ~_cco<22>) & ~__cci<22> | ~_uu<12> -> _po+
-
-                    (: d : D :
-                        ~p.d[d]<16> -> _p.d[d]+
-                        p.d[d]<12> -> _p.d[d]-
-                    )
-
-                    ~_cco<14> -> __cco+
-                    _cco<10> -> __cco-
-
-                    (: f : F :
-                        ~__cco<25> & ~_p.d[f]<25> -> u[f]+
-                        g.pReset | __cco<9> -> u[f]-
-                    )
-
-                    (| : f : F : u[f]<9>) -> _uu-
-                    (& : f : F : ~u[f]<36>) -> _uu+
-
-                    (: f : F :
-                        _p.d[f]<22> & u[f]<22>  -> _co[f]-
-                        ~pi<26> -> _co[f]+
-                    )
-
-                    (| : f : F : ~_co[f]<16>) -> cco+
-                    (& : f : F : _co[f]<24>) -> cco-
-
-                    (| : f : F : ci[f]<8>) -> _cci-
-                    (& : f : F : ~ci[f]<34>) -> _cci+
-
-                    (: f : F :
-                        (: d : D :
-                            ~_co[f]<24> & ~_p.d[d]<24> -> c[f].d[d]+
-                            _co[f]<12> | _p.d[d]<12> -> c[f].d[d]-
-                        )
-                    )
-                }
-                prs<g.Vdd, g.GND> {
-                    (: d : D :
-                        ~_co[d]<15> -> co[d]+
-                        _co[d]<9> -> co[d]-
-                    )
-
-                    ~_po<12> -> po+
-                    _po<9> -> po-
-                }
-            ]
-        }
-
-        export
-        template <pint F, D>
-        defproc LEAF (globals g; bool pi, po, ci[F]; c1of<D> p, c[F]) {
-            // AERV tree LEAF
-            // F fanout (number of clients)
-            // D 1-of-D data
-            bool _pi, _u[F], cc[F], _ccc, _cci, __cci, uu;
-            c1of<D> _c[F];
-            [ ~LAYOUT ->
-                prs<g.Vdd, g.GND> {
-                    pi => _pi-
-
-                    _cci => __cci-
-
-                    (~_pi | ~_ccc) & ~uu & ~__cci => po+
-
-                    (: f : F :
-                        _ccc & p.d[f] -> _u[f]-
-                        ~g._pReset | ~_ccc -> _u[f]+
-                    )
-                    (& : f : F : _u[f]) => uu-
-
-                    (: f : F :
-                        ~_u[f] & ~p.d[f] -> cc[f]+
-                        _pi -> cc[f]-
-                    )
-                    (| : f : F : cc[f]) => _ccc-
-
-                    (| : f : F : ci[f]) => _cci-
-
-                    (: f : F :
-                        (: d : D :
-                            cc[f] & p.d[d] => _c[f].d[d]-
-                        )
-                    )
-                }
-                prs<g.Vdd, g.GND> {
-                    (: f : F :
-                        (: d : D :
-                            _c[f].d[d] => c[f].d[d]-
-                        )
-                    )
-                }
-            [] LAYOUT ->
-                prs<g.Vdd, g.GND> {
-                    ~pi<14> -> _pi+
-                    pi<8> -> _pi-
-
-                    ~_cci<12> -> __cci+
-                    _cci<9> -> __cci-
-
-                    (~_pi<36> | ~_ccc<30>) & ~uu<27> & ~__cci<27> -> po+
-                    _pi<18> & _ccc<18> | uu<9> | __cci<9> -> po-
-
-                    (: f : F :
-                        _ccc<15> & p.d[f]<15> -> _u[f]-
-                        ~g._pReset | ~_ccc<15> -> _u[f]+
-                    )
-                    (| : f : F : ~_u[f]<14>) -> uu+
-                    (& : f : F : _u[f]<18>) -> uu-
-
-                    (: f : F :
-                        ~_u[f]<34> & ~p.d[f]<34> -> cc[f]+
-                        _pi<12> -> cc[f]-
-                    )
-                    (| : f : F : cc[f]<9>) -> _ccc-
-                    (& : f : F : ~cc[f]<36>) -> _ccc+
-
-                    (| : f : F : ci[f]<6>) -> _cci-
-                    (& : f : F : ~ci[f]<36>) -> _cci+
-
-                    (: f : F :
-                        (: d : D :
-                            cc[f]<15> & p.d[d]<15> -> _c[f].d[d]-
-                            ~cc[f]<12> | ~p.d[d]<12> -> _c[f].d[d]+
-                        )
-                    )
-                }
-                prs<g.Vdd, g.GND> {
-                    (: f : F :
-                        (: d : D :
-                            ~_c[f].d[d]<10> -> c[f].d[d]+
-                            _c[f].d[d]<6> -> c[f].d[d]-
-                        )
-                    )
-                }
-            ]
+                )
+            }
+            prs<g.Vdd, g.GND> {
+                po => _po-
+            }
         }
 
         export
@@ -957,33 +806,75 @@ namespace aer {
                 }
             ]
         }
+
+        export
+        template <pint M, F_INT, F_LEAF, T, D>
+        defproc AERV_ (globals g; bool _yi[T], _yo[T], _pi, _po; c1of<D> y[T], p) {
+            // utility for AERV
+            [ M = 1 ->
+                NODE<F_LEAF, D> leaf(g, _pi, _po, _yi, _yo, p, y);
+            [] M > 1 ->
+                AERV_<M-1, F_INT, F_LEAF, T/F_INT, D> _[F_INT];
+                NODE<F_INT, D> node(g, _pi, _po,,, p,);
+                pint k = T/F_INT;
+                (; f : F_INT :
+                    _[f].g = g;
+                    _[f].p = node.c[f];
+                    _[f]._pi = node._co[f];
+                    _[f]._po = node._ci[f];
+                    _[f]._yi = _yi[f*k..(f+1)*k-1];
+                    _[f]._yo = _yo[f*k..(f+1)*k-1];
+                    _[f].y = y[f*k..(f+1)*k-1];
+                )
+            ]
+        }
+
+        export
+        template <pint M, N, NN>
+        defproc AERV_NODATA_ (globals g; bool yi[NN], yo[NN], _pi, _po; c1of<N> p) {
+            // utility for AERV_NODATA
+            [ M = 1 ->
+                NN = N;
+                LEAF_NODATA<N> leaf(g,,, yi, yo, p);
+                prs<g.Vdd, g.GND> {
+                    _pi => leaf.pi-
+                    leaf.po => _po-
+                }
+            [] M > 1 ->
+                AERV_NODATA_<M-1, N, NN/N> _[N];
+                NODE<N, N> node(g, _pi, _po,,, p,);
+                pint k = NN/N;
+                (; n : N :
+                    _[n].g = g;
+                    _[n].p = node.c[n];
+                    _[n]._pi = node._co[n];
+                    _[n]._po = node._ci[n];
+                    _[n].yi = yi[n*k..(n+1)*k-1];
+                    _[n].yo = yo[n*k..(n+1)*k-1];
+                )
+            ]
+        }
+
     } // namespace receiver
 
     export
     template <pint M, F_INT, F_LEAF, T, D>
-    defproc AERV (globals g; bool yi[T], pi, po; c1of<D> y[T], p) {
+    defproc AERV (globals g; bool yi[T], yo[T], pi, po; c1of<D> y[T], p) {
         // receiver capable of sending data to neuron
         // M tree levels
         // F_INT intermediate node fanout (radix)
         // F_LEAF leaf node fanout (radix)
         // T targets. T = F_LEAF * F_INT^(M-1)
         // D 1-of-D data
-        [ M = 1 ->
-            T = F_LEAF;
-            receiver::LEAF<F_LEAF, D> leaf(g, pi, po, yi, p, y);
-        [] M > 1 ->
-            AERV<M-1, F_INT, F_LEAF, T/F_INT, D> _[F_INT];
-            receiver::NODE<F_INT, D> node(g, pi, po,,, p,);
-            pint k = T/F_INT;
-            (; f : F_INT :
-                _[f].g = g;
-                _[f].p = node.c[f];
-                _[f].pi = node.co[f];
-                _[f].po = node.ci[f];
-                _[f].yi = yi[f*k..(f+1)*k-1];
-                _[f].y = y[f*k..(f+1)*k-1];
+        receiver::AERV_<M, F_INT, F_LEAF, T, D> _(g,,,,, y, p);
+        prs<g.Vdd, g.GND> {
+            (: t : T :
+                yi[t] => _._yi[t]-
+                _._yo[t] => yo[t]-
             )
-        ]
+            pi => _._pi-
+            _._po => po-
+        }
     }
 
     export
@@ -995,19 +886,25 @@ namespace aer {
             NN = N;
             receiver::LEAF_NODATA<N> leaf(g, pi, po, yi, yo, p);
         [] M > 1 ->
-            AERV_NODATA<M-1, N, NN/N> _[N];
-            receiver::NODE<N, N> node(g, pi, po,,, p,);
-            pint k = NN/N;
-            (; n : N :
-                _[n].g = g;
-                _[n].p = node.c[n];
-                _[n].pi = node.co[n];
-                _[n].po = node.ci[n];
-                _[n].yi = yi[n*k..(n+1)*k-1];
-                _[n].yo = yo[n*k..(n+1)*k-1];
-            )
+            receiver::AERV_NODATA_<M, N, NN> _(g, yi, yo,,, p);
+            prs<g.Vdd, g.GND> {
+                pi => _._pi-
+                _._po => po-
+            }
         ]
     }
+
+    namespace brain_receiver {
+        export
+        template <pint C>
+        defproc MERGE_ACK (globals g; bool pp, po, ci[C]) {
+            // merges acknowledges from children with pphi acknowledge
+            // C clients
+            prs<g.Vdd, g.GND> {
+                pp & (& : c : C : ~ci[c]) => po+
+            }
+        }
+    } // namespace brain_receiver
 
     export
     template <pint M, M_SPK, M_MEM, N_SYN, N_MEM>
@@ -1065,18 +962,30 @@ namespace aer {
             )
             mem_deserial[n].y.e = y_mem[n].e;
         )
-
-        OR<2> or_a[N_SYN/2];
+        
+        brain_receiver::MERGE_ACK<2> ack_syn[N_SYN/2]; // ack syns
+        brain_receiver::MERGE_ACK<1> ack_mem[N_SYN/4]; // ack mems
         bool aerv_yi[AERV_TGTS];
+        bool aerv_yo[AERV_TGTS];
         (; n : N_SYN/2 :
-            or_a[n].g = g;
-            or_a[n].i[0] = y_syn[2*n].a;
-            or_a[n].i[1] = y_syn[2*n+1].a;
+            ack_syn[n].g = g;
+            // connect synapse ack to ack_syn
+            ack_syn[n].ci[0] = y_syn[2*n].a;
+            ack_syn[n].ci[1] = y_syn[2*n+1].a;
         )
         (; n : N_SYN/4 :
-            or_a[2*n].o = aerv_yi[3*n];
-            or_a[2*n+1].o = aerv_yi[3*n+1];
-            mem_deserial[n].x.a = aerv_yi[3*n+2];
+            // connect aerv pphi to ack_syn 
+            ack_syn[2*n].pp = aerv_yo[3*n];
+            ack_syn[2*n+1].pp = aerv_yo[3*n+1];
+            // connect ack_syn ack to aerv
+            ack_syn[2*n].po = aerv_yi[3*n];
+            ack_syn[2*n+1].po = aerv_yi[3*n+1];
+            // connect mem ack to ack_mem
+            ack_mem[n].ci[0] = mem_deserial[n].x.a;
+            // connect aerv pphi to ack_mem
+            ack_mem[n].pp = aerv_yo[3*n+2];
+            // connect ack_mem ack to aerv
+            ack_mem[n].po = aerv_yi[3*n+2];
         )
 
         c1of<D> aerv_y[AERV_TGTS];
@@ -1089,7 +998,7 @@ namespace aer {
         )
 
         AERV<M, F_INT, F_LEAF, AERV_TGTS, D> aerv(
-            g, aerv_yi, merge.yo, merge.yi, aerv_y, merge.y);
+            g, aerv_yi, aerv_yo, merge.yo, merge.yi, aerv_y, merge.y);
     }
 
     export
