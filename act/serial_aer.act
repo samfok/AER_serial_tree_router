@@ -854,22 +854,20 @@ namespace aer {
                 )
             ]
         }
-
     } // namespace receiver
 
     export
     template <pint M, F_INT, F_LEAF, T, D>
-    defproc AERV (globals g; bool yi[T], yo[T], pi, po; c1of<D> y[T], p) {
+    defproc AERV (globals g; bool _yi[T], yo[T], pi, po; c1of<D> y[T], p) {
         // receiver capable of sending data to neuron
         // M tree levels
         // F_INT intermediate node fanout (radix)
         // F_LEAF leaf node fanout (radix)
         // T targets. T = F_LEAF * F_INT^(M-1)
         // D 1-of-D data
-        receiver::AERV_<M, F_INT, F_LEAF, T, D> _(g,,,,, y, p);
+        receiver::AERV_<M, F_INT, F_LEAF, T, D> _(g, _yi,,,, y, p);
         prs<g.Vdd, g.GND> {
             (: t : T :
-                yi[t] => _._yi[t]-
                 _._yo[t] => yo[t]-
             )
             pi => _._pi-
@@ -897,11 +895,13 @@ namespace aer {
     namespace brain_receiver {
         export
         template <pint C>
-        defproc MERGE_ACK (globals g; bool pp, po, ci[C]) {
+        defproc MERGE_ACK (globals g; bool pp, _po, ci[C]) {
             // merges acknowledges from children with pphi acknowledge
             // C clients
+            bool _cci;
             prs<g.Vdd, g.GND> {
-                pp & (& : c : C : ~ci[c]) => po+
+                (& : c : C : ~ci[c]) => _cci+
+                pp & _cci => _po-
             }
         }
     } // namespace brain_receiver
@@ -965,7 +965,7 @@ namespace aer {
         
         brain_receiver::MERGE_ACK<2> ack_syn[N_SYN/2]; // ack syns
         brain_receiver::MERGE_ACK<1> ack_mem[N_SYN/4]; // ack mems
-        bool aerv_yi[AERV_TGTS];
+        bool aerv__yi[AERV_TGTS];
         bool aerv_yo[AERV_TGTS];
         (; n : N_SYN/2 :
             ack_syn[n].g = g;
@@ -978,14 +978,14 @@ namespace aer {
             ack_syn[2*n].pp = aerv_yo[3*n];
             ack_syn[2*n+1].pp = aerv_yo[3*n+1];
             // connect ack_syn ack to aerv
-            ack_syn[2*n].po = aerv_yi[3*n];
-            ack_syn[2*n+1].po = aerv_yi[3*n+1];
+            ack_syn[2*n]._po = aerv__yi[3*n];
+            ack_syn[2*n+1]._po = aerv__yi[3*n+1];
             // connect mem ack to ack_mem
             ack_mem[n].ci[0] = mem_deserial[n].x.a;
             // connect aerv pphi to ack_mem
             ack_mem[n].pp = aerv_yo[3*n+2];
             // connect ack_mem ack to aerv
-            ack_mem[n].po = aerv_yi[3*n+2];
+            ack_mem[n]._po = aerv__yi[3*n+2];
         )
 
         c1of<D> aerv_y[AERV_TGTS];
@@ -998,7 +998,7 @@ namespace aer {
         )
 
         AERV<M, F_INT, F_LEAF, AERV_TGTS, D> aerv(
-            g, aerv_yi, aerv_yo, merge.yo, merge.yi, aerv_y, merge.y);
+            g, aerv__yi, aerv_yo, merge.yo, merge.yi, aerv_y, merge.y);
     }
 
     export

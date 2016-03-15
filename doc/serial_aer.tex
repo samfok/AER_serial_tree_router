@@ -11,8 +11,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction \label{sec:intro}}
 
-The serial-data AER system interfaces between the neurons and the datapath
-circuitry. The system is responsible for the following:
+The serial-data AER system interfaces between the neurons in a neuron array
+and the datapath circuitry. The system is responsible for the following:
 \begin{itemize}
     \item Transmiting spike packets to the datapath when a neuron spikes. 
     \item Receiving spike packets from the datapath and delivering spikes
@@ -24,9 +24,20 @@ circuitry. The system is responsible for the following:
 \begin{figure}
     \centering
     \includegraphics[width=.95\textwidth]{img/aer_system.pdf}
-    \caption{Block diagram of AER system. Arrows indicate the direction of data flow.}
+    \caption{Block diagram of AER system. 
+    Arrows indicate the direction of data flow.}
     \label{fig:aer_system}
 \end{figure}
+
+Further, we fulfill our task subject to throughput and area constraints. Each
+neuron array contains 4096 neurons. Neurons in nengo have default maximum spike 
+rates between 200 and 400 spks/s. Using 400 spks/s as a worst-case
+estimate (from the AER system's perspective) of each neuron's spike rate,
+, we find that our system must support a throughput of at least 1.6 Mspks/s.
+Currently, we're budgeting 24.5$\mu$m$^2$ per neuron for AER circuitry. This
+may change depending on what Ben needs for the neuron. For area, we use a rule 
+of thumb that 10 transistors take up 1.4$\mu$m$^2$. Therefore, we budget
+175 transitors per neuron for the AER system.
 
 A simplified view of the AER system is shown in Figure~\ref{fig:aer_system}.
 The main components of the system are the transmitter (AEXT) and receiver (AERV).
@@ -365,6 +376,22 @@ c0 & u & pi & ~c1o -> c0o+
 c1 & u & pi & ~c0o -> c1o+
 ~u & ~pi -> c1o-
 \end{prs2}
+
+\noindent
+4-ary approximate accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $c[0,1,2,3]$ & 92 & 4-way unpipelined arbiter \\ \hline
+    $p_o$ & 17 & \\ \hline
+    $p[0,1,2,3]$ & 32 & \\ \hline
+    $u$ & 14 & \\ \hline
+    $c[0,1,2,3]_o$ & 48 & \\ \hline
+    \hline total & 203 & \\ \hline
+    \end{tabular}
+\end{center}
 
 \subsubsection*{CMOS-implementable PRS}
 
@@ -726,20 +753,22 @@ We simply present a normal-sense $p_i$, $p\phi$, and $p[0,1]$ interface to the e
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Receiver (AERV) \label{sec:AERV}}
 
-Like the transmitter, the receiver is internally organized as a 4-ary tree
-consisting of intermediate nodes (NODE) and leaf nodes (LEAF).
-However, the receiver's task is complicated by the need to deliver specific kinds
+Like the transmitter, the receiver is internally organized as a 4-ary tree.
+However, the receiver uses a single kind of node (NODE).
+The receiver's task is complicated by the need to deliver specific kinds
 of spikes (excitatory and inibitory) to the synapses as well as memory 
-configuration packets to the memory blocks associated with
-the synapses and neurons. The receiver tree structure is dictated by 
-its interface with the synapses and neuron/synapse configuration memory blocks. 
-To reduce overhead and support 1-of-4 deserializers 
-(see Section~\ref{sec:DESERIAL}), we bundle 
-2 synapses (8 neurons) into each of two LEAF ports and consolidate the 
-memory blocks for the 4 synapses (16 neurons) into a single memory:
+configuration packets to the syanpse and neuron memory blocks.
+The receiver tree structure is dictated by its interface with the synapses and 
+memory blocks. The NODEs at the leaves of the receiver have three output ports. 
+Two ports send spike packets to 2 synapses (8 neurons) each. The third port
+communicates with a memory block for the 4 synapses (16 neurons).
+Consolidating the memory for 4 synapses (16 neurons) reduces the overhead of 
+deserializers. Dedicating a port of the NODE to memory allow us to further 
+reduce overhead by using 1-of-4 coding in the deserializer 
+(see Section~\ref{sec:DESERIAL}):
 
 \begin{center}
-  \includegraphics[width=.4\textwidth]{img/recv_nrn_interface_2syn2_1mem16.pdf}
+  \includegraphics[width=.5\textwidth]{img/recv_nrn_interface_2syn2_1mem16.pdf}
 \end{center}
 
 \noindent
@@ -751,26 +780,29 @@ The receiver tree structure is given as follows:
         4 NODE & \\
         16 NODE & \\
         64 NODE & \\
-        256 LEAF & \\
+        256 NODE(3) & \\
         512 SYN2 & 256 DESERIAL \\
         & 256 MEM16 \\
     \end{tabular}
 \end{center}
 
 \begin{center}
-  \includegraphics[width=.7\textwidth]{img/aerv.pdf}
+  \includegraphics[width=.8\textwidth]{img/aerv.pdf}
 \end{center}
-Serialized packets from the datapath or router are received at the root of the tree.
-Datapath packets are destined to be sent to a synapse while router packets
-are destined to be sent to a memory block through a deserializer. Packets
+Serialized packets from the datapath or router are merged and received at the 
+root of the tree.
+Datapath packets are destined to a synapse, and router packets
+are destined to a memory block through a deserializer. Packets
 traverse down the tree. At each node, the head word of the packet is peeled
 off to set the direction to forward the rest of the packet.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{AERV NODE \label{sec:AERV_NODE}}
 
-The leaf node receives packets its parent and directs their payload to the
-child specified by the head word of the packet. 
+NODE receives packets from its parent and directs their payload to the
+child specified by the head word of the packet. Intermediate NODEs 
+are configured for 1-of-4 encoding and 4-ary fanout. Leaf NODEs are configured
+for 1-of-4 encoding and 3-ary fanout.
 The input/output ports are shown as follows:
 
 \begin{center}
@@ -795,7 +827,7 @@ Repeat {
 \subsubsection*{CHP}
 
 \begin{csp}
-*[[#{P=\phi}->P?;P?c;[c=0->C0!\phi[]c=1->C1!\phi]
+*[[#{P=\phi}->P?;[#{P=0}->P?c;C0!\phi[]#{P=1}->P?c;C1!\phi]
   [](#{P=0}|#{P=1})&c=0->C0!P?
   [](#{P=0}|#{P=1})&c=1->C1!P?
   []#{P=\neg\phi}&c=0->C0!P?
@@ -805,15 +837,12 @@ Repeat {
 
 \noindent
 To match the CHP to the psuedo-code, we start in the top branch. \\
-First, we wait for $\phi$ and consume it with $P?$.
-In the transmitter processes, we simply relayed the $\phi$ from the 
+First, we wait for $\phi$ and consume it with $P?$. $P?c$ then stores 
+the next word in $c$ as the child to target and is followed by $C0!\phi$ 
+or $C1!\phi$, which send $\phi$ to the targeted child. 
+Note that in the transmitter processes, we simply relay the $\phi$ from the 
 selected child to the parent. Here, we do not know where to send $\phi$
-until receiving the first data word of the packet. If we simply broadcast
-$\phi$ to all of the children, we would end up signaling the 
-entire receiver tree for each packet and burning excessive power. 
-Continuing, $P?c$ stores the next word in $c$ as the child to target, 
-and then based on $c$, $C0!\phi$ or $C1!\phi$ sends 
-$\phi$ to the targetd child. \\ 
+until receiving the first data word of the packet. \\ 
 The second and third branches relay data from the parent to the targeted child. \\
 The last two branches relay $\neg\phi$ to the targeted child. \\
 
@@ -822,15 +851,15 @@ The last two branches relay $\neg\phi$ to the targeted child. \\
 We implement the HSE
 
 \begin{hse}
-*[[p\phi&~c0\phi&~c1\phi->po+;
-    [p0->u0+;uu+;po-;[~p0];c0\phi+;cc\phi+;(u0-;uu-),([c0i];cci+);po+
-    []p1->u1+;uu+;po-;[~p1];c1\phi+;cc\phi+;(u1-;uu-),([c1i];cci+);po+
+*[[p\phi->po+;
+    [p0->u0+;uu+;po-;[~p0];v+;c0\phi+;[c0i];po+
+    []p1->u1+;uu+;po-;[~p1];v+;c1\phi+;[c1i];po+
     ]
-  []p0&c0\phi->c00+;[~c0i];cci-;po-;[~p0];c00-;[c0i];cci+;po+
-  []p1&c0\phi->c01+;[~c0i];cci-;po-;[~p1];c01-;[c0i];cci+;po+
-  []p0&c1\phi->c10+;[~c1i];cci-;po-;[~p0];c10-;[c1i];cci+;po+
-  []p1&c1\phi->c11+;[~c1i];cci-;po-;[~p1];c11-;[c1i];cci+;po+
-  []~p\phi->c0\phi-,c1\phi-;cc\phi-,([~c0i&~c1i];cci-;po-)
+  []p0&c0\phi->c00+;[~c0i];po-;[~p0];c00-;[c0i];po+
+  []p1&c0\phi->c01+;[~c0i];po-;[~p1];c01-;[c0i];po+
+  []p0&c1\phi->c10+;[~c1i];po-;[~p0];c10-;[c1i];po+
+  []p1&c1\phi->c11+;[~c1i];po-;[~p1];c11-;[c1i];po+
+  []~p\phi->u0-,u1-;uu-,(c0\phi-,c1\phi-;[~c0i&~c1i];po-),v-
  ]]
 \end{hse}
 
@@ -839,11 +868,8 @@ To get there, we first directly translate the CHP,
 
 \begin{hse}
 *[[p\phi->po+;
-    [p0->c0+,c1-;po-;[~p0];po+
-    []p1->c1+,c0-;po-;[~p1];po+
-    ];
-    [c0->c0\phi+;[c0i]
-    []c1->c1\phi+;[c1i]
+    [p0->c0+;po-;[~p0];po+;c0\phi+;[c0i]
+    []p1->c1+;po-;[~p1];po+;c1\phi+;[c1i]
     ]
   []p0&c0->c00+;[~c0i];po-;[~p0];c00-;[c0i];po+
   []p1&c0->c01+;[~c0i];po-;[~p1];c01-;[c0i];po+
@@ -855,84 +881,58 @@ To get there, we first directly translate the CHP,
 \end{hse}
 
 \noindent
-To match the HSE to the CHP, we start in the top branch. \\
-First, $p\phi\rightarrow p_o\uparrow$ implements the 2-phase $P?$.
-The next selection statement implements the 4-phase $P?c$ overlapped with the
-2-phase $C0!\phi$
-and $C1!\phi$. \\
-The next four HSE branches implement 4-phase, unpipelined expansions of 
-the second and third CHP branches. \\
-The last two HSE branches implement 2-phase expansions of the last two CHP 
-branches. \\
+The top branch in the HSE implements the top branch of the CHP. 2-phase
+handshakes implement the $P?$, $C0!\phi$, and $C1!\phi$ communications. 
+A 4-phase handshake implements $P?c$. The 2-phase handshakes will be 
+paired with 2-phase handshakes in the bottom two HSE branches, which
+implement the bottom two CHP branches, to return the process to its original
+state. \\
+The remaining four HSE branches implement the two CHP branches that relay
+data from the parent to the selected child.
 
-
-\noindent
-We overlap the $P?c$ with sending $\phi$ to the targeted child.
+Since the communications for $\neg\phi$ reset the process to its
+original state, we can combine the last two branches into one.
 
 \begin{hse}
 *[[p\phi->po+;
-    [p0->c0\phi+;c0+,c1-,[c0i];po-;[~p0];po+
-    []p1->c1\phi+;c1+,c0-,[c1i];po-;[~p1];po+
+    [p0->c0+;po-;[~p0];po+;c0\phi+;[c0i]
+    []p1->c1+;po-;[~p1];po+;c1\phi+;[c1i]
     ]
   []p0&c0->c00+;[~c0i];po-;[~p0];c00-;[c0i];po+
   []p1&c0->c01+;[~c0i];po-;[~p1];c01-;[c0i];po+
   []p0&c1->c10+;[~c1i];po-;[~p0];c10-;[c1i];po+
   []p1&c1->c11+;[~c1i];po-;[~p1];c11-;[c1i];po+
-  []~p\phi&c0->c0\phi-;[~c0i];po-
-  []~p\phi&c1->c1\phi-;[~c1i];po-
+  []\red{~p\phi->c0-,c1-;c0\phi-,c1\phi-;[~c0i&~c1i];po-}
  ]]
 \end{hse}
 
 \noindent
-We note that $c0\phi$ and $c1\phi$ provide the same state information as $c0$ and 
-$c1$. After being set with the first data word, $c0\phi$ and $c1\phi$ will not
-reset until $\neg\phi$ is received. Therefore, we eliminate $c0$ and $c1$
-and rely on $c0\phi$ and $c1\phi$ for indicating which child is targeted.
+Next, we overlap the $P?c$ communication with the $C0!\phi$ and $C1!\phi$ 
+communications and add a reset for $c$ during the $\neg\phi$ 
+communications.
 
 \begin{hse}
 *[[p\phi->po+;
-    [p0->c0\phi+;[c0i];po-;[~p0];po+
-    []p1->c1\phi+;[c1i];po-;[~p1];po+
+    [p0->po-;[~p0];\red{c0+};c0\phi+;[c0i];\red{po+}
+    []p1->po-;[~p1];\red{c1+};c1\phi+;[c1i];\red{po+}
     ]
-  []p0&\red{c0\phi}->c00+;[~c0i];po-;[~p0];c00-;[c0i];po+
-  []p1&\red{c0\phi}->c01+;[~c0i];po-;[~p1];c01-;[c0i];po+
-  []p0&\red{c1\phi}->c10+;[~c1i];po-;[~p0];c10-;[c1i];po+
-  []p1&\red{c1\phi}->c11+;[~c1i];po-;[~p1];c11-;[c1i];po+
-  []~p\phi&\red{c0\phi}->c0\phi-;[~c0i];po-
-  []~p\phi&\red{c1\phi}->c1\phi-;[~c1i];po-
+  []p0&c0->c00+;[~c0i];po-;[~p0];c00-;[c0i];po+
+  []p1&c0->c01+;[~c0i];po-;[~p1];c01-;[c0i];po+
+  []p0&c1->c10+;[~c1i];po-;[~p0];c10-;[c1i];po+
+  []p1&c1->c11+;[~c1i];po-;[~p1];c11-;[c1i];po+
+  []~p\phi->\red{c0-,c1-};c0\phi-,c1\phi-;[~c0i&~c1i];po-
  ]]
 \end{hse}
 
 \noindent
-In the last two branches, $c0\phi$ and $c1\phi$ are used in the guards yet are
-changed immediately and would therefore be unstable.
-Further, the 2-phase communications of these two branches simply reset the 
-2-phase communications with the children of the first branch, so we
-can execute both of them when the $\neg p\phi$ arrives without any misfiring.
-Therefore, we merge the last two branches.
+$c[0,1]\phi$ transitions always follow $c[0,1]$ transitions,
+respectively, so we can eliminate $c[0,1]$ and use $c[0,1]\phi$  
+in their place.
 
 \begin{hse}
 *[[p\phi->po+;
-    [p0->c0\phi+;[c0i];po-;[~p0];po+
-    []p1->c1\phi+;[c1i];po-;[~p1];po+
-    ]
-  []p0&c0\phi->c00+;[~c0i];po-;[~p0];c00-;[c0i];po+
-  []p1&c0\phi->c01+;[~c0i];po-;[~p1];c01-;[c0i];po+
-  []p0&c1\phi->c10+;[~c1i];po-;[~p0];c10-;[c1i];po+
-  []p1&c1\phi->c11+;[~c1i];po-;[~p1];c11-;[c1i];po+
-  []\red{~p\phi->c0\phi-,c1\phi-;[~c0i&~c1i];po-}
- ]]
-\end{hse}
-
-\noindent
-Next, note that $p\phi$ will be true throughout the data portion of the packet,
-so the $p\phi$ guard is not actually mutually exclusive with the guards in the 
-middle branches. We strengthen the $p\phi$ guard to make it so.
-
-\begin{hse}
-*[[p\phi&\red{~c0\phi&~c1\phi}->po+;
-    [p0->c0\phi+;[c0i];po-;[~p0];po+
-    []p1->c1\phi+;[c1i];po-;[~p1];po+
+    [p0->po-;[~p0];c0\phi+;[c0i];po+
+    []p1->po-;[~p1];c1\phi+;[c1i];po+
     ]
   []p0&c0\phi->c00+;[~c0i];po-;[~p0];c00-;[c0i];po+
   []p1&c0\phi->c01+;[~c0i];po-;[~p1];c01-;[c0i];po+
@@ -943,57 +943,64 @@ middle branches. We strengthen the $p\phi$ guard to make it so.
 \end{hse}
 
 \noindent
-Note that instances of $c0_i$ and $c1_i$ are followed by $p_o\uparrow$ as well
-as $p_o\downarrow$, which means $p_o$ would have either have non-implementable 
-rules or we would have to represent $c0_i$ and $c1_i$ with dual rail codes. 
-To avoid these complicaitons, we reshuffle the top branch so that $c0_i$ and
-$c1_i$ are only followed by $p_o\uparrow$.
+In the top branch, note that $c[0,1]\phi$ raise after the parent data clears.
+Therefore, we need to introduce state variables $u[0,1]$ to store the first
+parent data word.
 
 \begin{hse}
-*[[p\phi&~c0\phi&~c1\phi->po+;
-    [p0->\red{po-;[~p0];c0\phi+;[c0i];po+}
-    []p1->\red{po-;[~p1];c1\phi+;[c1i];po+}
+*[[p\phi->po+;
+    [p0->\red{u0+};po-;[~p0];c0\phi+;[c0i];po+
+    []p1->\red{u1+};po-;[~p1];c1\phi+;[c1i];po+
     ]
   []p0&c0\phi->c00+;[~c0i];po-;[~p0];c00-;[c0i];po+
   []p1&c0\phi->c01+;[~c0i];po-;[~p1];c01-;[c0i];po+
   []p0&c1\phi->c10+;[~c1i];po-;[~p0];c10-;[c1i];po+
   []p1&c1\phi->c11+;[~c1i];po-;[~p1];c11-;[c1i];po+
-  []~p\phi->c0\phi-,c1\phi-;[~c0i&~c1i];po-
+  []~p\phi->\red{u0-,u1-};c0\phi-,c1\phi-;[~c0i&~c1i];po-
  ]]
 \end{hse}
 
 \noindent
-We introduce state variables $u0$ and $u1$ to store which child is targeted
-before storing it in $c0\phi$ and $c1\phi$.
+We clear the first parent data word before raising $c[0,1]\phi$ so that the 
+subsequent data can be steered to the selected child by simply ANDing the parent 
+data with the $c[0,1]\phi$ lines. If we instead clear the parent data after 
+raising one of $c[0,1]\phi$, we must increase the complexity of the child data 
+gates. The cost of storing the first parent data word scales with the data width
+whereas the cost of making the child data gates more complicated 
+scales with the (data width) $\times$ (number of children). Therefore
+storing the first parent data word is cheaper than increasing the complexity
+of the child gates. 
+
+Moving on, we introduce state variable $v$ to make the $c[0,1]\phi$ gates
+combinational.
 
 \begin{hse}
-*[[p\phi&~c0\phi&~c1\phi->po+;
-    [p0->\red{u0+};po-;[~p0];c0\phi+;\red{u0-},[c0i];po+
-    []p1->\red{u1+};po-;[~p1];c1\phi+;\red{u1-},[c1i];po+
+*[[p\phi->po+;
+    [p0->u0+;po-;[~p0];\red{v+};c0\phi+;[c0i];po+
+    []p1->u1+;po-;[~p1];\red{v+};c1\phi+;[c1i];po+
     ]
   []p0&c0\phi->c00+;[~c0i];po-;[~p0];c00-;[c0i];po+
   []p1&c0\phi->c01+;[~c0i];po-;[~p1];c01-;[c0i];po+
   []p0&c1\phi->c10+;[~c1i];po-;[~p0];c10-;[c1i];po+
   []p1&c1\phi->c11+;[~c1i];po-;[~p1];c11-;[c1i];po+
-  []~p\phi->c0\phi-,c1\phi-;[~c0i&~c1i];po-
+  []~p\phi->u0-,u1-;c0\phi-,c1\phi-;[~c0i&~c1i];po-,\red{v-}
  ]]
 \end{hse}
 
 \noindent
-Finally, we introduce state variables $cc\phi$, $uu$, and $cc_i$ to consolidate
-$c[0,1]\phi$, $u[0,1]$, and $c[0,1]_i$, respectively and reduce the number of 
-of transistors in series in the production rules.
+Finally, we introduce state variable $uu$ to reduce the number of transistors
+in series for the $p_o$ gate.
 
 \begin{hse}
-*[[p\phi&~c0\phi&~c1\phi->po+;
-    [p0->u0+;\red{uu+};po-;[~p0];c0\phi+;\red{cc\phi+};(u0-;\red{uu-}),([c0i];\red{cci+});po+
-    []p1->u1+;\red{uu+};po-;[~p1];c1\phi+;\red{cc\phi+};(u1-;\red{uu-}),([c1i];\red{cci+});po+
+*[[p\phi->po+;
+    [p0->u0+;\red{uu+};po-;[~p0];v+;c0\phi+;[c0i];po+
+    []p1->u1+;\red{uu+};po-;[~p1];v+;c1\phi+;[c1i];po+
     ]
-  []p0&c0\phi->c00+;[~c0i];\red{cci-};po-;[~p0];c00-;[c0i];\red{cci+};po+
-  []p1&c0\phi->c01+;[~c0i];\red{cci-};po-;[~p1];c01-;[c0i];\red{cci+};po+
-  []p0&c1\phi->c10+;[~c1i];\red{cci-};po-;[~p0];c10-;[c1i];\red{cci+};po+
-  []p1&c1\phi->c11+;[~c1i];\red{cci-};po-;[~p1];c11-;[c1i];\red{cci+};po+
-  []~p\phi->c0\phi-,c1\phi-;\red{cc\phi-},([~c0i&~c1i];\red{cci-};po-)
+  []p0&c0\phi->c00+;[~c0i];po-;[~p0];c00-;[c0i];po+
+  []p1&c0\phi->c01+;[~c0i];po-;[~p1];c01-;[c0i];po+
+  []p0&c1\phi->c10+;[~c1i];po-;[~p0];c10-;[c1i];po+
+  []p1&c1\phi->c11+;[~c1i];po-;[~p1];c11-;[c1i];po+
+  []~p\phi->u0-,u1-;\red{uu-},(c0\phi-,c1\phi-;[~c0i&~c1i];po-),v-
  ]]
 \end{hse}
 
@@ -1003,68 +1010,107 @@ which completes our expansion.
 \subsubsection*{PRS}
 
 \begin{prs2}
-(p\phi & ~cc\phi | cci) & ~uu -> po+
-(~p\phi | cc\phi) & ~cci | uu -> po-
-\end{prs2}
-
-\begin{prs2}
-p0 & ~cc\phi -> u0+
-cc\phi -> u0-
-
-p1 & ~cc\phi -> u1+
-cc\phi -> u1-
-\end{prs2}
-
-\begin{prs2}
 u0 | u1 -> uu+
 ~u0 & ~u1 -> uu-
 \end{prs2}
 
 \begin{prs2}
-u0 & ~p0 -> c0\phi+
-~p\phi -> c0\phi-
-
-u1 & ~p1 -> c1\phi+
-~p\phi -> c1\phi-
+p\phi & ~uu | c0i | c1i -> po+
+(~p\phi | uu) & ~c0i & ~c1i -> po-
 \end{prs2}
 
 \begin{prs2}
-c0\phi | c1\phi -> cc\phi+
-~c0\phi & ~c1\phi -> cc\phi-
+p0 & ~v -> u0+
+~p\phi -> u0-
 
-c0i | c1i -> cci+
-~c0i & ~c1i -> cci-
+p1 & ~v -> u1+
+~p\phi -> u1-
 \end{prs2}
 
 \begin{prs2}
-c0\phi & p0 -> c00+
-~c0\phi | ~p0 -> c00-
-
-c0\phi & p1 -> c01+
-~c0\phi | ~p1 -> c01-
-
-c1\phi & p0 -> c10+
-~c1\phi | ~p0 -> c10-
-
-c1\phi & p1 -> c11+
-~c1\phi | ~p1 -> c11-
+uu & ~p0 & ~p1 -> v+
+~uu -> v-
 \end{prs2}
+
+\begin{prs2}
+v & u0 -> c0\phi+
+~v | ~u0 -> c0\phi-
+
+v & u1 -> c1\phi+
+~v | ~u1 -> c1\phi-
+\end{prs2}
+
+\begin{prs2}
+p0 & c0\phi -> c00+
+~p0 | ~c0\phi -> c00-
+
+p1 & c0\phi -> c01+
+~p1 | ~c0\phi -> c01-
+
+p0 & c1\phi -> c10+
+~p0 | ~c1\phi -> c10-
+
+p1 & c1\phi -> c11+
+~p1 | ~c1\phi -> c11-
+\end{prs2}
+
+\noindent
+4-ary fanout, 1-of-4 encoding approximate accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $uu$ & 8 & \\ \hline
+    $p_o$ & 12 & \\ \hline
+    $u[0,1,2,3]$ & 28 & \\ \hline
+    $v$ & 10 & \\ \hline
+    $c[0,1,2,3]\phi$ & 16 & \\ \hline
+    $c[0,1,2,3][0,1,2,3]$ & 64 & \\ \hline
+    \hline total & 138 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+3-ary fanout, 1-of-4 encoding approximate accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $uu$ & 6 & \\ \hline
+    $p_o$ & 10 & \\ \hline
+    $u[0,1,2]$ & 21 & \\ \hline
+    $v$ & 10 & \\ \hline
+    $c[0,1,2]\phi$ & 12 & \\ \hline
+    $c[0,1,2][0,1,2,3]$ & 48 & \\ \hline
+    \hline total & 107 & \\ \hline
+    \end{tabular}
+\end{center}
 
 \subsubsection*{CMOS-implementable PRS}
 
 \begin{prs2}
-~_cci -> __cci+
-_cci -> __cci-
+~u0 -> _u0+
+u0 -> _u0-
+
+~u1 -> _u1+
+u1 -> _u1-
 \end{prs2}
 
 \begin{prs2}
-~cc\phi -> _cc\phi+
-cc\phi -> _cc\phi-
+~_u0 | ~_u1 -> uu+
+_u0 & _u1 -> uu-
 \end{prs2}
 
 \begin{prs2}
-(p\phi & _cc\phi | __cci) & _uu -> _po-
-(~p\phi | ~_cc\phi) & ~__cci | ~_uu -> _po+
+~_p\phi & ~uu | ~_c0i | ~_c1i -> po+
+(_p\phi | uu) & _c0i & _c1i -> po-
+\end{prs2}
+
+\begin{prs2}
+~_v -> __v+
+_v -> __v-
 \end{prs2}
 
 \begin{prs2}
@@ -1076,264 +1122,144 @@ p1 -> _p1-
 \end{prs2}
 
 \begin{prs2}
-~_cc\phi -> __cc\phi+
-_cc\phi -> __cc\phi-
+~_p0 & ~__v -> u0+
+_p\phi -> u0-
+
+~_p1 & ~__v -> u1+
+_p\phi -> u1-
 \end{prs2}
 
 \begin{prs2}
-~_p0 & ~__cc\phi -> u0+
-__cc\phi -> u0-
-
-~_p1 & ~__cc\phi -> u1+
-__cc\phi -> u1-
+uu & _p0 & _p1 -> _v-
+~uu -> _v+
 \end{prs2}
 
 \begin{prs2}
-u0 | u1 -> _uu-
-~u0 & ~u1 -> _uu+
+__v & u0 -> _c0\phi-
+~__v | ~u0 -> _c0\phi+
+
+__v & u1 -> _c1\phi-
+~__v | ~u1 -> _c1\phi+
 \end{prs2}
 
 \begin{prs2}
-u0 & _p0 -> _c0\phi-
-~p\phi -> _c0\phi+
+~_p0 & ~_c0\phi -> c00+
+_p0 | _c0\phi -> c00-
 
-u1 & _p1 -> _c1\phi-
-~p\phi -> _c1\phi+
+~_p1 & ~_c0\phi -> c01+
+_p1 | _c0\phi -> c01-
+
+~_p0 & ~_c1\phi -> c10+
+_p0 | _c1\phi -> c10-
+
+~_p1 & ~_c1\phi -> c11+
+_p1 | _c1\phi -> c11-
 \end{prs2}
 
 \begin{prs2}
-~_c0\phi | ~_c1\phi -> cc\phi+
-_c0\phi & _c1\phi -> cc\phi-
-
-c0i | c1i -> _cci-
-~c0i & ~c1i -> _cci+
-\end{prs2}
-
-\begin{prs2}
-~_c0\phi & ~_p0 -> c00+
-_c0\phi | _p0 -> c00-
-
-~_c0\phi & ~_p1 -> c01+
-_c0\phi | _p1 -> c01-
-
-~_c1\phi & ~_p0 -> c10+
-_c1\phi | _p0 -> c10-
-
-~_c1\phi & ~_p1 -> c11+
-_c1\phi | _p1 -> c11-
-\end{prs2}
-
-\begin{prs2}
-~_c0\phi -> c0\phi+
-_c0\phi -> c0\phi-
-
-~_c1\phi -> c1\phi+
-_c1\phi -> c1\phi-
-\end{prs2}
-
-\begin{prs2}
-~_po -> po+
-_po -> po-
+~po -> _po+
+po -> _po-
 \end{prs2}
 
 \noindent
-Radix 4, 1-of-4 accounting: 
+4-ary fanout, 1-of-4 encoding accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
     \hline
     rule & transistor count & comments \\ \hline
-    $\_\_cc_i$ & 2 & \\ \hline
-    $\_cc\phi$ & 2 & \\ \hline
-    $\_p_o$ & 8 & \\ \hline
-    $\_p[0,1,2,3]$ & 8 & \\ \hline
-    $\_\_cc\phi$ & 2 & \\ \hline
+    $\_u[0,1,2,3]$ & 8 & \\ \hline
+    $uu$ & 8 & \\ \hline
+    $p_o$ & 12 & \\ \hline
+    $\_\_v$ & 2 & \\ \hline
+    $\_p[0,1,2,3]$ & 8 \\ \hline
     $u[0,1,2,3]$ & 28 & \\ \hline
-    $\_uu$ & 8 & \\ \hline
-    $\_c[0,1,2,3]\phi$ & 12 & staticized by $c[0,1,2,3]$ \\ \hline
-    $cc\phi$ & 8 & \\ \hline
-    $\_cc_i$ & 8 & \\ \hline
+    $\_v$ & 10 & \\ \hline
+    $\_c[0,1,2,3]\phi$ & 16 & \\ \hline
     $c[0,1,2,3][0,1,2,3]$ & 64 & \\ \hline
-    $c[0,1,2,3]\phi$ & 16 & staticizes $\_c[0,1,2,3]\phi$ \\ \hline
-    $p_o$ & 2 & \\ \hline
-    \hline total & 168 & \\ \hline
+    \hline total & 156 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+3-ary fanout, 1-of-4 encoding accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $\_u[0,1,2]$ & 6 & \\ \hline
+    $uu$ & 6 & \\ \hline
+    $p_o$ & 10 & \\ \hline
+    $\_\_v$ & 2 & \\ \hline
+    $\_p[0,1,2,3]$ & 8 \\ \hline
+    $u[0,1,2]$ & 21 & \\ \hline
+    $\_v$ & 10 & \\ \hline
+    $\_c[0,1,2]\phi$ & 12 & \\ \hline
+    $c[0,1,2][0,1,2,3]$ & 48 & \\ \hline
+    \hline total & 123 & \\ \hline
     \end{tabular}
 \end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{AERV LEAF \label{sec:AERV_LEAF}}
+\subsection{AERV MERGE ACK \label{sec:AERV_MERGE_ACK}}
 
-The leaf node receives packets its parent and directs their payload to the
-child specified by the head word of the packet. 
-The input/output ports are shown as follows:
-
-\begin{center}
-  \includegraphics[width=.2\textwidth]{img/aerv_leaf.pdf}
-\end{center}
-
-\noindent
-LEAF operates with the same pseudo-code as NODE
+The MERGE ACK process merges the $\phi$ communications at the receiver leaves
+with the acknowledges from the synapses or deserializer.
 
 \subsubsection*{HSE}
 
 \begin{hse}
-*[[p\phi];po+;
-    [p0->u0+;uu+;po-;[~p0];c0+;cc+;u0-;uu-;
-         po+;[~p\phi];c0-;cc-;po-
-    []p1->u1+;uu+;po-;[~p1];c1+;cc+;u1-;uu-;
-         po+;[~p\phi];c1-;cc-;po-
-    ];
- ]
-
-*[[c0&p0->c00+;[c0i];cci+;po-;[~p0];c00-;[~c0i];cci-;po+
-  []c0&p1->c01+;[c0i];cci+;po-;[~p1];c01-;[~c0i];cci-;po+
-  []c1&p0->c10+;[c1i];cci+;po-;[~p0];c10-;[~c1i];cci-;po+
-  []c1&p1->c11+;[c1i];cci+;po-;[~p1];c11-;[~c1i];cci-;po+
+*[[p\phi&~c0i&~ci1->po+;
+  []p\phi&c0i->c+;po-;[~c0i];c-;po+
+  []p\phi&c1i->c+;po-;[~c1i];c-;po+
+  []~p\phi->po-
  ]]
 \end{hse}
 
 \subsubsection*{PRS}
 
-\begin{prs2}
-(p\phi | cco) & ~uu & ~cci -> po+
-~p\phi & ~cco | uu | cci -> po-
-\end{prs2}
-
-\begin{prs2}
-~cc & p0 -> u0+
-cc -> u0-
-
-~cc & p1 -> u1+
-cc -> u1-
-\end{prs2}
-
-\begin{prs2}
-u0 | u1 -> uu+
-~u0 & ~u1 -> uu-
-\end{prs2}
-
-\begin{prs2}
-u0 & ~p0 -> c0+
-~p\phi -> c0-
-
-u1 & ~p1 -> c1+
-~p\phi -> c1-
-\end{prs2}
-
-\begin{prs2}
-c0 | c1 -> cc+
-~c0 & ~c1 -> cc-
-
-c0i | c1i -> cci+
-~c0i & ~c1i -> cci-
-\end{prs2}
-
-\begin{prs2}
-c0 & p0 -> c00+
-~c0 | ~p0 -> c00-
-
-c0 & p1 -> c01+
-~c0 | ~p1 -> c01-
-
-c1 & p0 -> c10+
-~c1 | ~p0 -> c10-
-
-c1 & p1 -> c11+
-~c1 | ~p1 -> c11-
-\end{prs2}
+\begin{prs}
+p\phi & ~c0i & ~c1i -> po+
+~p\phi | c0i | c1i -> po-
+\end{prs}
 
 \subsubsection*{CMOS-implementable PRS}
 
 \begin{prs2}
-~p\phi -> _p\phi+
-p\phi -> _p\phi-
-\end{prs2}
+~c0i & ~c1i -> c+
+c0i | c1i -> c-
 
-\begin{prs2}
-~_cci -> __cci+
-_cci -> __cci-
-\end{prs2}
-
-\begin{prs2}
-(~_p\phi | ~_cc) & ~uu & ~__cci -> po+
-_p\phi & _cc | uu | __cci -> po-
-\end{prs2}
-
-\begin{prs2}
-_cc & p0 -> _u0-
-~_cc -> _u0+
-
-_cc & p1 -> _u1-
-~_cc -> _u1+
-\end{prs2}
-
-\begin{prs2}
-~_u0 | ~_u1 -> uu+
-_u0 & _u1 -> uu-
-\end{prs2}
-
-\begin{prs2}
-~_u0 & ~p0 -> c0+
-_p\phi -> c0-
-
-~_u1 & ~p1 -> c1+
-_p\phi -> c1-
-\end{prs2}
-
-\begin{prs2}
-c0 | c1 -> _cc-
-~c0 & ~c1 -> _cc+
-
-c0i | c1i -> _cci-
-~c0i & ~c1i -> _cci+
-\end{prs2}
-
-\begin{prs2}
-c0 & p0 -> _c00-
-~c0 | ~p0 -> _c00+
-
-c0 & p1 -> _c01-
-~c0 | ~p1 -> _c01+
-
-c1 & p0 -> _c10-
-~c1 | ~p0 -> _c10+
-
-c1 & p1 -> _c11-
-~c1 | ~p1 -> _c11+
-\end{prs2}
-
-\begin{prs2}
-~_c00 -> c00+
-_c00 -> c00-
-
-~_c01 -> c01+
-_c01 -> c01-
-
-~_c10 -> c10+
-_c10 -> c10-
-
-~_c11 -> c11+
-_c11 -> c11-
+p\phi & c -> _po-
+~p\phi | ~c -> _po+
 \end{prs2}
 
 \noindent
-Radix 3, 1-of-4 accounting:
+The size of the $c$ gate grows with the number of child acknowledges to merge. \\
+
+\noindent
+merge ack (2) accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
     \hline
     rule & transistor count & comments \\ \hline
-    $\_p\phi$ & 2 & \\ \hline
-    $\_\_cc_i$ & 2 & \\ \hline
-    $p_o$ & 8 & \\ \hline
-    $\_u[0,1,2]$ & 21 & \\ \hline
-    $uu$ & 6 & \\ \hline
-    $c[0,1,2]$ & 21 & \\ \hline
-    $\_cc$ & 6 & \\ \hline
-    $\_cc_i$ & 6 & \\ \hline
-    $\_c[0,1,2][0,1,2,3]$ & 48 & \\ \hline
-    $c[0,1,2][0,1,2,3]$ &  24 & \\ \hline
-    \hline total & 144 & \\ \hline
+    $c$ & 4 & \\ \hline
+    $\_po$ & 4 & \\ \hline
+    \hline total & 8 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+merge ack (1) accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $c$ & 2 & \\ \hline
+    $\_po$ & 4 & \\ \hline
+    \hline total & 6 & \\ \hline
     \end{tabular}
 \end{center}
 
@@ -1470,7 +1396,7 @@ y0a | y1a -> xa+
 \end{prs2}
 
 \noindent
-1-of-4 transistor approximate scaling:
+1-of-4 approximate scaling:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
@@ -2104,18 +2030,12 @@ will cost extra circuitry so this idea might turn out to be a wash. \\
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Accounting \label{sec:accounting}}
 
-Our design must satisfy throughput and area requirements:
+As stated in Section~\ref{sec:intro}, the AER system must support 1.6 Mspks/s 
+and cost less than 175 transistors/neuron.
 
-Neurons in nengo have default maximum spike rates between 200 and 400 spks/s.
-If we take 400 spks/s as a conservative estimate of the average spike rate for 
-each neuron in the 4096 neuron array, we find that our system must have a
-throughput of at least 1.6 Mspks/s.
-When estimating throughput, we simulate the circuit and count transitions.
-We assume that each transition takes 60ps.
-
-For area, we use a rule of thumb that 10 transistors take up 1.4$\mu$m$^2$.
-For now, we're budgeting 24.5$\mu$m$^2$ per neuron for AER circuitry. This
-may change depending on what Ben needs for the neuron.
+To measure throughput, we simulate the production rules and count transitions.
+We assume that each transition takes 60ps and size the the transistors so that
+each transistion takes around or less than 60ps.
 
 \subsection{Transmitter}
 
@@ -2146,18 +2066,20 @@ or 28.9 ns, or equivalently has a throughput of \textbf{34.7 Mspks/s}.
     \begin{tabular}{|r|l|l|l|l|}
     \hline
     component & transistors/component & components & transistors & transistors/neuron \\ \hline
-    LEAF & 144 & 256 & 36,864 & 9.0 \\ \hline
-    NODE & 168 & 85 & 14,280 & 3.5 \\ \hline
+    NODE & 156 & 85 & 13,260 & 3.2 \\ \hline
+    NODE(3) & 123 & 256 & 31,488 & 7.7 \\ \hline
     DESERIAL & 246 & 256 & 62,976 & 15.4 \\ \hline
-    OR & 6 & 512 & 3,072 & 0.7 \\ \hline
-    \hline \multicolumn{3}{|r|}{total} & 117,192 & 26.6 \\ \hline
+    MERGE ACK (2) & 8 & 512 & 4,096 & 1.0 \\ \hline
+    MERGE ACK (1) & 6 & 256 & 1,536 & 0.4 \\ \hline
+    \hline \multicolumn{3}{|r|}{total} & 113,356 & 27.7 \\ \hline
     \end{tabular}
 \end{center}
 
 \subsection{Summary}
 
-Both the transmitter and receiver exceed the specified throughput by a large margin.
-In terms of area, they combine for an estimated 74.16 transistors per neuron, 
+Both the transmitter and receiver exceed the specified throughput by a large 
+margin.
+In terms of area, they combine for an estimated 101.7 transistors per neuron, 
 which leaves about 75 transistors for the neuron configuration memory blocks.
 Each neuron effectively needs at least 7 bits. We round up to 8 bits
 for to make the memory geometry a power of 2. At 6 transistors per bitcell, that 

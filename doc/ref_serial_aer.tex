@@ -2410,6 +2410,85 @@ Radix 4 accounting:
 \subsubsection*{HSE}
 
 \begin{hse}
+*[[p\phi->po+;
+    [p0->u0+;uu+;po-;[~p0];v+;c0\phi+;[c0i];po+
+    []p1->u1+;uu+;po-;[~p1];v+;c1\phi+;[c1i];po+
+    ]
+  []p0&c0\phi->c00+;[~c0i];po-;[~p0];c00-;[c0i];;po+
+  []p1&c0\phi->c01+;[~c0i];po-;[~p1];c01-;[c0i];;po+
+  []p0&c1\phi->c10+;[~c1i];po-;[~p0];c10-;[c1i];;po+
+  []p1&c1\phi->c11+;[~c1i];po-;[~p1];c11-;[c1i];;po+
+  []~p\phi->u0-,u1-;uu-,(c0\phi-,c1\phi-;[~c0i&~c1i];po-),v-
+ ]]
+\end{hse}
+
+\subsubsection*{PRS}
+
+\begin{prs}
+u0 | u1 -> uu+
+~u0 & ~u1 -> uu-
+\end{prs}
+
+\begin{prs}
+p\phi & ~uu | c0i | c1i -> po+
+(~p\phi | uu) & ~c0i & ~c1i -> po-
+\end{prs}
+
+\begin{prs}
+p0 & ~v -> u0+
+~p\phi -> u0-
+
+p1 & ~v -> u1+
+~p\phi -> u1-
+\end{prs}
+
+\begin{prs}
+uu & ~p0 & ~p1 -> v+
+~uu -> v-
+\end{prs}
+
+\begin{prs}
+v & u0 -> c0\phi+
+~v | ~u0 -> c0\phi-
+
+v & u1 -> c1\phi+
+~v | ~u1 -> c1\phi-
+\end{prs}
+
+\begin{prs}
+p0 & c0\phi -> c00+
+~p0 | ~c0\phi -> c00-
+
+p1 & c0\phi -> c01+
+~p1 | ~c0\phi -> c01-
+
+p0 & c1\phi -> c10+
+~p0 | ~c1\phi -> c10-
+
+p1 & c1\phi -> c11+
+~p1 | ~c1\phi -> c11-
+\end{prs}
+
+\noindent
+Radix 4 transistor approximate accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $uu$ & 8 & \\ \hline
+    $p_o$ & 12 & \\ \hline
+    $u[0,1,2,3]$ & 28 & \\ \hline
+    $v$ & 10 & \\ \hline
+    $c[0,1,2,3]\phi$ & 16 & \\ \hline
+    $c[0,1,2,3][0,1,2,3]$ & 64 & \\ \hline
+    \hline total & 138 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\subsubsection*{Alternative 0: HSE}
+
+\begin{hse}
 *[[pi];po+;
     [p0->u0+;uu+;po-;[~p0];c0o+;cco+;u0-;uu-;[c0i];cci+;
          po+;[~pi];c0o-;cco-,([~c0i];cci-);po-
@@ -2424,23 +2503,6 @@ Radix 4 accounting:
   []c1o&p1->c11+;[~c1i];cci-;po-;[~p1];c11-;[c1i];cci+;po+
  ]]
 \end{hse}
-
-\noindent
-It's helpful to consider the projection of the HSE on to the parent control and data lines.
-
-\begin{hse}
-*[[pi];po+;
-    [P];po-;[~P];po+
-    ([P];po-;[~P];po+)\times(m\-1)
-  [~pi];po-
- ]
-\end{hse}
-
-\noindent
-The first line acknowledges the parent. \\
-The second line is the node reading in the head word. \\
-The third line repeats $(m-1)$ times where $m$ is this node's level in the tree. \\
-The fourth line propagates the parents reset down the tree.
 
 \subsubsection*{PRS}
 
@@ -2547,25 +2609,6 @@ designs.
     \end{tabular}
 \end{center}
 
-\noindent
-Radix 2, 1-of-4 out transistor approximate accounting: This is used in some of the receiver
-designs.
-
-\begin{center}
-    \begin{tabular}{|r|l|l|}
-    \hline
-    rule & transistor count & comments \\ \hline
-    $p_o$ & 8 & \\ \hline
-    $u[0,1]$ & 14 & \\ \hline
-    $uu$ & 4 & \\ \hline
-    $c[0,1]_o$ & 14 & \\ \hline
-    $cc_o$ & 4 & \\ \hline
-    $cc_i$ & 4 & \\ \hline
-    $c[0,1][0,1,2,3]$ & 32 & \\ \hline
-    \hline total & 80 & 76 with $cc_i$ or $uu$ flattened in $p_o$ \\ \hline
-    \end{tabular}
-\end{center}
-
 \subsubsection*{CMOS-implementable PRS}
 
 \begin{prs2}
@@ -2652,92 +2695,53 @@ _c1o -> c1o-
 _po -> po-
 \end{prs2}
 
-\subsubsection*{Alternative 1: HSE}
+\noindent
+Radix 2 transistor accounting:
 
-directly translating CHP
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $\_\_cc_i$ & 2 & \\ \hline
+    $\_cc_o$ & 2 & \\ \hline
+    $p_o$ & 8 & \\ \hline
+    $\_p[0,1]$ & 4 & \\ \hline
+    $\_\_cc_o$ & 2 & \\ \hline
+    $u[0,1]$ & 14 & \\ \hline
+    $\_uu$ & 4 & \\ \hline
+    $\_c[0,1]_o$ & 14 & \\ \hline
+    $cc_o$ & 4 & \\ \hline
+    $\_cc_i$ & 4 & \\ \hline
+    $c[0,1][0,1]$ & 16 & \\ \hline
+    $c[0,1]_o$ & 4 & \\ \hline
+    $p_o$ & 2 & \\ \hline
+    \hline total & 80 & \\ \hline
+    \end{tabular}
+\end{center}
 
-\begin{hse}
-*[[pi->po+;
-    [p0->c0o+;c0+,c1-,[c0i];u0+;po-;[~p0];v+;po+
-    []p1->c1o+;c1+,c0-,[c1i];u1+;po-;[~p1];v+;po+
-    ]
-  []p0&c0->c00+;[~c0i];po-;[~p0];c00-;[c0i];po+
-  []p1&c0->c01+;[~c0i];po-;[~p1];c01-;[c0i];po+
-  []p0&c1->c10+;[~c1i];po-;[~p0];c10-;[c1i];po+
-  []p1&c1->c11+;[~c1i];po-;[~p1];c11-;[c1i];po+
-  []~pi&c0->c0o-;[~c0i];u0-;v-;po-
-  []~pi&c1->c1o-;[~c1i];u1-;v-;po-
- ]]
-\end{hse}
+\noindent
+Radix 4 transistor accounting:
 
-reshuffling,
-
-\begin{hse}
-*[[pi->po+;
-    [p0->c0o+;cco+,([c0i];cci+);u+;po-;[~p0];v+;po+
-    []p1->c1o+;cco+,([c1i];cci+);u+;po-;[~p1];v+;po+
-    ]
-  []p0&c0o->c00+;[~c0i];cci-;po-;[~p0];c00-;[c0i];cci+;po+
-  []p1&c0o->c01+;[~c0i];cci-;po-;[~p1];c01-;[c0i];cci+;po+
-  []p0&c1o->c10+;[~c1i];cci-;po-;[~p0];c10-;[c1i];cci+;po+
-  []p1&c1o->c11+;[~c1i];cci-;po-;[~p1];c11-;[c1i];cci+;po+
-  []~pi->c0o-,c1o-;cco-,([~c0i&~c1i];cci-);(u-;v-),po-
- ]]
-\end{hse}
-
-As we'll see in the PRS, $v\downarrow$ is only acknowledged by 
-$c[0,1]_o\uparrow$.
-
-\subsubsection*{Alternative 1: PRS}
-
-\begin{prs2}
-pi & ~u | v & cci -> po+
-(~pi | u) & (~v | ~cci) -> po-
-\end{prs2}
-
-\begin{prs2}
-p0 & ~u & ~v -> c0o+
-~pi -> c0o-
-
-p1 & ~u & ~v -> c1o+
-~pi -> c1o-
-\end{prs2}
-
-\begin{prs2}
-c0o | c1o -> cco+
-~c0o & ~c1o -> cco-
-
-c0i | c1i -> cci+
-~c0i & ~c1i -> cci-
-\end{prs2}
-
-\begin{prs2}
-cco & cci -> u+
-~cco & ~cci -> u-
-\end{prs2}
-
-\begin{prs2}
-p0 & c0o & v -> c00+
-~p0 | ~c0o | ~v -> c00-
-
-p1 & c0o & v -> c01+
-~p1 | ~c0o | ~v -> c01-
-
-p0 & c1o & v -> c10+
-~p0 | ~c1o | ~v -> c10-
-
-p1 & c1o & v -> c11+
-~p1 | ~c1o | ~v -> c11-
-\end{prs2}
-
-\begin{prs2}
-u & ~p0 & ~p1 -> v+
-~u -> v-
-\end{prs2}
-
-This alternative is more expensive than the primary design because
-of its bigger data gates. The primary design avoids the high cost by
-acknowledging the parent data before signaling the the children.
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $\_\_cc_i$ & 2 & \\ \hline
+    $\_cc_o$ & 2 & \\ \hline
+    $p_o$ & 8 & \\ \hline
+    $\_p[0,1,2,3]$ & 8 & \\ \hline
+    $\_\_cc_o$ & 2 & \\ \hline
+    $u[0,1,2,3]$ & 28 & \\ \hline
+    $\_uu$ & 8 & \\ \hline
+    $\_c[0,1,2,3]_o$ & 28 & \\ \hline
+    $cc_o$ & 8 & \\ \hline
+    $\_cc_i$ & 8 & \\ \hline
+    $c[0,1,2,3][0,1,2,3]$ & 64 & \\ \hline
+    $c[0,1,2,3]_o$ & 8 & \\ \hline
+    $p_o$ & 2 & \\ \hline
+    \hline total & 176 & \\ \hline
+    \end{tabular}
+\end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{AERV CD noTW CYC LEAF \label{sec:AERV_CD_noTW_CYC_LEAF}}
@@ -2942,6 +2946,107 @@ _c10 -> c10-
 ~_c11 -> c11+
 _c11 -> c11-
 \end{prs2}
+
+\subsubsection*{Alternative 1: HSE}
+
+\begin{hse}
+*[[p\phi->po+;
+    [p0->u0+;uu+;po-;[~p0];v+;c0s+;,po+
+    []p1->u1+;uu+;po-;[~p1];v+;c1s+;,po+
+    ]
+  []p0&c0s->c00+;[c0i];cci+;po-;[~p0];c00-;[~c0i];cci-;po+
+  []p1&c0s->c01+;[c0i];cci+;po-;[~p1];c01-;[~c0i];cci-;po+
+  []p0&c1s->c10+;[c1i];cci+;po-;[~p0];c10-;[~c1i];cci-;po+
+  []p1&c1s->c11+;[c1i];cci+;po-;[~p1];c11-;[~c1i];cci-;po+
+  []~p\phi->u0-,u1-;uu-,c0s-,c1s-;v-,po-
+ ]]
+\end{hse}
+
+\begin{prs}
+u0 | u1 -> uu+
+~u0 & ~u1 -> uu-
+\end{prs}
+
+\begin{prs}
+c0i | c1i -> cci+
+~c0i & ~c1i -> cci-
+\end{prs}
+
+\begin{prs}
+p\phi & ~uu | v & ~cci -> po+
+(~p\phi | uu) & (~v | cci) -> po-
+\end{prs}
+
+\begin{prs}
+p0 & ~v -> u0+
+~p\phi -> u0-
+
+p1 & ~v -> u1+
+~p\phi -> u1-
+\end{prs}
+
+\begin{prs}
+uu & ~p0 & ~p1 -> v+
+~uu & ~c0s & ~c1s -> v-
+\end{prs}
+
+\begin{prs}
+v & u0 -> c0s+
+~v | ~u0 -> c0s-
+
+v & u1 -> c1s+
+~v | ~u1 -> c1s-
+\end{prs}
+
+\begin{prs}
+p0 & c0s -> c00+
+~p0 | ~c0s -> c00-
+
+p1 & c0s -> c01+
+~p1 | ~c0s -> c01-
+
+p0 & c1s -> c10+
+~p0 | ~c1s -> c10-
+
+p1 & c1s -> c11+
+~p1 | ~c1s -> c11-
+\end{prs}
+
+\noindent
+Radix 2 transistor approximate accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $uu$ & 4 & \\ \hline
+    $cc_i$ & 4 & could flatten in $p_o$ \\ \hline
+    $p_o$ & 8 & \\ \hline
+    $u[0,1]$ & 14 & \\ \hline
+    $v$ & 10 & \\ \hline
+    $c[0,1]s$ & 8 & \\ \hline
+    $c[0,1][0,1]$ & 16 & \\ \hline
+    \hline total & 69 & 67 if $cc_i$ flattened in $p_o$ \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+Radix 4 transistor approximate accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $uu$ & 8 & \\ \hline
+    $cc_i$ & 8 & could flatten in $p_o$ \\ \hline
+    $p_o$ & 8 & \\ \hline
+    $u[0,1,2,3]$ & 28 & \\ \hline
+    $v$ & 14 & \\ \hline
+    $c[0,1,2,3]s$ & 16 & \\ \hline
+    $c[0,1,2,3][0,1,2,3]$ & 64 & \\ \hline
+    \hline total & 146 & 144 if $cc_i$ flattened in $p_o$ \\ \hline
+    \end{tabular}
+\end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{AERV CD noTW CYC LEAF (no data) \label{sec:AERV_CD_noTW_CYC_LEAF_nodata}}

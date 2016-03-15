@@ -1,4 +1,4 @@
-channel eMx1of2 12 spk_src
+channel eMx1of4 6 spk_src
 
 injectfile spk_src benchmark/aext.in
 
