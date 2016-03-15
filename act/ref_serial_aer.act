@@ -193,30 +193,27 @@ namespace aer {
         template <pint N>
         defproc LEAF (globals g; bool ci[N], co[N], pi, po; c1of<N> p) {
             // AEXT tree LEAF
-            bool c[N], u;
+            bool c[N], u[N], v;
             ::arbiter::N_ARB_S<N> arb(g, ci, c);
 
             prs<g.Vdd, g.GND> {
-                ~u & (| : n : N : c[n]) -> po+
-                g.pReset | (| : n : N : co[n] & ~c[n]) -> po-
-            
+                (| : n : N : c[n]) & ~v -> po+
+                g.pReset | (| : n : N : u[n] & ~c[n]) & pi -> po-
+
                 (: n : N :
-                    c[n] & pi & ~u -> p.d[n]+
-                    g.pReset | u -> p.d[n]-
+                    c[n] & pi & ~v -> u[n]+
+                    ~po & ~pi -> u[n]-
                 )
 
-                (| : n : N : p.d[n]) & ~pi -> u+
-                (& : n : N : ~co[n]) & ~po -> u-
-                
-                c[0] & u & pi & (& : n : 1..N-1 : ~co[n]) -> co[0]+
-                (: n : 1..N-2:
-                    c[n] & u & pi & 
-                    (& : nn : 0..n-1 : ~co[nn]) & 
-                    (& : nn : n+1..N-1 : ~co[nn]) -> co[n]+
-                )
-                c[N-1] & u & pi & (& : n : 0..N-2 : ~co[n]) -> co[N-1]+
+                (| : n : N : u[n]) & ~pi -> v+
+                (& : n : N : ~u[n]) -> v-
+            
                 (: n : N :
-                    ~pi -> co[n]-
+                    u[n] & ~co[n] => p.d[n]+
+                )
+                
+                (: n : N :
+                    u[n] & v => co[n]+
                 )
             }
         }
