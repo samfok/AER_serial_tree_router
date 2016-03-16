@@ -278,70 +278,35 @@ We implement the HSE
   \|c1\phi->c1+;[~c1\phi];c1-
  ]]
 
-*[[c0->p\phi+;[pi];p0+;[~pi];u+;p0-;[pi];c0o+;[~c0];p\phi-;[~pi];c0o-;u-
-  []c1->p\phi+;[pi];p1+;[~pi];u+;p1-;[pi];c1o+;[~c1];p\phi-;[~pi];c1o-;u-
+*[[c0->p\phi+;[pi];u0+;
+    p0+;[~pi];v+;c0o+;[~c0];p0-;[pi];
+    p\phi-;[~pi];u0-;c0o-,v-
+  []c1->p\phi+;[pi];u1+;
+    p1+;[~pi];v+;c1o+;[~c1];p1-;[pi];
+    p\phi-;[~pi];u1-;c1o-,v-
  ]]
 \end{hse}
 
 \noindent
-To get there, we first directly translate the CHP.
+To get there, we start by directly translating the CHP
 
 \begin{hse}
-*[[c0\phi->p\phi+;[pi];c0o+;p0+;[~pi];p0-;[pi];[~c0\phi];p\phi-;[~pi];c0o-
-  \|c1\phi->p\phi+;[pi];c1o+;p1+;[~pi];p1-;[pi];[~c1\phi];p\phi-;[~pi];c1o-
+*[[c0\phi->c0+;[~c0\phi];c0-
+  \|c1\phi->c1+;[~c1\phi];c1-
+ ]]
+
+*[[c0->p\phi+;[pi];u0+;
+    p0+;[~pi];v+;c0o+;[~c0];p0-;[pi];
+    p\phi-;[~pi];u0-;c0o-,v-
+  []c1->p\phi+;[pi];u1+;
+    p1+;[~pi];v+;c1o+;[~c1];p1-;[pi];
+    p\phi-;[~pi];u1-;c1o-,v-
  ]]
 \end{hse}
 
-\noindent
-Consider the $c0\phi$ branch, \\
-$c0\phi\rightarrow\ p\phi\uparrow;[p_i];c0o\uparrow;$ expands the 2-phase
-$\overline{C0=\phi}\rightarrow\ P!C0?$. \\
-$p0\uparrow;[\neg p_i];p0\downarrow[pi];$ expands the 4-phase $P!0$. \\
-$[\neg c0\phi];p\phi\downarrow;[\neg p_i];c0o\downarrow;$ expands the 2-phase
-$P!C0?$ at the end of the branch. \\
+[TODO: explain how the HSE implements the CHP]
 
-\noindent
-We overlap the first $P!C0?$ ($P!C1?$) across the $P!0$ ($P!1$).
-
-\begin{hse}
-*[[c0\phi->p\phi+;[pi];p0+;[~pi];p0-;[pi];\red{c0o+};[~c0\phi];p\phi-;[~pi];c0o-
-  \|c1\phi->p\phi+;[pi];p1+;[~pi];p1-;[pi];\red{c1o+};[~c1\phi];p\phi-;[~pi];c1o-
- ]]
-\end{hse}
-
-\noindent
-We introduce state variable $u$ to distinguish between indistinguishable
-states in the process.
-
-\begin{hse}
-*[[c0\phi->p\phi+;[pi];p0+;[~pi];\red{u+};p0-;[pi];c0o+;[~c0\phi];p\phi-;[~pi];c0o-;\red{u-}
-  \|c1\phi->p\phi+;[pi];p1+;[~pi];\red{u+};p1-;[pi];c1o+;[~c1\phi];p\phi-;[~pi];c1o-;\red{u-}
- ]]
-\end{hse}
-
-\noindent
-Finally, we introduce state variables $c0$ and $c1$ to represent the arbitration
-
-\begin{hse}
-*[[c0\phi->\red{c0+};p\phi+;[pi];p0+;[~pi];u+;p0-;[pi];c0o+;[~c0\phi];\red{c0-};p\phi-;[~pi];c0o-;u-
-  \|c1\phi->\red{c1+};p\phi+;[pi];p1+;[~pi];u+;p1-;[pi];c1o+;[~c1\phi];\red{c1-};p\phi-;[~pi];c1o-;u-
- ]]
-\end{hse}
-
-\noindent
-and break out the arbitration into its own process
-
-\begin{hse}
-*[[c0\phi->\red{c0+};[~c0\phi];\red{c0-}
-  \|c1\phi->\red{c1+};[~c1\phi];\red{c1-}
- ]]
-\end{hse}
-
-\begin{hse}
-*[[\red{c0}->p\phi+;[pi];p0+;[~pi];u+;p0-;[pi];c0o+;[\red{~c0}];p\phi-;[~pi];c0o-;u-
-  []\red{c1}->p\phi+;[pi];p1+;[~pi];u+;p1-;[pi];c1o+;[\red{~c1}];p\phi-;[~pi];c1o-;u-
- ]]
-\end{hse}
+[TODO: derive the final HSE]
 
 \noindent
 which completes our expansion.
@@ -352,29 +317,38 @@ The $c0$ and $c1$ state variables are the outputs of a standard N-way arbiter
 with inputs $c0_i$ and $c1_i$.
 
 \begin{prs2}
-~u & c0 | c1 -> p\phi+
-(c0o & ~c0) | (c1o & ~c1) -> p\phi-
+(c0 | c1) & ~v -> p\phi+
+pi & v -> p\phi-
 \end{prs2}
 
 \begin{prs2}
-c0 & pi & ~u -> p0+
-u -> p0-
+c0 & pi & ~v -> u0+
+~c0 & ~p\phi & ~pi -> u0-
 
-c1 & pi & ~u -> p1+
-u -> p1-
+c1 & pi & ~v -> u1+
+~c1 & ~p\phi & ~pi -> u1-
+\end{prs2}
+% ~c in pulldown for eliminating an isochronic fork
+
+\begin{prs2}
+(u0 | u1) & ~pi -> v+
+~u0 & ~u1 -> v-
 \end{prs2}
 
 \begin{prs2}
-(p0 | p1) & ~pi -> u+
-~c0o & ~c1o & ~p\phi -> u-
+u0 & c0 -> p0+
+~u0 | ~c0 -> p0-
+
+u1 & c1 -> p1+
+~u1 | ~c1 -> p1-
 \end{prs2}
 
 \begin{prs2}
-c0 & u & pi & ~c1o -> c0o+
-~u & ~pi -> c0o-
+u0 & v -> c0o+
+~u0 | ~v -> c0o-
 
-c1 & u & pi & ~c0o -> c1o+
-~u & ~pi -> c1o-
+u1 & v -> c1o+
+~u1 | ~v -> c1o-
 \end{prs2}
 
 \noindent
@@ -385,70 +359,93 @@ c1 & u & pi & ~c0o -> c1o+
     \hline
     rule & transistor count & comments \\ \hline
     $c[0,1,2,3]$ & 92 & 4-way unpipelined arbiter \\ \hline
-    $p_o$ & 17 & \\ \hline
-    $p[0,1,2,3]$ & 32 & \\ \hline
-    $u$ & 14 & \\ \hline
-    $c[0,1,2,3]_o$ & 48 & \\ \hline
-    \hline total & 203 & \\ \hline
+    $p\phi$ & 11 & \\ \hline
+    $u[0,1,2,3]$ & 40 & \\ \hline
+    $v$ & 13 & \\ \hline
+    $p[0,1,2,3]$ & 16 & \\ \hline
+    $c[0,1,2,3]_o$ & 16 & \\ \hline
+    \hline total & 188 & \\ \hline
     \end{tabular}
 \end{center}
 
 \subsubsection*{CMOS-implementable PRS}
 
 \begin{prs2}
-_u & c0 | c1 -> _p\phi-
-(~_c0o & ~c0) | (~_c1o & ~c1) -> _p\phi+
+~v -> _v+
+v -> _v-
 
-~_p\phi -> p\phi+
-_p\phi -> p\phi-
+~_v -> __v+
+_v -> __v-
 \end{prs2}
 
 \begin{prs2}
-c0 & pi & _u -> _p0-
-~_u -> _p0+
+~c0 -> _c0+
+c0 -> _c0-
 
-c1 & pi & _u -> _p1-
-~_u -> _p1-
+~c1 -> _c1+
+c1 -> _c1-
 \end{prs2}
 
 \begin{prs2}
-(~_p0 | ~_p1) & ~pi -> u+
-_c0o & _c1o & _p\phi -> u-
-
-~u -> _u+
-u -> _u-
+(~_c0 | ~_c1) & ~__v -> p\phi+
+pi & __v -> p\phi-
 \end{prs2}
 
 \begin{prs2}
-c0 & u & pi & _c1o -> _c0o-
-~u & ~pi -> _c0o+
+~_c0 -> __c0+
+_c0 -> __c0-
 
-c1 & u & pi & _c0o -> _c1o-
-~u & ~pi -> _c1o+
+~_c1 -> __c1+
+_c1 -> __c1-
+\end{prs2}
 
-~_c0o -> c0o+
-_c0o -> c0o-
+\begin{prs2}
+__c0 & pi & _v -> _u0-
+~__c0 & ~p\phi & ~pi -> _u0+
 
-~_c1o -> c1o+
-_c1o -> c1o-
+__c1 & pi & _v -> _u1-
+~__c1 & ~p\phi & ~pi -> _u1+
+\end{prs2}
+
+\begin{prs2}
+(~_u0 | ~_u1) & ~pi -> v+
+_u0 & _u1 -> v-
+\end{prs2}
+
+\begin{prs2}
+~_u0 & ~_c0 -> p0+
+_u0 | _c0 -> p0-
+
+~_u1 & ~_c1 -> p1+
+_u1 | _c1 -> p1-
+\end{prs2}
+
+\begin{prs2}
+~_u0 & ~_v -> c0o+
+_u0 | _v -> c0o-
+
+~_u1 & ~_v -> c1o+
+_u1 | _v -> c1o-
 \end{prs2}
 
 \noindent
-4-ary accounting:
+4-ary approximate accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
     \hline
     rule & transistor count & comments \\ \hline
+    $\_v$ & 2 & \\ \hline
+    $\_\_v$ & 2 & \\ \hline
     $c[0,1,2,3]$ & 92 & 4-way unpipelined arbiter \\ \hline
-    $\_p\phi$ & 13 & staticized by $p\phi$ \\ \hline
-    $p\phi$ & 4 & staticizes $\_p\phi$ \\ \hline
-    $\_p[0,1,2,3]$ & 32 & \\ \hline
-    $u$ & 10 & staticized by $\_u$ \\ \hline
-    $\_u$ & 4 & staticizes $u$ \\ \hline
-    $\_c[0,1,2,3]_o$ & 40 & staticized by $c[0,1,2,3]_o$ \\ \hline
-    $c[0,1,2,3]_o$ & 16 & staticizes $\_c[0,1,2,3]_o$ \\ \hline
-    \hline total & 211 & \\ \hline
+    $\_c[0,1,2,3]$ & 8 & \\ \hline
+    $\_p\phi$ & 11 & \\ \hline
+    $\_\_c[0,1,2,3]$ & 8 & \\ \hline
+    $\_u[0,1,2,3]$ & 40 & \\ \hline
+    $\_v$ & 13 & \\ \hline
+    $p[0,1,2,3]$ & 16 & \\ \hline
+    $c[0,1,2,3]_o$ & 16 & \\ \hline
+    \hline total & 208 & \\ \hline
     \end{tabular}
 \end{center}
 
@@ -667,6 +664,23 @@ c00 | c10 | w0 -> p0+
 c01 | c11 | w1 -> p1+
 ~c01 & ~c11 & ~w1 -> p1-
 \end{prs2}
+
+\noindent
+4-ary approximate accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $c[0,1,2,3]$ & 92 & 4-way unpipelined arbiter \\ \hline
+    $p_o$ & 19 & \\ \hline
+    $w[0,1,2,3]$ & 32 & \\ \hline
+    $u$ & 10 & \\ \hline
+    $c[0,1,2,3]_o$ & 44 & \\ \hline
+    $p[0,1,2,3]$ & 40 & \\ \hline
+    \hline total & 237 & \\ \hline
+    \end{tabular}
+\end{center}
 
 \subsubsection*{CMOS-implementable PRS}
 

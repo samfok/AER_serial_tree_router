@@ -460,7 +460,7 @@ namespace aer {
 
     namespace transmitter {
         export
-        template <pint N, root>
+        template <pint N; pbool root>
         defproc NODE (globals g; bool ci[N], co[N], pi, po; c1of<N> _c[N], _p) {
             // AEXT tree NODE
             bool c_[N], _co[N], _po, u, _u;
@@ -502,13 +502,13 @@ namespace aer {
                     )
                 }
 
-                [ root = 0 ->
+                [ ~root ->
                     prs<g.Vdd, g.GND> {
                         (: n : N :
                             p.d[n] => _p.d[n]-
                         )
                     }
-                [] root = 1 ->
+                [] root ->
                     p = _p;
                 ]
             [] LAYOUT ->
@@ -552,125 +552,70 @@ namespace aer {
                     )
                 }
 
-                [ root = 0 ->
+                [ ~root ->
                     prs<g.Vdd, g.GND> {
                         (: n : N :
                             ~p.d[n]<12> -> _p.d[n]+
                             p.d[n]<9> -> _p.d[n]-
                         )
                     }
-                [] root = 1 ->
+                [] root ->
                     p = _p;
                 ]
             ]
         }
 
         export
-        template <pint N, root>
-        defproc LEAF (globals g; bool ci[N], co[N], pi, po; c1of<N> _p) {
+        template <pint N; pbool root>
+        defproc LEAF (globals g; bool ci[N], co[N], pi, po; c1of<N> p) {
             // AEXT tree LEAF
-            bool c[N], _co[N], _u, u, _po;
-            c1of<N> _p_;
+            bool c[N], _c[N], __c[N], _u[N], v, _v, __v;
             ::arbiter::N_ARB_S<N> arb(g, ci, c);
+            c1of<N> p_;
+            prs<g.Vdd, g.GND> {
+                v => _v-
+                _v => __v-
 
-            [ ~LAYOUT ->
+                (: n : N :
+                    c[n] => _c[n]-
+                )
+
+                (| : n : N : ~_c[n]) & ~__v -> po+
+                g.pReset | pi & __v -> po-
+
+                (: n : N :
+                    _c[n] => __c[n]-
+                )
+
+                (: n : N :
+                    __c[n] & pi & _v -> _u[n]-
+                    ~__c[n] & ~po & ~pi -> _u[n]+
+                )
+
+                (| : n : N : ~_u[n]) & ~pi -> v+
+                (& : n : N : _u[n]) -> v-
+
+                (: n : N :
+                    ~_u[n] & ~_c[n] => p_.d[n]+
+                )
+
+                (: n : N :
+                    ~_u[n] & ~_v => co[n]+
+                )
+            }
+            [ root ->
+                p_ = p; // preserve sense
+            [] ~root ->
                 prs<g.Vdd, g.GND> {
-                    _u & (| : n : N : c[n]) -> _po-
-                    ~g._pReset | (| : n : N : ~_co[n] & ~c[n]) -> _po+
-
-                    _po => po-
-
                     (: n : N :
-                        c[n] & pi & _u -> _p_.d[n]-
-                        ~g._pReset | ~_u -> _p_.d[n]+
-                    )
-
-                    ~pi & (| : n : N : ~_p_.d[n]) -> u+
-                    _po & (& : n : N : _co[n]) -> u-
-
-                    ~u -> _u+
-                    u -> _u-
-
-                    c[0] & u & pi & (& : n : 1..N-1 : _co[n]) -> _co[0]-
-                    (: n : 1..N-2:
-                        c[n] & u & pi & 
-                        (& : nn : 0..n-1 : _co[nn]) & 
-                        (& : nn : n+1..N-1 : _co[nn]) -> _co[n]-
-                    )
-                    c[N-1] & u & pi & (& : n : 0..N-2 : _co[n]) -> _co[N-1]-
-                    (: n : N :
-                        ~pi -> _co[n]+
-
-                        ~_co[n] -> co[n]+
-                        _co[n] -> co[n]-
+                        p_.d[n] => p.d[n]- // switch to active low
                     )
                 }
-
-                [ root = 0 ->
-                    _p_ = _p;
-                [] root = 1 ->
-                    // present normal sense interface
-                    prs<g.Vdd, g.GND> {
-                        (: n : N :
-                            ~_p_.d[n] -> _p.d[n]+
-                            _p_.d[n] -> _p.d[n]-
-                        )
-                    }
-                ]
-            [] LAYOUT ->
-                prs<g.Vdd, g.GND> {
-                    _u<26> & (| : n : N : c[n]<26>) -> _po-
-                    ~g._pReset | (| : n : N : ~_co[n]<44> &
-                        ~c[n]<44>) -> _po+
-
-                    ~_po<12> -> po+
-                    _po<8> -> po-
-
-                    (: n : N :
-                        c[n]<18> & pi<18> & _u<18> -> _p_.d[n]-
-                        ~g._pReset | ~_u<16> -> _p_.d[n]+
-                    )
-
-                    (| : n : N : ~_p_.d[n]<45>) & ~pi<45> -> u+
-                    _po<40> & (& : n : N : _co[n]<40>) -> u-
-
-                    ~u<15> -> _u+
-                    u<10> -> _u-
-
-                    c[0]<45> & u<45> & pi<45> &
-                        (& : n : 1..N-1 : _co[n]<45>) -> _co[0]-
-                    (: n : 1..N-2:
-                        c[n]<45> & u<45> & pi<45> & 
-                        (& : nn : 0..n-1 : _co[nn]<45>) & 
-                        (& : nn : n+1..N-1 : _co[nn]<45>) -> _co[n]-
-                    )
-                    c[N-1]<45> & u<45> & pi<45> &
-                        (& : n : 0..N-2 : _co[n]<45>) -> _co[N-1]-
-                    (: n : N :
-                        ~pi<30> -> _co[n]+
-
-                        ~_co[n]<12> -> co[n]+
-                        _co[n]<9> -> co[n]-
-                    )
-                }
-
-                [ root = 0 ->
-                    _p_ = _p;
-                [] root = 1 ->
-                    // present normal sense interface
-                    c1of<N> p = _p;
-                    prs<g.Vdd, g.GND> {
-                        (: n : N :
-                            ~_p_.d[n]<12> -> p.d[n]+
-                            _p_.d[n]<6> -> p.d[n]-
-                        )
-                    }
-                ]
             ]
         }
 
         export
-        template <pint M, N, NN, root>
+        template <pint M, N, NN; pbool root>
         defproc AEXT_ (globals g; bool xi[NN], xo[NN], pi, po; c1of<N> p) {
             // utility for AEXT
             [ M = 1 ->
@@ -678,7 +623,7 @@ namespace aer {
                 LEAF<N, root> leaf(g, xi, xo, pi, po, p);
             [] M > 1 ->
                 pint k = NN/N;
-                AEXT_<M-1, N, k, 0> _[N];
+                AEXT_<M-1, N, k, false> _[N];
                 (; n : N :
                     _[n].g = g;
                     _[n].xi = xi[n*k..(n+1)*k-1];
@@ -699,7 +644,7 @@ namespace aer {
     template <pint M, N, NN>
     defproc AEXT (globals g; bool xi[NN], xo[NN], pi, po; c1of<N> p) {
         // Transmitter
-        transmitter::AEXT_<M, N, NN, 1> _(g, xi, xo, pi, po, p);
+        transmitter::AEXT_<M, N, NN, true> _(g, xi, xo, pi, po, p);
     }
 
     namespace receiver {
