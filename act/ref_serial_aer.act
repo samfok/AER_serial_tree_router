@@ -198,18 +198,18 @@ namespace aer {
 
             prs<g.Vdd, g.GND> {
                 (| : n : N : c[n]) & ~v -> po+
-                g.pReset | (| : n : N : u[n] & ~c[n]) & pi -> po-
+                g.pReset | pi & v -> po-
 
                 (: n : N :
                     c[n] & pi & ~v -> u[n]+
-                    ~po & ~pi -> u[n]-
+                    ~c[n] & ~po & ~pi -> u[n]-
                 )
 
                 (| : n : N : u[n]) & ~pi -> v+
                 (& : n : N : ~u[n]) -> v-
             
                 (: n : N :
-                    u[n] & ~co[n] => p.d[n]+
+                    u[n] & c[n] => p.d[n]+
                 )
                 
                 (: n : N :
