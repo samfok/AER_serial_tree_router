@@ -463,34 +463,34 @@ namespace aer {
         template <pint N; pbool root>
         defproc NODE (globals g; bool ci[N], co[N], pi, po; c1of<N> _c[N], _p) {
             // AEXT tree NODE
-            bool c_[N], _co[N], _po, u, _u;
-            c1of<N> _w, p;
+            bool c_[N], _co[N], _po, v, _v, _u[N];
+            c1of<N> p;
             ::arbiter::N_ARB_S<N> arb(g, ci, c_);
 
             [ ~LAYOUT ->
                 prs<g.Vdd, g.GND> {
-                    _u & (| : n : N : c_[n]) -> _po-
+                    _v & (| : n : N : c_[n]) -> _po-
                     ~g._pReset | (| : n : N : ~_co[n] & ~c_[n]) -> _po+
 
                     _po => po-
 
                     (: n : N :
-                        c_[n] & pi & _u -> _w.d[n]-
-                        ~g._pReset | ~_u -> _w.d[n]+
+                        c_[n] & pi & _v -> _u[n]-
+                        ~g._pReset | ~_v -> _u[n]+
                     )
 
-                    ~pi & (| : n : N : ~_w.d[n]) -> u+
-                    _po & (& : n : N : _co[n]) -> u-
+                    ~pi & (| : n : N : ~_u[n]) -> v+
+                    _po & (& : n : N : _co[n]) -> v-
 
-                    u => _u-
+                    v => _v-
 
-                    c_[0] & u & pi & (& : n : 1..N-1 : _co[n]) -> _co[0]-
+                    c_[0] & v & pi & (& : n : 1..N-1 : _co[n]) -> _co[0]-
                     (: n : 1..N-2:
-                        c_[n] & u & pi & 
+                        c_[n] & v & pi & 
                             (& : nn : 0..n-1 : _co[nn]) & 
                             (& : nn : n+1..N-1 : _co[nn]) -> _co[n]-
                     )
-                    c_[N-1] & u & pi & (& : n : 0..N-2 : _co[n]) -> _co[N-1]-
+                    c_[N-1] & v & pi & (& : n : 0..N-2 : _co[n]) -> _co[N-1]-
                     (: n : N :
                         ~pi -> _co[n]+
 
@@ -498,7 +498,7 @@ namespace aer {
                     )
 
                     (: n : N :
-                        (| : nc : N : ~_c[nc].d[n]) | ~_w.d[n] => p.d[n]+
+                        (| : nc : N : ~_c[nc].d[n]) | ~_u[n] => p.d[n]+
                     )
                 }
 
@@ -513,31 +513,31 @@ namespace aer {
                 ]
             [] LAYOUT ->
                 prs<g.Vdd, g.GND> {
-                    _u<26> & (| : n : N : c_[n]<26>) -> _po-
+                    _v<26> & (| : n : N : c_[n]<26>) -> _po-
                     ~g._pReset | (| : n : N : ~_co[n]<45> & ~c_[n]<45>) -> _po+
 
                     ~_po<12> -> po+
                     _po<8> -> po-
 
                     (: n : N :
-                        c_[n]<20> & pi<20> & _u<20> -> _w.d[n]-
-                        ~g._pReset | ~_u<16> -> _w.d[n]+
+                        c_[n]<20> & pi<20> & _v<20> -> _u[n]-
+                        ~g._pReset | ~_v<16> -> _u[n]+
                     )
 
-                    ~pi<45> & (| : n : N : ~_w.d[n]<45>) -> u+
-                    _po<40> & (& : n : N : _co[n]<40>) -> u-
+                    ~pi<45> & (| : n : N : ~_u[n]<45>) -> v+
+                    _po<40> & (& : n : N : _co[n]<40>) -> v-
 
-                    ~u<15> -> _u+
-                    u<9> -> _u-
+                    ~v<15> -> _v+
+                    v<9> -> _v-
 
-                    c_[0]<48> & u<48> & pi<48> & 
+                    c_[0]<48> & v<48> & pi<48> & 
                         (& : n : 1..N-1 : _co[n]<48>) -> _co[0]-
                     (: n : 1..N-2:
-                        c_[n]<48> & u<48> & pi<48> & 
+                        c_[n]<48> & v<48> & pi<48> & 
                             (& : nn : 0..n-1 : _co[nn]<48>) & 
                             (& : nn : n+1..N-1 : _co[nn]<48>) -> _co[n]-
                     )
-                    c_[N-1]<48> & u<48> & pi<48> &
+                    c_[N-1]<48> & v<48> & pi<48> &
                         (& : n : 0..N-2 : _co[n]<48>) -> _co[N-1]-
                     (: n : N :
                         ~pi<27> -> _co[n]+
@@ -547,8 +547,8 @@ namespace aer {
                     )
 
                     (: n : N :
-                        (| : nc : N : ~_c[nc].d[n]<18>) | ~_w.d[n]<18> -> p.d[n]+
-                        (& : nc : N : _c[nc].d[n]<30>) & _w.d[n]<30> -> p.d[n]-
+                        (| : nc : N : ~_c[nc].d[n]<18>) | ~_u[n]<18> -> p.d[n]+
+                        (& : nc : N : _c[nc].d[n]<30>) & _u[n]<30> -> p.d[n]-
                     )
                 }
 

@@ -232,9 +232,30 @@ LEAF and NODE, a spike packet is prepended with a word indicating which
 branch it came from.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{NRN \label{sec:AEXT_NRN}}
+
+From the perspective of the transmitter, neurons simply transmit $\phi$ to 
+emit a spike and $\neg\phi$ after reset.
+
+\subsubsection*{CHP}
+
+\begin{csp}
+*[X!\phi;X!\neg\phi]
+\end{csp}
+
+\subsubsection*{HSE}
+
+\begin{hse}
+*[x\phi+;[xi];x\phi-;[~xi]]
+\end{hse}
+
+\noindent
+The HSE implements the two CHP communications using a pair of 2-phase handshakes.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{AEXT LEAF \label{sec:AEXT_LEAF}}
 
-The leaf node receives spikes from its attached neurons and initiates spike
+The LEAF node receives spikes from its attached neurons and initiates spike
 packets to send up the tree. The input/output ports are shown as follows:
 
 \begin{center}
@@ -242,15 +263,11 @@ packets to send up the tree. The input/output ports are shown as follows:
 \end{center}
 
 \noindent
-As mentioned in Section~\ref{sec:intro}, 
-we give diagrams and code for a binary tree and 1-of-2 words
-even though the design uses a 4-ary tree and 1-of-4 words
-for the sake of compactness.
+As mentioned in Section~\ref{sec:intro}, although
+we give diagrams and code for a binary tree and 1-of-2 words for the sake of 
+compactness, the design uses a 4-ary tree and 1-of-4 words.
 
 \subsubsection*{Pseudo-code}
-
-Neurons simply transmit $\phi$ when emitting a spike and 
-$\neg\phi$ when reset.
 
 \begin{lstlisting}[mathescape]
 Repeat {
@@ -268,6 +285,13 @@ Repeat {
   \|#{C1=\phi}->P!C1?;P!1;P!C0?
  ]]
 \end{csp}
+
+\noindent
+Matching the CHP to the psuedo-code, the nondeterministic selection and 
+probes implement the wait and arbitrate between neurons. \\
+Traversing the first branch, $P!C0?$ relays $\phi$ from neuron to parent. \\
+$P!0$ sends $0$ to the parent to indicate the selected neuron. \\
+The second $P!C0?$ relays $\neg\phi$ from neuron to parent.
 
 \subsubsection*{HSE}
 
@@ -288,25 +312,119 @@ We implement the HSE
 \end{hse}
 
 \noindent
-To get there, we start by directly translating the CHP
+To get there, we start by directly translating the CHP:
+
+\begin{hse}
+*[[c0\phi->p\phi+;[pi];c0o+;
+    p0+;[~pi];p0-;[pi];
+    [~c0\phi];p\phi-;[~pi];c0o-
+  \|c1\phi->p\phi+;[pi];c1o+;
+    p1+;[~pi];p1-;[pi];
+    [~c1\phi];p\phi-;[~pi];c1o-
+ ]]
+\end{hse}
+
+\noindent
+To match the HSE to the CHP, consider the first branch of the nondeterministic
+selection: 
+
+$c0\phi\rightarrow\phi\uparrow;\texttt{[}p_i\texttt{]};c0_o$ implements 
+$\overline{C0=\phi}\longrightarrow P!C0?$ with 2-phase communications that
+pair with the 2-phase communications at the end of the branch.
+
+$p0\uparrow;\texttt{[}\neg p_i\texttt{]};p0\downarrow;\texttt{[}p_i\texttt{]}$ implements $P!0$ with a 4-phase communication.
+
+$\texttt{[}\neg c0\phi\texttt{]};p\phi\downarrow;\texttt{[}\neg pi\texttt{]};c0o\downarrow$ implements $P!C0$ with 2-phase communications that pair with the 
+2-phase communications at the beginning of the branch. \\
+
+\noindent
+The states immediately before and after the second communication are 
+indistinguishable, so we overlap the first and the third communications into 
+the second communication.
+
+\begin{hse}
+*[[c0\phi->p\phi+;[pi];
+    p0+;[~pi];\red{c0o+;[~c0\phi]};p0-;[pi];
+    p\phi-;[~pi];c0o-
+  \|c1\phi->p\phi+;[pi];
+    p1+;[~pi];\red{c1o+;[~c1\phi]};p1-;[pi];
+    p\phi-;[~pi];c1o-
+ ]]
+\end{hse}
+
+\noindent
+Since we have ready-made N-way arbiters, we introduce state variables $c[0,1]$
+to represent the arbitration.
+
+\begin{hse}
+*[[c0\phi->\red{c0+};p\phi+;[pi];
+    p0+;[~pi];c0o+;[~c0\phi];\red{c0-};p0-;[pi];
+    p\phi-;[~pi];c0o-
+  \|c1\phi->\red{c1+};p\phi+;[pi];
+    p1+;[~pi];c1o+;[~c1\phi];\red{c1-};p1-;[pi];
+    p\phi-;[~pi];c1o-
+ ]]
+\end{hse}
+
+\noindent
+and break out the nondeterministic selection into a separate, arbitration process.
+
+\begin{hse}
+*[[\red{c0\phi->c0+;[~c0\phi];c0-}
+  \|\red{c1\phi->c1+;[~c1\phi];c1-}
+ ]]
+
+*[[\red{c0}->p\phi+;[pi];
+    p0+;[~pi];c0o+;[\red{~c0}];p0-;[pi];
+    p\phi-;[~pi];c0o-
+  []\red{c1}->p\phi+;[pi];
+    p1+;[~pi];c1o+;[\red{~c1}];p1-;[pi];
+    p\phi-;[~pi];c1o-
+ ]]
+\end{hse}
+
+\noindent
+However, note that the arbitration process is free to select a different branch
+as soon as one branch completes. For example, after $c0\!\downarrow$ compeletes,
+the arbitration process is free to execute $c1\!\uparrow$ should $c1\phi$ be high.
+Therefore, we add state variable $v$ to preserve the mutual exclusion in the
+mutually exclusive selection process.
 
 \begin{hse}
 *[[c0\phi->c0+;[~c0\phi];c0-
   \|c1\phi->c1+;[~c1\phi];c1-
  ]]
 
-*[[c0->p\phi+;[pi];u0+;
-    p0+;[~pi];v+;c0o+;[~c0];p0-;[pi];
-    p\phi-;[~pi];u0-;c0o-,v-
-  []c1->p\phi+;[pi];u1+;
-    p1+;[~pi];v+;c1o+;[~c1];p1-;[pi];
-    p\phi-;[~pi];u1-;c1o-,v-
+*[[c0->p\phi+;[pi];
+    p0+;[~pi];\red{v+};c0o+;[~c0];p0-;[pi];
+    p\phi-;[~pi];c0o-,\red{v-}
+  []c1->p\phi+;[pi];
+    p1+;[~pi];\red{v+};c1o+;[~c1];p1-;[pi];
+    p\phi-;[~pi];c1o-,\red{v-}
  ]]
 \end{hse}
 
-[TODO: explain how the HSE implements the CHP]
+\noindent
+Since $v\!\uparrow$ occurs before acknowledging the neurons with $c0_o\!\uparrow$
+or $c1_o\!\uparrow$, we can use $v$ to exclude the non-selected branches.
 
-[TODO: derive the final HSE]
+\noindent
+Finally, to make the $p[0,1]$ and $c[0,1]_o$ gates combinational and overall 
+reduce transistor count, we introduce state variables $u[0,1]$.
+
+\begin{hse}
+*[[c0\phi->c0+;[~c0\phi];c0-
+  \|c1\phi->c1+;[~c1\phi];c1-
+ ]]
+
+*[[c0->p\phi+;[pi];\red{u0+}
+    p0+;[~pi];v+;c0o+;[~c0];p0-;[pi];
+    p\phi-;[~pi];\red{u0-};c0o-,v-
+  []c1->p\phi+;[pi];\red{u1+}
+    p1+;[~pi];v+;c1o+;[~c1];p1-;[pi];
+    p\phi-;[~pi];\red{u1-};c1o-,v-
+ ]]
+\end{hse}
 
 \noindent
 which completes our expansion.
@@ -328,7 +446,10 @@ c0 & pi & ~v -> u0+
 c1 & pi & ~v -> u1+
 ~c1 & ~p\phi & ~pi -> u1-
 \end{prs2}
-% ~c in pulldown for eliminating an isochronic fork
+
+\noindent
+The $\neg c[0,1]$ in the pulldowns eliminate an isochronic fork to allow for
+bubble-reshuffling.
 
 \begin{prs2}
 (u0 | u1) & ~pi -> v+
@@ -487,21 +608,21 @@ Repeat {
 \end{csp}
 
 \noindent
-To match the CHP to the psuedo-code, consider the top process. \\
-First, we arbitrate between $\overline{C0=\phi}$ and 
-$\overline{C1=\phi}$. \\
-$P!C0?$ or $P!C1?$ relay $\phi$ to the parent. \\
-$P!0$ and $P!1$ prepend a word to the parent indicating which child was 
-selected. \\
-Next, we wait for $\overline{C0=\neg\phi}$ or $\overline{C1=\neg\phi}$ 
-and relay $\neg\phi$ to the parent with $P!C0?$ or $P!C1?$ \\
-
-\noindent
-In the bottom process, we simply relay data from the children to the parent.
-Following the serial protocol, a child will only send data after having 
+Matching the CHP to the psuedo-code, the nondeterministic selection and 
+probes in the first process implement the wait and arbitrate between children. \\
+Traversing the first process' first branch, $P!C0?$ relays $\phi$ to the parent. \\
+$P!0$ sends $0$ to the parent to indicate the selected child. \\
+Next, we wait for $\overline{C0=\neg\phi}$, which implements the while-loop 
+condition. \\
+While the top process waits for $\neg\phi$, the bottom process relays 
+data from the children to the parent. \\
+A child following the serial protocol only sends data after having 
 its $\phi$ communication completed. Therefore the arbitration in
 the top process ensures that branches in the bottom process are mutually 
 exclusive. \\
+Finally, when $\neg\phi$ arrives, we return to the top process and relay
+$\neg\phi$ with $P!C0?$. \\
+
 
 \subsubsection*{HSE}
 
@@ -512,10 +633,16 @@ We implement the HSE
   \|c1\phi->c1+;[~c1\phi];c1-
  ]]
 
-*[[c0->p\phi+;[pi];w0+;p0+[~pi];u+;w0-;p0-;[pi];c0o+;[~c0];p\phi-;[~pi];c0o-;u-
-  []c1->p\phi+;[pi];w1+;p1+;[~pi];u+;w1-;p1-;[pi];c1o+;[~c1];p\phi-;[~pi];c1o-;u-
+*[[c0->p\phi+;[pi];w0+;
+    p0+[~pi];u+;w0-;p0-;[pi];c0o+;
+    [~c0];p\phi-;[~pi];c0o-;u-
+  []c1->p\phi+;[pi];w1+;
+    p1+;[~pi];u+;w1-;p1-;[pi];c1o+;
+    [~c1];p\phi-;[~pi];c1o-;u-
  ]]
+\end{hse}
 
+\begin{hse}
 *[[c00->p0+;[~pi];c0o-;[~c00];p0-;[pi];c0o+
   []c01->p1+;[~pi];c1o-;[~c01];p1-;[pi];c1o+
   []c10->p0+;[~pi];c0o-;[~c10];p0-;[pi];c0o+
@@ -527,10 +654,16 @@ We implement the HSE
 To get there, we first directly translate the CHP.
 
 \begin{hse}
-*[[c0\phi->p\phi+;[pi];c0o+;p0+;[~pi];p0-;[pi];[~c0\phi];p\phi-;[~pi];c0o-
-  \|c1\phi->p\phi+;[pi];c1o+;p1+;[~pi];p1-;[pi];[~c1\phi];p\phi-;[~pi];c1o-
+*[[c0\phi->p\phi+;[pi];c0o+;
+    p0+;[~pi];p0-;[pi];
+    [~c0\phi];p\phi-;[~pi];c0o-
+  \|c1\phi->p\phi+;[pi];c1o+;
+    p1+;[~pi];p1-;[pi];
+    [~c1\phi];p\phi-;[~pi];c1o-
  ]]
+\end{hse}
 
+\begin{hse}
 *[[c00->p0+;[~pi];c0o-;[~c00];p0-;[pi];c0o+
   []c01->p1+;[~pi];c1o-;[~c01];p1-;[pi];c1o+
   []c10->p0+;[~pi];c0o-;[~c10];p0-;[pi];c0o+
@@ -544,31 +677,22 @@ standard, unpipelined 4-phase handshake expansion of relaying data from the
 children to the parent.
 
 \noindent
+The child can send data as soon as $c[0,1]_o\!\uparrow$ completes.
 To ensure that we prepend a word indicating which child was selected before
-the child sends data, we overlap the $\phi$ communication with the 
-prepend communication.
+the child sends data, we overlap the $P!C[0,1]?$ communications relaying
+$\phi$ to the parent across the $P![0,1]$ communications.
 
 \begin{hse}
-*[[c0\phi->p\phi+;[pi];p0+;[~pi];p0-;[pi];c0o+;[~c0\phi];p\phi-;[~pi];c0o-
-  \|c1\phi->p\phi+;[pi];p1+;[~pi];p1-;[pi];c1o+;[~c1\phi];p\phi-;[~pi];c1o-
- ]]
-
-*[[c00->p0+;[~pi];c0o-;[~c00];p0-;[pi];c0o+
-  []c01->p1+;[~pi];c1o-;[~c01];p1-;[pi];c1o+
-  []c10->p0+;[~pi];c0o-;[~c10];p0-;[pi];c0o+
-  []c11->p1+;[~pi];c1o-;[~c11];p1-;[pi];c1o+
+*[[c0\phi->p\phi+;[pi];
+    p0+;[~pi];p0-;[pi];\red{c0o+;}
+    [~c0\phi];p\phi-;[~pi];c0o-
+  \|c1\phi->p\phi+;[pi];
+    p1+;[~pi];p1-;[pi];\red{c1o+;}
+    [~c1\phi];p\phi-;[~pi];c1o-
  ]]
 \end{hse}
 
-
-\noindent
-We introduce state variables $w0$ and $w1$.
-
 \begin{hse}
-*[[c0\phi->p\phi+;[pi];\red{w0+};p0+;[~pi];\red{w0-};p0-;[pi];c0o+;[~c0\phi];p\phi-;[~pi];c0o-
-  \|c1\phi->p\phi+;[pi];\red{w1+};p1+;[~pi];\red{w1-};p1-;[pi];c1o+;[~c1\phi];p\phi-;[~pi];c1o-
- ]]
-
 *[[c00->p0+;[~pi];c0o-;[~c00];p0-;[pi];c0o+
   []c01->p1+;[~pi];c1o-;[~c01];p1-;[pi];c1o+
   []c10->p0+;[~pi];c0o-;[~c10];p0-;[pi];c0o+
@@ -577,13 +701,20 @@ We introduce state variables $w0$ and $w1$.
 \end{hse}
 
 \noindent
-We introduce state variable $u$.
+The states immediately before and after the $P![0,1]$ communications are
+indistinguishable, so we introduce state variables $u0$ and $u1$.
 
 \begin{hse}
-*[[c0\phi->p\phi+;[pi];w0+;p0+;[~pi];\red{u+};w0-;p0-;[pi];c0o+;[~c0\phi];p\phi-;[~pi];c0o-;\red{u-}
-  \|c1\phi->p\phi+;[pi];w0+;p1+;[~pi];\red{u+};w1-;p1-;[pi];c1o+;[~c1\phi];p\phi-;[~pi];c1o-;\red{u-}
+*[[c0\phi->p\phi+;[pi];\red{u0+};
+    p0+;[~pi];\red{u0-};p0-;[pi];c0o+;
+    [~c0\phi];p\phi-;[~pi];c0o-
+  \|c1\phi->p\phi+;[pi];\red{u1+};
+    p1+;[~pi];\red{u1-};p1-;[pi];c1o+;
+    [~c1\phi];p\phi-;[~pi];c1o-
  ]]
+\end{hse}
 
+\begin{hse}
 *[[c00->p0+;[~pi];c0o-;[~c00];p0-;[pi];c0o+
   []c01->p1+;[~pi];c1o-;[~c01];p1-;[pi];c1o+
   []c10->p0+;[~pi];c0o-;[~c10];p0-;[pi];c0o+
@@ -592,13 +723,20 @@ We introduce state variable $u$.
 \end{hse}
 
 \noindent
-Finally, we introduce state variables $c0$ and $c1$ to represent the arbitration
+Since we have ready-made N-way arbiters, we introduce state variables $c[0,1]$ 
+to represent the arbitration.
 
 \begin{hse}
-*[[c0\phi->\red{c0+};p\phi+;[pi];w0+;p0+;[~pi];u+;w0-;p0-;[pi];c0o+;[~c0\phi];\red{c0-};p\phi-;[~pi];c0o-;u-
-  \|c1\phi->\red{c1+};p\phi+;[pi];w1+;p1+;[~pi];u+;w1-;p1-;[pi];c1o+;[~c1\phi];\red{c1-};p\phi-;[~pi];c1o-;u-
+*[[c0\phi->\red{c0+};p\phi+;[pi];u0+
+    p0+;[~pi];u0-;p0-;[pi];c0o+;
+    [~c0\phi];\red{c0-};p\phi-;[~pi];c0o-
+  \|c1\phi->\red{c1+};p\phi+;[pi];u1+
+    p1+;[~pi];u1-;p1-;[pi];c1o+;
+    [~c1\phi];\red{c1-};p\phi-;[~pi];c1o-
  ]]
+\end{hse}
 
+\begin{hse}
 *[[c00->p0+;[~pi];c0o-;[~c00];p0-;[pi];c0o+
   []c01->p1+;[~pi];c1o-;[~c01];p1-;[pi];c1o+
   []c10->p0+;[~pi];c0o-;[~c10];p0-;[pi];c0o+
@@ -606,19 +744,50 @@ Finally, we introduce state variables $c0$ and $c1$ to represent the arbitration
  ]]
 \end{hse}
 
-
 \noindent
-and break out the arbitration into its own process
+and break out the nondeterministic selection into a separate, arbitration process.
 
 \begin{hse}
-*[[c0\phi->\red{c0+};[~c0\phi];\red{c0-}
-  \|c1\phi->\red{c1+};[~c1\phi];\red{c1-}
+*[[\red{c0\phi->c0+;[~c0\phi];c0-}
+  \|\red{c1\phi->c1+;[~c1\phi];c1-}
  ]]
 
-*[[\red{c0}->p\phi+;[pi];w0+;p0+[~pi];u+;w0-;p0-;[pi];c0o+;[\red{~c0}];p\phi-;[~pi];c0o-;u-
-  []\red{c1}->p\phi+;[pi];w1+;p1+;[~pi];u+;w1-;p1-;[pi];c1o+;[\red{~c1}];p\phi-;[~pi];c1o-;u-
+*[[\red{c0}->p\phi+;[pi];u0+;
+    p0+[~pi];u0-;p0-;[pi];c0o+;
+    [\red{~c0}];p\phi-;[~pi];c0o-
+  []\red{c1}->p\phi+;[pi];u1+;
+    p1+;[~pi];u1-;p1-;[pi];c1o+;
+    [\red{~c1}];p\phi-;[~pi];c1o-
+ ]]
+\end{hse}
+
+\begin{hse}
+*[[c00->p0+;[~pi];c0o-;[~c00];p0-;[pi];c0o+
+  []c01->p1+;[~pi];c1o-;[~c01];p1-;[pi];c1o+
+  []c10->p0+;[~pi];c0o-;[~c10];p0-;[pi];c0o+
+  []c11->p1+;[~pi];c1o-;[~c11];p1-;[pi];c1o+
+ ]]
+\end{hse}
+
+\noindent
+As in AEXT LEAF, the arbitration process is free to select a different branch
+as soon as one branch completes. Therefore, we add state variable $v$ to preserve the mutual exclusion in the mutually exclusive selection.
+
+\begin{hse}
+*[[c0\phi->c0+;[~c0\phi];c0-
+  \|c1\phi->c1+;[~c1\phi];c1-
  ]]
 
+*[[c0->p\phi+;[pi];u0+;
+    p0+;[~pi];\red{v+};u0-;p0-;[pi];c0o+;
+    [~c0];p\phi-;[~pi];c0o-;\red{v-}
+  []c1->p\phi+;[pi];u0+;
+    p1+;[~pi];\red{v+};u1-;p1-;[pi];c1o+;
+    [~c1];p\phi-;[~pi];c1o-;\red{v-}
+ ]]
+\end{hse}
+
+\begin{hse}
 *[[c00->p0+;[~pi];c0o-;[~c00];p0-;[pi];c0o+
   []c01->p1+;[~pi];c1o-;[~c01];p1-;[pi];c1o+
   []c10->p0+;[~pi];c0o-;[~c10];p0-;[pi];c0o+
