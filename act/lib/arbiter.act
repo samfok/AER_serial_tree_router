@@ -17,11 +17,12 @@ namespace arbiter {
     
         //Cross-Coupled NANDs
         prs<g.Vdd, g.GND> {
-            i[0] & _x[1]  -> _x[0]-
-            ~i[0] | ~_x[1]  -> _x[0]+
-            i[1] & _x[0]  -> _x[1]-
-            ~i[1] | ~_x[0]  -> _x[1]+
+            i[0]<16> & _x[1]<16> -> _x[0]-
+            ~i[0]<12> | ~_x[1]<12> -> _x[0]+
+            i[1]<16> & _x[0]<16> -> _x[1]-
+            ~i[1]<12> | ~_x[0]<12> -> _x[1]+
         }
+        
     
         //Filter
         [ ~LAYOUT ->
@@ -31,11 +32,11 @@ namespace arbiter {
             }
         [] LAYOUT ->
             prs<g.Vdd, g.GND> {
-                [keeper=0] passp(_x[0], _x[1], o[0])
-                [keeper=0] _x[0] -> o[0]-
+                [keeper=0] passp<12>(_x[0], _x[1], o[0])
+                [keeper=0] _x[0]<9> -> o[0]-
     
-                [keeper=0] passp(_x[1], _x[0], o[1])
-                [keeper=0] _x[1] -> o[1]-
+                [keeper=0] passp<12>(_x[1], _x[0], o[1])
+                [keeper=0] _x[1]<9> -> o[1]-
             }
         ]
     }
@@ -51,10 +52,10 @@ namespace arbiter {
     
         //Cross-Coupled NORs
         prs<g.Vdd, g.GND> {
-            _i[0]<9> | x[1]<10> -> x[0]-
-            ~_i[0]<28> & ~x[1]<28> -> x[0]+
-            _i[1]<9> | x[0]<10> -> x[1]-
-            ~_i[1]<28> & ~x[0]<28> -> x[1]+
+            _i[0]<9> | x[1]<9> -> x[0]-
+            ~_i[0]<24> & ~x[1]<24> -> x[0]+
+            _i[1]<9> | x[0]<9> -> x[1]-
+            ~_i[1]<24> & ~x[0]<24> -> x[1]+
         }
     
         //Filter
@@ -65,10 +66,10 @@ namespace arbiter {
             }
         [] LAYOUT ->
             prs<g.Vdd, g.GND> {
-                [keeper=0] passn<8>(x[0], x[1], _o[0])
+                [keeper=0] passn<9>(x[0], x[1], _o[0])
                 [keeper=0] ~x[0]<12> -> _o[0]+
     
-                [keeper=0] passn<8>(x[1], x[0], _o[1])
+                [keeper=0] passn<9>(x[1], x[0], _o[1])
                 [keeper=0] ~x[1]<12> -> _o[1]+
             }
         ]

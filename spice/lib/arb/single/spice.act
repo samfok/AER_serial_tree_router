@@ -1,0 +1,26 @@
+import "globals.act";
+import "channel.act";
+import "arbiter.act";
+
+export defproc wrapper(globals_np g_np; a1of<1> A[1])
+{
+    bool Vdd;
+    bool GND;
+    globals g;
+
+    arbiter::ARB p(g,,);
+    g.Vdd = Vdd;
+    g.GND = GND;
+    prs <Vdd, GND> {
+        g_np._sReset<20> => g.sReset-
+        g_np._pReset<20> => g.pReset-
+    }
+    g._pReset = g_np._pReset;
+    g._sReset = g_np._sReset;
+
+    A[0].d[0] = p.i[0];
+    GND = p.i[1];
+    A[0].a = p.o[0];
+}
+
+wrapper dut;
