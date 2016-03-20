@@ -1,4 +1,6 @@
 // Tests serial tree AER system with 1 neuron
+
+/*CMOS implementable version-------------------------------------------------*/
 import "serial_aer.act";
 
 globals g;
@@ -7,14 +9,38 @@ pint M=3;
 pint N=2;
 pint NN=8;
 
-active_handshaker<1> x(g,,);
+SOURCE_random_a1of1 src(g,);
 passive_handshaker<1> y(g,,);
 aer::AER_NODATA<M, N, NN> aer(g,,,,);
-aer.xi[0] = x.o[0];
-aer.xo[0] = x.i[0];
+
+src.d.a = aer.xo[0];
+prs<g.Vdd, g.GND> {
+    src.d.d => aer._xi[0]-
+}
 aer.yi[0] = y.o[0];
 aer.yo[0] = y.i[0];
 (; nn : 1..NN-1 :
-    aer.xi[nn] = g.GND;
+    aer._xi[nn] = g.Vdd;
     aer.yi[nn] = g.GND;
 )
+
+/*reference version----------------------------------------------------------*/
+// import "ref_serial_aer.act";
+// 
+// globals g;
+// 
+// pint M=3;
+// pint N=2;
+// pint NN=8;
+// 
+// active_handshaker<1> x(g,,);
+// passive_handshaker<1> y(g,,);
+// aer::AER_NODATA<M, N, NN> aer(g,,,,);
+// aer.xi[0] = x.o[0];
+// aer.xo[0] = x.i[0];
+// aer.yi[0] = y.o[0];
+// aer.yo[0] = y.i[0];
+// (; nn : 1..NN-1 :
+//     aer.xi[nn] = g.GND;
+//     aer.yi[nn] = g.GND;
+// )

@@ -1,28 +1,58 @@
 // tests the serial aer transmitter
-import "serial_aer.act";
 
+/*CMOS implementable version-------------------------------------------------*/
+import "serial_aer.act";
 pint M=3;
 pint N=2;
 pint NN=8; // NN=N^M
 pint nn=0;
 globals g;
-
-active_handshaker<1> a(g,,);
+SOURCE_random_a1of1 src(g,);
 aer::AEXT<M, N, NN> aext(g,,,,,);
 aer::interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
-aer::interface::DESERIAL_RING<M, N> deserial(
-    g, out.y,);
+aer::interface::DESERIAL_RING<M, N> deserial(g, out.y,);
 SINK_eMx1ofN<M, N> snk(g, deserial.y);
 
-a.o[0] = aext.xi[nn];
-a.i[0] = aext.xo[nn];
 [ nn > 0 ->
     (; idx : 0..nn-1 :
-        aext.xi[idx] = g.GND;
+        aext._xi[idx] = g.Vdd;
     )
 ]
 [ nn < NN ->
     (; idx : nn+1..NN-1 :
-        aext.xi[idx] = g.GND;
+        aext._xi[idx] = g.Vdd;
     )
 ]
+    
+src.d.a = aext.xo[nn];
+prs<g.Vdd, g.GND> {
+    src.d.d => aext._xi[nn]-
+}
+
+/*reference version----------------------------------------------------------*/
+// import "ref_serial_aer.act";
+// pint M=3;
+// pint N=2;
+// pint NN=8; // NN=N^M
+// pint nn=0;
+// globals g;
+// 
+// active_handshaker<1> a(g,,);
+// aer::AEXT<M, N, NN> aext(g,,,,,);
+// aer::interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
+// aer::interface::DESERIAL_RING<M, N> deserial(
+//     g, out.y,);
+// SINK_eMx1ofN<M, N> snk(g, deserial.y);
+// 
+// a.o[0] = aext.xi[nn];
+// a.i[0] = aext.xo[nn];
+// [ nn > 0 ->
+//     (; idx : 0..nn-1 :
+//         aext.xi[idx] = g.GND;
+//     )
+// ]
+// [ nn < NN ->
+//     (; idx : nn+1..NN-1 :
+//         aext.xi[idx] = g.GND;
+//     )
+// ]

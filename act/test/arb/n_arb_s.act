@@ -3,8 +3,17 @@ import "arbiter.act";
 template <pint N>
 defproc TEST_N_ARB_S (globals g) {
     //tests N_ARB_S
-    active_handshaker<N> c(g,,);
-    arbiter::N_ARB_S<N> n_arb(g, c.o, c.i);
+    SOURCE_random_a1of1 src[N];
+    arbiter::N_ARB_S<N> n_arb(g,,);
+    (; n : N :
+        src[n].g = g;
+        src[n].d.a = n_arb.o[n];
+    )
+    prs<g.Vdd, g.GND> {
+        (: n : N :
+            src[n].d.d => n_arb._i[n]-
+        )
+    }
 }
 
 pint N=8;

@@ -357,23 +357,14 @@ namespace arbiter {
 
         export
         template <pint N>
-        defproc N_ARB_ (globals g; bool i[N], o[N], pi, _po) {
+        defproc N_ARB_ (globals g; bool _i[N], o[N], pi, _po) {
             // utility for N_ARB_S
             [ N = 1 ->
-                [ ~LAYOUT ->
-                    prs <g.Vdd, g.GND> {
-                        i[0] => _po-
-                    }
-                [] LAYOUT ->
-                    prs <g.Vdd, g.GND> {
-                        i[0]<6> -> _po-
-                        ~i[0]<12> -> _po+
-                    }
-                ]
+                _i[0] = _po;
                 o[0] = pi;
             [] N > 1 ->
-                N_ARB_<N/2> n_arb0(g, i[0..N/2-1], o[0..N/2-1],,);
-                N_ARB_<N-N/2> n_arb1(g, i[N/2..N-1], o[N/2..N-1],,);
+                N_ARB_<N/2> n_arb0(g, _i[0..N/2-1], o[0..N/2-1],,);
+                N_ARB_<N-N/2> n_arb1(g, _i[N/2..N-1], o[N/2..N-1],,);
                 MU_EX mu_ex(g,,,,);
                 PREQ preq(g, mu_ex.qo, mu_ex.qi, pi, _po);
                 mu_ex._ci[0] = n_arb0._po;
@@ -386,13 +377,15 @@ namespace arbiter {
 
     export
     template <pint N>
-    defproc N_ARB_S (globals g; bool i[N], o[N]) {
+    defproc N_ARB_S (globals g; bool _i[N], o[N]) {
         // Standard N-way arbiter as developed in Rajit's notes
         [ N = 1 ->
-            i[0] = o[0];
+            prs<g.Vdd, g.GND> {
+                _i[0] => o[0]-
+            }
         [] N > 1 ->
-            n_arb_s::N_ARB_<N/2> n_arb0(g, i[0..N/2-1], o[0..N/2-1],,);
-            n_arb_s::N_ARB_<N-N/2> n_arb1(g, i[N/2..N-1], o[N/2..N-1],,);
+            n_arb_s::N_ARB_<N/2> n_arb0(g, _i[0..N/2-1], o[0..N/2-1],,);
+            n_arb_s::N_ARB_<N-N/2> n_arb1(g, _i[N/2..N-1], o[N/2..N-1],,);
             _ARB _arb(g,,);
             _arb._i[0] = n_arb0._po;
             _arb._i[1] = n_arb1._po;
