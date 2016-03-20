@@ -63,7 +63,7 @@ namespace aer {
             (; m : M :
                 node[m].g = g;
                 node[m].x = split.y[m];
-                node[m].y = y.m[m];
+                node[m].y = y.m[M-1-m];
             )
             (; m : M-1 :
                 node[m].so = node[m+1].si;
@@ -156,8 +156,13 @@ namespace aer {
         template <pint N>
         defproc NODE (globals g; bool ci[N], co[N], pi, po; c1of<N> c[N], p) {
             // AEXT tree NODE
-            bool c_[N], u[N], v;
-            ::arbiter::N_ARB_S<N> arb(g, ci, c_);
+            bool _ci[N], c_[N], u[N], v;
+            prs<g.Vdd, g.GND> {
+                (: n : N :
+                    ci[n] => _ci[n]-
+                )
+            }
+            ::arbiter::N_ARB_S<N> arb(g, _ci, c_);
 
             prs<g.Vdd, g.GND> {
                 ~v & (| : n : N : c_[n]) -> po+
@@ -192,8 +197,13 @@ namespace aer {
         template <pint N>
         defproc LEAF (globals g; bool ci[N], co[N], pi, po; c1of<N> p) {
             // AEXT tree LEAF
-            bool c[N], u[N], v;
-            ::arbiter::N_ARB_S<N> arb(g, ci, c);
+            bool _ci[N], c[N], u[N], v;
+            prs<g.Vdd, g.GND> {
+                (: n : N :
+                    ci[n] => _ci[n]-
+                )
+            }
+            ::arbiter::N_ARB_S<N> arb(g, _ci, c);
 
             prs<g.Vdd, g.GND> {
                 (| : n : N : c[n]) & ~v -> po+
