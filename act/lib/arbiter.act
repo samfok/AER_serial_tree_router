@@ -409,13 +409,20 @@ namespace arbiter {
     template <pint N>
     defproc N_ARB_S_PREQ (globals g; bool i[N], o[N], pi, po) {
         // Standard N-way arbiter with exposed parent request port
-        n_arb_s::N_ARB_<N> n_arb(g, i, o, pi,);
+        n_arb_s::N_ARB_<N> n_arb(g,, o, pi,);
         [ ~LAYOUT ->
             prs<g.Vdd, g.GND> {
+                (: n : N :
+                    i[n] => n_arb._i[n]-
+                )
                 n_arb._po => po-
             }
         [] LAYOUT ->
             prs<g.Vdd, g.GND> {
+                (: n : N :
+                    ~i[n]<9> -> n_arb._i[n]+
+                    i[n]<6> -> n_arb._i[n]-
+                )
                 n_arb._po<6> -> po-
                 ~n_arb._po<12> -> po+
             }

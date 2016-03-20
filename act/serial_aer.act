@@ -721,42 +721,89 @@ namespace aer {
             // D 1-of-D data
             bool u[F], _u[F], uu, _v, __v, po;
             c1of<D> _p;
-            prs<g.Vdd, g.GND> {
-                (: f : F :
-                    u[f] => _u[f]-
-                )
-
-                (| : f : F : ~_u[f]) => uu+
-
-                ~_pi & ~uu | (| : f : F : ~_ci[f]) => po+
-
-                _v => __v-
-
-                (: d : D :
-                    p.d[d] => _p.d[d]-
-                )
-
-                (: f : F :
-                    ~_p.d[f] & ~__v -> u[f]+
-                    _pi -> u[f]-
-                )
-
-                uu & (& : f : F : _p.d[f]) -> _v-
-                ~uu -> _v+
-
-                (: f : F :
-                    __v & u[f] => _co[f]-
-                )
-
-                (: f : F :
-                    (: d : D :
-                        ~_p.d[d] & ~_co[f] => c[f].d[d]+
+            [ ~LAYOUT ->
+                prs<g.Vdd, g.GND> {
+                    (: f : F :
+                        u[f] => _u[f]-
                     )
-                )
-            }
-            prs<g.Vdd, g.GND> {
-                po => _po-
-            }
+
+                    (| : f : F : ~_u[f]) => uu+
+
+                    ~_pi & ~uu | (| : f : F : ~_ci[f]) => po+
+
+                    _v => __v-
+
+                    (: d : D :
+                        p.d[d] => _p.d[d]-
+                    )
+
+                    (: f : F :
+                        ~_p.d[f] & ~__v -> u[f]+
+                        _pi -> u[f]-
+                    )
+
+                    uu & (& : f : F : _p.d[f]) -> _v-
+                    ~uu -> _v+
+
+                    (: f : F :
+                        __v & u[f] => _co[f]-
+                    )
+
+                    (: f : F :
+                        (: d : D :
+                            ~_p.d[d] & ~_co[f] => c[f].d[d]+
+                        )
+                    )
+                }
+                prs<g.Vdd, g.GND> {
+                    po => _po-
+                }
+            [] LAYOUT ->
+                prs<g.Vdd, g.GND> {
+                    (: f : F :
+                        ~u[f] -> _u[f]+
+                        u[f] -> _u[f]-
+                    )
+
+                    (| : f : F : ~_u[f]) -> uu+
+                    (& : f : F : _u[f]) -> uu-
+
+                    ~_pi<27> & ~uu<27> | (| : f : F : ~_ci[f]<27>) -> po+
+                    (_pi<24> | uu<24>) & (& : f : F : _ci[f]<24>) -> po-
+
+                    ~_v<9> -> __v+
+                    _v<6> -> __v-
+
+                    (: d : D :
+                        ~p.d[d]<9> -> _p.d[d]+
+                        p.d[d]<6> -> _p.d[d]-
+                    )
+
+                    (: f : F :
+                        ~_p.d[f]<18> & ~__v<18> -> u[f]+
+                        _pi<6> -> u[f]-
+                    )
+
+                    uu<30> & (& : f : F : _p.d[f]<30>) -> _v-
+                    ~uu<12> -> _v+
+
+                    (: f : F :
+                        ~__v<9> | ~u[f]<9> -> _co[f]+
+                        __v<12> & u[f]<12> -> _co[f]-
+                    )
+
+                    (: f : F :
+                        (: d : D :
+                            ~_p.d[d]<18> & ~_co[f]<18> -> c[f].d[d]+
+                            _p.d[d]<6> | _co[f]<6> -> c[f].d[d]-
+                        )
+                    )
+                }
+                prs<g.Vdd, g.GND> {
+                    ~po<9> -> _po+
+                    po<6> -> _po-
+                }
+            ]
         }
 
         export
@@ -878,10 +925,13 @@ namespace aer {
         receiver::AERV_<M, F_INT, F_LEAF, T, D> _(g, _yi,,,, y, p);
         prs<g.Vdd, g.GND> {
             (: t : T :
-                _._yo[t] => yo[t]-
+                ~_._yo[t]<9> -> yo[t]+
+                _._yo[t]<6> -> yo[t]-
             )
-            pi => _._pi-
-            _._po => po-
+            ~pi<9> -> _._pi+
+            pi<6> -> _._pi-
+            ~_._po<9> -> po+
+            _._po<6> -> po-
         }
     }
 
@@ -909,10 +959,20 @@ namespace aer {
             // merges acknowledges from children with pphi acknowledge
             // C clients
             bool _cci;
-            prs<g.Vdd, g.GND> {
-                (& : c : C : ~ci[c]) => _cci+
-                pp & _cci => _po-
-            }
+            [ ~LAYOUT ->
+                prs<g.Vdd, g.GND> {
+                    (& : c : C : ~ci[c]) => _cci+
+                    pp & _cci => _po-
+                }
+            [] LAYOUT ->
+                prs<g.Vdd, g.GND> {
+                    (& : c : C : ~ci[c]<9*C>) -> _cci+
+                    (| : c : C : ci[c]<6>) -> _cci-
+
+                    pp<12> & _cci<12> -> _po-
+                    ~pp<9> | ~_cci<9> -> _po+
+                }
+            ]
         }
     } // namespace brain_receiver
 
