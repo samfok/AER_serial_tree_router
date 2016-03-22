@@ -4,29 +4,32 @@ export defproc wrapper(globals_np g_np; a1of<1> src; eMx1of4<3> snk)
 {
     bool Vdd;
     bool GND;
+    globals g;
     pint M = 3;
     pint N = 4;
     pint NN = 64;
 
-    aer::AEXT<M, N, NN> aext;
-    aer::interface::OUT_a1ofN<N> out(aext.g, aext.po, aext.pi, aext.p,);
+    aer::AEXT<M, N, NN> aext(g,,,,,);
+    aer::interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
     aer::interface::DESERIAL_RING<M, N> deserial(aext.g, out.y,);
 
     // rails and reset
-    aext.g.Vdd = Vdd;
-    aext.g.GND = GND;
+    g.Vdd = Vdd;
+    g.GND = GND;
     prs <Vdd, GND> {
-        g_np._sReset<20> => aext.g.sReset-
-        g_np._pReset<20> => aext.g.pReset-
+        g_np._sReset<20> => g.sReset-
+        g_np._pReset<20> => g.pReset-
     }
-    aext.g._pReset = g_np._pReset;
-    aext.g._sReset = g_np._sReset;
+    g._pReset = g_np._pReset;
+    g._sReset = g_np._sReset;
 
     // connect src
-    src.d[0] = aext.xi[0];
+    prs<g.Vdd, g.GND> {
+        src.d[0] => aext._xi[0]-
+    }
     src.a = aext.xo[0];
     (; nn : 1..NN-1 :
-        GND = aext.xi[nn];
+        g.Vdd = aext._xi[nn];
     )
 
     // connect snk

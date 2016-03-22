@@ -2,7 +2,22 @@
 
   <circuit sim_type="spice" file="spice.act" instance="wrapper" file_type="act" name="dut" uses_blackbox="1"> 
     <source type="globals_np" channel="g_np" />
-    <source type="random" channel="src" delay="0" />
+    <source type="random" channel="src[0]" delay="0" />
+    <source type="random" channel="src[1]" delay="0.01" />
+    <source type="random" channel="src[2]" delay="0.02" />
+    <source type="random" channel="src[3]" delay="0.03" />
+    <source type="random" channel="src[4]" delay="0.04" />
+    <source type="random" channel="src[5]" delay="0.05" />
+    <source type="random" channel="src[6]" delay="0.06" />
+    <source type="random" channel="src[7]" delay="0.07" />
+    <source type="random" channel="src[8]" delay="0.08" />
+    <source type="random" channel="src[9]" delay="0.09" />
+    <source type="random" channel="src[10]" delay="0.10" />
+    <source type="random" channel="src[11]" delay="0.11" />
+    <source type="random" channel="src[12]" delay="0.12" />
+    <source type="random" channel="src[13]" delay="0.13" />
+    <source type="random" channel="src[14]" delay="0.14" />
+    <source type="random" channel="src[15]" delay="0.15" />
     <sink type="sink_only" channel="snk" delay="0" />
   </circuit>
 
@@ -17,7 +32,7 @@
   <global name="netgen_cfg" value="/ufs/cad/lib/netgen/st28soi.conf" />
 
   <!-- Simulation time settings -->
-  <global name="sim_time" value="20" />
+  <global name="sim_time" value="15" />
   <global name="timescale" value="1ns/10ps" />
   <global name="_sReset_time" value="10" />
   <global name="_pReset_time" value="5" />

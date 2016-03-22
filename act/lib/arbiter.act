@@ -362,6 +362,7 @@ namespace arbiter {
             [ N = 1 ->
                 _i[0] = _po;
                 o[0] = pi;
+                prs<g.Vdd, g.GND> {} // HACK so netgen -B doesn't complain
             [] N > 1 ->
                 N_ARB_<N/2> n_arb0(g, _i[0..N/2-1], o[0..N/2-1],,);
                 N_ARB_<N-N/2> n_arb1(g, _i[N/2..N-1], o[N/2..N-1],,);
