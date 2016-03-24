@@ -309,12 +309,12 @@ namespace arbiter {
             _ARB _arb(g, _ci,);
             qi = co;
             [ ~LAYOUT ->
-                prs {
+                prs<g.Vdd, g.GND> {
                     ~co[1] & ~_arb._o[0] => qo[0]+
                     ~co[0] & ~_arb._o[1] => qo[1]+
                 }
             [] LAYOUT ->
-                prs {
+                prs<g.Vdd, g.GND> {
                     ~co[1]<22> & ~_arb._o[0]<22> -> qo[0]+
                     ~co[0]<22> & ~_arb._o[1]<22> -> qo[1]+
                     co[1]<6> | _arb._o[0]<6> -> qo[0]-

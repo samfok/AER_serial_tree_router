@@ -759,50 +759,97 @@ namespace aer {
                     po => _po-
                 }
             [] LAYOUT ->
-                prs<g.Vdd, g.GND> {
-                    (: f : F :
-                        ~u[f] -> _u[f]+
-                        u[f] -> _u[f]-
-                    )
-
-                    (| : f : F : ~_u[f]) -> uu+
-                    (& : f : F : _u[f]) -> uu-
-
-                    ~_pi<27> & ~uu<27> | (| : f : F : ~_ci[f]<27>) -> po+
-                    (_pi<24> | uu<24>) & (& : f : F : _ci[f]<24>) -> po-
-
-                    ~_v<9> -> __v+
-                    _v<6> -> __v-
-
-                    (: d : D :
-                        ~p.d[d]<9> -> _p.d[d]+
-                        p.d[d]<6> -> _p.d[d]-
-                    )
-
-                    (: f : F :
-                        ~_p.d[f]<18> & ~__v<18> -> u[f]+
-                        _pi<6> -> u[f]-
-                    )
-
-                    uu<30> & (& : f : F : _p.d[f]<30>) -> _v-
-                    ~uu<12> -> _v+
-
-                    (: f : F :
-                        ~__v<9> | ~u[f]<9> -> _co[f]+
-                        __v<12> & u[f]<12> -> _co[f]-
-                    )
-
-                    (: f : F :
-                        (: d : D :
-                            ~_p.d[d]<18> & ~_co[f]<18> -> c[f].d[d]+
-                            _p.d[d]<6> | _co[f]<6> -> c[f].d[d]-
+                [ F = 3 ->
+                    prs<g.Vdd, g.GND> {
+                        (: f : F :
+                            ~u[f] -> _u[f]+
+                            u[f] -> _u[f]-
                         )
-                    )
-                }
-                prs<g.Vdd, g.GND> {
-                    ~po<9> -> _po+
-                    po<6> -> _po-
-                }
+
+                        (| : f : F : ~_u[f]<12>) -> uu+
+                        (& : f : F : _u[f]<12>) -> uu-
+
+                        ~_pi<27> & ~uu<27> | (| : f : F : ~_ci[f]<27>) -> po+
+                        (_pi<24> | uu<24>) & (& : f : F : _ci[f]<24>) -> po-
+
+                        ~_v<12> -> __v+
+                        _v<9> -> __v-
+
+                        (: d : D :
+                            ~p.d[d]<12> -> _p.d[d]+
+                            p.d[d]<9> -> _p.d[d]-
+                        )
+
+                        (: f : F :
+                            ~_p.d[f]<18> & ~__v<18> -> u[f]+
+                            _pi<6> -> u[f]-
+                        )
+
+                        uu<30> & (& : f : F : _p.d[f]<30>) -> _v-
+                        ~uu<15> -> _v+
+
+                        (: f : F :
+                            ~__v<12> | ~u[f]<12> -> _co[f]+
+                            __v<15> & u[f]<15> -> _co[f]-
+                        )
+
+                        (: f : F :
+                            (: d : D :
+                                ~_p.d[d]<18> & ~_co[f]<18> -> c[f].d[d]+
+                                _p.d[d]<6> | _co[f]<6> -> c[f].d[d]-
+                            )
+                        )
+                    }
+                    prs<g.Vdd, g.GND> {
+                        ~po<9> -> _po+
+                        po<6> -> _po-
+                    }
+                [] F = 4 ->
+                    prs<g.Vdd, g.GND> {
+                        (: f : F :
+                            ~u[f] -> _u[f]+
+                            u[f] -> _u[f]-
+                        )
+
+                        (| : f : F : ~_u[f]<12>) -> uu+
+                        (& : f : F : _u[f]<15>) -> uu-
+
+                        ~_pi<27> & ~uu<27> | (| : f : F : ~_ci[f]<27>) -> po+
+                        (_pi<24> | uu<24>) & (& : f : F : _ci[f]<24>) -> po-
+
+                        ~_v<15> -> __v+
+                        _v<9> -> __v-
+
+                        (: d : D :
+                            ~p.d[d]<12> -> _p.d[d]+
+                            p.d[d]<9> -> _p.d[d]-
+                        )
+
+                        (: f : F :
+                            ~_p.d[f]<18> & ~__v<18> -> u[f]+
+                            _pi<6> -> u[f]-
+                        )
+
+                        uu<30> & (& : f : F : _p.d[f]<30>) -> _v-
+                        ~uu<18> -> _v+
+
+                        (: f : F :
+                            ~__v<12> | ~u[f]<12> -> _co[f]+
+                            __v<15> & u[f]<15> -> _co[f]-
+                        )
+
+                        (: f : F :
+                            (: d : D :
+                                ~_p.d[d]<18> & ~_co[f]<18> -> c[f].d[d]+
+                                _p.d[d]<6> | _co[f]<6> -> c[f].d[d]-
+                            )
+                        )
+                    }
+                    prs<g.Vdd, g.GND> {
+                        ~po<12> -> _po+
+                        po<9> -> _po-
+                    }
+                ]
             ]
         }
 
@@ -1044,6 +1091,7 @@ namespace aer {
             ack_syn[n].ci[1] = y_syn[2*n+1].a;
         )
         (; n : N_SYN/4 :
+            ack_mem[n].g = g;
             // connect aerv pphi to ack_syn 
             ack_syn[2*n].pp = aerv_yo[3*n];
             ack_syn[2*n+1].pp = aerv_yo[3*n+1];
