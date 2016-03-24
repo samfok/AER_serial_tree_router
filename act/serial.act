@@ -48,8 +48,16 @@ defproc BUFFER (globals g; bool xp, xo, yi, yp; c1of<N> x, y) {
 
 template <pint N>
 defproc SINK (globals g; bool xp, xo; c1of<N> x) {
+    c1of<N> _x;
+    bool _xo;
     prs<g.Vdd, g.GND> {
-        xp & (& : n : N : ~x.d[n]) => xo+
+        (: n : N :
+            x.d[n] => _x.d[n]-
+        )
+
+        xp & (& : n : N : _x.d[n]) => _xo-
+
+        _xo => xo-
     }
 }
 
