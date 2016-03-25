@@ -15,12 +15,12 @@ aer::AER_NODATA<M, N, NN> aer(g,,,,);
 
 src.d.a = aer.xo[0];
 prs<g.Vdd, g.GND> {
-    src.d.d => aer._xi[0]-
+    src.d.d => aer._xp[0]-
 }
 aer.yi[0] = y.o[0];
-aer.yo[0] = y.i[0];
+aer.yp[0] = y.i[0];
 (; nn : 1..NN-1 :
-    aer._xi[nn] = g.Vdd;
+    aer._xp[nn] = g.Vdd;
     aer.yi[nn] = g.GND;
 )
 
@@ -36,11 +36,11 @@ aer.yo[0] = y.i[0];
 // active_handshaker<1> x(g,,);
 // passive_handshaker<1> y(g,,);
 // aer::AER_NODATA<M, N, NN> aer(g,,,,);
-// aer.xi[0] = x.o[0];
+// aer.xp[0] = x.o[0];
 // aer.xo[0] = x.i[0];
 // aer.yi[0] = y.o[0];
-// aer.yo[0] = y.i[0];
+// aer.yp[0] = y.i[0];
 // (; nn : 1..NN-1 :
-//     aer.xi[nn] = g.GND;
+//     aer.xp[nn] = g.GND;
 //     aer.yi[nn] = g.GND;
 // )

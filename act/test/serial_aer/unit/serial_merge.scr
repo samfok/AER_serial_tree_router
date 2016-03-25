@@ -2,8 +2,11 @@ channel e1ofN 4 src00
 channel e1ofN 4 src01
 channel e1ofN 4 snk.d
 
-loop-injectfile src00 test/serial_aer/unit/serial_merge_src00.in
-loop-injectfile src01 test/serial_aer/unit/serial_merge_src01.in
-loop-expectfile snk.d test/serial_aer/unit/serial_merge_snk.out
+injectfile src00 test/serial_aer/unit/serial_merge_src00.in
+injectfile src01 test/serial_aer/unit/serial_merge_src01.in
+expectfile snk.d test/serial_aer/unit/serial_merge_snk.out
 
 source r.scr
+
+cycle
+exit

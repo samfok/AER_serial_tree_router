@@ -8,7 +8,7 @@ pint N=2;
 pint NN=8; // NN=N^M
 SOURCE_random_a1of1 src[NN];
 aer::AEXT<M, N, NN> aext(g,,,,,);
-aer::interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
+aer::interface::OUT_a1ofN<N> out(g, aext.pp, aext.pi, aext.p,);
 aer::interface::DESERIAL_RING<M, N> deserial(g, out.y,);
 SINK_eMx1ofN<M, N> snk(g, deserial.y);
 (; nn : NN :
@@ -17,7 +17,7 @@ SINK_eMx1ofN<M, N> snk(g, deserial.y);
 )
 prs<g.Vdd, g.GND> {
     (: nn : NN :
-        src[nn].d.d => aext._xi[nn]-
+        src[nn].d.d => aext._xp[nn]-
     )
 }
 
@@ -29,6 +29,6 @@ prs<g.Vdd, g.GND> {
 // pint NN=8; // NN=N^M
 // active_handshaker<NN> a(g,,);
 // aer::AEXT<M, N, NN> aext(g, a.o, a.i,,,);
-// aer::interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
+// aer::interface::OUT_a1ofN<N> out(g, aext.pp, aext.pi, aext.p,);
 // aer::interface::DESERIAL_RING<M, N> deserial(g, out.y,);
 // SINK_eMx1ofN<M, N> snk(g, deserial.y);

@@ -14,11 +14,11 @@ src01.e = src0.e;
 
 aer::interface::SERIAL_RING<2, N> serial0(g, src0,,,);
 aer::interface::SERIAL_MERGE<2, N> merge(g,,,,,,);
-aer::interface::OUT_e1ofN<N> out(g, merge.yo, merge.yi, merge.y,);
+aer::interface::OUT_e1ofN<N> out(g, merge.yp, merge.yi, merge.y,);
 SINK_e1ofN<N> snk(g, out.y);
 
-merge.xi[0] = serial0.yo;
-merge.xi[1] = g.GND;
+merge.xp[0] = serial0.yp;
+merge.xp[1] = g.GND;
 merge.xo[0] = serial0.yi;
 merge.x[0] = serial0.y;
 (; n : N :

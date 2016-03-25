@@ -16,7 +16,7 @@ aer::AER_NODATA<M, N, NN> aer(g,,, y.o, y.i);
 )
 prs<g.Vdd, g.GND> {
     (: nn : NN :
-        src[nn].d.d => aer._xi[nn]-
+        src[nn].d.d => aer._xp[nn]-
     )
 }
 

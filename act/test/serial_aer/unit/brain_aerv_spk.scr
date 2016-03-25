@@ -65,71 +65,71 @@ channel e1ofN 2 spk_snk[62].d
 channel e1ofN 2 spk_snk[63].d
 
 
-loop-injectfile spk_src test/serial_aer/unit/brain_aerv_spk.in
-loop-expectfile spk_snk[0].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[1].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[2].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[3].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[4].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[5].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[6].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[7].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[8].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[9].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[10].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[11].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[12].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[13].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[14].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[15].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[16].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[17].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[18].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[19].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[20].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[21].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[22].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[23].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[24].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[25].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[26].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[27].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[28].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[29].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[30].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[31].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[32].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[33].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[34].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[35].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[36].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[37].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[38].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[39].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[40].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[41].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[42].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[43].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[44].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[45].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[46].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[47].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[48].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[49].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[50].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[51].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[52].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[53].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[54].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[55].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[56].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[57].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[58].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[59].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[60].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[61].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[62].d test/serial_aer/unit/brain_aerv_spk.out
-loop-expectfile spk_snk[63].d test/serial_aer/unit/brain_aerv_spk.out
+injectfile spk_src test/serial_aer/unit/brain_aerv_spk.in
+expectfile spk_snk[0].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[1].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[2].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[3].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[4].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[5].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[6].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[7].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[8].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[9].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[10].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[11].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[12].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[13].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[14].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[15].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[16].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[17].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[18].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[19].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[20].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[21].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[22].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[23].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[24].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[25].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[26].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[27].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[28].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[29].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[30].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[31].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[32].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[33].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[34].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[35].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[36].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[37].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[38].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[39].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[40].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[41].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[42].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[43].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[44].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[45].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[46].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[47].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[48].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[49].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[50].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[51].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[52].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[53].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[54].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[55].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[56].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[57].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[58].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[59].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[60].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[61].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[62].d test/serial_aer/unit/brain_aerv_spk.out
+expectfile spk_snk[63].d test/serial_aer/unit/brain_aerv_spk.out
 
 source r.scr
 
@@ -279,4 +279,5 @@ vwatch spk_snk61
 vwatch spk_snk62
 vwatch spk_snk63
 
-# cycle
+cycle
+exit

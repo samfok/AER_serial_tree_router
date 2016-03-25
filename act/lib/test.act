@@ -42,7 +42,7 @@ defproc SOURCE_BRAIN_AERV (globals g; eMx1of4<M> d) {
 
 export
 template <pint N>
-defproc SINK_SERIAL (globals g; bool i, o; c1of<N> d) {
+defproc SINK_SERIAL (globals g; bool p, o; c1of<N> d) {
     // sink for the serial aer protocol
     bool _o;
     c1of<N> _d;
@@ -52,8 +52,8 @@ defproc SINK_SERIAL (globals g; bool i, o; c1of<N> d) {
             d.d[n]<9> -> _d.d[n]-
         )
 
-        i<26> & (& : n : N : _d.d[n]<26>) -> _o-
-        ~i<15> | (| : n : N : ~_d.d[n]<15>) -> _o+
+        p<26> & (& : n : N : _d.d[n]<26>) -> _o-
+        ~p<15> | (| : n : N : ~_d.d[n]<15>) -> _o+
 
         ~_o<16> -> o+
         _o<12> -> o-

@@ -6,10 +6,10 @@ channel e1ofN 4 src
 channel e1ofN 4 snk_[0]
 channel e1ofN 4 snk_[1]
 channel e1ofN 4 snk_[2]
-loop-injectfile src test/serial_aer/unit/deserial_ring.in
-loop-expectfile snk_[0] test/serial_aer/unit/deserial_ring_m0.out
-loop-expectfile snk_[1] test/serial_aer/unit/deserial_ring_m1.out
-loop-expectfile snk_[2] test/serial_aer/unit/deserial_ring_m2.out
+injectfile src test/serial_aer/unit/deserial_ring.in
+expectfile snk_[0] test/serial_aer/unit/deserial_ring_m0.out
+expectfile snk_[1] test/serial_aer/unit/deserial_ring_m1.out
+expectfile snk_[2] test/serial_aer/unit/deserial_ring_m2.out
  
 set src.d[0] 0
 set src.d[1] 0
@@ -22,3 +22,6 @@ vwatch in
 vwatch out0
 vwatch out1
 vwatch out2
+
+cycle
+exit
