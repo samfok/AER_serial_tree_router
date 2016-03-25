@@ -64,6 +64,13 @@ defproc SINK_a1ofN (globals g; a1of<N> d) {
     snk.d.a = d.a;
 }
 
+export
+template <pint N>
+defproc SINK_a1of2 (globals g; a1of2 d) {
+    SINK_aMx1ofN<1, 2> snk(g,);
+    snk.d.m[0].d = d.m.d;
+    snk.d.a = d.a;
+}
 /*---------------------------------------------------------------------------*/
 
 export
