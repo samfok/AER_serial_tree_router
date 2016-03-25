@@ -1,14 +1,14 @@
 // Tests the ARB_LOW circuit
 import "arbiter.act";
 
-defproc TEST__ARB (globals g) {
-    // tests _ARB
+defproc TEST__MUTEX (globals g) {
+    // tests _MUTEX
     _active_handshaker<2> _c(g,,);
-    arbiter::_ARB _arb(g,,);
+    arbiter::_MUTEX _arb(g,,);
     
     _c._o = _arb._i;
     _c._i = _arb._o;
 }
 
 globals g;
-TEST__ARB test(g);
+TEST__MUTEX test(g);

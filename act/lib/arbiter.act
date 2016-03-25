@@ -7,7 +7,7 @@ namespace arbiter {
     // contains arbiter related processes. 
 
     export
-    defproc ARB (globals g; bool i[2], o[2]) {
+    defproc MUTEX (globals g; bool i[2], o[2]) {
         // The basic 2-input arbiter
         bool _x[2];
     
@@ -42,7 +42,7 @@ namespace arbiter {
     }
     
     export
-    defproc _ARB (globals g; bool _i[2], _o[2]) {
+    defproc _MUTEX (globals g; bool _i[2], _o[2]) {
         // The basic 2-input arbiter with active low inputs/outputs
         bool x[2];
     
@@ -107,7 +107,7 @@ namespace arbiter {
             // arbitrates between child request and CTRL request
             bool cso, sso;
             bool _ci_hat, _si_hat, _co;
-            _ARB arb(g,,);
+            _MUTEX arb(g,,);
             arb._i[0] = _ci;
             arb._i[1] = _si;
             arb._o[0] = _ci_hat;
@@ -168,7 +168,7 @@ namespace arbiter {
     defproc N_ARB_2ARB_NODE (globals g; bool i[N], o[N]) {
         // N-way arbiter
         [ N = 2 ->
-            ARB arb(g, i, o);
+            MUTEX arb(g, i, o);
         [] N = 1 | N > 2 ->
             bool _i[N];
             n_arb_2arb_node::N_ARB_<N> n_arb_(g, _i, o,,);
@@ -186,7 +186,7 @@ namespace arbiter {
     defproc _N_ARB_2ARB_NODE (globals g; bool _i[N], _o[N]) {
         // active low version of N_ARB
         [ N = 2 ->
-            _ARB _arb(g, _i, _o);
+            _MUTEX _arb(g, _i, _o);
         [] N = 1 | N > 2 ->
             bool o[N];
             n_arb_2arb_node::N_ARB_<N> n_arb_(g, _i, o,,);
@@ -214,7 +214,7 @@ namespace arbiter {
                 bool ao[2], _ao[2], _po;
                 N_ARB_<N/2> n_arb0(g, i[0..N/2-1], o[0..N/2-1], ao[0],);
                 N_ARB_<N-N/2> n_arb1(g, i[N/2..N-1], o[N/2..N-1], ao[1],);
-                ARB arb(g,,);
+                MUTEX arb(g,,);
                 arb.i[0] = n_arb0.po;
                 arb.i[1] = n_arb1.po;
                 prs<g.Vdd, g.GND> {
@@ -246,7 +246,7 @@ namespace arbiter {
                 bool _ao[2], ao[2], po;
                 _N_ARB_<N/2> _n_arb0(g, _i[0..N/2-1], _o[0..N/2-1], _ao[0],);
                 _N_ARB_<N-N/2> _n_arb1(g, _i[N/2..N-1], _o[N/2..N-1], _ao[1],);
-                _ARB _arb(g,,);
+                _MUTEX _arb(g,,);
                 _arb._i[0] = _n_arb0._po;
                 _arb._i[1] = _n_arb1._po;
                 prs<g.Vdd, g.GND> {
@@ -276,7 +276,7 @@ namespace arbiter {
         [] N > 1 ->
             n_arb_c::N_ARB_<N/2> n_arb0(g, i[0..N/2-1], o[0..N/2-1],,);
             n_arb_c::N_ARB_<N-N/2> n_arb1(g, i[N/2..N-1], o[N/2..N-1],,);
-            ARB arb(g,,);
+            MUTEX arb(g,,);
             arb.i[0] = n_arb0.po;
             arb.i[1] = n_arb1.po;
             arb.o[0] = n_arb0.pi;
@@ -293,7 +293,7 @@ namespace arbiter {
         [] N > 1 ->
             n_arb_c::_N_ARB_<N/2> _n_arb0(g, _i[0..N/2-1], _o[0..N/2-1],,);
             n_arb_c::_N_ARB_<N-N/2> _n_arb1(g, _i[N/2..N-1], _o[N/2..N-1],,);
-            _ARB _arb(g,,);
+            _MUTEX _arb(g,,);
             _arb._i[0] = _n_arb0._po;
             _arb._i[1] = _n_arb1._po;
             _arb._o[0] = _n_arb0._pi;
@@ -306,7 +306,7 @@ namespace arbiter {
         export
         defproc MU_EX (globals g; bool _ci[2], co[2], qi[2], qo[2]) {
             // grants mutual exclusion between two requesting signals
-            _ARB _arb(g, _ci,);
+            _MUTEX _arb(g, _ci,);
             qi = co;
             [ ~LAYOUT ->
                 prs<g.Vdd, g.GND> {
@@ -387,7 +387,7 @@ namespace arbiter {
         [] N > 1 ->
             n_arb_s::N_ARB_<N/2> n_arb0(g, _i[0..N/2-1], o[0..N/2-1],,);
             n_arb_s::N_ARB_<N-N/2> n_arb1(g, _i[N/2..N-1], o[N/2..N-1],,);
-            _ARB _arb(g,,);
+            _MUTEX _arb(g,,);
             _arb._i[0] = n_arb0._po;
             _arb._i[1] = n_arb1._po;
             [ ~LAYOUT ->
@@ -462,7 +462,7 @@ namespace arbiter {
 
         export
         defproc CONSUMER (globals g; a1of1 s; e1of1 c) {
-            ARB arb(g,,);
+            MUTEX arb(g,,);
             arb.i[0] = c.d;
             arb.i[1] = s.d;
             bool c_ = arb.o[0];
