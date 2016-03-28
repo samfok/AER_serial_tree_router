@@ -2,13 +2,14 @@ import "globals.act";
 import "channel.act";
 import "arbiter.act";
 
-export defproc wrapper(globals_np g_np; e1of<1> A[2])
+export defproc wrapper(globals_np g_np; a1of<1> A)
 {
+    pint N=4;
     bool Vdd;
     bool GND;
     globals g;
 
-    arbiter::_ARB p(g,,);
+    arbiter::N_ARB_S<N> arb(g,,);
     g.Vdd = Vdd;
     g.GND = GND;
     prs <Vdd, GND> {
@@ -19,15 +20,13 @@ export defproc wrapper(globals_np g_np; e1of<1> A[2])
     g._sReset = g_np._sReset;
 
     prs<Vdd, GND> {
-        ~A[0].d[0]<12> -> p._i[0]+
-        A[0].d[0]<9> -> p._i[0]-
-
-        ~A[1].d[0]<12> -> p._i[1]+
-        A[1].d[0]<9> -> p._i[1]-
+        A.d[0] -> arb._i[0]-
+        ~A.d[0] -> arb._i[0]+
     }
-    A[0].e = p._o[0];
-    A[1].e = p._o[1];
+    (; n : 1..N-1 :
+        Vdd = arb._i[n];
+    )
+    arb.o[0] = A.a;
 }
 
 wrapper dut;
-

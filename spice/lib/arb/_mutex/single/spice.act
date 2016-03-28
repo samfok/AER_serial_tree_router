@@ -8,7 +8,7 @@ export defproc wrapper(globals_np g_np; e1of<1> A[2])
     bool GND;
     globals g;
 
-    arbiter::_ARB p(g,,);
+    arbiter::_MUTEX p(g,,);
     g.Vdd = Vdd;
     g.GND = GND;
     prs <Vdd, GND> {
@@ -27,4 +27,3 @@ export defproc wrapper(globals_np g_np; e1of<1> A[2])
 }
 
 wrapper dut;
-

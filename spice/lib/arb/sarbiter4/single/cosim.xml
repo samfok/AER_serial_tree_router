@@ -16,14 +16,14 @@
   <global name="netgen_cfg" value="/ufs/cad/lib/netgen/st28soi.conf" />
 
   <!-- Simulation time settings -->
-  <global name="sim_time" value="3" />
+  <global name="sim_time" value="4" />
   <global name="timescale" value="1ns/1ps" />
   <global name="_sReset_time" value="2" />
   <global name="_pReset_time" value="1" />
 
   <!-- Measurement start/stop times -->
   <global name="measurement_start_time" value="2n" />	<!--usually after Reset !-->
-  <global name="measurement_stop_time" value="3n" />	<!--usually end of sim  !-->
+  <global name="measurement_stop_time" value="5n" />	<!--usually end of sim  !-->
 
   <!-- SPICE models -->
   <global name="additional_spice_files" value="/ufs/cad/lib/spice/st28soi.spi" />
@@ -33,10 +33,10 @@
   <global name="subcircuit_names_for_power_measurement" value="" />  <!-- use spaces !-->
 
   <!-- HSIM settings -->
-  <global name="HSIMSPICE"         value="3" /> <!-- device model accuracy: 0..3, def=3 !-->
-  <global name="HSIMSPEED"         value="1" /> <!-- simulator speed&precision: 0..8, def=1 !-->
-  <global name="HSIMANALOG"        value="1" />	<!-- -1..3,def=1, analog algorithm set!-->
-  <global name="HSIMALLOWEDDV"     value="0.001" /> <!--def=0.1, makes dV prevalent over dt!-->
+  <global name="HSIMSPICE"         value="2" /> <!-- device model accuracy: 0..3, def=3 !-->
+  <global name="HSIMSPEED"         value="0" /> <!-- simulator speed&precision: 0..8, def=1 !-->
+  <global name="HSIMANALOG"        value="2" />	<!-- -1..3,def=1, analog algorithm set!-->
+  <global name="HSIMALLOWEDDV"     value="0.01" /> <!--def=0.1, makes dV prevalent over dt!-->
   <global name="HSIMITERMODE"      value="1" />	<!--0..2,def=1, controls itteration scheme!-->
   <global name="HSIMSTEADYCURRENT" value="10n" /><!--def=10n(A), inactive current!-->
   <global name="HSIMIGISUB"        value="1" /><!--0..3,def=0, 1=all_on, gate&substrate leakage-->
@@ -63,8 +63,8 @@
   <global name="HSIMNTLFMT" value="" />  	<!--if using spectre netlist !-->
   <global name="HSIMTOP" value="" />	<!--top level instance name (if required)!-->
 
-  <global name="HSIMRISE" value="0.01ns" />	
-  <global name="HSIMFALL" value="0.01ns" />
+  <global name="HSIMRISE" value="0.042ns" />	
+  <global name="HSIMFALL" value="0.03ns" />
 
   <global name="extra_hsim_parameters">
 	
