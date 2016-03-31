@@ -21,8 +21,8 @@ export defproc wrapper(globals_np g_np; a1of<1> A[2])
 
     prs<Vdd, GND> {
         (: n : N :
-            A[n].d[0] -> arb._i[n]-
-            ~A[n].d[0] -> arb._i[n]+
+            A[n].d[0]<6> -> arb._i[n]-
+            ~A[n].d[0]<9> -> arb._i[n]+
         )
     }
 

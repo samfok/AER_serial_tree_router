@@ -1,74 +1,74 @@
 ### Custom WaveView session file (version K-2015.06 build 05/23/15) ###
-### saved at 20:23:04 on Wed Mar 30 2016 ###
+### saved at 13:41:30 on Thu Mar 31 2016 ###
 wdf 0 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/lib/arb/_mutex/all/hsim.fsdb" load=used "title=_mutex(all)" 
 wdf 1 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/lib/arb/_mutex/single/hsim.fsdb" load=used "title=_mutex(single)" 
 wdf 2 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/lib/arb/mutex/all/hsim.fsdb" load=used "title=mutex(all)" 
 wdf 3 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/lib/arb/mutex/single/hsim.fsdb" load=used "title=mutex(single)" 
 scalar list
-waveview_begin 1  stack  offset=0 name_b=222 mntr_b=222 name_width=207 dm=slew:756:461:1:1:0:9e-01:1e-01:0e+00:0e+00:2:2.20452557585385e-09:1e-01:2.25444139219375e-09:9e-01:0:0e+00:0e+00 "name=_mutex(all)" 
-  panel_begin linear pidx=0 spath=name+file xlabel=sec xmin=1.98208955223881e-09 xmax=3.00149253731343e-09 
+waveview_begin 1  stack  offset=0 name_b=222 mntr_b=222 name_width=207 dm=slew:1039:345:1:1:0:9e-01:1e-01:0e+00:0e+00:1:2.3914942202315e-09:1e-01:2.36174667642825e-09:9e-01:0:0e+00:0e+00 "name=_mutex(all)" 
+  panel_begin linear pidx=0 spath=name+file xlabel=sec xmin=1.98208955223881e-09 xmax=3e-09 
     line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=v(p_2__o_01_1_dut)" attr=3:3:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=1 spath=name+file xlabel=sec xmin=1.98208955223881e-09 xmax=3.00149253731343e-09 
+  panel_begin linear pidx=1 spath=name+file xlabel=sec xmin=1.98208955223881e-09 xmax=3e-09 
     line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=v(p_2__o_00_1_dut)" attr=2:2:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=2 spath=name+file xlabel=sec xmin=1.98208955223881e-09 xmax=3.00149253731343e-09 
+  panel_begin linear pidx=2 spath=name+file xlabel=sec xmin=1.98208955223881e-09 xmax=3e-09 
     line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xp.v(x_01_1)" attr=7:7:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=3 spath=name+file xlabel=sec xmin=1.98208955223881e-09 xmax=3.00149253731343e-09 
+  panel_begin linear pidx=3 spath=name+file xlabel=sec xmin=1.98208955223881e-09 xmax=3e-09 
     line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xp.v(x_00_1)" attr=6:6:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=4 spath=name+file xlabel=sec xmin=1.98208955223881e-09 xmax=3.00149253731343e-09 
+  panel_begin linear pidx=4 spath=name+file xlabel=sec xmin=1.98208955223881e-09 xmax=3e-09 
     line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.v(p_2__i_01_1)" attr=5:5:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=5 spath=name+file xlabel=sec xmin=1.98208955223881e-09 xmax=3.00149253731343e-09 
+  panel_begin linear pidx=5 spath=name+file xlabel=sec xmin=1.98208955223881e-09 xmax=3e-09 
     line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.v(p_2__i_00_1)" attr=4:4:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=6 spath=name+file xlabel=sec xmin=1.98208955223881e-09 xmax=3.00149253731343e-09 
+  panel_begin linear pidx=6 spath=name+file xlabel=sec xmin=1.98208955223881e-09 xmax=3e-09 
     line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=v(a_01_1_2d_00_1_dut)" attr=1:1:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=v(a_00_1_2d_00_1_dut)" attr=2:2:1:0 autoset=true disp=show 
   panel_end
 waveview_end
-waveview_begin 2  stack  offset=0 name_b=318 mntr_b=318 name_width=303 dm=slew:707:807:1:1:0:9e-01:1e-01:0e+00:0e+00:3:2.17430321651968e-09:1e-01:2.14354756174838e-09:9e-01:0:0e+00:0e+00 "name=_mutex(single)" 
-  panel_begin linear pidx=0 spath=name+file xlabel=sec xmin=1.98216939078752e-09 xmax=2.97919762258544e-09 
+waveview_begin 2  stack  offset=0 name_b=318 mntr_b=318 name_width=303 dm=slew:511:788:1:1:0:9e-01:1e-01:0e+00:0e+00:3:2.05233192779151e-09:1e-01:2.10254932511009e-09:9e-01:0:0e+00:0e+00 "name=_mutex(single)" 
+  panel_begin linear pidx=0 spath=name+file uymin=0e+00 uymax=1e+00 xlabel=sec xmin=1.98216939078752e-09 xmax=2.97919762258544e-09 ymin=0e+00 ymax=1e+00 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.v(p_2__o_01_1)" attr=5:5:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=1 spath=name+file xlabel=sec xmin=1.98216939078752e-09 xmax=2.97919762258544e-09 
+  panel_begin linear pidx=1 spath=name+file uymin=0e+00 uymax=1e+00 xlabel=sec xmin=1.98216939078752e-09 xmax=2.97919762258544e-09 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=v(p_2__o_00_1_dut)" attr=1:1:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=2 spath=name+file xlabel=sec xmin=1.98216939078752e-09 xmax=2.97919762258544e-09 
+  panel_begin linear pidx=2 spath=name+file uymin=0e+00 uymax=1e+00 xlabel=sec xmin=1.98216939078752e-09 xmax=2.97919762258544e-09 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xp.v(x_01_1)" attr=3:3:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=3 spath=name+file xlabel=sec xmin=1.98216939078752e-09 xmax=2.97919762258544e-09 
+  panel_begin linear pidx=3 spath=name+file uymin=0e+00 uymax=1e+00 xlabel=sec xmin=1.98216939078752e-09 xmax=2.97919762258544e-09 ymin=0e+00 ymax=1e+00 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xp.v(x_00_1)" attr=2:2:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=4 spath=name+file xlabel=sec xmin=1.98216939078752e-09 xmax=2.97919762258544e-09 
+  panel_begin linear pidx=4 spath=name+file uymin=0e+00 uymax=1e+00 xlabel=sec xmin=1.98216939078752e-09 xmax=2.97919762258544e-09 ymin=0e+00 ymax=1e+00 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.v(p_2__i_00_1)" attr=4:4:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=5 spath=name+file xlabel=sec xmin=1.98216939078752e-09 xmax=2.97919762258544e-09 
+  panel_begin linear pidx=5 spath=name+file uymin=0e+00 uymax=1e+00 xlabel=sec xmin=1.98216939078752e-09 xmax=2.97919762258544e-09 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=v(a_00_1_2d_00_1_dut)" attr=0:0:1:0 autoset=true disp=show 
   panel_end
 waveview_end
-waveview_begin 3  stack  offset=0 name_b=218 mntr_b=218 name_width=203 dm=slew:905:482:1:1:0:9e-01:1e-01:0e+00:0e+00:1:2.32382227072351e-09:1e-01:2.3045865685489e-09:9e-01:0:0e+00:0e+00 "name=mutex(all)" 
-  panel_begin linear pidx=0 spath=name+file xlabel=sec xmin=1.9860529986053e-09 xmax=3e-09 
+waveview_begin 3  stack  offset=0 name_b=218 mntr_b=218 name_width=203 dm=slew:957:433:1:1:0:9e-01:1e-01:0e+00:0e+00:1:2.33207346222592e-09:1e-01:2.39050126681468e-09:9e-01:0:0e+00:0e+00 "name=mutex(all)" 
+  panel_begin linear pidx=0 spath=name+file xlabel=sec xmin=1.97964250248262e-09 xmax=3e-09 
     line src=wdf lidx=0 fidx=2 "delim=." sigtype=1 "name=v(p_2o_01_1_dut)" attr=3:3:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=1 spath=name+file xlabel=sec xmin=1.9860529986053e-09 xmax=3e-09 
+  panel_begin linear pidx=1 spath=name+file xlabel=sec xmin=1.97964250248262e-09 xmax=3e-09 
     line src=wdf lidx=0 fidx=2 "delim=." sigtype=1 "name=v(p_2o_00_1_dut)" attr=2:2:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=2 spath=name+file xlabel=sec xmin=1.9860529986053e-09 xmax=3e-09 
+  panel_begin linear pidx=2 spath=name+file xlabel=sec xmin=1.97964250248262e-09 xmax=3e-09 
     line src=wdf lidx=0 fidx=2 "delim=." sigtype=1 "name=xdut.xp.v(__x_01_1)" attr=5:5:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=3 spath=name+file xlabel=sec xmin=1.9860529986053e-09 xmax=3e-09 
+  panel_begin linear pidx=3 spath=name+file xlabel=sec xmin=1.97964250248262e-09 xmax=3e-09 
     line src=wdf lidx=0 fidx=2 "delim=." sigtype=1 "name=xdut.xp.v(__x_00_1)" attr=4:4:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=4 spath=name+file xlabel=sec xmin=1.9860529986053e-09 xmax=3e-09 
+  panel_begin linear pidx=4 spath=name+file xlabel=sec xmin=1.97964250248262e-09 xmax=3e-09 
     line src=wdf lidx=0 fidx=2 "delim=." sigtype=1 "name=v(p_2i_00_1_dut)" attr=0:0:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=2 "delim=." sigtype=1 "name=v(p_2i_01_1_dut)" attr=1:1:1:0 autoset=true disp=show 
   panel_end
 waveview_end
-waveview_begin 4  stack  offset=0 name_b=280 mntr_b=280 name_width=265 dm=slew:677:956:1:1:0:9e-01:1e-01:0e+00:0e+00:3:2.17027960758583e-09:1e-01:2.14886903248813e-09:9e-01:0:0e+00:0e+00 "name=mutex(single)" 
-  panel_begin linear pidx=0 spath=name+file uymin=0e+00 uymax=1e+00 xlabel=sec xmin=1.98258196721312e-09 xmax=3e-09 
+waveview_begin 4  stack  offset=0 name_b=280 mntr_b=280 name_width=265 dm=slew:584:966:1:1:0:9e-01:1e-01:0e+00:0e+00:3:2.10648527631058e-09:1e-01:2.15690564929648e-09:9e-01:0:0e+00:0e+00 "name=mutex(single)" 
+  panel_begin linear pidx=0 spath=name+file uymin=0e+00 uymax=1e+00 xlabel=sec xmin=1.98258196721312e-09 xmax=3e-09 ymin=0e+00 ymax=1e+00 
     line src=wdf lidx=0 fidx=3 "delim=." sigtype=1 "name=xdut.v(p_2o_01_1)" attr=2:2:1:0 autoset=true disp=show 
   panel_end
   panel_begin linear pidx=1 spath=name+file uymin=0e+00 uymax=1e+00 xlabel=sec xmin=1.98258196721312e-09 xmax=3e-09 

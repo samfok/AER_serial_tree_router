@@ -20,8 +20,8 @@ export defproc wrapper(globals_np g_np; a1of<1> A)
     g._sReset = g_np._sReset;
 
     prs<Vdd, GND> {
-        A.d[0] -> arb._i[0]-
-        ~A.d[0] -> arb._i[0]+
+        A.d[0]<6> -> arb._i[0]-
+        ~A.d[0]<9> -> arb._i[0]+
     }
     (; n : 1..N-1 :
         Vdd = arb._i[n];
