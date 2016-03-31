@@ -8,7 +8,7 @@ namespace arbiter {
 
     export
     defproc MUTEX (globals g; bool i[2], o[2]) {
-        // The basic 2-input arbiter
+        // The basic 2-input mutual exclusion element
         bool _x[2];
     
         spec {
@@ -17,10 +17,10 @@ namespace arbiter {
     
         //Cross-Coupled NANDs
         prs<g.Vdd, g.GND> {
-            i[0]<16> & _x[1]<16> -> _x[0]-
-            ~i[0]<12> | ~_x[1]<12> -> _x[0]+
-            i[1]<16> & _x[0]<16> -> _x[1]-
-            ~i[1]<12> | ~_x[0]<12> -> _x[1]+
+            i[0]<6> & _x[1]<6> -> _x[0]-
+            ~i[0]<9> | ~_x[1]<9> -> _x[0]+
+            i[1]<6> & _x[0]<6> -> _x[1]-
+            ~i[1]<9> | ~_x[0]<9> -> _x[1]+
         }
         
     
@@ -32,18 +32,18 @@ namespace arbiter {
             }
         [] LAYOUT ->
             prs<g.Vdd, g.GND> {
-                [keeper=0] passp<12>(_x[0], _x[1], o[0])
-                [keeper=0] _x[0]<9> -> o[0]-
+                [keeper=0] passp<18>(_x[0], _x[1], o[0])
+                [keeper=0] _x[0]<6> -> o[0]-
     
-                [keeper=0] passp<12>(_x[1], _x[0], o[1])
-                [keeper=0] _x[1]<9> -> o[1]-
+                [keeper=0] passp<18>(_x[1], _x[0], o[1])
+                [keeper=0] _x[1]<6> -> o[1]-
             }
         ]
     }
     
     export
     defproc _MUTEX (globals g; bool _i[2], _o[2]) {
-        // The basic 2-input arbiter with active low inputs/outputs
+        // The basic 2-input (active low) mutual exclusion element
         bool x[2];
     
         spec {
@@ -52,10 +52,10 @@ namespace arbiter {
     
         //Cross-Coupled NORs
         prs<g.Vdd, g.GND> {
-            _i[0]<9> | x[1]<9> -> x[0]-
-            ~_i[0]<24> & ~x[1]<24> -> x[0]+
-            _i[1]<9> | x[0]<9> -> x[1]-
-            ~_i[1]<24> & ~x[0]<24> -> x[1]+
+            _i[0]<6> | x[1]<6> -> x[0]-
+            ~_i[0]<15> & ~x[1]<15> -> x[0]+
+            _i[1]<6> | x[0]<6> -> x[1]-
+            ~_i[1]<15> & ~x[0]<15> -> x[1]+
         }
     
         //Filter
@@ -66,11 +66,11 @@ namespace arbiter {
             }
         [] LAYOUT ->
             prs<g.Vdd, g.GND> {
-                [keeper=0] passn<9>(x[0], x[1], _o[0])
-                [keeper=0] ~x[0]<12> -> _o[0]+
+                [keeper=0] passn<6>(x[0], x[1], _o[0])
+                [keeper=0] ~x[0]<9> -> _o[0]+
     
-                [keeper=0] passn<9>(x[1], x[0], _o[1])
-                [keeper=0] ~x[1]<12> -> _o[1]+
+                [keeper=0] passn<6>(x[1], x[0], _o[1])
+                [keeper=0] ~x[1]<9> -> _o[1]+
             }
         ]
     }

@@ -2,7 +2,7 @@ import "globals.act";
 import "channel.act";
 import "arbiter.act";
 
-export defproc wrapper(globals_np g_np; e1of<1> A[2])
+export defproc wrapper(globals_np g_np; e1of<1> A[1])
 {
     bool Vdd;
     bool GND;
@@ -19,8 +19,8 @@ export defproc wrapper(globals_np g_np; e1of<1> A[2])
     g._sReset = g_np._sReset;
 
     prs<Vdd, GND> {
-        ~A[0].d[0]<12> -> p._i[0]+
-        A[0].d[0]<9> -> p._i[0]-
+        ~A[0].d[0]<9> -> p._i[0]+
+        A[0].d[0]<6> -> p._i[0]-
     }
     Vdd = p._i[1];
     A[0].e = p._o[0];
