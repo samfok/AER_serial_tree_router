@@ -48,14 +48,14 @@ defproc SINK_SERIAL (globals g; bool p, o; c1of<N> d) {
     c1of<N> _d;
     prs<g.Vdd, g.GND> {
         (: n : N :
-            ~d.d[n]<12> -> _d.d[n]+
-            d.d[n]<9> -> _d.d[n]-
+            ~d.d[n]<9> -> _d.d[n]+
+            d.d[n]<6> -> _d.d[n]-
         )
 
-        p<26> & (& : n : N : _d.d[n]<26>) -> _o-
-        ~p<15> | (| : n : N : ~_d.d[n]<15>) -> _o+
+        p<15> & (& : n : N : _d.d[n]<15>) -> _o-
+        ~p<10> | (| : n : N : ~_d.d[n]<10>) -> _o+
 
-        ~_o<16> -> o+
-        _o<12> -> o-
+        ~_o<15> -> o+
+        _o<9> -> o-
     }
 }
