@@ -26,7 +26,7 @@ export defproc wrapper(globals_np g_np; a1of<1> src[4]; eMx1of4<1> snk)
     // connect src
     prs<g.Vdd, g.GND> {
         (: nn : NN :
-            src[nn].d[0] => aext._xi[nn]-
+            src[nn].d[0] => aext._xp[nn]-
         )
     }
     (; nn : NN :
