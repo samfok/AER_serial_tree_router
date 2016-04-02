@@ -1,4 +1,4 @@
-export deftype globals <: int<7> (bool Vdd, GND, pReset, _pReset, sReset, _sReset)
+export deftype globals <: int<8> (bool Vdd, GND, pReset, _pReset, sReset, _sReset, vpsub, vnsub)
 {
   set { }
   get { }

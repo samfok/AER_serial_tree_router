@@ -16,12 +16,12 @@ namespace aer {
             bool _xp;
             x.d = y.d;
             [ ~LAYOUT ->
-                prs<g.Vdd, g.GND> {
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     xp => _xp-
                     ~_xp & ~y.a => xo+
                 }
             [] LAYOUT ->
-                prs<g.Vdd, g.GND> {
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     ~xp<12> -> _xp+
                     xp<9> -> _xp-
 
@@ -38,7 +38,7 @@ namespace aer {
             // used in testing
             OUT_a1ofN<N> _(g, xp, xo, x,);
             y.d = _.y.d;
-            prs<g.Vdd, g.GND> {
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                 y.e => _.y.a-
             }
         }
@@ -53,7 +53,7 @@ namespace aer {
                     _y[m].m = _x;
                 )
                 [ ~LAYOUT ->
-                    prs<g.Vdd, g.GND> {
+                    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                         (: n : N:
                             x.d[n] => _x.d[n]-
                         )
@@ -62,27 +62,27 @@ namespace aer {
                     (; m : M :
                         _y[m].a = or._i[m];
                     )
-                    prs<g.Vdd, g.GND> {
+                    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                         or._o => x.a-
                     }
                 [] LAYOUT ->
                     // _x.d[0..N]
                     [ M = 4 ->
-                        prs<g.Vdd, g.GND> {
+                        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                             (: n : N:
                                 x.d[n]<8> -> _x.d[n]-
                                 ~x.d[n]<16> -> _x.d[n]+
                             )
                         }
                     [] M = 6 ->
-                        prs<g.Vdd, g.GND> {
+                        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                             (: n : N:
                                 x.d[n]<12> -> _x.d[n]-
                                 ~x.d[n]<18> -> _x.d[n]+
                             )
                         }
                     [] ((M != 4) | (M != 6)) ->
-                        prs<g.Vdd, g.GND> {
+                        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                             (: n : N:
                                 x.d[n]<6*M> -> _x.d[n]-
                                 ~x.d[n]<9*M> -> _x.d[n]+
@@ -92,7 +92,7 @@ namespace aer {
 
                     // x.a
                     [ M = 4 ->
-                        prs<g.Vdd, g.GND> {
+                        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                             (| : m : M : ~_y[m].a<12>) -> x.a+
                             (& : m : M : _y[m].a<24>) -> x.a-
                         }
@@ -101,7 +101,7 @@ namespace aer {
                         (; m : M :
                             _y[m].a = or._i[m];
                         )
-                        prs<g.Vdd, g.GND> {
+                        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                             ~or._o<10> -> x.a+
                             or._o<6> -> x.a-
                         }
@@ -115,7 +115,7 @@ namespace aer {
                 bool _s, __s, vy;
                 c1of<N> _y;
                 [ ~LAYOUT ->
-                    prs<g.Vdd, g.GND> {
+                    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                         _s => __s-
 
                         (: n : N :
@@ -137,7 +137,7 @@ namespace aer {
                         (| : n : N : ~_y.d[n]) => vy+
                     }
                 [] LAYOUT ->
-                    prs<g.Vdd, g.GND> {
+                    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                         ~_s<16> -> __s+
                         _s<10> -> __s-
 
@@ -184,12 +184,12 @@ namespace aer {
                 node[m]._so = node[m+1]._si;
             )
             [ ~LAYOUT ->
-                prs<g.Vdd, g.GND> {
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     ~g._sReset | ~node[M-1]._so & ~y.e  -> node[0]._si+
                     g._sReset & node[M-1]._so & y.e  -> node[0]._si-
                 }
             [] LAYOUT ->
-                prs<g.Vdd, g.GND> {
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     ~g._sReset | ~node[M-1]._so<30> & ~y.e<30> -> node[0]._si+
                     g._sReset<20> & y.e<20> & node[M-1]._so<20> -> node[0]._si-
                 }
@@ -212,7 +212,7 @@ namespace aer {
                 c1of<N> _x[M];
                 c1of<N> y;
                 [ ~LAYOUT ->
-                    prs<g.Vdd, g.GND> {
+                    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                         (: m : M :
                             (: n : N :
                                 x[m].d[n] => _x[m].d[n]-
@@ -250,7 +250,7 @@ namespace aer {
                             ___u[m] & (& : n : N : _x[m].d[n]) -> so[m]-
                         )
                     }
-                    prs<g.Vdd, g.GND> {
+                    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                         (: n : N :
                             ~y.d[n] -> _y.d[n]+
                             y.d[n] -> _y.d[n]-
@@ -258,28 +258,28 @@ namespace aer {
                     }
                 [] LAYOUT ->
                     [ M = 6 ->
-                        prs<g.Vdd, g.GND> {
+                        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                             (: n : N :
                                 (| : m : M : ~_x[m].d[n]<90> & ~_si_[m]<90> & ~__u[m]<90>) -> y.d[n]+
                                 g.pReset | (| : m : M : _so_[m]<40> & __u[m]<40>) -> y.d[n]-
                             )
                         }
                     [] M = 9 ->
-                        prs<g.Vdd, g.GND> {
+                        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                             (: n : N :
                                 (| : m : M : ~_x[m].d[n]<120> & ~_si_[m]<120> & ~__u[m]<120>) -> y.d[n]+
                                 g.pReset | (| : m : M : _so_[m]<60> & __u[m]<60>) -> y.d[n]-
                             )
                         }
                     [] (M != 6) & (M != 9) ->
-                        prs<g.Vdd, g.GND> {
+                        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                             (: n : N :
                                 (| : m : M : ~_x[m].d[n]<48> & ~_si_[m]<48> & ~__u[m]<48>) -> y.d[n]+
                                 g.pReset | (| : m : M : _so_[m]<45> & __u[m]<45>) -> y.d[n]-
                             )
                         }
                     ]
-                    prs<g.Vdd, g.GND> {
+                    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                         (: m : M :
                             (: n : N :
                                 ~x[m].d[n]<12> -> _x[m].d[n]+
@@ -317,7 +317,7 @@ namespace aer {
                             ___u[m]<40> & (& : n : N : _x[m].d[n]<40>) -> so[m]-
                         )
                     }
-                    prs<g.Vdd, g.GND> {
+                    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                         (: n : N :
                             ~y.d[n]<12> -> _y.d[n]+
                             y.d[n]<12> -> _y.d[n]-
@@ -334,7 +334,7 @@ namespace aer {
                 c1of<N> __x, _y;
                 c1of<N> __y = y;
                 [ ~LAYOUT ->
-                    prs<g.Vdd, g.GND> {
+                    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                         (| : n : N : ~_x.d[n]) -> yp+
                         g.pReset | _si & yi -> yp-
 
@@ -355,29 +355,29 @@ namespace aer {
                         (| : n : N : ~_y.d[n]) & ~yi -> xa+
                         g.pReset | yi -> xa-
                     }
-                    prs<g.Vdd, g.GND> {
+                    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                         (: n : N :
                             _y.d[n] => __y.d[n]-
                         )
                     }
                 [] LAYOUT ->
                     [ M = 6 ->
-                        prs<g.Vdd, g.GND> {
+                        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                             (| : n : N : ~_y.d[n]<40>) & ~yi<40> -> xa+
                             g.pReset | yi<18> -> xa-
                         }
                     [] M = 9 ->
-                        prs<g.Vdd, g.GND> {
+                        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                             (| : n : N : ~_y.d[n]<45>) & ~yi<45> -> xa+
                             g.pReset | yi<18> -> xa-
                         }
                     [] (M != 6) & (M !=9) ->
-                        prs<g.Vdd, g.GND> {
+                        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                             (| : n : N : ~_y.d[n]<M*12>) & ~yi<M*12> -> xa+
                             g.pReset | yi<M*6> -> xa-
                         }
                     ]
-                    prs<g.Vdd, g.GND> {
+                    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                         (| : n : N : ~_x.d[n]<15>) -> yp+
                         g.pReset | _si<18> & yi<18> -> yp-
 
@@ -398,7 +398,7 @@ namespace aer {
                         )
 
                     }
-                    prs<g.Vdd, g.GND> {
+                    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                         (: n : N :
                             ~_y.d[n]<12> -> __y.d[n]+
                             _y.d[n]<9> -> __y.d[n]-
@@ -420,11 +420,11 @@ namespace aer {
                 ring.x[m] = x.m[M-1-m];
             )
             [ ~LAYOUT ->
-                prs<g.Vdd, g.GND> {
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     _s => seq._si-
                 }
             [] LAYOUT ->
-                prs<g.Vdd, g.GND> {
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     ~_s<12> -> seq._si+
                     _s<6> -> seq._si-
                 }
@@ -440,14 +440,14 @@ namespace aer {
             ::arbiter::N_ARB_S_PREQ<M> arb_req(g, xp, xo, yi, yp);
             c1of<N> b;
             [ ~LAYOUT ->
-                prs<g.Vdd, g.GND> {
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     (: n : N :
                         (| : m : M : x[m].d[n]) => b.d[n]-
                         b.d[n] => y.d[n]-
                     )
                 }
             [] LAYOUT ->
-                prs<g.Vdd, g.GND> {
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     (: n : N :
                         (| : m : M : x[m].d[n]<6>) -> b.d[n]-
                         (& : m : M : ~x[m].d[n]<12>) -> b.d[n]+
@@ -469,7 +469,7 @@ namespace aer {
             ::arbiter::N_ARB_S<N> arb(g, _cp, c_);
 
             [ ~LAYOUT ->
-                prs<g.Vdd, g.GND> {
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     _v & (| : n : N : c_[n]) -> _pp-
                     ~g._pReset | (| : n : N : ~_co[n] & ~c_[n]) -> _pp+
 
@@ -502,7 +502,7 @@ namespace aer {
                 }
 
                 [ ~root ->
-                    prs<g.Vdd, g.GND> {
+                    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                         (: n : N :
                             p.d[n] => _p.d[n]-
                         )
@@ -512,7 +512,7 @@ namespace aer {
                 ]
             [] LAYOUT ->
                 bool __pp, _pp_;
-                prs<g.Vdd, g.GND> {
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     _v<26> & (| : n : N : c_[n]<26>) -> _pp_-
                     ~g._pReset | (| : n : N : ~_co[n]<45> & ~c_[n]<45>) -> _pp_+
 
@@ -556,7 +556,7 @@ namespace aer {
                 }
 
                 [ ~root ->
-                    prs<g.Vdd, g.GND> {
+                    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                         (: n : N :
                             ~p.d[n]<12> -> _p.d[n]+
                             p.d[n]<9> -> _p.d[n]-
@@ -576,7 +576,7 @@ namespace aer {
             ::arbiter::N_ARB_S<N> arb(g, _cp, c);
             c1of<N> p_;
             [ ~LAYOUT ->
-                prs<g.Vdd, g.GND> {
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     v => _v-
                     _v => __v-
 
@@ -607,21 +607,21 @@ namespace aer {
                         ~_u[n] & ~_v => co[n]+
                     )
                 }
-                prs<g.Vdd, g.GND> {
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     pp => _pp-
                 }
                 [ root ->
                     p_ = p; // preserve sense
                 [] ~root ->
-                    prs<g.Vdd, g.GND> {
+                    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                         (: n : N :
                             p_.d[n] => p.d[n]- // switch to active low
                         )
                     }
                 ]
             [] LAYOUT ->
-                prs<g.Vdd, g.GND> {
-                    ~v<12> -> _v+
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+                    ~v<14> -> _v+
                     v<9> -> _v-
 
                     ~_v<9> -> __v+
@@ -632,7 +632,7 @@ namespace aer {
                         c[n]<6> -> _c[n]-
                     )
 
-                    (| : n : N : ~_c[n]<26>) & ~__v<26> -> pp+
+                    (| : n : N : ~_c[n]<30>) & ~__v<30> -> pp+
                     g.pReset | pi<12> & __v<12> -> pp-
 
                     (: n: N :
@@ -642,10 +642,10 @@ namespace aer {
 
                     (: n : N :
                         pi<16> & __c[n]<16> & _v<16> -> _u[n]-
-                        ~pi<32> & ~__c[n]<32> & ~pp<32> -> _u[n]+
+                        ~pi<36> & ~__c[n]<36> & ~pp<36> -> _u[n]+
                     )
 
-                    (| : n : N : ~_u[n]<24>) & ~pi<24> -> v+
+                    (| : n : N : ~_u[n]<26>) & ~pi<26> -> v+
                     (& : n : N : _u[n]<22>) -> v-
 
                     (: n : N :
@@ -658,14 +658,14 @@ namespace aer {
                         _u[n]<6> | _v<6> -> co[n]-
                     )
                 }
-                prs<g.Vdd, g.GND> {
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     ~pp<9> -> _pp+
                     pp<6> -> _pp-
                 }
                 [ root ->
                     p_ = p; // preserve sense
                 [] ~root ->
-                    prs<g.Vdd, g.GND> {
+                    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                         (: n : N :
                             // switch to active low
                             ~p_.d[n]<9> -> p.d[n]+
@@ -707,7 +707,7 @@ namespace aer {
     defproc AEXT (globals g; bool _xp[NN], xo[NN], pi, pp; c1of<N> p) {
         // Transmitter
         transmitter::AEXT_<M, N, NN, true> _(g, _xp, xo, pi,, p);
-        prs<g.Vdd, g.GND> {
+        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
             ~_._pp<9> -> pp+
             _._pp<6> -> pp-
         }
@@ -723,7 +723,7 @@ namespace aer {
             bool u[F], _u[F], uu, _v, __v, po;
             c1of<D> _p;
             [ (~LAYOUT | F < 3 | F > 4) ->
-                prs<g.Vdd, g.GND> {
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     (: f : F :
                         u[f] => _u[f]-
                     )
@@ -756,12 +756,12 @@ namespace aer {
                         )
                     )
                 }
-                prs<g.Vdd, g.GND> {
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     po => _po-
                 }
             [] LAYOUT ->
                 [ F = 3 ->
-                    prs<g.Vdd, g.GND> {
+                    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                         (: f : F :
                             ~u[f] -> _u[f]+
                             u[f] -> _u[f]-
@@ -801,12 +801,12 @@ namespace aer {
                             )
                         )
                     }
-                    prs<g.Vdd, g.GND> {
+                    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                         ~po<9> -> _po+
                         po<6> -> _po-
                     }
                 [] F = 4 ->
-                    prs<g.Vdd, g.GND> {
+                    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                         (: f : F :
                             ~u[f] -> _u[f]+
                             u[f] -> _u[f]-
@@ -846,7 +846,7 @@ namespace aer {
                             )
                         )
                     }
-                    prs<g.Vdd, g.GND> {
+                    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                         ~po<12> -> _po+
                         po<9> -> _po-
                     }
@@ -860,7 +860,7 @@ namespace aer {
             // AERV tree LEAF that does not transmit data
             // N clients
             bool u, _po, _ci[N], _cp[N];
-            prs<g.Vdd, g.GND> {
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                 (: n : N :
                     ci[n] => _ci[n]-
                 )
@@ -874,7 +874,7 @@ namespace aer {
 
                 (| : n : N : ~_ci[n] & ~p.d[n]) => u+
             }
-            prs<g.Vdd, g.GND> {
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                 (: n : N :
                     _cp[n] => cp[n]-
                 )
@@ -912,7 +912,7 @@ namespace aer {
             [ M = 1 ->
                 NN = N;
                 LEAF_NODATA<N> leaf(g,,, yi, yp, p);
-                prs<g.Vdd, g.GND> {
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     _pp => leaf.pp-
                     leaf.po => _po-
                 }
@@ -942,7 +942,7 @@ namespace aer {
         // T targets. T = F_LEAF * F_INT^(M-1)
         // D 1-of-D data
         receiver::AERV_<M, F_INT, F_LEAF, T, D> _(g, _yi,,,, y, p);
-        prs<g.Vdd, g.GND> {
+        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
             (: t : T :
                 ~_._yp[t]<9> -> yp[t]+
                 _._yp[t]<6> -> yp[t]-
@@ -964,7 +964,7 @@ namespace aer {
             receiver::LEAF_NODATA<N> leaf(g, pp, po, yi, yp, p);
         [] M > 1 ->
             receiver::AERV_NODATA_<M, N, NN> _(g, yi, yp,,, p);
-            prs<g.Vdd, g.GND> {
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                 pp => _._pp-
                 _._po => po-
             }
@@ -979,12 +979,12 @@ namespace aer {
             // C clients
             bool _cci;
             [ ~LAYOUT ->
-                prs<g.Vdd, g.GND> {
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     (& : c : C : ~ci[c]) => _cci+
                     pp & _cci => _po-
                 }
             [] LAYOUT ->
-                prs<g.Vdd, g.GND> {
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     (& : c : C : ~ci[c]<9*C>) -> _cci+
                     (| : c : C : ci[c]<6>) -> _cci-
 

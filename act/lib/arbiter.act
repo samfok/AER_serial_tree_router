@@ -16,7 +16,7 @@ namespace arbiter {
         }
     
         //Cross-Coupled NANDs
-        prs<g.Vdd, g.GND> {
+        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
             i[0]<6> & _x[1]<6> -> _x[0]-
             ~i[0]<9> | ~_x[1]<9> -> _x[0]+
             i[1]<6> & _x[0]<6> -> _x[1]-
@@ -31,7 +31,7 @@ namespace arbiter {
                 _x[1] => o[1]-
             }
         [] LAYOUT ->
-            prs<g.Vdd, g.GND> {
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                 [keeper=0] passp<18>(_x[0], _x[1], o[0])
                 [keeper=0] _x[0]<6> -> o[0]-
     
@@ -51,7 +51,7 @@ namespace arbiter {
         }
     
         //Cross-Coupled NORs
-        prs<g.Vdd, g.GND> {
+        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
             _i[0]<6> | x[1]<6> -> x[0]-
             ~_i[0]<15> & ~x[1]<15> -> x[0]+
             _i[1]<6> | x[0]<6> -> x[1]-
@@ -60,12 +60,12 @@ namespace arbiter {
     
         //Filter
         [ ~LAYOUT ->
-            prs<g.Vdd, g.GND> {
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                 x[0] => _o[0]-
                 x[1] => _o[1]-
             }
         [] LAYOUT ->
-            prs<g.Vdd, g.GND> {
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                 [keeper=0] passn<6>(x[0], x[1], _o[0])
                 [keeper=0] ~x[0]<9> -> _o[0]+
     
@@ -217,7 +217,7 @@ namespace arbiter {
                 MUTEX arb(g,,);
                 arb.i[0] = n_arb0.po;
                 arb.i[1] = n_arb1.po;
-                prs<g.Vdd, g.GND> {
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                    arb.o[0] & _ao[1] | arb.o[1] & _ao[0] -> _po-
                    g.pReset | ~arb.o[0] & ~_ao[0] | ~arb.o[1] & ~_ao[1] -> _po+
 
@@ -249,7 +249,7 @@ namespace arbiter {
                 _MUTEX _arb(g,,);
                 _arb._i[0] = _n_arb0._po;
                 _arb._i[1] = _n_arb1._po;
-                prs<g.Vdd, g.GND> {
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                    ~_arb._o[0] & ~ao[1] | ~_arb._o[1] & ~ao[0] -> po+
                    g.pReset | _arb._o[0] & ao[0] | _arb._o[1] & ao[1] -> po-
 
@@ -309,12 +309,12 @@ namespace arbiter {
             _MUTEX _arb(g, _ci,);
             qi = co;
             [ ~LAYOUT ->
-                prs<g.Vdd, g.GND> {
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     ~co[1] & ~_arb._o[0] => qo[0]+
                     ~co[0] & ~_arb._o[1] => qo[1]+
                 }
             [] LAYOUT ->
-                prs<g.Vdd, g.GND> {
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     ~co[1]<9> & ~_arb._o[0]<9> -> qo[0]+
                     ~co[0]<9> & ~_arb._o[1]<9> -> qo[1]+
                     co[1]<6> | _arb._o[0]<6> -> qo[0]-
@@ -328,7 +328,7 @@ namespace arbiter {
             // merges mutually exclusive requests into a parent request
             bool _qo[2];
             [ ~LAYOUT ->
-                prs<g.Vdd, g.GND> {
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     qi[0] | qi[1] => _po-
 
                     (: n : 2 :
@@ -340,7 +340,7 @@ namespace arbiter {
                     )
                 }
             [] LAYOUT ->
-                prs<g.Vdd, g.GND> {
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     qi[0]<6> | qi[1]<6> -> _po-
                     ~qi[0]<12> & ~qi[1]<12> -> _po+
 
@@ -362,7 +362,7 @@ namespace arbiter {
             [ N = 1 ->
                 _i[0] = _po;
                 o[0] = pi;
-                prs<g.Vdd, g.GND> {} // HACK so netgen -B doesn't complain
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {} // HACK so netgen -B doesn't complain
             [] N > 1 ->
                 N_ARB_<N/2> n_arb0(g, _i[0..N/2-1], o[0..N/2-1],,);
                 N_ARB_<N-N/2> n_arb1(g, _i[N/2..N-1], o[N/2..N-1],,);
@@ -381,7 +381,7 @@ namespace arbiter {
     defproc N_ARB_S (globals g; bool _i[N], o[N]) {
         // Standard N-way arbiter as developed in Rajit's notes
         [ N = 1 ->
-            prs<g.Vdd, g.GND> {
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                 _i[0] => o[0]-
             }
         [] N > 1 ->
@@ -391,12 +391,12 @@ namespace arbiter {
             _arb._i[0] = n_arb0._po;
             _arb._i[1] = n_arb1._po;
             [ ~LAYOUT ->
-                prs<g.Vdd, g.GND> {
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     _arb._o[0] => n_arb0.pi-
                     _arb._o[1] => n_arb1.pi-
                 }
             [] LAYOUT ->
-                prs<g.Vdd, g.GND> {
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     _arb._o[0]<6> -> n_arb0.pi-
                     ~_arb._o[0]<9> -> n_arb0.pi+
                     _arb._o[1]<6> -> n_arb1.pi-
@@ -412,14 +412,14 @@ namespace arbiter {
         // Standard N-way arbiter with exposed parent request port
         n_arb_s::N_ARB_<N> n_arb(g,, o, pi,);
         [ ~LAYOUT ->
-            prs<g.Vdd, g.GND> {
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                 (: n : N :
                     i[n] => n_arb._i[n]-
                 )
                 n_arb._po => po-
             }
         [] LAYOUT ->
-            prs<g.Vdd, g.GND> {
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                 (: n : N :
                     ~i[n]<9> -> n_arb._i[n]+
                     i[n]<6> -> n_arb._i[n]-
@@ -434,7 +434,7 @@ namespace arbiter {
         template <pint K>
         defproc PRODUCER_CTRL (globals g; e1of1 p, c[K]; a1of1 s) {
             bool x, _sa, _pe;
-            prs<g.Vdd, g.GND> {
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                 _pe & (|:k:K: c[k].d) -> x-
                 ~g._pReset | ~_sa -> x+
 
@@ -491,7 +491,7 @@ namespace arbiter {
             [ M = 0 ->
                 N = 1;
                 c[0].d = p.d;
-                prs<g.Vdd, g.GND> {
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     p.e => c[0].e-
                 }
             [] M >= 1 ->
