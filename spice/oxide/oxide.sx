@@ -1,0 +1,123 @@
+### Custom WaveView session file (version K-2015.06 build 05/23/15) ###
+### saved at 19:59:30 on Sat Apr  2 2016 ###
+wdf 0 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/oxide/eg_c_eg_c_th/hsim.fsdb" load=used "title=eg_c_eg_c_th" 
+wdf 1 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/oxide/eg_eg_c_th/hsim.fsdb" load=used "title=eg_eg_c_th" 
+wdf 2 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/oxide/eg_c_eg_th/hsim.fsdb" load=used "title=eg_c_eg_th" 
+wdf 3 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/oxide/eg_c_th_c_th/hsim.fsdb" load=used "title=eg_c_th_c_th" 
+wdf 4 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/oxide/eg_th_c_th/hsim.fsdb" load=used "title=eg_th_c_th" 
+wdf 5 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/oxide/eg_c_th_th/hsim.fsdb" load=used "title=eg_c_th_th" 
+wdf 6 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/oxide/th_th_th/hsim.fsdb" load=used "title=th_th_th" 
+wdf 7 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/oxide/th_c_th_c_th/hsim.fsdb" load=used "title=th_c_th_c_th" 
+scalar list
+waveview_begin 1  stack  offset=0 name_b=252 mntr_b=252 name_width=237 dm=slew:1212:567:0:1:0:9e-01:1e-01:0e+00:0e+00:1:3.94168857004363e-09:1e-01:3.91458028796363e-09:9e-01:0:0e+00:0e+00 dm=slew:551:599:0:1:0:9e-01:1e-01:0e+00:0e+00:1:3.13640482498324e-09:1e-01:3.18251048452533e-09:9e-01:0:0e+00:0e+00 "name=eg_c_eg_c_th" 
+  panel_begin linear pidx=0 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.v(aext_2__xp_00_1)" attr=1:7:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=1 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.v(c)" attr=5:5:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=2 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.v(b)" attr=4:4:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=3 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.v(a)" attr=3:3:1:0 autoset=true disp=show 
+  panel_end
+waveview_end
+waveview_begin 2  stack  offset=0 name_b=290 mntr_b=290 name_width=275 "name=eg_eg_c_th" 
+  panel_begin linear pidx=0 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.v(aext_2__xp_00_1)" attr=3:3:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=1 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.v(c)" attr=2:2:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=2 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.v(b)" attr=1:1:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=3 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.v(a)" attr=0:0:1:0 autoset=true disp=show 
+  panel_end
+waveview_end
+waveview_begin 3  stack  offset=0 name_b=231 mntr_b=231 name_width=216 "name=eg_c_eg_th" 
+  panel_begin linear pidx=0 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=2 "delim=." sigtype=1 "name=xdut.v(aext_2__xp_00_1)" attr=3:3:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=1 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=2 "delim=." sigtype=1 "name=xdut.v(c)" attr=2:2:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=2 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=2 "delim=." sigtype=1 "name=xdut.v(b)" attr=1:1:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=3 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=2 "delim=." sigtype=1 "name=xdut.v(a)" attr=0:0:1:0 autoset=true disp=show 
+  panel_end
+waveview_end
+waveview_begin 4  stack  offset=0 name_b=265 mntr_b=265 name_width=250 "name=eg_c_th_c_th" 
+  panel_begin linear pidx=0 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=3 "delim=." sigtype=1 "name=xdut.v(aext_2__xp_00_1)" attr=3:3:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=1 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=3 "delim=." sigtype=1 "name=xdut.v(c)" attr=2:2:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=2 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=3 "delim=." sigtype=1 "name=xdut.v(b)" attr=1:1:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=3 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=3 "delim=." sigtype=1 "name=xdut.v(a)" attr=0:0:1:0 autoset=true disp=show 
+  panel_end
+waveview_end
+waveview_begin 5  stack  offset=0 name_b=218 mntr_b=218 name_width=203 "name=eg_th_c_th" 
+  panel_begin linear pidx=0 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=4 "delim=." sigtype=1 "name=xdut.v(aext_2__xp_00_1)" attr=3:3:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=1 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=4 "delim=." sigtype=1 "name=xdut.v(c)" attr=2:2:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=2 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=4 "delim=." sigtype=1 "name=xdut.v(b)" attr=1:1:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=3 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=4 "delim=." sigtype=1 "name=xdut.v(a)" attr=0:0:1:0 autoset=true disp=show 
+  panel_end
+waveview_end
+waveview_begin 6  stack  offset=0 name_b=259 mntr_b=259 name_width=244 "name=eg_c_th_th" 
+  panel_begin linear pidx=0 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=5 "delim=." sigtype=1 "name=xdut.v(aext_2__xp_00_1)" attr=3:3:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=1 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=5 "delim=." sigtype=1 "name=xdut.v(c)" attr=2:2:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=2 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=5 "delim=." sigtype=1 "name=xdut.v(b)" attr=1:1:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=3 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=5 "delim=." sigtype=1 "name=xdut.v(a)" attr=0:0:1:0 autoset=true disp=show 
+  panel_end
+waveview_end
+waveview_begin 7  stack  offset=0 name_b=81 mntr_b=81 name_width=66 "name=th_th_th" 
+  panel_begin linear pidx=0 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=6 "delim=." sigtype=1 "name=xdut.v(aext_2__xp_00_1)" attr=3:3:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=1 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=6 "delim=." sigtype=1 "name=xdut.v(c)" attr=2:2:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=2 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=6 "delim=." sigtype=1 "name=xdut.v(b)" attr=1:1:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=3 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=6 "delim=." sigtype=1 "name=xdut.v(a)" attr=0:0:1:0 autoset=true disp=show 
+  panel_end
+waveview_end
+waveview_begin 8  stack  offset=0 name_b=251 mntr_b=251 name_width=236 dm=slew:1128:847:1:1:0:9e-01:1e-01:0e+00:0e+00:2:8.59859443571447e-09:1e-01:1.32435019645526e-08:9e-01:0:0e+00:0e+00 dm=slewrate:999:1197:1:0:0:9e+01:1e+01:0e+00:0e+00:3:8.19976215316027e-09:8.72226074337959e-02:8.17057621670969e-09:9.18680353462696e-01 "name=th_c_th_c_th" 
+  panel_begin linear pidx=0 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=7 "delim=." sigtype=1 "name=xdut.v(aext_2__xp_00_1)" attr=0:0:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=1 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=7 "delim=." sigtype=1 "name=xdut.v(c)" attr=1:1:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=2 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=7 "delim=." sigtype=1 "name=xdut.v(b)" attr=2:2:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=3 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=7 "delim=." sigtype=1 "name=xdut.v(a)" attr=3:3:1:0 autoset=true disp=show 
+  panel_end
+waveview_end

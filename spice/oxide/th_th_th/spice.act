@@ -1,0 +1,45 @@
+import "serial_aer.act";
+import "test.act";
+
+export defproc wrapper(globals_np g_np)
+{
+    bool Vdd;
+    bool GND;
+    bool vpsub;
+    bool vnsub;
+    globals g;
+    pint M = 1;
+    pint N = 4;
+    pint NN = 4;
+
+    aer::AEXT<M, N, NN> aext(g,,,,,);
+    SINK_SERIAL<N> snk(g, aext.pp, aext.pi, aext.p);
+
+    // rails and reset
+    g.Vdd = Vdd;
+    g.GND = GND;
+    g.vpsub = vpsub;
+    g.vnsub = vnsub;
+    prs <Vdd, GND> {
+        g_np._sReset => g.sReset-
+        g_np._pReset => g.pReset-
+    }
+    g._pReset = g_np._pReset;
+    g._sReset = g_np._sReset;
+
+    // connect src
+    bool a,b,c;
+    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+        ~g.pReset & ~aext.xo[0] -> a+
+        g.pReset | aext.xo[0] -> a-
+
+        a => b-
+        b => c-
+        c => aext._xp[0]-
+    }
+    (; nn : 1..NN-1 :
+        g.Vdd = aext._xp[nn];
+    )
+}
+
+wrapper dut;
