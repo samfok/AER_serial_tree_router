@@ -46,7 +46,7 @@ defproc SINK_SERIAL (globals g; bool p, o; c1of<N> d) {
     // sink for the serial aer protocol
     bool _o;
     c1of<N> _d;
-    prs<g.Vdd, g.GND> {
+    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
         (: n : N :
             ~d.d[n]<9> -> _d.d[n]+
             d.d[n]<6> -> _d.d[n]-
