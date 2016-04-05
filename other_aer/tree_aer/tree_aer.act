@@ -1,0 +1,381 @@
+// This file defines a feedfoward tree transceiver
+import "lib/aer_brainstorm/lib/globals.act";
+import "lib/channel.act";
+import "arbiter.act";
+import "logic.act";
+import "comm.act";
+import "test.act";
+
+namespace aer {
+    namespace transmitter {
+        template <pint N>
+        defproc NODE_LEAF (globals g; bool di[N], _do[N]; aMx1ofN<1,N> _x) {
+            // leaf node of transmitter tree
+            // interleaved send, interleaved reset
+            // N neurons
+            bool a[N], xi;
+            xi = _x.a;
+            ::arbiter::N_ARB_C<N> arb(g, di, a);
+
+            prs { // transmit up the tree
+                a[0] & (& : n : 1..N-1: _do[n]) => _x.m[0].n[0]-
+                (: n : 1..N-2 :
+                    a[n] &
+                    (&: ni : 0..n-1 : _do[ni]) &
+                    (&: ni : n+1..N-1 : _do[ni]) => _x.m[0].n[n]-
+                )
+                a[N-1] & (& : n : 0..N-2: _do[n]) => _x.m[0].n[N-1]-
+            }
+
+            prs { // acknowledge the children
+                xi & a[0] & (& : n : 1..N-1: _do[n]) -> _do[0]-
+                (: n : 1..N-2 :
+                    xi & a[n] &
+                    (&: ni : 0..n-1 : _do[ni]) &
+                    (&: ni : n+1..N-1 : _do[ni]) -> _do[n]-
+                )
+                xi & a[N-1] & (& : n : 0..N-2: _do[n]) -> _do[N-1]-
+
+                (: n : N : 
+                    ~xi -> _do[n]+
+                )
+            }
+        }
+
+        template <pint M, N, mode>
+        defproc NODE_INT (globals g; aMx1ofN<M,N> d[N]; aMx1ofN<M+1,N> x) {
+            // version 0 of transmitter tree interior node
+            // interleaved send, interleaved reset
+            // M groups
+            // N items per group
+            // mode alternates at each level of the tree
+
+            [ mode = 0 ->
+                aMx1ofN<M,N> _d[N];
+                _d = d;
+                bool _a[N], do[N];
+                bool _xi = x.a;
+                (; n : N : do[n] = d[n].a;) // for convenience
+
+                ::arbiter::_N_ARB_C<N> _arb(g,, _a);
+
+                _VN<M,N> _vn[N];
+                (; n : N : _vn[n]._d = _d[n].m;)
+                (; n : N : _vn[n]._o = _arb._i[n];)
+
+                prs { // transmit new highest bit
+                    ~_a[0] & (& : n : 1..N-1 : ~do[n]) => x.m[0].n[0]+
+                    (: n : 1..N-2 :
+                        ~_a[n] &
+                        (& : ni : 0..n-1 : ~do[ni]) &
+                        (& : ni : n+1..N-1 : ~do[ni]) => x.m[0].n[n]+
+                    )
+                    ~_a[N-1] & (& : n : 0..N-2 : ~do[n]) => x.m[0].n[N-1]+
+                }
+
+                prs<g.Vdd, g.GND> { // transmit intermediate bits
+                    (: m : M :
+                        (: no : N :
+                            (| : n : N : ~_a[n] & ~_d[n].m[m].n[no]) &
+                            (& : n : N : ~do[n]) -> x.m[m+1].n[no]+
+
+                            g.pReset | (| : n : N : _a[n] & do[n])
+                                -> x.m[m+1].n[no]-
+                        )
+                    )
+                }
+
+                prs { // acknowledge children
+                    ~_xi & ~_a[0] & (& : n : 1..N-1: ~do[n]) -> do[0]+
+                    (: n : 1..N-2 :
+                        ~_xi & ~_a[n] &
+                        (&: ni : 0..n-1 : ~do[ni]) &
+                        (&: ni : n+1..N-1 : ~do[ni]) -> do[n]+
+                    )
+                    ~_xi & ~_a[N-1] & (& : n : 0..N-2: ~do[n]) -> do[N-1]+
+
+                    (: n : N : 
+                        _xi -> do[n]-
+                    )
+                }
+            [] mode = 1 ->
+                aMx1ofN<M+1,N> _x = x;
+                bool _do[N];
+                bool a[N];
+                bool xi = _x.a;
+                (; n : N : _do[n] = d[n].a;)
+
+                ::arbiter::N_ARB_C<N> arb(g,, a);
+
+                VN<M,N> vn[N];
+                (; n : N : vn[n].d.m = d[n].m;)
+                (; n : N : vn[n].d.a = arb.i[n];)
+
+                prs { // transmit new highest bit
+                    a[0] & (& : n : 1..N-1 : _do[n]) => _x.m[0].n[0]-
+                    (: n : 1..N-2 :
+                        a[n] &
+                        (& : ni : 0..n-1 : _do[ni]) &
+                        (& : ni : n+1..N-1 : _do[ni]) => _x.m[0].n[n]-
+                    )
+                    a[N-1] & (& : n : 0..N-2 : _do[n]) => _x.m[0].n[N-1]-
+                }
+
+                prs<g.Vdd, g.GND> { // transmit intermediate bits
+                    (: m : M :
+                        (: no : N :
+                            (| : n : N : a[n] & d[n].m[m].n[no]) &
+                            (& : n : N : _do[n]) -> _x.m[m+1].n[no]-
+
+                            g.pReset | (| : n : N : ~a[n] & ~_do[n])
+                                -> _x.m[m+1].n[no]+
+                        )
+                    )
+                }
+
+                prs { // acknowledge children
+                    xi & a[0] & (& : n : 1..N-1: _do[n]) -> _do[0]-
+                    (: n : 1..N-2 :
+                        xi & a[n] &
+                        (&: ni : 0..n-1 : _do[ni]) &
+                        (&: ni : n+1..N-1 : _do[ni]) -> _do[n]-
+                    )
+                    xi & a[N-1] & (& : n : 0..N-2: _do[n]) -> _do[N-1]-
+
+                    (: n : N : 
+                        ~xi -> _do[n]+
+                    )
+                }
+            ]
+        }
+
+        template <pint M, N, NN, mode>
+        defproc AEXT_ (globals g; bool si[NN], _so[NN]; aMx1ofN<M,N> x) {
+            // utility for AEXT
+            // M groups
+            // N items per group
+            // NN neurons. NN=N^M
+            // mode alternates at each layer of the tree
+            bool xi = x.a; // for convenience
+
+            [ M = 1 ->
+                NN = N; // assert NN=N. checks for NN=N^M overall
+                NODE_LEAF<N> node_leaf(g, si, _so, x);
+            [] M > 1 ->
+                NODE_INT<M-1, N, mode> node_int(g,, x);
+                pint next_mode = (mode + 1) % 2;
+                AEXT_<M-1, N, NN/N, next_mode> aext_[N];
+                (; n : N : aext_[n].g = g;)
+                pint k = NN/N;
+                (; n : N :
+                    aext_[n].si = si[n*k..(n+1)*k-1];
+                    aext_[n]._so = _so[n*k..(n+1)*k-1];
+                    node_int.d[n] = aext_[n].x;
+                )
+            ]
+        }
+
+        export
+        template <pint M, N, NN>
+        defproc AEXT (globals g; bool si[NN], so[NN]; aMx1ofN<M,N> x) {
+            // transmitter
+            // M groups
+            // N items per group
+            // NN neurons. NN=N^M
+            bool xi = x.a;
+            bool _so[NN];
+            pint mode = (M % 2);
+            AEXT_<M, N, NN, mode> _(g, si, _so,);
+            prs {
+                (: nn : NN : _so[nn] => so[nn]-)
+            }
+            [ mode = 0 ->
+                _.x.m = x.m;
+                prs {
+                    x.a => _.x.a-
+                }
+            [] mode = 1 ->
+                _.x.a = x.a; 
+                prs {
+                    (: m : M :
+                        (: n : N :
+                        _.x.m[m].n[n] => x.m[m].n[n]-
+                        )
+                    )
+                }
+            ]
+        }
+
+        namespace test {
+            export
+            template <pint M, N, NN>
+            defproc TEST_AEXT (globals g) {
+                // M groups
+                // N items per group
+                // NN neurons. NN=N^M
+                active_handshaker<NN> s(g,,);
+                AEXT<M, N, NN> aext(g,,,);
+                VN<M, N> vn(aext.x);
+                aext.si = s.o;
+                aext.so = s.i;
+            }
+
+            export
+            template <pint M, N, NN>
+            defproc TEST_AEXT1 (globals g) {
+                // Tests AEXT with 1 neuron
+                // M groups
+                // N items per group
+                // NN neuron ports. NN=N^M
+                active_handshaker<1> s(g,,);
+                AEXT<M, N, NN> aext(g,,,);
+                VN<M, N> vn(aext.x);
+                aext.si[0] = s.o[0];
+                aext.so[0] = s.i[0];
+                (; nn : 1..NN-1 :
+                    aext.si[nn] = g.GND;
+                )
+            }
+        } // namespace test
+    } // namespace transmitter
+
+    namespace receiver {
+        template <pint N>
+        defproc NODE_LEAF (bool xi[N], xo[N]; aMx1ofN<1,N> d) {
+            // leaf node of receiver tree
+            // interleaved send, interleaved reset
+            // N neurons
+            bool do = d.a; // for convience
+            (; n : N : d.m[0].n[n] = xo[n];)
+
+            prs {
+                (| : n : N : xi[n]) => do-
+            }
+        }
+
+        template <pint M, N, reset>
+        defproc NODE_INT (aMx1ofN<M, N> d; aMx1ofN<M-1, N> x[N]) {
+            // interior node of receiver tree
+            // interleaved send, interleaved reset
+            // M groups, decrements by 1 at each level of the tree
+            // N items per group
+            // reset, alternates at each level of the tree
+            bool do = d.a; // for convience
+            bool xi[N]; // for convienence
+            (; n : N : xi[n] = x[n].a;)
+
+            aMx1ofN<M-1, N> _x[N];
+            prs {
+                (: m : 1..M-1 :
+                    (: n : N:
+                        (: ni : N :
+                            d.m[0].n[n] & d.m[m].n[ni] -> _x[n].m[m-1].n[ni]-
+                            ~d.m[0].n[n] & ~d.m[m].n[ni] -> _x[n].m[m-1].n[ni]+
+                            // staticizers
+                            _x[n].m[m-1].n[ni] => x[n].m[m-1].n[ni]-
+                        )
+                    )
+                )
+            }
+
+            [ reset = 1 ->
+                prs {
+                    (| : n : N : xi[n]) => do-
+                }
+            [] reset = 0 ->
+                prs {
+                    (& : n : N : xi[n]) => do-
+                }
+            ]
+        }
+
+        
+        template <pint M, N, NN, reset>
+        defproc AERV_ (bool ri[NN], ro[NN]; aMx1ofN<M,N> d) {
+            // utility for constructing receiver
+            // M bits
+            // NN neurons. NN=N^M
+            bool do = d.a; // for convience
+            [ M = 1 ->
+                NN = N; // assert NN=N. checks for NN=N^M overall
+                NODE_LEAF<N> node_leaf(ri, ro, d);
+            [] M > 1 ->
+                pint next_reset = (reset+1)%2;
+                AERV_<M-1, N, NN/N, next_reset> aerv[N];
+                NODE_INT<M, N, reset> node_int(d,);
+                pint k = NN/N;
+                (; n : N :
+                    aerv[n].ri = ri[(n*k)..((n+1)*k-1)];
+                    aerv[n].ro = ro[(n*k)..((n+1)*k-1)];
+                    node_int.x[n] = aerv[n].d;
+                )
+            ]
+        }
+
+        export
+        template <pint M, N, NN>
+        defproc AERV (bool ri[NN], ro[NN]; aMx1ofN<M,N> d) {
+            // receiver
+            // M groups
+            // N items per group
+            // NN neurons. NN=N^M
+            pint reset = (M % 2);
+            AERV_<M, N, NN, reset> aerv_(ri, ro,);
+            [ reset = 0 ->
+                aerv_.d = d;
+            [] reset = 1 ->
+                aerv_.d.m = d.m;
+                prs {
+                    aerv_.d.a => d.a-
+                }
+            ]
+        }
+    } // namespace receiver
+
+    export
+    template <pint M, N, NN>
+    defproc AER (globals g; bool si[NN], so[NN], ri[NN], ro[NN]) {
+        // address-event representation tranceiver
+        // Uses M 1-of-N encoding
+        // M groups
+        // N items per group
+        // NN=N^M
+        transmitter::AEXT<M, N, NN> aext(g, si, so,);
+        receiver::AERV<M, N, NN> aerv(ri, ro,);
+        aext.x = aerv.d;
+    }
+
+    namespace test {
+        export
+        template <pint M, N, NN>
+        defproc TEST_AER (globals g) {
+            // M groups
+            // N items per group
+            // NN neurons. NN=N^M
+            active_handshaker<NN> s(g,,);
+            passive_handshaker<NN> r(,);
+            AER<M, N, NN> aer(g, s.o, s.i, r.o, r.i);
+        }
+
+        export
+        template <pint M, N, NN>
+        defproc TEST_AER1 (globals g) {
+            // Tests AER with 1 neuron
+            // M groups
+            // N items per group
+            // NN neuron ports. NN=N^M
+            active_handshaker<1> s(g,,);
+            passive_handshaker<1> r(,);
+            AER<M, N, NN> aer(g,,,,);
+            aer.si[0] = s.o[0];
+            aer.so[0] = s.i[0];
+            aer.ri[0] = r.o[0];
+            aer.ro[0] = r.i[0];
+            (; nn : 1..NN-1 :
+                aer.si[nn] = g.GND;
+                aer.ri[nn] = g.GND;
+            )
+        }
+    } // namespace test
+} // namespace aer
+

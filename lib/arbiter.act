@@ -1,5 +1,5 @@
 // This file contains PRS for the arbiter circuits
-import "globals.act";
+import "aer_brainstorm/lib/globals.act";
 import "channel.act";
 import "environment.act";
 

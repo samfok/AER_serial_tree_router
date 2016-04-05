@@ -1,0 +1,75 @@
+import "aer_brainstorm/lib/globals.act";
+import "channel.act";
+
+template <pint N>
+defproc SOURCE (globals g; bool yi, yp; c1of<N> y) {
+    bool u, _yp;
+    (; n : N :
+        spec {
+            mk_exclhi(_yp, y.d[n])
+        }
+    )
+    (; n : N :
+        (; nn : N :
+            spec {
+                mk_exclhi(y.d[n], y.d[nn])
+            }
+        )
+    )
+
+    prs<g.Vdd, g.GND> {
+        ~u -> _yp-
+        yi & u -> _yp+
+
+        ~g.sReset & ~_yp -> yp+
+        g.sReset | _yp -> yp-
+
+        yp & yi -> u+
+        g.pReset | ~yp & ~yi -> u-
+
+        (: n : N :
+            u & yi -> y.d[n]+
+            ~yi -> y.d[n]-
+        )
+
+    }
+}
+
+template <pint N>
+defproc BUFFER (globals g; bool xp, xo, yi, yp; c1of<N> x, y) {
+    prs<g.Vdd, g.GND> {
+        xp => yp+
+        yi => xo+
+        (: n : N :
+            x.d[n] => y.d[n]+
+        )
+    }
+}
+
+template <pint N>
+defproc SINK (globals g; bool xp, xo; c1of<N> x) {
+    c1of<N> _x;
+    bool _xo;
+    prs<g.Vdd, g.GND> {
+        (: n : N :
+            x.d[n] => _x.d[n]-
+        )
+
+        xp & (& : n : N : _x.d[n]) => _xo-
+
+        _xo => xo-
+    }
+}
+
+globals g;
+pint N=2;
+SOURCE<N> src(g,,,);
+BUFFER<N> buf(g,,,,,,);
+SINK<N> snk(g,,,);
+
+src.yp = buf.xp;
+src.yi = buf.xo;
+src.y = buf.x;
+buf.yp = snk.xp;
+buf.yi = snk.xo;
+buf.y = snk.x;

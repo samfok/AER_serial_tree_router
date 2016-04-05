@@ -1,5 +1,5 @@
 // Defines N input logic gates
-import "globals.act";
+import "aer_brainstorm/lib/globals.act";
 import "channel.act";
 import "logic.h"; // forward declare functions
 

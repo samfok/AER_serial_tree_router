@@ -1,4 +1,4 @@
-import "globals.act";
+import "aer_brainstorm/lib/globals.act";
 import "channel.act";
 import "arbiter.act";
 

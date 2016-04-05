@@ -1,9 +1,0 @@
-import "test.act";
-
-globals g;
-pint M = 5;
-pint T_PIDX = 2;
-pint T_WIDX = 1;
-pint T_N = 2;
-SOURCE_BRAIN_AERV<M, T_PIDX, T_WIDX, T_N> src(g,);
-SINK_eMx1of4<M> snk(g, src.d);

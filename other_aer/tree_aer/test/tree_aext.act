@@ -1,0 +1,8 @@
+import "tree_aer.act";
+import "lib/aer_brainstorm/lib/globals.act";
+
+pint M=8;
+pint N=2;
+pint NN=256;
+globals g;
+aer::transmitter::test::TEST_AEXT<M, N, NN> test(g);

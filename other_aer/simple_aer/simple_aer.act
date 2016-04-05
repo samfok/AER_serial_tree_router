@@ -1,0 +1,279 @@
+// This file contains PRS for a simple address event transmitter/receiver
+import "lib/aer_brainstorm/lib/globals.act";
+import "lib/channel.act";
+import "arbiter.act";
+import "logic.act";
+import "comm.act";
+import "test.act";
+
+namespace aer {
+    namespace transmitter {
+        template <pint N>
+        defproc CTRL (globals g; bool ci[N], co[N], si[N], so[N]) {
+            bool c[N];
+            ::arbiter::N_ARB<N> arb(g, ci, c);
+            bool x[N];
+            prs {
+                (: n : N :
+                    c[n] & ~x[n] -> so[n]+
+                    ~c[n] | x[n] -> so[n]-
+
+                    ~si[n] & x[n] -> co[n]+
+                    si[n] | ~x[n] -> co[n]-
+
+                    si[n] -> x[n]+
+                    ~c[n] -> x[n]-
+                )
+            }
+        }
+
+        template <pint N>
+        defproc ENC_XMIT (bool si[N], so[N], di; c1of<N> xo) {
+            // Transmission portion of encoder 
+            // Sequences inputs to encoder function block
+            prs {
+                (: n : N :
+                    si[n] -> xo.n[n]+
+                    ~si[n] -> xo.n[n]-
+
+                    xo.n[n] & di -> so[n]+
+                    ~xo.n[n] & ~di -> so[n]-
+                )
+            }
+        }
+
+        template <pint m, M, N, NN, LR, NR>
+        defproc ENC_FBLK_ (bool vi; c1of<NN> xi; aMx1ofN<M,N> d);
+
+        template <pint M, N, NN>
+        defproc ENC_FBLK (bool vi; c1of<NN> xi; aMx1ofN<M,N> d) {
+            // function block portion of encoder
+            // converts 1-of-NN encoding to M-1-of-N encoding
+            // M encoding groups
+            // N neurons per group
+            // NN = N^M total neurons
+
+            pint m_0 = 0;
+            pint LR_0 = NN/N;
+            pint NR_0 = 1;
+            ENC_FBLK_<m_0, M, N, NN, LR_0, NR_0> _enc_fblk(vi, xi, d);
+        }
+
+        template <pint m, M, N, NN, LR, NR>
+        defproc ENC_FBLK_ (bool vi; c1of<NN> xi; aMx1ofN<M,N> d) {
+            // recursive utility to build the encoding function
+            // converts 1-of-NN encoding to M-1-of-N encoding
+            // m group index
+            // N elements per group
+            // NN total elements
+            // LR length per run
+            // NR number of runs
+            prs {
+                (: n : N :
+                    vi & (| : nr : NR : 
+                         (| : lr : LR :
+                            xi.n[n*LR + nr*N*LR + lr])) -> d.m[m].n[n]+
+                    ~vi -> d.m[m].n[n]-
+                )
+            }
+
+            [LR != 1 ->
+                ENC_FBLK_<m+1, M, N, NN, LR/N, NR*N> _enc_fblk(vi, xi, d);
+            ]
+        }
+
+        export
+        template <pint M, N, NN>
+        defproc AEXT (globals g; bool ci[NN], co[NN]; aMx1ofN<M,N> d) {
+            // transmitter
+            // M encoding groups
+            // N neurons per group
+            // NN = N^M total neurons
+            CTRL<NN> ctrl(g, ci, co,,);
+            ENC_XMIT<NN> enc_xmit(,, d.a,);
+            ENC_FBLK<M, N, NN> enc_fblk(,,d);
+            VN_a1ofN<NN> vn();
+
+            ctrl.si = enc_xmit.so;
+            ctrl.so = enc_xmit.si;
+            enc_xmit.xo = enc_fblk.xi;
+            enc_xmit.xo = vn.d.m;
+            enc_fblk.vi = vn.d.a;
+        }
+
+        namespace test {
+            export
+            template <pint M, N, NN>
+            defproc TEST_AEXT(globals g) {
+                active_handshaker<NN> s(g,,);
+                AEXT<M, N, NN> aext(g,,,);
+                aext.ci = s.o;
+                aext.co = s.i;
+
+                VN_aMx1ofN<M, N> vn(aext.d);
+            }
+
+            export
+            template <pint M, N, NN, k>
+            defproc TEST_AEXT1(globals g) {
+                // test AEXT with a single sender
+                active_handshaker<1> s(g,,);
+                AEXT<M, N, NN> aext(g,,,);
+                (; nn : NN :
+                    [ nn = k ->
+                        aext.ci[nn] = s.o[0];
+                        aext.co[nn] = s.i[0];
+                    [] nn != k ->
+                        aext.ci[nn] = g.GND;
+                    ]
+                )
+
+                VN_aMx1ofN<M, N> vn(aext.d);
+            }
+        } // namespace test
+    } // namespace transmitter
+
+    namespace receiver {
+        template <pint M, N, NN, nn; pint n[M]>
+        defproc _DEC_FBLK (bool vi; c1of<N> d[M]; c1of<NN> xo);
+
+        template <pint M, N, NN>
+        defproc DEC_FBLK (bool vi; c1of<N> d[M]; c1of<NN> xo) {
+            // function block portion of decoder
+            // converts M-1-of-N encoding into 1-of-NN encoding
+            // M encoding groups
+            // N neurons per group
+            // NN = N^M total neurons
+            
+            pint n_0[M];
+            (; m : M : n_0[m] = 0;)
+            pint nn_0 = 0;
+            _DEC_FBLK<M, N, NN, nn_0, n_0> _dec(vi, d, xo);
+        }
+
+        template <pint M, N, NN, nn; pint n[M]>
+        defproc _DEC_FBLK (bool vi; c1of<N> d[M]; c1of<NN> xo) {
+            // recursive utility to build the decoding function
+            // converts M-1-of-N encoding into 1-of-NN encoding
+            // M encoding groups
+            // N neurons per group
+            // NN = N^M total neurons
+            // n indexes the location of the 1 in each group
+            // nn indexes NN
+
+            prs {
+                vi & (& : m : M :
+                        d[m].n[n[m]]) -> xo.n[nn]+
+                ~vi -> xo.n[nn]-
+            }
+
+            [nn < (NN-1) ->
+                pint carry[M], n_next[M];
+                pint idx = M-1;
+                n_next[idx] = (n[idx]+1) % N;
+                [ n_next[idx] = 0 -> 
+                    carry[idx] = 1;
+                [] n_next[idx] > 0 ->
+                    carry[idx] = 0;
+                ]
+                (; m : (M-1) :
+                    [ carry[idx-m] = 1 ->
+                        n_next[idx-(m+1)] = (n[idx-(m+1)]+1) % N;
+                        [ n_next[idx-(m+1)] = 0 ->
+                            carry[idx-(m+1)] = 1;
+                        [] n_next[idx-(m+1)] > 0 ->
+                            carry[idx-(m+1)] = 0;
+                        ]
+                    [] carry[idx-m] = 0 ->
+                        n_next[idx-(m+1)] = n[idx-(m+1)];
+                        carry[idx-(m+1)] = 0;
+                    ]
+                )
+                _DEC_FBLK<M, N, NN, nn+1, n_next> _dec(vi, d, xo);
+            ]
+        }
+
+        template <pint N>
+        defproc DEC_XMIT (globals g; c1of<N> xi; bool da, ci[N], co[N]) {
+            // transmision portion of decoder
+            // N neurons
+            c1of<N> do;
+            VN_a1ofN<N> dvn();
+            dvn.d.m = do;
+            dvn.d.a = da;
+            prs {
+                (: n : N :
+                    xi.n[n] -> co[n]+
+                    ~xi.n[n] -> co[n]-
+
+                    ci[n] -> do.n[n]+
+                    ~ci[n] -> do.n[n]-
+                )
+            }
+        }
+
+        export
+        template <pint M, N, NN>
+        defproc AERV (globals g; bool ri[NN], ro[NN]; aMx1ofN<M,N> d) {
+            // receiver
+            // M encoding groups
+            // N neurons per group
+            // NN = N^M total neurons
+            DEC_FBLK<M, N, NN> dec_fblk(,d.m,);
+            VN_aMx1ofN<M,N> vn();
+            DEC_XMIT<NN> dec_xmit(g,,,,);
+
+            vn.d.m = d.m;
+            dec_fblk.vi = vn.d.a;
+            dec_fblk.xo = dec_xmit.xi;
+            dec_xmit.da = d.a;
+            dec_xmit.ci = ri;
+            dec_xmit.co = ro;
+        }
+    } // namespace receiver
+
+    export
+    template <pint M, N, NN>
+    defproc AER (globals g; bool ci[NN], co[NN], ri[NN], ro[NN]) {
+        // address event representation circuit
+        // transmits spikes from transmitter neurons to receiver neurons
+        transmitter::AEXT<M,N,NN> aext(g,ci,co,);
+        receiver::AERV<M,N,NN> aerv(g,ri,ro,);
+        aext.d = aerv.d;
+    }
+
+    namespace test {
+        export
+        template <pint M, N, NN>
+        defproc TEST_AER(globals g) {
+            active_handshaker<NN> s(g,,);
+            passive_handshaker<NN> r(,);
+            AER<M,N,NN> aer(g,,,,);
+
+            aer.ci = s.o;
+            aer.co = s.i;
+            aer.ro = r.i;
+            aer.ri = r.o;
+        }
+
+        export
+        template <pint M, N, NN, k>
+        defproc TEST_AER1(globals g) {
+            // test AER with a single sender/receiver
+            active_handshaker<1> s(g,,);
+            passive_handshaker<1> r(,);
+            AER<M,N,NN> aer(g,,,,);
+            (; nn : NN :
+                [ nn = k ->
+                    aer.ci[nn] = s.o[0];
+                    aer.co[nn] = s.i[0];
+                    aer.ri[nn] = r.o[0];
+                    aer.ro[nn] = r.i[0];
+                [] nn != k ->
+                    aer.ci[nn] = g.GND;
+                    aer.ri[nn] = g.GND;
+                ]
+            )
+        }
+    } // namespace test
+}

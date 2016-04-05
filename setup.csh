@@ -3,5 +3,5 @@
 set SCRIPT_PATH = `lsof +p $$ | \grep -oE /.\*setup.csh`
 set SCRIPT_PATH = `dirname $SCRIPT_PATH`
 
-setenv ACT_PATH $SCRIPT_PATH"/act:$SCRIPT_PATH/act/lib"
-setenv ACT_HOME $SCRIPT_PATH"/act:$SCRIPT_PATH/act/lib"
+setenv ACT_PATH `echo $SCRIPT_PATH | sed s@/aer_brainstorm@@`
+setenv ACT_HOME `echo $SCRIPT_PATH | sed s@/aer_brainstorm@@`
