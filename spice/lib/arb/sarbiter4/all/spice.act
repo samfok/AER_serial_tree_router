@@ -1,6 +1,6 @@
 import "aer_brainstorm/lib/globals.act";
-import "channel.act";
-import "arbiter.act";
+import "aer_brainstorm/lib/channel.act";
+import "aer_brainstorm/lib/arbiter.act";
 
 export defproc wrapper(globals_np g_np; a1of<1> A[4])
 {

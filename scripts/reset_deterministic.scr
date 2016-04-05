@@ -7,4 +7,3 @@ source scripts/reset2.scr
 cycle
 source scripts/reset3.scr
 status X
-

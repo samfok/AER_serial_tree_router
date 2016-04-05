@@ -1,11 +1,11 @@
 // This file defines a tree transmitter and receiver.
 // The data traverses the tree with a serialized packet format.
 import "aer_brainstorm/lib/aer_brainstorm/lib/globals.act";
-import "aer_brainstorm/lib/channel.act";
-import "aer_brainstorm/lib/arbiter.act";
-import "aer_brainstorm/lib/logic.act";
-import "aer_brainstorm/lib/comm.act";
-import "aer_brainstorm/lib/environment.act";
+import "aer_brainstorm/lib/aer_brainstorm/lib/channel.act";
+import "aer_brainstorm/lib/aer_brainstorm/lib/arbiter.act";
+import "aer_brainstorm/lib/aer_brainstorm/lib/logic.act";
+import "aer_brainstorm/lib/aer_brainstorm/lib/comm.act";
+import "aer_brainstorm/lib/aer_brainstorm/lib/environment.act";
 
 namespace aer {
     namespace interface {

@@ -1,5 +1,5 @@
 // Tests the ARB_LOW circuit
-import "arbiter.act";
+import "aer_brainstorm/lib/arbiter.act";
 
 defproc TEST__MUTEX (globals g) {
     // tests _MUTEX

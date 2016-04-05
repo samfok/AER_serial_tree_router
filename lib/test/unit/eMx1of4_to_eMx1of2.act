@@ -1,5 +1,5 @@
-import "comm.act";
-import "environment.act";
+import "aer_brainstorm/lib/comm.act";
+import "aer_brainstorm/lib/environment.act";
 
 pint M_1of4 = 2;
 pint M_1of2 = 4;

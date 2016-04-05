@@ -1,7 +1,7 @@
 // This file contains PRS for the arbiter circuits
 import "aer_brainstorm/lib/globals.act";
-import "channel.act";
-import "environment.act";
+import "aer_brainstorm/lib/channel.act";
+import "aer_brainstorm/lib/environment.act";
 
 namespace arbiter {
     // contains arbiter related processes. 

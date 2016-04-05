@@ -1,5 +1,5 @@
 // Processes used in testing
-import "environment.act";
+import "aer_brainstorm/lib/environment.act";
 
 template <pint M, T_PIDX, T_WIDX, T_N>
 defproc SOURCE_BRAIN_AERV (globals g; eMx1of4<M> d) {

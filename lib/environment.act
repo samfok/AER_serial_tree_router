@@ -1,6 +1,6 @@
 import "aer_brainstorm/lib/aer_brainstorm/lib/globals.act";
-import "aer_brainstorm/lib/channel.act";
-import "aer_brainstorm/lib/comm.act";
+import "aer_brainstorm/lib/aer_brainstorm/lib/channel.act";
+import "aer_brainstorm/lib/aer_brainstorm/lib/comm.act";
 
 export
 template <pint M, N>

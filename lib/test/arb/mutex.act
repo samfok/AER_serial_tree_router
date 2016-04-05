@@ -1,5 +1,5 @@
 // Tests the MUTEX circuit
-import "arbiter.act";
+import "aer_brainstorm/lib/arbiter.act";
 
 defproc TEST_MUTEX (globals g) {
     // tests MUTEX

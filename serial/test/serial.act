@@ -1,0 +1,14 @@
+import "aer_brainstorm/serial/serial.act";
+
+globals g;
+pint N=2;
+SOURCE<N> src(g,,,);
+BUFFER<N> buf(g,,,,,,);
+SINK<N> snk(g,,,);
+
+src.yp = buf.xp;
+src.yi = buf.xo;
+src.y = buf.x;
+buf.yp = snk.xp;
+buf.yi = snk.xo;
+buf.y = snk.x;

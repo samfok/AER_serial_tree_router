@@ -1,5 +1,5 @@
 // Tests the n-way active low arbiter
-import "arbiter.act";
+import "aer_brainstorm/lib/arbiter.act";
 
 template<pint N>
 defproc TEST__N_ARB_2ARB_NODE (globals g) {

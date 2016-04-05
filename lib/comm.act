@@ -1,6 +1,6 @@
 // Defines processes used in data communication
-import "aer_brainstorm/lib/channel.act";
-import "aer_brainstorm/lib/logic.act";
+import "aer_brainstorm/lib/aer_brainstorm/lib/channel.act";
+import "aer_brainstorm/lib/aer_brainstorm/lib/logic.act";
 
 export
 template <pint M, N>

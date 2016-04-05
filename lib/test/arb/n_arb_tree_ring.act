@@ -1,4 +1,4 @@
-import "arbiter.act";
+import "aer_brainstorm/lib/arbiter.act";
 
 template <pint M, K, N>
 defproc TEST_N_ARB_TREE_RING (globals g) {

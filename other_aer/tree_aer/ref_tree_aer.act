@@ -1,8 +1,8 @@
 // This file serves as reference for tree_aer.act
 import "lib/aer_brainstorm/lib/globals.act";
-import "channel.act";
-import "arbiter.act";
-import "logic.act";
+import "aer_brainstorm/lib/channel.act";
+import "aer_brainstorm/lib/arbiter.act";
+import "aer_brainstorm/lib/logic.act";
 import "test.act";
 
 namespace aer {

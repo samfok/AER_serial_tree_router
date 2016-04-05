@@ -1,5 +1,5 @@
 // Defines N input logic gates
-// Unbubble-reshuffled version of logic.act for reference
+// Unbubble-reshuffled version of aer_brainstorm/lib/logic.act for reference
 
 export
 template <pint N>

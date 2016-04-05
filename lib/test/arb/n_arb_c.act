@@ -1,5 +1,5 @@
-// import "ref_arbiter.act";
-import "arbiter.act";
+// import "ref_aer_brainstorm/lib/arbiter.act";
+import "aer_brainstorm/lib/arbiter.act";
 
 template <pint N>
 defproc TEST_N_ARB_C (globals g) {

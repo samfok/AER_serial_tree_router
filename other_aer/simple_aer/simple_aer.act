@@ -1,9 +1,9 @@
 // This file contains PRS for a simple address event transmitter/receiver
 import "lib/aer_brainstorm/lib/globals.act";
-import "lib/channel.act";
-import "arbiter.act";
-import "logic.act";
-import "comm.act";
+import "lib/aer_brainstorm/lib/channel.act";
+import "aer_brainstorm/lib/arbiter.act";
+import "aer_brainstorm/lib/logic.act";
+import "aer_brainstorm/lib/comm.act";
 import "test.act";
 
 namespace aer {

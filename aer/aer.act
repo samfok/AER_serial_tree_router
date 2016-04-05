@@ -1,0 +1,21 @@
+// This file defines an address-event representation system
+import "aer_brainstorm/aext/aext.act";
+import "aer_brainstorm/aerv/aerv.act";
+import "aer_brainstorm/interface/interface.act";
+
+export
+template <pint M, N, NN>
+defproc AER_NODATA (globals g; bool _xp[NN], xo[NN], yi[NN], yp[NN]) {
+    // address-event representation tranceiver
+    // no data sent to receiving neuron
+    // packets are serialized 
+    // Uses M 1-of-N encoding
+    // M groups
+    // N items per group
+    // NN=N^M
+    AEXT<M, N, NN> aext(g, _xp, xo,,,);
+    interface::OUT_a1ofN<N> out(g, aext.pp, aext.pi, aext.p,);
+    interface::DESERIAL_RING<M, N> deserial(g, out.y,);
+    interface::SERIAL_RING<M, N> serial(g, deserial.y,,,);
+    AERV_NODATA<M, N, NN> aerv(g, yi, yp, serial.yp, serial.yi, serial.y);
+}
