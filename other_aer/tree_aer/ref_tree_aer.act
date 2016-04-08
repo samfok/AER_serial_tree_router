@@ -3,7 +3,7 @@ import "lib/aer_brainstorm/lib/globals.act";
 import "aer_brainstorm/lib/channel.act";
 import "aer_brainstorm/lib/arbiter.act";
 import "aer_brainstorm/lib/logic.act";
-import "test.act";
+import "aer_brainstorm/lib/test.act";
 
 namespace aer {
     namespace transmitter {
