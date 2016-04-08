@@ -1,5 +1,5 @@
 // measure spike latency and throughput of the receiver 
-import "aer_brainstorm/aer/";
+import "aer_brainstorm/aerv/aerv.act";
 
 pint M     = 5;
 pint M_SPK = M+1;
