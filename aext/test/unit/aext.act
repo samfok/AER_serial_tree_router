@@ -1,7 +1,8 @@
 // tests the serial aer transmitter
 
 /*CMOS implementable version-------------------------------------------------*/
-import "aer_brainstorm/aer/";
+import "aer_brainstorm/aext/aext.act";
+import "aer_brainstorm/interface/interface.act";
 pint M=6;
 pint N=4;
 pint NN=4096; // NN=N^M
@@ -30,7 +31,8 @@ deserial.y.e = snk.e;
 )
 
 /*reference version----------------------------------------------------------*/
-// import "ref_serial_aer.act";
+// import "aer_brainstorm/aext/ref_aext.act";
+// import "aer_brainstorm/interface/ref_interface.act";
 // pint M=6;
 // pint N=4;
 // pint NN=4096; // NN=N^M
