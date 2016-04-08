@@ -1,4 +1,4 @@
-import "aer_brainstorm/aer/";
+import "aer_brainstorm/aext/aext.act";
 import "aer_brainstorm/lib/test.act";
 
 globals g;
