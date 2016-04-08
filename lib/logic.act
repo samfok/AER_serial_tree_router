@@ -1,7 +1,7 @@
 // Defines N input logic gates
 import "aer_brainstorm/lib/globals.act";
 import "aer_brainstorm/lib/channel.act";
-import "logic.h"; // forward declare functions
+import "aer_brainstorm/lib/logic.h";
 
 export
 template <pint N>

@@ -1,4 +1,4 @@
-import "serial_aer.act";
+import "aer_brainstorm/aer/";
 import "test.act";
 
 defproc wrapper (globals_np g_np; eMx1of4<9> src) {
@@ -7,7 +7,7 @@ defproc wrapper (globals_np g_np; eMx1of4<9> src) {
 
     pint M = 9;
     pint N = 4;
-    aer::interface::SERIAL_RING<M, N> serial;
+    interface::SERIAL_RING<M, N> serial;
 
     serial.g.Vdd = Vdd;
     serial.g.GND = GND;

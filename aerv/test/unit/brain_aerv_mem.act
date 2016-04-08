@@ -1,5 +1,5 @@
 // tests that brain aerv can deliver memory packets
-import "serial_aer.act";
+import "aer_brainstorm/aer/";
 
 pint M     = 3;
 pint M_SPK = M+1;
@@ -40,5 +40,5 @@ eMx1of2<2*M_MEM> mem_src;
 )
 eMx1of2_to_eMx1of4<2*M_MEM, M_MEM> mem_src_(g, mem_src,);
 
-aer::BRAIN_AERV<M, M_SPK, M_MEM, N_SYN, N_MEM> aerv(
+BRAIN_AERV<M, M_SPK, M_MEM, N_SYN, N_MEM> aerv(
     g, spk_src, mem_src_.y, y_syn, y_mem);

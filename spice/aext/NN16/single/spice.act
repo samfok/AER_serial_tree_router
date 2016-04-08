@@ -1,4 +1,4 @@
-import "serial_aer.act";
+import "aer_brainstorm/aer/";
 
 export defproc wrapper(globals_np g_np; a1of<1> src; eMx1of4<2> snk)
 {
@@ -9,9 +9,9 @@ export defproc wrapper(globals_np g_np; a1of<1> src; eMx1of4<2> snk)
     pint N = 4;
     pint NN = 16;
 
-    aer::AEXT<M, N, NN> aext(g,,,,,);
-    aer::interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
-    aer::interface::DESERIAL_RING<M, N> deserial(g, out.y,);
+    AEXT<M, N, NN> aext(g,,,,,);
+    interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
+    interface::DESERIAL_RING<M, N> deserial(g, out.y,);
 
     // rails and reset
     g.Vdd = Vdd;

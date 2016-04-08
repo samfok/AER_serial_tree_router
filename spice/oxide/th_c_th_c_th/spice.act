@@ -1,4 +1,4 @@
-import "serial_aer.act";
+import "aer_brainstorm/aer/";
 import "test.act";
 
 export defproc wrapper(globals_np g_np)
@@ -12,7 +12,7 @@ export defproc wrapper(globals_np g_np)
     pint N = 4;
     pint NN = 4;
 
-    aer::AEXT<M, N, NN> aext(g,,,,,);
+    AEXT<M, N, NN> aext(g,,,,,);
     SINK_SERIAL<N> snk(g, aext.pp, aext.pi, aext.p);
 
     // rails and reset

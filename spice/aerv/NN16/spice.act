@@ -1,4 +1,4 @@
-import "serial_aer.act";
+import "aer_brainstorm/aer/";
 
 export defproc wrapper(globals_np g_np; eMx1of4<3> spk_src; eMx1of4<3> mem_src;
  a1of2 syn_snk[16]; eMx1of4<1> mem_snk[4])
@@ -12,7 +12,7 @@ export defproc wrapper(globals_np g_np; eMx1of4<3> spk_src; eMx1of4<3> mem_src;
     pint N_SYN = 16;
     pint N_MEM = 4;
 
-    aer::BRAIN_AERV<M, M_SPK, M_MEM, N_SYN, N_MEM> aerv(g,,,,);
+    BRAIN_AERV<M, M_SPK, M_MEM, N_SYN, N_MEM> aerv(g,,,,);
 
     // rails and reset
     g.Vdd = Vdd;

@@ -1,4 +1,4 @@
-import "serial_aer.act";
+import "aer_brainstorm/aer/";
 
 export defproc wrapper(globals_np g_np; a1of<4> src; eMx1of4<4> snk)
 {
@@ -7,7 +7,7 @@ export defproc wrapper(globals_np g_np; a1of<4> src; eMx1of4<4> snk)
     pint M = 4;
     pint N = 4;
 
-    aer::interface::DESERIAL_RING<M, N> deserial;
+    interface::DESERIAL_RING<M, N> deserial;
 
     deserial.g.Vdd = Vdd;
     deserial.g.GND = GND;

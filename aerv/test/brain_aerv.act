@@ -1,6 +1,6 @@
 // tests that brain aerv works without deadlock, instability, or interference
 // while both spikes and memory packets are being delivered randomly
-import "serial_aer.act";
+import "aer_brainstorm/aer/";
 import "test.act";
 
 pint M     = 3;
@@ -31,5 +31,5 @@ eMx1of4<M_MEM-M> y_mem[N_MEM];
     mem_snk[n].d.e = y_mem[n].e;
 )
 
-aer::BRAIN_AERV<M, M_SPK, M_MEM, N_SYN, N_MEM> aerv(
+BRAIN_AERV<M, M_SPK, M_MEM, N_SYN, N_MEM> aerv(
     g, spk_src.d, mem_src.d, y_syn, y_mem);

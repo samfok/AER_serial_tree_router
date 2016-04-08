@@ -1,7 +1,7 @@
 // Tests serial tree AER system with 1 neuron
 
 /*CMOS implementable version-------------------------------------------------*/
-import "serial_aer.act";
+import "aer_brainstorm/aer/aer.act";
 
 globals g;
 
@@ -11,7 +11,7 @@ pint NN=8;
 
 SOURCE_random_a1of1 src(g,);
 passive_handshaker<1> y(g,,);
-aer::AER_NODATA<M, N, NN> aer(g,,,,);
+AER_NODATA<M, N, NN> aer(g,,,,);
 
 src.d.a = aer.xo[0];
 prs<g.Vdd, g.GND> {
@@ -25,7 +25,7 @@ aer.yp[0] = y.i[0];
 )
 
 /*reference version----------------------------------------------------------*/
-// import "ref_serial_aer.act";
+// import "aer_brainstorm/aer/ref_aer.act";
 // 
 // globals g;
 // 
@@ -35,7 +35,7 @@ aer.yp[0] = y.i[0];
 // 
 // active_handshaker<1> x(g,,);
 // passive_handshaker<1> y(g,,);
-// aer::AER_NODATA<M, N, NN> aer(g,,,,);
+// AER_NODATA<M, N, NN> aer(g,,,,);
 // aer.xp[0] = x.o[0];
 // aer.xo[0] = x.i[0];
 // aer.yi[0] = y.o[0];

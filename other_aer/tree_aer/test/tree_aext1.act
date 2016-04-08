@@ -4,4 +4,4 @@ import "lib/aer_brainstorm/lib/globals.act";
 pint M=3;
 pint NN=8;
 globals g;
-aer::transmitter::test::TEST_AEXT1<M,NN> test(g);
+transmitter::test::TEST_AEXT1<M,NN> test(g);

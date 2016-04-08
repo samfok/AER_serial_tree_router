@@ -8,4 +8,4 @@ pint N=2;
 pint NN=64; // NN=N^M
 
 globals g;
-aer::test::TEST_AER<M, N, NN> test(g);
+test::TEST_AER<M, N, NN> test(g);

@@ -1,16 +1,17 @@
 // tests the serial aer transmitter
 
 /*CMOS implementable version-------------------------------------------------*/
-import "serial_aer.act";
+import "aer_brainstorm/aext/aext.act";
+import "aer_brainstorm/interface/interface.act";
 pint M=3;
 pint N=2;
 pint NN=8; // NN=N^M
 pint nn=0;
 globals g;
 SOURCE_random_a1of1 src(g,);
-aer::AEXT<M, N, NN> aext(g,,,,,);
-aer::interface::OUT_a1ofN<N> out(g, aext.pp, aext.pi, aext.p,);
-aer::interface::DESERIAL_RING<M, N> deserial(g, out.y,);
+AEXT<M, N, NN> aext(g,,,,,);
+interface::OUT_a1ofN<N> out(g, aext.pp, aext.pi, aext.p,);
+interface::DESERIAL_RING<M, N> deserial(g, out.y,);
 SINK_eMx1ofN<M, N> snk(g, deserial.y);
 
 [ nn > 0 ->
@@ -30,7 +31,8 @@ prs<g.Vdd, g.GND> {
 }
 
 /*reference version----------------------------------------------------------*/
-// import "ref_serial_aer.act";
+// import "aer_brainstorm/aext/ref_aext.act";
+// import "aer_brainstorm/interface/ref_interface.act";
 // pint M=3;
 // pint N=2;
 // pint NN=8; // NN=N^M
@@ -38,9 +40,9 @@ prs<g.Vdd, g.GND> {
 // globals g;
 // 
 // active_handshaker<1> a(g,,);
-// aer::AEXT<M, N, NN> aext(g,,,,,);
-// aer::interface::OUT_a1ofN<N> out(g, aext.pp, aext.pi, aext.p,);
-// aer::interface::DESERIAL_RING<M, N> deserial(
+// AEXT<M, N, NN> aext(g,,,,,);
+// interface::OUT_a1ofN<N> out(g, aext.pp, aext.pi, aext.p,);
+// interface::DESERIAL_RING<M, N> deserial(
 //     g, out.y,);
 // SINK_eMx1ofN<M, N> snk(g, deserial.y);
 // 
