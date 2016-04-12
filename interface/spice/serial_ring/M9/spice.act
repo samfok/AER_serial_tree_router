@@ -1,0 +1,30 @@
+import "aer_brainstorm/interface/interface.act";
+import "aer_brainstorm/lib/test.act";
+
+defproc wrapper (globals_np g_np; eMx1of4<9> src) {
+    bool Vdd;
+    bool GND;
+
+    pint M = 9;
+    pint N = 4;
+    interface::SERIAL_RING<M, N> serial;
+
+    serial.g.Vdd = Vdd;
+    serial.g.GND = GND;
+    prs <Vdd, GND> {
+        g_np._sReset<20> => serial.g.sReset-
+        g_np._pReset<20> => serial.g.pReset-
+    }
+    serial.g._pReset = g_np._pReset;
+    serial.g._sReset = g_np._sReset;
+
+    (; m : M :
+        src.m[m].d = serial.x.m[m].d;
+    )
+    src.e = serial.x.e;
+
+    SINK_SERIAL<N> snk(serial.g, serial.yp, serial.yi, serial.y);
+}
+
+wrapper dut;
+

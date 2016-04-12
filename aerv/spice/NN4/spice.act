@@ -1,0 +1,36 @@
+import "aer_brainstorm/aerv/aerv.act";
+
+export defproc wrapper(globals_np g_np; eMx1of4<2> spk_src; eMx1of4<2> mem_src;
+ a1of2 syn_snk[4]; eMx1of4<1> mem_snk[1])
+{
+    bool Vdd;
+    bool GND;
+    globals g;
+    pint M = 1;
+    pint M_SPK = M+1;
+    pint M_MEM = M+1;
+    pint N_SYN = 4;
+    pint N_MEM = 1;
+
+    BRAIN_AERV<M, M_SPK, M_MEM, N_SYN, N_MEM> aerv(g,,,,);
+
+    // rails and reset
+    g.Vdd = Vdd;
+    g.GND = GND;
+    prs <Vdd, GND> {
+        g_np._sReset<20> => g.sReset-
+        g_np._pReset<20> => g.pReset-
+    }
+    g._pReset = g_np._pReset;
+    g._sReset = g_np._sReset;
+
+    // connect src
+    spk_src = aerv.x_spk;
+    mem_src = aerv.x_mem;
+
+    // connect snk
+    syn_snk = aerv.y_syn;
+    mem_snk = aerv.y_mem;
+}
+
+wrapper dut;

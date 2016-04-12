@@ -1,0 +1,44 @@
+import "aer_brainstorm/aext/aext.act";
+import "aer_brainstorm/interface/interface.act";
+
+export defproc wrapper(globals_np g_np; a1of<1> src; eMx1of4<3> snk)
+{
+    bool Vdd;
+    bool GND;
+    globals g;
+    pint M = 3;
+    pint N = 4;
+    pint NN = 64;
+
+    AEXT<M, N, NN> aext(g,,,,,);
+    interface::OUT_a1ofN<N> out(g, aext.pp, aext.pi, aext.p,);
+    interface::DESERIAL_RING<M, N> deserial(aext.g, out.y,);
+
+    // rails and reset
+    g.Vdd = Vdd;
+    g.GND = GND;
+    prs <Vdd, GND> {
+        g_np._sReset<20> => g.sReset-
+        g_np._pReset<20> => g.pReset-
+    }
+    g._pReset = g_np._pReset;
+    g._sReset = g_np._sReset;
+
+    // connect src
+    prs<g.Vdd, g.GND> {
+        src.d[0] => aext._xp[0]-
+    }
+    src.a = aext.xo[0];
+    (; nn : 1..NN-1 :
+        g.Vdd = aext._xp[nn];
+    )
+
+    // connect snk
+    (; m : M :
+        deserial.y.b[m].d = snk.b[m].d;
+    )
+    deserial.y.e = snk.e;
+}
+
+wrapper dut;
+
