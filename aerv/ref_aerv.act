@@ -113,6 +113,21 @@ namespace brain_receiver {
             pp & (& : c : C : ~ci[c]) => po+
         }
     }
+
+    export
+    defproc HALF_BUFFER (globals g; a1of2 x, y) {
+        // provides a half cycle of buffering
+        // prevents the synapse from holding up the receiver tree
+        pint D = 2; // for a1of2
+        prs<g.Vdd, g.GND> {
+            y.a & (| : d : D : y.d[d]) => x.a+
+
+            (: d : D :
+                ~y.a & x.d[d] -> y.d[d]+
+                ~x.d[d] -> y.d[d]-
+            )
+        }
+    }
 } // namespace brain_receiver
 
 export
@@ -172,6 +187,12 @@ defproc BRAIN_AERV (globals g; eMx1of4<M_SPK> x_spk;
         mem_deserial[n].y.e = y_mem[n].e;
     )
     
+    brain_receiver::HALF_BUFFER buf_syn[N_SYN]; // buffer synapse spikes
+    (; n : N_SYN :
+        buf_syn[n].g = g;
+        // connect synapse to buf_syn
+        buf_syn[n].y = y_syn[n];
+    )
     brain_receiver::MERGE_ACK<2> ack_syn[N_SYN/2]; // ack syns
     brain_receiver::MERGE_ACK<1> ack_mem[N_SYN/4]; // ack mems
     bool aerv_yi[AERV_TGTS];
@@ -179,8 +200,8 @@ defproc BRAIN_AERV (globals g; eMx1of4<M_SPK> x_spk;
     (; n : N_SYN/2 :
         ack_syn[n].g = g;
         // connect synapse ack to ack_syn
-        ack_syn[n].ci[0] = y_syn[2*n].a;
-        ack_syn[n].ci[1] = y_syn[2*n+1].a;
+        ack_syn[n].ci[0] = buf_syn[2*n].x.a;
+        ack_syn[n].ci[1] = buf_syn[2*n+1].x.a;
     )
     (; n : N_SYN/4 :
         // connect aerv pphi to ack_syn 
@@ -199,10 +220,10 @@ defproc BRAIN_AERV (globals g; eMx1of4<M_SPK> x_spk;
 
     c1of<D> aerv_y[AERV_TGTS];
     (; n : AERV_TGTS/3 :
-        aerv_y[3*n].d[0..1] = y_syn[4*n].d;
-        aerv_y[3*n].d[2..3] = y_syn[4*n+1].d;
-        aerv_y[3*n+1].d[0..1] = y_syn[4*n+2].d;
-        aerv_y[3*n+1].d[2..3] = y_syn[4*n+3].d;
+        aerv_y[3*n].d[0..1] = buf_syn[4*n].x.d;
+        aerv_y[3*n].d[2..3] = buf_syn[4*n+1].x.d;
+        aerv_y[3*n+1].d[0..1] = buf_syn[4*n+2].x.d;
+        aerv_y[3*n+1].d[2..3] = buf_syn[4*n+3].x.d;
         aerv_y[3*n+2].d = mem_deserial[n].x.d;
     )
 

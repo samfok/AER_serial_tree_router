@@ -282,6 +282,49 @@ namespace brain_receiver {
             }
         ]
     }
+
+    export
+    defproc HALF_BUFFER (globals g; a1of2 x, y) {
+        // provides a half cycle of buffering
+        // prevents the synapse from holding up the receiver tree
+        pint D = 2; // for a1of2
+        bool _ya;
+        c1of2 _y;
+        [ ~LAYOUT ->
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+                y.a => _ya-
+
+                ~_ya & (| : d : D : ~_y.d[d]) => x.a+
+
+                (: d : D :
+                    _ya & x.d[d] -> _y.d[d]-
+                    ~x.d[d] -> _y.d[d]+
+                )
+
+                (: d : D :
+                    _y.d[d] => y.d[d]-
+                )
+            }
+        [] LAYOUT ->
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+                ~y.a -> _ya+
+                y.a -> _ya-
+
+                ~_ya<9> & (| : d : D : ~_y.d[d]<9>) -> x.a+
+                _ya<6> | (& : d : D : _y.d[d]<9>) -> x.a-
+
+                (: d : D :
+                    _ya<12> & x.d[d]<12> -> _y.d[d]-
+                    ~x.d[d]<9> -> _y.d[d]+
+                )
+
+                (: d : D :
+                    ~_y.d[d]<9> -> y.d[d]+
+                    _y.d[d]<6> -> y.d[d]-
+                )
+            }
+        ]
+    }
 } // namespace brain_receiver
 
 export
@@ -341,15 +384,21 @@ defproc BRAIN_AERV (globals g; eMx1of4<M_SPK> x_spk;
         mem_deserial[n].y.e = y_mem[n].e;
     )
     
+    brain_receiver::HALF_BUFFER buf_syn[N_SYN]; // buffer synapse spikes
+    (; n : N_SYN :
+        buf_syn[n].g = g;
+        // connect synapse to buf_syn
+        buf_syn[n].y = y_syn[n];
+    )
     brain_receiver::MERGE_ACK<2> ack_syn[N_SYN/2]; // ack syns
     brain_receiver::MERGE_ACK<1> ack_mem[N_SYN/4]; // ack mems
     bool aerv__yi[AERV_TGTS];
     bool aerv_yp[AERV_TGTS];
     (; n : N_SYN/2 :
         ack_syn[n].g = g;
-        // connect synapse ack to ack_syn
-        ack_syn[n].ci[0] = y_syn[2*n].a;
-        ack_syn[n].ci[1] = y_syn[2*n+1].a;
+        // connect buf_syn ack to ack_syn
+        ack_syn[n].ci[0] = buf_syn[2*n].x.a;
+        ack_syn[n].ci[1] = buf_syn[2*n+1].x.a;
     )
     (; n : N_SYN/4 :
         ack_mem[n].g = g;
@@ -369,10 +418,10 @@ defproc BRAIN_AERV (globals g; eMx1of4<M_SPK> x_spk;
 
     c1of<D> aerv_y[AERV_TGTS];
     (; n : AERV_TGTS/3 :
-        aerv_y[3*n].d[0..1] = y_syn[4*n].d;
-        aerv_y[3*n].d[2..3] = y_syn[4*n+1].d;
-        aerv_y[3*n+1].d[0..1] = y_syn[4*n+2].d;
-        aerv_y[3*n+1].d[2..3] = y_syn[4*n+3].d;
+        aerv_y[3*n].d[0..1] = buf_syn[4*n].x.d;
+        aerv_y[3*n].d[2..3] = buf_syn[4*n+1].x.d;
+        aerv_y[3*n+1].d[0..1] = buf_syn[4*n+2].x.d;
+        aerv_y[3*n+1].d[2..3] = buf_syn[4*n+3].x.d;
         aerv_y[3*n+2].d = mem_deserial[n].x.d;
     )
 
