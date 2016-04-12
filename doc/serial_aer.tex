@@ -1422,7 +1422,20 @@ p\phi & c -> _po-
 The size of the $c$ gate grows with the number of child acknowledges to merge. \\
 
 \noindent
-merge ack (2) accounting:
+MERGE ACK (1) accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $c$ & 2 & \\ \hline
+    $\_po$ & 4 & \\ \hline
+    \hline total & 6 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\noindent
+MERGE ACK (2) accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
@@ -1434,16 +1447,74 @@ merge ack (2) accounting:
     \end{tabular}
 \end{center}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{AERV HALF BUF \label{sec:AERV_HALF_BUF}}
+
+The HALF BUF provides half a cycle of slack between the receiver and the
+synapse. 
+
+\subsubsection*{HSE}
+
+\begin{hse}
+*[[X];Y+;[yi];xo+;[~X];Y-;xo-;[~yi]]
+\end{hse}
+
+\subsubsection*{PRS}
+
+\begin{prs2}
+ya & (y0 | y1) -> xa+
+~ya | ~y0 & ~y1 -> xa-
+\end{prs2}
+
+\begin{prs2}
+~ya & x0 -> y0+
+~x0 -> y0-
+
+~ya & x1 -> y1+
+~x1 -> y1-
+\end{prs2}
+
+\subsubsection*{CMOS-implementable PRS}
+
+
+\begin{prs2}
+~ya -> _ya+
+ya -> _ya-
+\end{prs2}
+
+\begin{prs2}
+~_ya & (~_y0 | ~_y1) -> xa+
+_ya | _y0 & _y1 -> xa-
+\end{prs2}
+
+\begin{prs2}
+_ya & x0 -> _y0-
+~x0 -> _y0+
+
+_ya & x1 -> _y1-
+~x1 -> _y1+
+\end{prs2}
+
+\begin{prs2}
+~_y0 -> __y0+
+_y0 -> __y0-
+
+~_y1 -> __y1+
+_y1 -> __y1-
+\end{prs2}
+
 \noindent
-merge ack (1) accounting:
+Accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
     \hline
     rule & transistor count & comments \\ \hline
-    $c$ & 2 & \\ \hline
-    $\_po$ & 4 & \\ \hline
-    \hline total & 6 & \\ \hline
+    $\_y_a$ & 2 & \\ \hline
+    $x_a$ & 6 & \\ \hline
+    $\_y[0,1]$ & 6 & staticized by $\_\_y[0,1]$ \\ \hline
+    $\_\_y[0,1]$ & 8 & staticizes $\_y[0,1]$ \\ \hline
+    \hline total & 22 & \\ \hline
     \end{tabular}
 \end{center}
 
@@ -2255,7 +2326,8 @@ or 28.9 ns, or equivalently has a throughput of \textbf{34.7 Mspks/s}.
     DESERIAL & 246 & 256 & 62,976 & 15.4 \\ \hline
     MERGE ACK (2) & 8 & 512 & 4,096 & 1.0 \\ \hline
     MERGE ACK (1) & 6 & 256 & 1,536 & 0.4 \\ \hline
-    \hline \multicolumn{3}{|r|}{total} & 113,356 & 27.7 \\ \hline
+    HALF BUF & 22 & 1024 & 22,528 & 5.5 \\ \hline
+    \hline \multicolumn{3}{|r|}{total} & 113,356 & 33.2 \\ \hline
     \end{tabular}
 \end{center}
 
