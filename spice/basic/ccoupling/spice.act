@@ -1,5 +1,5 @@
-import aer/lib/globals.act";
-import aer/lib/channel.act";
+import "aer/lib/globals.act";
+import "aer/lib/channel.act";
 
 
 export defproc wrapper(globals_np g_np; eMx1of4<1> src)

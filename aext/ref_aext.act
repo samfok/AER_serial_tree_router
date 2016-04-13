@@ -1,6 +1,6 @@
 // This file defines a tree transmitter and receiver.
 // The data traverses the tree with a serialized packet format.
-import aer/lib/arbiter.act";
+import "aer/lib/arbiter.act";
 
 namespace transmitter {
     export

@@ -1,5 +1,5 @@
-import aer/lib/comm.act";
-import aer/lib/environment.act";
+import "aer/lib/comm.act";
+import "aer/lib/environment.act";
 
 pint M_1of4 = 2;
 pint M_1of2 = 4;

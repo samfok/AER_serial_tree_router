@@ -1,6 +1,6 @@
 // Defines processes used in data communication
 // Unbubble-reshuffled version of aer_brainstorm/lib/comm.act for reference
-import aer/lib/channel.act";
+import "aer/lib/channel.act";
 import "ref_aer_brainstorm/lib/logic.act";
 
 export

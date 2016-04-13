@@ -1,4 +1,4 @@
-import aer/lib/comm.act";
+import "aer/lib/comm.act";
 
 defproc wrapper (globals_np g_np; eMx1of2<2> src; eMx1of4<1> snk) {
     bool Vdd;

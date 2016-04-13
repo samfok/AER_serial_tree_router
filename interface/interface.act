@@ -1,9 +1,9 @@
 // This file defines a tree transmitter and receiver.
 // The data traverses the tree with a serialized packet format.
-import aer/lib/globals.act";
-import aer/lib/channel.act";
-import aer/lib/arbiter.act";
-import aer/lib/logic.act";
+import "aer/lib/globals.act";
+import "aer/lib/channel.act";
+import "aer/lib/arbiter.act";
+import "aer/lib/logic.act";
 
 namespace interface {
     export

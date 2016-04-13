@@ -1,7 +1,7 @@
 // This file defines an address-event representation system
-import aer/aext/aext.act";
-import aer/aerv/aerv.act";
-import aer/interface/interface.act";
+import "aer/aext/aext.act";
+import "aer/aerv/aerv.act";
+import "aer/interface/interface.act";
 
 export
 template <pint M, N, NN>

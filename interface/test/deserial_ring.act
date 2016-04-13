@@ -1,4 +1,4 @@
-import aer/interface/interface.act";
+import "aer/interface/interface.act";
 
 pint M=6;
 pint N=2;
