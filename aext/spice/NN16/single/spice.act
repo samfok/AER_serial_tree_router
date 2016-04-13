@@ -5,11 +5,13 @@ export defproc wrapper(globals_np g_np; a1of<1> src; eMx1of4<2> snk)
 {
     bool Vdd;
     bool GND;
+    bool vpsub;
+    bool vnsub;
+
     globals g;
     pint M = 2;
     pint N = 4;
     pint NN = 16;
-
     AEXT<M, N, NN> aext(g,,,,,);
     interface::OUT_a1ofN<N> out(g, aext.pp, aext.pi, aext.p,);
     interface::DESERIAL_RING<M, N> deserial(g, out.y,);
@@ -17,6 +19,8 @@ export defproc wrapper(globals_np g_np; a1of<1> src; eMx1of4<2> snk)
     // rails and reset
     g.Vdd = Vdd;
     g.GND = GND;
+    g.vpsub = vpsub;
+    g.vnsub = vnsub;
     prs <Vdd, GND> {
         g_np._sReset<20> => g.sReset-
         g_np._pReset<20> => g.pReset-

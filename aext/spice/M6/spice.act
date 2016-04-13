@@ -5,11 +5,13 @@ export defproc wrapper(globals_np g_np; a1of<1> src; eMx1of4<6> snk)
 {
     bool Vdd;
     bool GND;
+    bool vpsub;
+    bool vnsub;
+    globals g;
+
     pint M = 6;
     pint N = 4;
     pint NN = 4096;
-
-    globals g;
     transmitter::NODE<N, 1> root(g,,,,,,);
     transmitter::NODE<N, 0> node[4];
     transmitter::LEAF<N, 0> leaf(g,,, node[0].co[0], node[0].ci[0], node[0]._c[0]);
@@ -22,6 +24,8 @@ export defproc wrapper(globals_np g_np; a1of<1> src; eMx1of4<6> snk)
     // rails and reset
     g.Vdd = Vdd;
     g.GND = GND;
+    g.vpsub = vpsub;
+    g.vnsub = vnsub;
     prs <Vdd, GND> {
         g_np._sReset<20> => g.sReset-
         g_np._pReset<20> => g.pReset-

@@ -5,18 +5,22 @@ export defproc wrapper(globals_np g_np; eMx1of4<3> spk_src; eMx1of4<3> mem_src;
 {
     bool Vdd;
     bool GND;
+    bool vpsub;
+    bool vnsub;
     globals g;
+
     pint M = 2;
     pint M_SPK = M+1;
     pint M_MEM = M+1;
     pint N_SYN = 16;
     pint N_MEM = 4;
-
     BRAIN_AERV<M, M_SPK, M_MEM, N_SYN, N_MEM> aerv(g,,,,);
 
     // rails and reset
     g.Vdd = Vdd;
     g.GND = GND;
+    g.vpsub = vpsub;
+    g.vnsub = vnsub;
     prs <Vdd, GND> {
         g_np._sReset<20> => g.sReset-
         g_np._pReset<20> => g.pReset-

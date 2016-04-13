@@ -31,7 +31,9 @@
   <global name="alint_path" value = "/ufs/cad/lib" />
 
   <!-- Voltage supplies -->
-  <global name="vdd" value="1.0" /> <!-- for DUT (may be scaled) -->
+  <global name="vdd" value="1.0" />
+  <global name="vpsub" value="2.0" />
+  <global name="vnsub" value="-1.0" />
 
   <!-- netgen configuration settings -->
   <global name="netgen_cfg" value="/ufs/cad/lib/netgen/st28soi.conf" />
@@ -61,6 +63,8 @@
   <global name="HSIMITERMODE"      value="1" />	<!--0..2,def=1, controls itteration scheme!-->
   <global name="HSIMSTEADYCURRENT" value="10n" /><!--def=10n(A), inactive current!-->
   <global name="HSIMIGISUB"        value="1" /><!--0..3,def=0, 1=all_on, gate&substrate leakage-->
+  <global name="HSIMVHTH"          value="0.7v" /><!-- a-to-d threshold for 0 to 1 transitions-->
+  <global name="HSIMVLTH"          value="0.3v" /><!-- a-to-d threshold for 1 to 0 transitions-->
 
   <!-- HSIM circuit and sanity checking -->
   <global name="HSIMCHECKMOSBULK" value="1" /> <!--0..1,def=1, bulk forward bias check!-->

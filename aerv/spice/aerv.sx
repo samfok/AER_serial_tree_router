@@ -1,8 +1,8 @@
 ### Custom WaveView session file (version K-2015.06 build 05/23/15) ###
 ### saved at 21:02:55 on Wed Mar 23 2016 ###
-wdf 0 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/aerv/NN4/hsim.fsdb" load=used "title=N4" 
-wdf 1 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/aerv/NN16/hsim.fsdb" load=used "title=N16" 
-wdf 2 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/aerv/NN64/hsim.fsdb" load=used "title=N64" 
+wdf 0 "/ufs/vlsi/brainstorm/aer_brainstorm/aerv/spice/NN4/hsim.fsdb" load=used "title=N4" 
+wdf 1 "/ufs/vlsi/brainstorm/aer_brainstorm/aerv/spice/NN16/hsim.fsdb" load=used "title=N16" 
+wdf 2 "/ufs/vlsi/brainstorm/aer_brainstorm/aerv/spice/NN64/hsim.fsdb" load=used "title=N64" 
 scalar list
 waveview_begin 1  stack  offset=0 name_b=382 mntr_b=382 name_width=367 dm=slew:543:1106:1:1:0:9e-01:1e-01:0e+00:0e+00:13:1.05808304425537e-08:1e-01:1.06222778326511e-08:9e-01:0:0e+00:0e+00 "name=NN4" 
   panel_begin linear pidx=0 spath=name+file xlabel=sec xmin=9.94969256567915e-09 xmax=2e-08 
