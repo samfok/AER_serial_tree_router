@@ -1,5 +1,5 @@
-import "aer_brainstorm/aer/";
-import "aer_brainstorm/lib/test.act";
+import aer/aer/";
+import aer/lib/test.act";
 
 export defproc wrapper(globals_np g_np)
 {

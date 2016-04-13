@@ -1,4 +1,4 @@
-import "aer_brainstorm/serial/serial.act";
+import aer/serial/serial.act";
 
 globals g;
 pint N=2;

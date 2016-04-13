@@ -1,7 +1,7 @@
 // Tests serial tree AER system with 1 neuron
 
 /*CMOS implementable version-------------------------------------------------*/
-import "aer_brainstorm/aer/aer.act";
+import aer/aer/aer.act";
 
 globals g;
 
@@ -25,7 +25,7 @@ aer.yp[0] = y.i[0];
 )
 
 /*reference version----------------------------------------------------------*/
-// import "aer_brainstorm/aer/ref_aer.act";
+// import aer/aer/ref_aer.act";
 // 
 // globals g;
 // 

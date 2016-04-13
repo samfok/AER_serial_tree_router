@@ -1,7 +1,7 @@
 // This file defines an address-event representation system
-import "aer_brainstorm/aext/aext.act";
-import "aer_brainstorm/aerv/aerv.act";
-import "aer_brainstorm/interface/interface.act";
+import aer/aext/aext.act";
+import aer/aerv/aerv.act";
+import aer/interface/interface.act";
 
 export
 template <pint M, N, NN>

@@ -1,8 +1,8 @@
 // tests the serial aer transmitter
 
 /*CMOS implementable version-------------------------------------------------*/
-import "aer_brainstorm/aext/aext.act";
-import "aer_brainstorm/interface/interface.act";
+import aer/aext/aext.act";
+import aer/interface/interface.act";
 pint M=3;
 pint N=2;
 pint NN=8; // NN=N^M
@@ -31,8 +31,8 @@ prs<g.Vdd, g.GND> {
 }
 
 /*reference version----------------------------------------------------------*/
-// import "aer_brainstorm/aext/ref_aext.act";
-// import "aer_brainstorm/interface/ref_interface.act";
+// import aer/aext/ref_aext.act";
+// import aer/interface/ref_interface.act";
 // pint M=3;
 // pint N=2;
 // pint NN=8; // NN=N^M

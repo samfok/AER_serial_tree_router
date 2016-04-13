@@ -1,4 +1,4 @@
-import "aer_brainstorm/interface/interface.act";
+import aer/interface/interface.act";
 
 export defproc wrapper(globals_np g_np; a1of<4> src; eMx1of4<6> snk)
 {

@@ -1,5 +1,5 @@
-import "aer_brainstorm/interface/interface.act";
-import "aer_brainstorm/lib/test.act";
+import aer/interface/interface.act";
+import aer/lib/test.act";
 
 defproc wrapper (globals_np g_np; eMx1of4<6> src) {
     bool Vdd;

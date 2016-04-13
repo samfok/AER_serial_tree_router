@@ -1,5 +1,5 @@
 // tests that brain aerv can deliver spikes
-import "aer_brainstorm/aerv/aerv.act";
+import aer/aerv/aerv.act";
 
 pint M     = 3;
 pint M_SPK = M+1;

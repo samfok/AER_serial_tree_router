@@ -1,4 +1,4 @@
-import "aer_brainstorm/interface/interface.act";
+import aer/interface/interface.act";
 
 pint M=3;
 pint N=4;

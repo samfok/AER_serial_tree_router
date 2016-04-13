@@ -1,5 +1,5 @@
 // measure latency and minimum throughput of transmitter
-import "aer_brainstorm/aer/";
+import aer/aer/";
 pint M=6;
 pint N=4;
 pint NN=4096; // NN=N^M
