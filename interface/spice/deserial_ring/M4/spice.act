@@ -4,19 +4,24 @@ export defproc wrapper(globals_np g_np; a1of<4> src; eMx1of4<4> snk)
 {
     bool Vdd;
     bool GND;
+    bool vpsub;
+    bool vnsub;
+    globals g;
+
     pint M = 4;
     pint N = 4;
+    interface::DESERIAL_RING<M, N> deserial(g,,);
 
-    interface::DESERIAL_RING<M, N> deserial;
-
-    deserial.g.Vdd = Vdd;
-    deserial.g.GND = GND;
+    g.Vdd = Vdd;
+    g.GND = GND;
+    g.vpsub = vpsub;
+    g.vnsub = vnsub;
     prs <Vdd, GND> {
         g_np._sReset<20> => deserial.g.sReset-
         g_np._pReset<20> => deserial.g.pReset-
     }
-    deserial.g._pReset = g_np._pReset;
-    deserial.g._sReset = g_np._sReset;
+    g._pReset = g_np._pReset;
+    g._sReset = g_np._sReset;
 
     (; m : M :
         deserial.y.b[m].d = snk.b[m].d;

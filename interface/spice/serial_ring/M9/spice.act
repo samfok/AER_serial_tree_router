@@ -4,26 +4,31 @@ import "aer_brainstorm/lib/test.act";
 defproc wrapper (globals_np g_np; eMx1of4<9> src) {
     bool Vdd;
     bool GND;
+    bool vpsub;
+    bool vnsub;
+    globals g;
 
     pint M = 9;
     pint N = 4;
-    interface::SERIAL_RING<M, N> serial;
+    interface::SERIAL_RING<M, N> serial(g,,,,);
 
-    serial.g.Vdd = Vdd;
-    serial.g.GND = GND;
+    g.Vdd = Vdd;
+    g.GND = GND;
+    g.vpsub = vpsub;
+    g.vnsub = vnsub;
     prs <Vdd, GND> {
-        g_np._sReset<20> => serial.g.sReset-
-        g_np._pReset<20> => serial.g.pReset-
+        g_np._sReset<20> => g.sReset-
+        g_np._pReset<20> => g.pReset-
     }
-    serial.g._pReset = g_np._pReset;
-    serial.g._sReset = g_np._sReset;
+    g._pReset = g_np._pReset;
+    g._sReset = g_np._sReset;
 
     (; m : M :
         src.m[m].d = serial.x.m[m].d;
     )
     src.e = serial.x.e;
 
-    SINK_SERIAL<N> snk(serial.g, serial.yp, serial.yi, serial.y);
+    SINK_SERIAL<N> snk(g, serial.yp, serial.yi, serial.y);
 }
 
 wrapper dut;

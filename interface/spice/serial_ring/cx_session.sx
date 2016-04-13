@@ -1,22 +1,22 @@
 ### Custom WaveView session file (version K-2015.06 build 05/23/15) ###
-### saved at 18:41:59 on Fri Feb 19 2016 ###
-wdf 0 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/interface/serial_ring/M6/hsim.fsdb" load=used "title=M6" 
-wdf 1 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/interface/serial_ring/M9/hsim.fsdb" load=used "title=M9" 
+### saved at 21:33:19 on Tue Apr 12 2016 ###
+wdf 0 "/ufs/vlsi/brainstorm/aer_brainstorm/interface/spice/serial_ring/M6/hsim.fsdb" load=used "title=M6" 
+wdf 1 "/ufs/vlsi/brainstorm/aer_brainstorm/interface/spice/serial_ring/M9/hsim.fsdb" load=used "title=M9" 
 scalar list
-waveview_begin 1  stack  offset=0 name_b=310 mntr_b=310 name_width=295 dm=slew:644:92:1:1:0:9e-01:1e-01:0e+00:0e+00:0:1.0747122137552e-08:1e-01:1.07129528145018e-08:9e-01:0:0e+00:0e+00 "name=M6" 
-  panel_begin linear pidx=0 spath=name+file xlabel=sec xmin=9.92066805845512e-09 xmax=1.56492693110647e-08 
+waveview_begin 1  stack  offset=0 name_b=310 mntr_b=310 name_width=295 dm=slew:644:102:1:1:0:9e-01:1e-01:0e+00:0e+00:0:5.37418968321313e-09:1e-01:5.42916284609556e-09:9e-01:0:0e+00:0e+00 "name=M6" 
+  panel_begin linear pidx=0 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.v(seq_2xa)" attr=3:2:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=1 spath=name+file xlabel=sec xmin=9.92066805845512e-09 xmax=1.56492693110647e-08 
+  panel_begin linear pidx=1 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xseq.v(____si)" attr=4:3:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=2 spath=name+file xlabel=sec xmin=9.92066805845512e-09 xmax=1.56492693110647e-08 
+  panel_begin linear pidx=2 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.v(seq_2__si)" attr=1:2:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=3 spath=name+file xlabel=sec xmin=9.92066805845512e-09 xmax=1.56492693110647e-08 
+  panel_begin linear pidx=3 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=v(src_2e_dut)" attr=0:0:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=4 nvpos=0 spath=name+file xlabel=sec xmin=9.92066805845512e-09 xmax=1.56492693110647e-08 
+  panel_begin linear pidx=4 nvpos=0 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xring.v(so_00_1)" attr=5:0:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xring.v(so_01_1)" attr=6:1:1:0 autoset=true disp=show 
     line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xring.v(so_02_1)" attr=7:2:1:0 autoset=true disp=show 
@@ -24,7 +24,7 @@ waveview_begin 1  stack  offset=0 name_b=310 mntr_b=310 name_width=295 dm=slew:6
     line src=wdf lidx=4 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xring.v(so_04_1)" attr=1:4:1:0 autoset=true disp=show 
     line src=wdf lidx=5 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xring.v(so_05_1)" attr=2:5:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=5 nvpos=21 spath=name+file xlabel=sec xmin=9.92066805845512e-09 xmax=1.56492693110647e-08 
+  panel_begin linear pidx=5 nvpos=19 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xring.v(____si_00_1)" attr=7:2:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xring.v(____si_01_1)" attr=0:3:1:0 autoset=true disp=show 
     line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xring.v(____si_02_1)" attr=1:4:1:0 autoset=true disp=show 
@@ -32,82 +32,79 @@ waveview_begin 1  stack  offset=0 name_b=310 mntr_b=310 name_width=295 dm=slew:6
     line src=wdf lidx=4 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xring.v(____si_04_1)" attr=3:6:1:0 autoset=true disp=show 
     line src=wdf lidx=5 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xring.v(____si_05_1)" attr=4:7:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=6 nvpos=0 spath=name+file xlabel=sec xmin=9.92066805845512e-09 xmax=1.56492693110647e-08 
+  panel_begin linear pidx=6 nvpos=0 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xring.v(__si___01_1)" attr=3:5:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xring.v(__si___02_1)" attr=4:6:1:0 autoset=true disp=show 
     line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xring.v(__si___03_1)" attr=5:7:1:0 autoset=true disp=show 
     line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xring.v(__si___04_1)" attr=6:0:1:0 autoset=true disp=show 
     line src=wdf lidx=4 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xring.v(__si___05_1)" attr=7:1:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=7 spath=name+file xlabel=sec xmin=9.92066805845512e-09 xmax=1.56492693110647e-08 
+  panel_begin linear pidx=7 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.v(seq_2__so)" attr=0:1:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=8 spath=name+file xlabel=sec xmin=9.92066805845512e-09 xmax=1.56492693110647e-08 
+  panel_begin linear pidx=8 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xring.v(______u_00_1)" attr=2:0:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=9 spath=name+file xlabel=sec xmin=9.92066805845512e-09 xmax=1.56492693110647e-08 
+  panel_begin linear pidx=9 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xring.v(____u_00_1)" attr=1:7:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=10 spath=name+file xlabel=sec xmin=9.92066805845512e-09 xmax=1.56492693110647e-08 
+  panel_begin linear pidx=10 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xring.v(__u_00_1)" attr=7:5:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=11 spath=name+file xlabel=sec xmin=9.92066805845512e-09 xmax=1.56492693110647e-08 
+  panel_begin linear pidx=11 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.v(snk_2o)" attr=6:6:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=12 spath=name+file xlabel=sec xmin=9.92066805845512e-09 xmax=1.56492693110647e-08 
-    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.v(snk_2i)" attr=0:5:1:0 disp=show 
-  panel_end
-  panel_begin linear pidx=13 spath=name+file xlabel=sec xmin=9.92066805845512e-09 xmax=1.56492693110647e-08 
+  panel_begin linear pidx=12 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.v(snk_2d_2d_00_1)" attr=1:1:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.v(snk_2d_2d_01_1)" attr=2:2:1:0 autoset=true disp=show 
     line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.v(snk_2d_2d_02_1)" attr=3:3:1:0 autoset=true disp=show 
     line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.v(snk_2d_2d_03_1)" attr=4:4:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=14 spath=name+file xlabel=sec xmin=9.92066805845512e-09 xmax=1.56492693110647e-08 
+  panel_begin linear pidx=13 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xseq.v(__y_2d_00_1)" attr=1:0:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xseq.v(__y_2d_01_1)" attr=2:1:1:0 autoset=true disp=show 
     line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xseq.v(__y_2d_02_1)" attr=3:2:1:0 autoset=true disp=show 
     line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xseq.v(__y_2d_03_1)" attr=4:3:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=15 spath=name+file xlabel=sec xmin=9.92066805845512e-09 xmax=1.56492693110647e-08 
+  panel_begin linear pidx=14 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xseq.v(____x_2d_00_1)" attr=5:4:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xseq.v(____x_2d_01_1)" attr=6:5:1:0 autoset=true disp=show 
     line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xseq.v(____x_2d_02_1)" attr=7:6:1:0 autoset=true disp=show 
     line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xseq.v(____x_2d_03_1)" attr=0:7:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=16 spath=name+file xlabel=sec xmin=9.92066805845512e-09 xmax=1.56492693110647e-08 
+  panel_begin linear pidx=15 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.v(seq_2__x_2d_00_1)" attr=7:7:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.v(seq_2__x_2d_01_1)" attr=0:0:1:0 autoset=true disp=show 
     line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.v(seq_2__x_2d_02_1)" attr=1:1:1:0 autoset=true disp=show 
     line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.v(seq_2__x_2d_03_1)" attr=2:2:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=17 spath=name+file xlabel=sec xmin=9.92066805845512e-09 xmax=1.56492693110647e-08 
+  panel_begin linear pidx=16 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xring.v(y_2d_00_1)" attr=4:1:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xring.v(y_2d_01_1)" attr=5:2:1:0 autoset=true disp=show 
     line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xring.v(y_2d_02_1)" attr=6:3:1:0 autoset=true disp=show 
     line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xring.v(y_2d_03_1)" attr=7:4:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=18 spath=name+file xlabel=sec xmin=9.92066805845512e-09 xmax=1.56492693110647e-08 
+  panel_begin linear pidx=17 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xring.v(__x_00_1_2d_00_1)" attr=0:5:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xring.v(__x_00_1_2d_01_1)" attr=1:6:1:0 autoset=true disp=show 
     line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xring.v(__x_00_1_2d_02_1)" attr=2:7:1:0 autoset=true disp=show 
     line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.xserial.xring.v(__x_00_1_2d_03_1)" attr=3:0:1:0 autoset=true disp=show 
   panel_end
 waveview_end
-waveview_begin 2  stack  offset=0 name_b=280 mntr_b=280 name_width=265 dm=slew:512:88:1:1:0:9e-01:1e-01:0e+00:0e+00:0:1.07916126094347e-08:1e-01:1.07521789805684e-08:9e-01:0:0e+00:0e+00 "name=M9" 
-  panel_begin linear pidx=0 spath=name+file xlabel=sec xmin=9.85149023638232e-09 xmax=1.89804727646454e-08 
+waveview_begin 2  stack  offset=0 name_b=280 mntr_b=280 name_width=265 dm=slew:633:98:1:1:0:9e-01:1e-01:0e+00:0e+00:0:5.39599166618016e-09:1e-01:5.4580381728006e-09:9e-01:0:0e+00:0e+00 "name=M9" 
+  panel_begin linear pidx=0 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.v(seq_2xa)" attr=1:4:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=1 spath=name+file xlabel=sec xmin=9.85149023638232e-09 xmax=1.89804727646454e-08 
+  panel_begin linear pidx=1 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xseq.v(____si)" attr=7:2:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=2 spath=name+file xlabel=sec xmin=9.85149023638232e-09 xmax=1.89804727646454e-08 
+  panel_begin linear pidx=2 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.v(seq_2__si)" attr=0:3:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=3 spath=name+file xlabel=sec xmin=9.85149023638232e-09 xmax=1.89804727646454e-08 
+  panel_begin linear pidx=3 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=v(src_2e_dut)" attr=6:1:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=4 nvpos=0 spath=name+file xlabel=sec xmin=9.85149023638232e-09 xmax=1.89804727646454e-08 
+  panel_begin linear pidx=4 nvpos=0 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xring.v(so_00_1)" attr=3:0:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xring.v(so_01_1)" attr=4:1:1:0 autoset=true disp=show 
     line src=wdf lidx=2 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xring.v(so_02_1)" attr=5:2:1:0 autoset=true disp=show 
@@ -118,7 +115,7 @@ waveview_begin 2  stack  offset=0 name_b=280 mntr_b=280 name_width=265 dm=slew:5
     line src=wdf lidx=7 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xring.v(so_07_1)" attr=2:7:1:0 autoset=true disp=show 
     line src=wdf lidx=8 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xring.v(so_08_1)" attr=3:0:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=5 nvpos=0 spath=name+file xlabel=sec xmin=9.85149023638232e-09 xmax=1.89804727646454e-08 
+  panel_begin linear pidx=5 nvpos=0 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xring.v(____si_00_1)" attr=2:0:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xring.v(____si_01_1)" attr=3:1:1:0 autoset=true disp=show 
     line src=wdf lidx=2 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xring.v(____si_02_1)" attr=4:2:1:0 autoset=true disp=show 
@@ -129,7 +126,7 @@ waveview_begin 2  stack  offset=0 name_b=280 mntr_b=280 name_width=265 dm=slew:5
     line src=wdf lidx=7 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xring.v(____si_07_1)" attr=1:7:1:0 autoset=true disp=show 
     line src=wdf lidx=8 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xring.v(____si_08_1)" attr=2:0:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=6 nvpos=0 spath=name+file xlabel=sec xmin=9.85149023638232e-09 xmax=1.89804727646454e-08 
+  panel_begin linear pidx=6 nvpos=0 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xring.v(__si___01_1)" attr=2:0:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xring.v(__si___02_1)" attr=3:1:1:0 autoset=true disp=show 
     line src=wdf lidx=2 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xring.v(__si___03_1)" attr=4:2:1:0 autoset=true disp=show 
@@ -139,64 +136,61 @@ waveview_begin 2  stack  offset=0 name_b=280 mntr_b=280 name_width=265 dm=slew:5
     line src=wdf lidx=6 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xring.v(__si___07_1)" attr=0:6:1:0 autoset=true disp=show 
     line src=wdf lidx=7 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xring.v(__si___08_1)" attr=1:7:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=7 spath=name+file xlabel=sec xmin=9.85149023638232e-09 xmax=1.89804727646454e-08 
+  panel_begin linear pidx=7 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.v(seq_2__so)" attr=5:0:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=8 spath=name+file xlabel=sec xmin=9.85149023638232e-09 xmax=1.89804727646454e-08 
+  panel_begin linear pidx=8 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.v(seq_2__so)" attr=4:0:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=9 spath=name+file xlabel=sec xmin=9.85149023638232e-09 xmax=1.89804727646454e-08 
+  panel_begin linear pidx=9 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xring.v(______u_00_1)" attr=7:6:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=10 spath=name+file xlabel=sec xmin=9.85149023638232e-09 xmax=1.89804727646454e-08 
+  panel_begin linear pidx=10 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xring.v(____u_00_1)" attr=1:0:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=11 spath=name+file xlabel=sec xmin=9.85149023638232e-09 xmax=1.89804727646454e-08 
+  panel_begin linear pidx=11 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xring.v(__u_00_1)" attr=0:7:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=12 spath=name+file xlabel=sec xmin=9.85149023638232e-09 xmax=1.89804727646454e-08 
+  panel_begin linear pidx=12 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.v(snk_2o)" attr=6:5:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=13 spath=name+file xlabel=sec xmin=9.85149023638232e-09 xmax=1.89804727646454e-08 
-    line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.v(snk_2i)" attr=5:4:1:0 autoset=true disp=show 
-  panel_end
-  panel_begin linear pidx=14 spath=name+file xlabel=sec xmin=9.85149023638232e-09 xmax=1.89804727646454e-08 
+  panel_begin linear pidx=13 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.v(snk_2d_2d_00_1)" attr=2:3:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=1 "delim=." sigtype=1 "name=xdut.v(snk_2d_2d_01_1)" attr=3:4:1:0 autoset=true disp=show 
     line src=wdf lidx=2 fidx=1 "delim=." sigtype=1 "name=xdut.v(snk_2d_2d_02_1)" attr=4:5:1:0 autoset=true disp=show 
     line src=wdf lidx=3 fidx=1 "delim=." sigtype=1 "name=xdut.v(snk_2d_2d_03_1)" attr=5:6:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=15 spath=name+file xlabel=sec xmin=9.85149023638232e-09 xmax=1.89804727646454e-08 
+  panel_begin linear pidx=14 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xseq.v(__y_2d_00_1)" attr=2:4:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xseq.v(__y_2d_01_1)" attr=3:5:1:0 autoset=true disp=show 
     line src=wdf lidx=2 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xseq.v(__y_2d_02_1)" attr=4:6:1:0 autoset=true disp=show 
     line src=wdf lidx=3 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xseq.v(__y_2d_03_1)" attr=5:7:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=16 spath=name+file xlabel=sec xmin=9.85149023638232e-09 xmax=1.89804727646454e-08 
+  panel_begin linear pidx=15 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xseq.v(____x_2d_00_1)" attr=0:0:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xseq.v(____x_2d_01_1)" attr=1:1:1:0 autoset=true disp=show 
     line src=wdf lidx=2 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xseq.v(____x_2d_02_1)" attr=2:2:1:0 autoset=true disp=show 
     line src=wdf lidx=3 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xseq.v(____x_2d_03_1)" attr=3:3:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=17 spath=name+file xlabel=sec xmin=9.85149023638232e-09 xmax=1.89804727646454e-08 
+  panel_begin linear pidx=16 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.v(seq_2__x_2d_00_1)" attr=6:0:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.v(seq_2__x_2d_01_1)" attr=7:1:1:0 autoset=true disp=show 
     line src=wdf lidx=2 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.v(seq_2__x_2d_02_1)" attr=0:2:1:0 autoset=true disp=show 
     line src=wdf lidx=3 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.v(seq_2__x_2d_03_1)" attr=1:3:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=18 spath=name+file xlabel=sec xmin=9.85149023638232e-09 xmax=1.89804727646454e-08 
+  panel_begin linear pidx=17 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xring.v(y_2d_00_1)" attr=4:4:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xring.v(y_2d_01_1)" attr=5:5:1:0 autoset=true disp=show 
     line src=wdf lidx=2 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xring.v(y_2d_02_1)" attr=6:6:1:0 autoset=true disp=show 
     line src=wdf lidx=3 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xring.v(y_2d_03_1)" attr=7:7:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=19 spath=name+file xlabel=sec xmin=9.85149023638232e-09 xmax=1.89804727646454e-08 
+  panel_begin linear pidx=18 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xring.v(__x_00_1_2d_00_1)" attr=0:0:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xring.v(__x_00_1_2d_01_1)" attr=1:1:1:0 autoset=true disp=show 
     line src=wdf lidx=2 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xring.v(__x_00_1_2d_02_1)" attr=2:2:1:0 autoset=true disp=show 
     line src=wdf lidx=3 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.xring.v(__x_00_1_2d_03_1)" attr=3:3:1:0 autoset=true disp=show 
   panel_end
-  panel_begin linear pidx=20 spath=name+file xlabel=sec xmin=9.85149023638232e-09 xmax=1.89804727646454e-08 
+  panel_begin linear pidx=19 spath=name+file xlabel=sec 
     line src=wdf lidx=0 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.v(seq_2__x_2d_00_1)" attr=2:5:1:0 autoset=true disp=show 
     line src=wdf lidx=1 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.v(seq_2__x_2d_01_1)" attr=3:6:1:0 autoset=true disp=show 
     line src=wdf lidx=2 fidx=1 "delim=." sigtype=1 "name=xdut.xserial.v(seq_2__x_2d_02_1)" attr=4:7:1:0 autoset=true disp=show 
