@@ -39,10 +39,10 @@
   <global name="netgen_cfg" value="/ufs/cad/lib/netgen/st28soi.conf" />
 
   <!-- Simulation time settings -->
-  <global name="sim_time" value="20" />
+  <global name="sim_time" value="15" />
   <global name="timescale" value="1ns/10ps" />
-  <global name="_sReset_time" value="10" />
-  <global name="_pReset_time" value="5" />
+  <global name="_sReset_time" value="5" />
+  <global name="_pReset_time" value="2" />
 
   <!-- Measurement start/stop times -->
   <global name="measurement_start_time" value="10n" />	<!--usually after Reset !-->
