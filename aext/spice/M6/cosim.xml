@@ -25,8 +25,8 @@
   <global name="_pReset_time" value="2" />
 
   <!-- Measurement start/stop times -->
-  <global name="measurement_start_time" value="10n" />	<!--usually after Reset !-->
-  <global name="measurement_stop_time" value="40n" />	<!--usually end of sim  !-->
+  <global name="measurement_start_time" value="5n" />	<!--usually after Reset !-->
+  <global name="measurement_stop_time" value="50n" />	<!--usually end of sim  !-->
 
   <!-- SPICE models -->
   <global name="additional_spice_files" value="/ufs/cad/lib/spice/st28soi.spi" />
@@ -68,12 +68,10 @@
   <global name="HSIMNTLFMT" value="" />  	<!--if using spectre netlist !-->
   <global name="HSIMTOP" value="" />	<!--top level instance name (if required)!-->
 
-  <global name="HSIMRISE" value="0.042ns" />	
-  <global name="HSIMFALL" value="0.03ns" />
+  <global name="HSIMRISE" value="0.084ns" />	
+  <global name="HSIMFALL" value="0.06ns" />
 
   <global name="extra_hsim_parameters">
-	
-	
- </global>
+  </global>
 
 </cosimulation>

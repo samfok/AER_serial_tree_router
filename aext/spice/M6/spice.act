@@ -12,10 +12,10 @@ export defproc wrapper(globals_np g_np; a1of<1> src; eMx1of4<6> snk)
     pint M = 6;
     pint N = 4;
     pint NN = 4096;
-    transmitter::NODE<N, 1> root(g,,,,,,);
-    transmitter::NODE<N, 0> node[4];
-    transmitter::LEAF<N, 0> leaf(g,,, node[0].co[0], node[0].ci[0], node[0]._c[0]);
-    interface::OUT_a1ofN<N> out(g, root.pp, root.pi, root._p,);
+    transmitter::NODE<N, true> root(g,,,,,,);
+    transmitter::NODE<N, false> node[4];
+    transmitter::LEAF<N, false> leaf(g,,, node[0].co[0], node[0]._cp[0], node[0]._c[0]);
+    interface::OUT_a1ofN<N> out(g,, root.pi, root._p,);
     interface::DESERIAL_RING<M, N> deserial(g, out.y,);
     (; m : 4 : 
         node[m].g = g;
@@ -34,7 +34,9 @@ export defproc wrapper(globals_np g_np; a1of<1> src; eMx1of4<6> snk)
     g._sReset = g_np._sReset;
 
     // connect src
-    src.d[0] = leaf.ci[0];
+    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+        src.d[0] => leaf._cp[0]-
+    }
     src.a = leaf.co[0];
 
     // connect snk
@@ -43,29 +45,34 @@ export defproc wrapper(globals_np g_np; a1of<1> src; eMx1of4<6> snk)
     )
     deserial.y.e = snk.e;
 
+    // connect out
+    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+        root._pp => out.xp-
+    }
+
     // connect nodes
     (; m : 0..2 :
-        node[m].pp = node[m+1].ci[0];
+        node[m]._pp = node[m+1]._cp[0];
         node[m].pi = node[m+1].co[0];
         node[m]._p = node[m+1]._c[0];
     )
 
     node[3].pi = root.co[0];
-    node[3].pp = root.ci[0];
+    node[3]._pp = root._cp[0];
     node[3]._p = root._c[0];
 
     // connect dangling pprts
     (; m : 0..3 :
         (; n : 1..N-1 :
-            GND = node[m].ci[n];
+            Vdd = node[m]._cp[n];
             (; d : N :
                 Vdd = node[m]._c[n].d[d];
             )
         )
     )
     (; n : 1..N-1 :
-        GND = leaf.ci[n];
-        GND = root.ci[n];
+        Vdd = leaf._cp[n];
+        Vdd = root._cp[n];
         (; d : N :
             Vdd = root._c[n].d[d];
         )
@@ -73,5 +80,3 @@ export defproc wrapper(globals_np g_np; a1of<1> src; eMx1of4<6> snk)
 }
 
 wrapper dut;
-
-

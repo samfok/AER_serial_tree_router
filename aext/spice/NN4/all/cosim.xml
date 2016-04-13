@@ -71,12 +71,10 @@
   <global name="HSIMNTLFMT" value="" />  	<!--if using spectre netlist !-->
   <global name="HSIMTOP" value="" />	<!--top level instance name (if required)!-->
 
-  <global name="HSIMRISE" value="0.042ns" />	
-  <global name="HSIMFALL" value="0.03ns" />
+  <global name="HSIMRISE" value="0.084ns" />	
+  <global name="HSIMFALL" value="0.06ns" />
 
   <global name="extra_hsim_parameters">
-	
-	
- </global>
+  </global>
 
 </cosimulation>

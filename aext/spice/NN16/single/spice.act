@@ -29,7 +29,7 @@ export defproc wrapper(globals_np g_np; a1of<1> src; eMx1of4<2> snk)
     g._sReset = g_np._sReset;
 
     // connect src
-    prs<g.Vdd, g.GND> {
+    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
         src.d[0] => aext._xp[0]-
     }
     src.a = aext.xo[0];

@@ -70,10 +70,10 @@
 
   <global name="HSIMRISE" value="0.042ns" />	
   <global name="HSIMFALL" value="0.03ns" />
+  <global name="HSIMRISE" value="0.084ns" />	
+  <global name="HSIMFALL" value="0.06ns" />
 
   <global name="extra_hsim_parameters">
-	
-	
- </global>
+  </global>
 
 </cosimulation>
