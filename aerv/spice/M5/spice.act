@@ -1,75 +1,98 @@
 import "aer/aerv/aerv.act";
 
-export defproc wrapper(globals_np g_np; eMx1of4<4> spk_src; eMx1of4<4> mem_src;
- a1of2 syn_snk[64]; eMx1of4<1> mem_snk[16])
+export defproc wrapper(globals g; eMx1of4<6> spk_src; a1of2 syn_snk)
 {
-    bool Vdd;
-    bool GND;
-    bool vpsub;
-    bool vnsub;
-    globals g;
-
     pint M = 5;
     pint M_SPK = M+1;
-    pint M_MEM = M+1;
-    pint N_SYN = 4;
+    pint F_INT = 4;
+    pint F_LEAF = 3;
+    pint D = 4;
 
     interface::SERIAL_RING<M_SPK, D> serial_spk(g,,,,);
-    bool merge_xp[2];
-    bool merge_xo[2];
-    c1of<D> merge_x[2];
-    merge_xp[0] = serial_spk.yp;
-    merge_xp[1] = serial_mem.yp;
-    merge_xo[0] = serial_spk.yi;
-    merge_xo[1] = serial_mem.yi;
-    merge_x[0] = serial_spk.y;
-    merge_x[1] = serial_mem.y;
-    interface::SERIAL_MERGE<2, D> merge(g, merge_xp, merge_xo,,, merge_x,);
-
-    receiver::NODE<4,4> root(g,,,,,,);
-    receiver::NODE<4,4> node[3];
-    receiver::NODE<3,4> leaf(g,,,,,,);
-
-    brain_receiver::HALF_BUFFER buf_syn[4]; // buffer synapse spikes
-    (; n : N_SYN :
-        buf_syn[n].g = g;
-        // connect synapse to buf_syn
-        buf_syn[n].y = y_syn[n];
+    interface::SERIAL_MERGE<2, D> merge(g,,,,,,);
+    receiver::NODE<F_INT, D> root(g,,,,,,);
+    receiver::NODE<F_INT, D> node[M-2];
+    receiver::NODE<F_LEAF, D> leaf(g,,,,,,);
+    brain_receiver::MERGE_ACK<2> ack_syn(g,,,);
+    brain_receiver::HALF_BUFFER buf_syn(g,,);
+    // connect globals
+    (; m : M-2 :
+        node[m].g = g;
     )
-    brain_receiver::MERGE_ACK<2> ack_syn[N_SYN/2]; // ack syns
-    brain_receiver::MERGE_ACK<1> ack_mem[N_SYN/4]; // ack mems
 
-    // rails and reset
-    g.Vdd = Vdd;
-    g.GND = GND;
-    g.vpsub = vpsub;
-    g.vnsub = vnsub;
-    prs <Vdd, GND> {
-        g_np._sReset<20> => g.sReset-
-        g_np._pReset<20> => g.pReset-
-    }
-    g._pReset = g_np._pReset;
-    g._sReset = g_np._sReset;
+    // connect spk_src to spike serializer
+    spk_src.e = serial_spk.x.e;
+    (; m : M_SPK :
+        spk_src.m[m].d = serial_spk.x.m[m].d;
+    )
+
+    // connect spike serializer to serial merge
+    serial_spk.yp = merge.xp[0];
+    g.GND = merge.xp[1];
+    serial_spk.yi = merge.xo[0];
+    serial_spk.y = merge.x[0];
+    (; d : D :
+        merge.x[1].d[d] = g.GND;
+    )
 
     // connect serial merge to root
     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-        (: t : T :
-            ~_._yp[t]<9> -> yp[t]+
-            _._yp[t]<6> -> yp[t]-
-        )
-        ~pp<9> -> _._pp+
-        pp<6> -> _._pp-
-        ~_._po<9> -> po+
-        _._po<6> -> po-
+        ~merge.yp<9> -> root._pp+
+        merge.yp<6> -> root._pp-
+        ~root._po<9> -> merge.yi+
+        root._po<6> -> merge.yi-
     }
+    merge.y = root.p;
 
-    // connect src
-    spk_src = aerv.x_spk;
-    mem_src = aerv.x_mem;
+    // connect root to node[0]
+    root._cp[0] = node[0]._pp;
+    root._ci[0] = node[0]._po;
+    (; f : 1..F_INT-1 :
+        root._ci[f] = g.Vdd;
+    )
+    root.c[0] = node[0].p;
 
-    // connect snk
-    syn_snk = aerv.y_syn;
-    mem_snk = aerv.y_mem;
+    // connect nodes
+    (; m : M-3 :
+        node[m]._cp[0] = node[m+1]._pp;
+        node[m]._ci[0] = node[m+1]._po;
+        (; f : 1..F_INT-1 :
+            node[m]._ci[f] = g.Vdd;
+        )
+        node[m].c[0] = node[m+1].p;
+    )
+
+    // connect node[-1] to leaf
+    node[M-3]._cp[0] = leaf._pp;
+    node[M-3]._ci[0] = leaf._po;
+    (; f : 1..F_INT-1 :
+        node[M-3]._ci[f] = g.Vdd;
+    )
+    node[M-3].c[0] = leaf.p;
+
+    // connect leaf to ack_syn
+    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+        ~leaf._cp[0]<9> -> ack_syn.pp+
+        leaf._cp[0]<6> -> ack_syn.pp-
+    }
+    leaf._ci[0] = ack_syn._po;
+    (; f : 1..F_LEAF-1 :
+        leaf._ci[f] = g.Vdd;
+    )
+
+    //  connect ack_syn to buf_syn
+    ack_syn.ci[0] = buf_syn.x.a;
+    ack_syn.ci[1] = g.GND;
+
+    // connect leaf to buf_syn
+    leaf.c[0].d[0..1] = buf_syn.x.d;
+
+    // connect buf_syn to snk
+    buf_syn.y = syn_snk;
 }
 
-wrapper dut;
+globals g;
+bool Reset = g.sReset;
+eMx1of4<6> spk_src;
+SINK_a1of2 snk(g,);
+wrapper dut(g, spk_src, snk.d);
