@@ -1,0 +1,75 @@
+import "aer/aerv/aerv.act";
+
+export defproc wrapper(globals_np g_np; eMx1of4<4> spk_src; eMx1of4<4> mem_src;
+ a1of2 syn_snk[64]; eMx1of4<1> mem_snk[16])
+{
+    bool Vdd;
+    bool GND;
+    bool vpsub;
+    bool vnsub;
+    globals g;
+
+    pint M = 5;
+    pint M_SPK = M+1;
+    pint M_MEM = M+1;
+    pint N_SYN = 4;
+
+    interface::SERIAL_RING<M_SPK, D> serial_spk(g,,,,);
+    bool merge_xp[2];
+    bool merge_xo[2];
+    c1of<D> merge_x[2];
+    merge_xp[0] = serial_spk.yp;
+    merge_xp[1] = serial_mem.yp;
+    merge_xo[0] = serial_spk.yi;
+    merge_xo[1] = serial_mem.yi;
+    merge_x[0] = serial_spk.y;
+    merge_x[1] = serial_mem.y;
+    interface::SERIAL_MERGE<2, D> merge(g, merge_xp, merge_xo,,, merge_x,);
+
+    receiver::NODE<4,4> root(g,,,,,,);
+    receiver::NODE<4,4> node[3];
+    receiver::NODE<3,4> leaf(g,,,,,,);
+
+    brain_receiver::HALF_BUFFER buf_syn[4]; // buffer synapse spikes
+    (; n : N_SYN :
+        buf_syn[n].g = g;
+        // connect synapse to buf_syn
+        buf_syn[n].y = y_syn[n];
+    )
+    brain_receiver::MERGE_ACK<2> ack_syn[N_SYN/2]; // ack syns
+    brain_receiver::MERGE_ACK<1> ack_mem[N_SYN/4]; // ack mems
+
+    // rails and reset
+    g.Vdd = Vdd;
+    g.GND = GND;
+    g.vpsub = vpsub;
+    g.vnsub = vnsub;
+    prs <Vdd, GND> {
+        g_np._sReset<20> => g.sReset-
+        g_np._pReset<20> => g.pReset-
+    }
+    g._pReset = g_np._pReset;
+    g._sReset = g_np._sReset;
+
+    // connect serial merge to root
+    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+        (: t : T :
+            ~_._yp[t]<9> -> yp[t]+
+            _._yp[t]<6> -> yp[t]-
+        )
+        ~pp<9> -> _._pp+
+        pp<6> -> _._pp-
+        ~_._po<9> -> po+
+        _._po<6> -> po-
+    }
+
+    // connect src
+    spk_src = aerv.x_spk;
+    mem_src = aerv.x_mem;
+
+    // connect snk
+    syn_snk = aerv.y_syn;
+    mem_snk = aerv.y_mem;
+}
+
+wrapper dut;

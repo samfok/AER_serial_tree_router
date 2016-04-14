@@ -1,11 +1,11 @@
 ### Custom WaveView session file (version K-2015.06 build 05/23/15) ###
 ### saved at 16:26:37 on Wed Apr 13 2016 ###
-wdf 0 "/ufs/vlsi/brainstorm/aer_brainstorm/aext/spice/NN4/single/hsim.fsdb" load=used "title=N4 single" 
-wdf 1 "/ufs/vlsi/brainstorm/aer_brainstorm/aext/spice/NN4/all/hsim.fsdb" load=used "title=N4 all" 
-wdf 2 "/ufs/vlsi/brainstorm/aer_brainstorm/aext/spice/NN16/single/hsim.fsdb" load=used "title=N16 single" 
-wdf 3 "/ufs/vlsi/brainstorm/aer_brainstorm/aext/spice/NN16/all/hsim.fsdb" load=used "title=N16 all" 
-wdf 4 "/ufs/vlsi/brainstorm/aer_brainstorm/aext/spice/NN64/single/hsim.fsdb" load=used "title=N64 single" 
-wdf 5 "/ufs/vlsi/brainstorm/aer_brainstorm/aext/spice/M6/hsim.fsdb" load=used "title=M6" 
+wdf 0 "/ufs/vlsi/brainstorm/aer/aext/spice/NN4/single/hsim.fsdb" load=used "title=N4 single" 
+wdf 1 "/ufs/vlsi/brainstorm/aer/aext/spice/NN4/all/hsim.fsdb" load=used "title=N4 all" 
+wdf 2 "/ufs/vlsi/brainstorm/aer/aext/spice/NN16/single/hsim.fsdb" load=used "title=N16 single" 
+wdf 3 "/ufs/vlsi/brainstorm/aer/aext/spice/NN16/all/hsim.fsdb" load=used "title=N16 all" 
+wdf 4 "/ufs/vlsi/brainstorm/aer/aext/spice/NN64/single/hsim.fsdb" load=used "title=N64 single" 
+wdf 5 "/ufs/vlsi/brainstorm/aer/aext/spice/M6/hsim.fsdb" load=used "title=M6" 
 scalar list
 waveview_begin 1  stack  offset=0 name_b=399 mntr_b=399 name_width=384 dm=slew:700:120:1:1:0:9e-01:1e-01:0e+00:0e+00:0:6.29509236449127e-09:1e-01:6.25920571898265e-09:9e-01:0:0e+00:0e+00 "name=NN4 single arbiter" 
   panel_begin linear pidx=0 spath=name+file xlabel=sec xmin=4.83633387888707e-09 xmax=1.5e-08 

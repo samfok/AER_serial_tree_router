@@ -52,15 +52,15 @@ namespace receiver {
             [ F = 3 ->
                 prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     (: f : F :
-                        ~u[f] -> _u[f]+
-                        u[f] -> _u[f]-
+                        ~u[f]<9> -> _u[f]+
+                        u[f]<6> -> _u[f]-
                     )
 
                     (| : f : F : ~_u[f]<12>) -> uu+
                     (& : f : F : _u[f]<12>) -> uu-
 
                     ~_pp<27> & ~uu<27> | (| : f : F : ~_ci[f]<27>) -> po+
-                    (_pp<24> | uu<24>) & (& : f : F : _ci[f]<24>) -> po-
+                    (_pp<18> | uu<18>) & (& : f : F : _ci[f]<18>) -> po-
 
                     ~_v<12> -> __v+
                     _v<9> -> __v-
@@ -75,7 +75,7 @@ namespace receiver {
                         _pp<6> -> u[f]-
                     )
 
-                    uu<30> & (& : f : F : _p.d[f]<30>) -> _v-
+                    uu<18> & (& : f : F : _p.d[f]<18>) -> _v-
                     ~uu<15> -> _v+
 
                     (: f : F :
@@ -91,21 +91,21 @@ namespace receiver {
                     )
                 }
                 prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                    ~po<9> -> _po+
-                    po<6> -> _po-
+                    ~po<12> -> _po+
+                    po<9> -> _po-
                 }
             [] F = 4 ->
                 prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     (: f : F :
-                        ~u[f] -> _u[f]+
-                        u[f] -> _u[f]-
+                        ~u[f]<9> -> _u[f]+
+                        u[f]<6> -> _u[f]-
                     )
 
                     (| : f : F : ~_u[f]<12>) -> uu+
                     (& : f : F : _u[f]<15>) -> uu-
 
                     ~_pp<27> & ~uu<27> | (| : f : F : ~_ci[f]<27>) -> po+
-                    (_pp<24> | uu<24>) & (& : f : F : _ci[f]<24>) -> po-
+                    (_pp<18> | uu<18>) & (& : f : F : _ci[f]<18>) -> po-
 
                     ~_v<15> -> __v+
                     _v<9> -> __v-
@@ -120,7 +120,7 @@ namespace receiver {
                         _pp<6> -> u[f]-
                     )
 
-                    uu<30> & (& : f : F : _p.d[f]<30>) -> _v-
+                    uu<18> & (& : f : F : _p.d[f]<18>) -> _v-
                     ~uu<18> -> _v+
 
                     (: f : F :

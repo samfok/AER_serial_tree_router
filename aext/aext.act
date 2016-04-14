@@ -175,7 +175,7 @@ namespace transmitter {
                     c[n]<6> -> _c[n]-
                 )
 
-                (| : n : N : ~_c[n]<30>) & ~__v<30> -> pp+
+                (| : n : N : ~_c[n]<27>) & ~__v<27> -> pp+
                 g.pReset | pi<12> & __v<12> -> pp-
 
                 (: n: N :

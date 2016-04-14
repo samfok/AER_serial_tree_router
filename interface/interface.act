@@ -91,7 +91,7 @@ namespace interface {
                 [ M = 4 ->
                     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                         (| : m : M : ~_y[m].a<12>) -> x.a+
-                        (& : m : M : _y[m].a<24>) -> x.a-
+                        (& : m : M : _y[m].a<18>) -> x.a-
                     }
                 [] (M != 4) ->
                     _OR<M> or(g,,);
@@ -139,15 +139,15 @@ namespace interface {
                     _s<10> -> __s-
 
                     (: n : N :
-                        ~__s<35> & ~_si<35> & ~_x.d[n]<35> -> y.d[n]+
+                        ~__s<27> & ~_si<27> & ~_x.d[n]<27> -> y.d[n]+
                         _si<15> -> y.d[n]-
                     )
 
-                    _so<12> & vy<12> -> _x.a-
-                    ~_so<12> | ~vy<12> -> _x.a+
+                    _so<9> & vy<9> -> _x.a-
+                    ~_so<9> | ~vy<9> -> _x.a+
 
-                    vy<34> & (& : n : N : _x.d[n]<34>) -> _s-
-                    ~g._pReset | ~vy<19> -> _s+
+                    vy<18> & (& : n : N : _x.d[n]<18>) -> _s-
+                    ~g._pReset | ~vy<20> -> _s+
 
                     __s<12> -> _so-
                     ~__s<18> -> _so+
@@ -157,8 +157,8 @@ namespace interface {
                         y.d[n]<12> -> _y.d[n]-
                     )
 
-                    (| : n : N : ~_y.d[n]<16>) -> vy+
-                    (& : n : N : _y.d[n]<24>) -> vy-
+                    (| : n : N : ~_y.d[n]<12>) -> vy+
+                    (& : n : N : _y.d[n]<18>) -> vy-
                 }
             ]
         }
@@ -187,8 +187,8 @@ namespace interface {
             }
         [] LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                ~g._sReset | ~node[M-1]._so<30> & ~y.e<30> -> node[0]._si+
-                g._sReset<20> & y.e<20> & node[M-1]._so<20> -> node[0]._si-
+                ~g._sReset | ~node[M-1]._so<27> & ~y.e<27> -> node[0]._si+
+                g._sReset<18> & y.e<18> & node[M-1]._so<18> -> node[0]._si-
             }
         ]
     }
@@ -257,22 +257,22 @@ namespace interface {
                 [ M = 6 ->
                     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                         (: n : N :
-                            (| : m : M : ~_x[m].d[n]<90> & ~_si_[m]<90> & ~__u[m]<90>) -> y.d[n]+
-                            g.pReset | (| : m : M : _so_[m]<40> & __u[m]<40>) -> y.d[n]-
+                            (| : m : M : ~_x[m].d[n]<27> & ~_si_[m]<27> & ~__u[m]<27>) -> y.d[n]+
+                            g.pReset | (| : m : M : _so_[m]<18> & __u[m]<18>) -> y.d[n]-
                         )
                     }
                 [] M = 9 ->
                     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                         (: n : N :
-                            (| : m : M : ~_x[m].d[n]<120> & ~_si_[m]<120> & ~__u[m]<120>) -> y.d[n]+
-                            g.pReset | (| : m : M : _so_[m]<60> & __u[m]<60>) -> y.d[n]-
+                            (| : m : M : ~_x[m].d[n]<27> & ~_si_[m]<27> & ~__u[m]<27>) -> y.d[n]+
+                            g.pReset | (| : m : M : _so_[m]<18> & __u[m]<18>) -> y.d[n]-
                         )
                     }
                 [] (M != 6) & (M != 9) ->
                     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                         (: n : N :
-                            (| : m : M : ~_x[m].d[n]<48> & ~_si_[m]<48> & ~__u[m]<48>) -> y.d[n]+
-                            g.pReset | (| : m : M : _so_[m]<45> & __u[m]<45>) -> y.d[n]-
+                            (| : m : M : ~_x[m].d[n]<27> & ~_si_[m]<27> & ~__u[m]<27>) -> y.d[n]+
+                            g.pReset | (| : m : M : _so_[m]<18> & __u[m]<18>) -> y.d[n]-
                         )
                     }
                 ]
@@ -310,14 +310,14 @@ namespace interface {
                     )
 
                     (: m : M :
-                        ~___u[m]<36> & ~ya<36> -> so[m]+
-                        ___u[m]<40> & (& : n : N : _x[m].d[n]<40>) -> so[m]-
+                        ~___u[m]<27> & ~ya<27> -> so[m]+
+                        ___u[m]<18> & (& : n : N : _x[m].d[n]<18>) -> so[m]-
                     )
                 }
                 prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     (: n : N :
                         ~y.d[n]<12> -> _y.d[n]+
-                        y.d[n]<12> -> _y.d[n]-
+                        y.d[n]<9> -> _y.d[n]-
                     )
                 }
             ]
@@ -360,12 +360,12 @@ namespace interface {
             [] LAYOUT ->
                 [ M = 6 ->
                     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                        (| : n : N : ~_y.d[n]<40>) & ~yi<40> -> xa+
+                        (| : n : N : ~_y.d[n]<27>) & ~yi<27> -> xa+
                         g.pReset | yi<18> -> xa-
                     }
                 [] M = 9 ->
                     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                        (| : n : N : ~_y.d[n]<45>) & ~yi<45> -> xa+
+                        (| : n : N : ~_y.d[n]<27>) & ~yi<27> -> xa+
                         g.pReset | yi<18> -> xa-
                     }
                 [] (M != 6) & (M !=9) ->
@@ -381,11 +381,11 @@ namespace interface {
                     ~_si<12> -> __si+
                     _si<9> -> __si-
 
-                    __si<20> -> _so-
-                    ~__si<36> & ~yi<36> & ~yp<36> -> _so+
+                    __si<18> -> _so-
+                    ~__si<27> & ~yi<27> & ~yp<27> -> _so+
 
                     (: n : N :
-                        ~_x.d[n]<11> -> __x.d[n]+
+                        ~_x.d[n]<12> -> __x.d[n]+
                         _x.d[n]<9> -> __x.d[n]-
                     )
 
@@ -423,7 +423,7 @@ namespace interface {
         [] LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                 ~_s<12> -> seq._si+
-                _s<6> -> seq._si-
+                _s<9> -> seq._si-
             }
         ]
     }
@@ -446,9 +446,9 @@ namespace interface {
         [] LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                 (: n : N :
-                    (| : m : M : x[m].d[n]<6>) -> b.d[n]-
-                    (& : m : M : ~x[m].d[n]<12>) -> b.d[n]+
-                    b.d[n]<6> -> y.d[n]-
+                    (| : m : M : x[m].d[n]<12>) -> b.d[n]-
+                    (& : m : M : ~x[m].d[n]<18>) -> b.d[n]+
+                    b.d[n]<9> -> y.d[n]-
                     ~b.d[n]<12> -> y.d[n]+
                 )
             }
