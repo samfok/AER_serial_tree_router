@@ -1,7 +1,25 @@
 import "aer/aerv/aerv.act";
 
-export defproc wrapper(globals g; eMx1of4<6> spk_src; a1of2 syn_snk)
+export defproc wrapper(globals_np g_np; eMx1of4<6> spk_src; a1of2 syn_snk)
 {
+    bool Vdd;
+    bool GND;
+    bool vpsub;
+    bool vnsub;
+    globals g;
+
+    // rails and reset
+    g.Vdd = Vdd;
+    g.GND = GND;
+    g.vpsub = vpsub;
+    g.vnsub = vnsub;
+    prs <Vdd, GND> {
+        g_np._sReset<20> => g.sReset-
+        g_np._pReset<20> => g.pReset-
+    }
+    g._pReset = g_np._pReset;
+    g._sReset = g_np._sReset;
+
     pint M = 5;
     pint M_SPK = M+1;
     pint F_INT = 4;
@@ -91,8 +109,4 @@ export defproc wrapper(globals g; eMx1of4<6> spk_src; a1of2 syn_snk)
     buf_syn.y = syn_snk;
 }
 
-globals g;
-bool Reset = g.sReset;
-eMx1of4<6> spk_src;
-SINK_a1of2 snk(g,);
-wrapper dut(g, spk_src, snk.d);
+wrapper dut;
