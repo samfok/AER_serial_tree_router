@@ -2,7 +2,7 @@ import "aer/lib/globals.act";
 import "aer/lib/channel.act";
 import "aer/lib/arbiter.act";
 
-export defproc wrapper(globals_np g_np; a1of<1> A[2])
+export defproc Wrapper(globals_np g_np; a1of<1> A[2])
 {
     pint N=2;
     bool Vdd;
@@ -31,4 +31,4 @@ export defproc wrapper(globals_np g_np; a1of<1> A[2])
     )
 }
 
-wrapper dut;
+Wrapper dut;

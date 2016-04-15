@@ -1,6 +1,6 @@
 import "aer/lib/comm.act";
 
-defproc wrapper (globals_np g_np; eMx1of4<1> src; eMx1of2<2> snk) {
+defproc Wrapper (globals_np g_np; eMx1of4<1> src; eMx1of2<2> snk) {
     bool Vdd;
     bool GND;
 
@@ -21,4 +21,4 @@ defproc wrapper (globals_np g_np; eMx1of4<1> src; eMx1of2<2> snk) {
     snk = converter.y;
 }
 
-wrapper dut;
+Wrapper dut;

@@ -2,7 +2,7 @@ import "aer/lib/globals.act";
 import "aer/lib/channel.act";
 
 
-export defproc wrapper(globals_np g_np; eMx1of4<1> src)
+export defproc Wrapper(globals_np g_np; eMx1of4<1> src)
 {
     pint M = 1;
     pint N = 4;
@@ -23,4 +23,4 @@ export defproc wrapper(globals_np g_np; eMx1of4<1> src)
     }
 }
 
-wrapper dut;
+Wrapper dut;

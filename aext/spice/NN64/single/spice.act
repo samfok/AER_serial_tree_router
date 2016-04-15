@@ -1,7 +1,7 @@
 import "aer/aext/aext.act";
 import "aer/interface/interface.act";
 
-export defproc wrapper(globals_np g_np; a1of<1> src; eMx1of4<3> snk)
+export defproc Wrapper(globals_np g_np; a1of<1> src; eMx1of4<3> snk)
 {
     bool Vdd;
     bool GND;
@@ -44,5 +44,5 @@ export defproc wrapper(globals_np g_np; a1of<1> src; eMx1of4<3> snk)
     deserial.y.e = snk.e;
 }
 
-wrapper dut;
+Wrapper dut;
 

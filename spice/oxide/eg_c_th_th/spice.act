@@ -1,7 +1,7 @@
 import "aer/aer/";
 import "aer/lib/test.act";
 
-export defproc wrapper(globals_np g_np)
+export defproc Wrapper(globals_np g_np)
 {
     bool Vdd;
     bool GND;
@@ -42,4 +42,4 @@ export defproc wrapper(globals_np g_np)
     )
 }
 
-wrapper dut;
+Wrapper dut;

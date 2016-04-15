@@ -1,6 +1,6 @@
 import "aer/aerv/aerv.act";
 
-export defproc wrapper(globals_np g_np; eMx1of4<6> spk_src; a1of2 syn_snk)
+export defproc Wrapper(globals_np g_np; eMx1of4<6> spk_src; a1of2 syn_snk)
 {
     bool Vdd;
     bool GND;
@@ -109,4 +109,4 @@ export defproc wrapper(globals_np g_np; eMx1of4<6> spk_src; a1of2 syn_snk)
     buf_syn.y = syn_snk;
 }
 
-wrapper dut;
+Wrapper dut;

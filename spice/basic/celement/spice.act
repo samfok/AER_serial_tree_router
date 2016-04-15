@@ -1,7 +1,7 @@
 import "aer/lib/globals.act";
 import "aer/lib/channel.act";
 
-export defproc wrapper(globals_np g_np; e1of<1> A; e1of<1> B)
+export defproc Wrapper(globals_np g_np; e1of<1> A; e1of<1> B)
 {
     bool Vdd;
     bool GND;
@@ -33,4 +33,4 @@ export defproc wrapper(globals_np g_np; e1of<1> A; e1of<1> B)
     }
 }
 
-wrapper dut;
+Wrapper dut;
