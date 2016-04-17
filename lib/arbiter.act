@@ -345,7 +345,7 @@ namespace arbiter {
                     ~qi[0]<12> & ~qi[1]<12> -> _po+
 
                     (: n : 2 :
-                        pi<6> & qi[n]<6> -> _qo[n]-
+                        qi[n]<6> & pi<6> -> _qo[n]-
                         ~pi<10> -> _qo[n]+
 
                         _qo[n]<6> -> qo[n]-
