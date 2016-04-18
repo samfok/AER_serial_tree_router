@@ -130,7 +130,7 @@ namespace interface {
                     _so<9> & vy<9> -> _x.a-
                     ~_so<9> | ~vy<9> -> _x.a+
 
-                    (& : n : N : _x.d[n]<18>) & vy<18> -> _s-
+                    vy<18> & (& : n : N : _x.d[n]<18>) -> _s-
                     ~g._pReset | ~vy<20> -> _s+
 
                     __s<12> -> _so-
