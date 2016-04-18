@@ -1,8 +1,8 @@
 ### Custom WaveView session file (version K-2015.06 build 05/23/15) ###
 ### saved at 14:27:18 on Thu Mar 31 2016 ###
-wdf 0 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/lib/arb/sarbiter2/hsim.fsdb" load=used "title=sarbiter2(all)" 
-wdf 1 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/lib/arb/sarbiter4/all/hsim.fsdb" load=used "title=sarbiter4(all)" 
-wdf 2 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/lib/arb/sarbiter4/single/hsim.fsdb" load=used "title=sarbiter4(single)" 
+wdf 0 "/ufs/vlsi/brainstorm/aer/lib/spice/arb/sarbiter2/hsim.fsdb" load=used "title=sarbiter2(all)" 
+wdf 1 "/ufs/vlsi/brainstorm/aer/lib/spice/arb/sarbiter4/all/hsim.fsdb" load=used "title=sarbiter4(all)" 
+wdf 2 "/ufs/vlsi/brainstorm/aer/lib/spice/arb/sarbiter4/single/hsim.fsdb" load=used "title=sarbiter4(single)" 
 scalar list
 waveview_begin 1  stack  offset=0 name_b=299 mntr_b=299 name_width=284 dm=slew:814:133:1:1:0:9e-01:1e-01:0e+00:0e+00:0:2.24786233755359e-09:1e-01:2.22516666409188e-09:9e-01:0:0e+00:0e+00 "name=sarbiter2(all)" 
   panel_begin linear pidx=0 spath=name+file xlabel=sec xmin=1.96931659693166e-09 xmax=2.98884239888424e-09 

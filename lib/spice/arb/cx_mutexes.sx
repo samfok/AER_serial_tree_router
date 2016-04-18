@@ -1,9 +1,9 @@
 ### Custom WaveView session file (version K-2015.06 build 05/23/15) ###
 ### saved at 13:41:30 on Thu Mar 31 2016 ###
-wdf 0 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/lib/arb/_mutex/all/hsim.fsdb" load=used "title=_mutex(all)" 
-wdf 1 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/lib/arb/_mutex/single/hsim.fsdb" load=used "title=_mutex(single)" 
-wdf 2 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/lib/arb/mutex/all/hsim.fsdb" load=used "title=mutex(all)" 
-wdf 3 "/ufs/vlsi/brainstorm/aer_brainstorm/spice/lib/arb/mutex/single/hsim.fsdb" load=used "title=mutex(single)" 
+wdf 0 "/ufs/vlsi/brainstorm/aer/lib/spice/arb/_mutex/all/hsim.fsdb" load=used "title=_mutex(all)" 
+wdf 1 "/ufs/vlsi/brainstorm/aer/lib/spice/arb/_mutex/single/hsim.fsdb" load=used "title=_mutex(single)" 
+wdf 2 "/ufs/vlsi/brainstorm/aer/lib/spice/arb/mutex/all/hsim.fsdb" load=used "title=mutex(all)" 
+wdf 3 "/ufs/vlsi/brainstorm/aer/lib/spice/arb/mutex/single/hsim.fsdb" load=used "title=mutex(single)" 
 scalar list
 waveview_begin 1  stack  offset=0 name_b=222 mntr_b=222 name_width=207 dm=slew:1039:345:1:1:0:9e-01:1e-01:0e+00:0e+00:1:2.3914942202315e-09:1e-01:2.36174667642825e-09:9e-01:0:0e+00:0e+00 "name=_mutex(all)" 
   panel_begin linear pidx=0 spath=name+file xlabel=sec xmin=1.98208955223881e-09 xmax=3e-09 

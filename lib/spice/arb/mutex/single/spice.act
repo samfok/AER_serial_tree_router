@@ -6,17 +6,22 @@ export defproc Wrapper(globals_np g_np; a1of<1> A[1])
 {
     bool Vdd;
     bool GND;
+    bool vpsub;
+    bool vnsub;
     globals g;
 
-    arbiter::MUTEX p(g,,);
     g.Vdd = Vdd;
     g.GND = GND;
+    g.vpsub = vpsub;
+    g.vnsub = vnsub;
     prs <Vdd, GND> {
         g_np._sReset<20> => g.sReset-
         g_np._pReset<20> => g.pReset-
     }
     g._pReset = g_np._pReset;
     g._sReset = g_np._sReset;
+
+    arbiter::MUTEX p(g,,);
 
     A[0].d[0] = p.i[0];
     GND = p.i[1];
