@@ -1,0 +1,42 @@
+channel e1ofN 4 src00
+channel e1ofN 4 src01
+channel e1ofN 4 snk.d
+
+loop-injectfile src00 unit_serial_merge_src00.in
+loop-injectfile src01 unit_serial_merge_src01.in
+loop-expectfile snk.d unit_serial_merge_snk.out
+
+random
+break-on-warn
+
+mode reset
+set g.Vdd 1
+set g.GND 0
+set g.vpsub 1
+set g.vnsub 0
+set g._sReset 0
+set g.sReset 1
+set g._pReset 1
+set g.pReset 0
+
+cycle
+
+set g._pReset 0
+set g.pReset 1
+
+cycle
+
+watchall
+
+mode run
+set g._pReset 1
+set g.pReset 0
+
+cycle
+
+set g._sReset 1
+set g.sReset 0
+
+status X
+
+advance 1000100000

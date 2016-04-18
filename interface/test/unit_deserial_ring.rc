@@ -6,22 +6,52 @@ channel e1ofN 4 src
 channel e1ofN 4 snk_[0]
 channel e1ofN 4 snk_[1]
 channel e1ofN 4 snk_[2]
-injectfile src prs/deserial_ring.in
-expectfile snk_[0] prs/deserial_ring_m0.out
-expectfile snk_[1] prs/deserial_ring_m1.out
-expectfile snk_[2] prs/deserial_ring_m2.out
+loop-injectfile src unit_deserial_ring.in
+loop-expectfile snk_[0] unit_deserial_ring_m0.out
+loop-expectfile snk_[1] unit_deserial_ring_m1.out
+loop-expectfile snk_[2] unit_deserial_ring_m2.out
  
 set src.d[0] 0
 set src.d[1] 0
 set src.d[2] 0
 set src.d[3] 0
 
-source r.scr
-
 vwatch in
 vwatch out0
 vwatch out1
 vwatch out2
 
+random
+break-on-warn
+
+mode reset
+set g.Vdd 1
+set g.GND 0
+set g.vpsub 1
+set g.vnsub 0
+set g._sReset 0
+set g.sReset 1
+set g._pReset 1
+set g.pReset 0
+
 cycle
-exit
+
+set g._pReset 0
+set g.pReset 1
+
+cycle
+
+watchall
+
+mode run
+set g._pReset 1
+set g.pReset 0
+
+cycle
+
+set g._sReset 1
+set g.sReset 0
+
+status X
+
+advance 1000100000

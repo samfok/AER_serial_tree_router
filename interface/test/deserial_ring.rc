@@ -1,0 +1,60 @@
+set_principal deserial.node[0]._x.d[0]
+set_principal deserial.node[0]._x.d[1]
+set_principal deserial.node[0]._x.a
+set_principal deserial.node[0].y.d[0]
+set_principal deserial.node[0].y.d[1]
+set_principal deserial.node[0]._y.d[0]
+set_principal deserial.node[0]._y.d[1]
+set_principal deserial.node[0]._si
+set_principal deserial.node[0]._so
+set_principal deserial.node[0]._s
+set_principal deserial.node[0].__s
+set_principal deserial.node[0].vy
+
+watch deserial.node[0]._x.d[0]
+watch deserial.node[0]._x.d[1]
+watch deserial.node[0]._x.a
+watch deserial.node[0].y.d[0]
+watch deserial.node[0].y.d[1]
+watch deserial.node[0]._y.d[0]
+watch deserial.node[0]._y.d[1]
+watch deserial.node[0]._si
+watch deserial.node[0]._so
+watch deserial.node[0]._s
+watch deserial.node[0].__s
+watch deserial.node[0].vy
+
+random
+break-on-warn
+
+mode reset
+set g.Vdd 1
+set g.GND 0
+set g.vpsub 1
+set g.vnsub 0
+set g._sReset 0
+set g.sReset 1
+set g._pReset 1
+set g.pReset 0
+
+cycle
+
+set g._pReset 0
+set g.pReset 1
+
+cycle
+
+watchall
+
+mode run
+set g._pReset 1
+set g.pReset 0
+
+cycle
+
+set g._sReset 1
+set g.sReset 0
+
+status X
+
+advance 1000100000

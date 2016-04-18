@@ -1,0 +1,41 @@
+vector in0 :1ofN 4 serial0.y.d[0] serial0.y.d[1] serial0.y.d[2] serial0.y.d[3]
+vector in1 :1ofN 4 serial1.y.d[0] serial1.y.d[1] serial1.y.d[2] serial1.y.d[3]
+vector out :1ofN 4 merge.y.d[0] merge.y.d[1] merge.y.d[2] merge.y.d[3]
+vwatch in0
+vwatch in1
+vwatch out
+
+random
+break-on-warn
+
+mode reset
+set g.Vdd 1
+set g.GND 0
+set g.vpsub 1
+set g.vnsub 0
+set g._sReset 0
+set g.sReset 1
+set g._pReset 1
+set g.pReset 0
+
+cycle
+
+set g._pReset 0
+set g.pReset 1
+
+cycle
+
+watchall
+
+mode run
+set g._pReset 1
+set g.pReset 0
+
+cycle
+
+set g._sReset 1
+set g.sReset 0
+
+status X
+
+advance 1000100000
