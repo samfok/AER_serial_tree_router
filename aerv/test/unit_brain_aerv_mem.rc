@@ -16,25 +16,23 @@ channel eMx1of4 4 mem_snk[13].d
 channel eMx1of4 4 mem_snk[14].d
 channel eMx1of4 4 mem_snk[15].d
 
-injectfile mem_src prs/brain_aerv_mem.in
-expectfile mem_snk[0].d prs/brain_aerv_mem.out
-expectfile mem_snk[1].d prs/brain_aerv_mem.out
-expectfile mem_snk[2].d prs/brain_aerv_mem.out
-expectfile mem_snk[3].d prs/brain_aerv_mem.out
-expectfile mem_snk[4].d prs/brain_aerv_mem.out
-expectfile mem_snk[5].d prs/brain_aerv_mem.out
-expectfile mem_snk[6].d prs/brain_aerv_mem.out
-expectfile mem_snk[7].d prs/brain_aerv_mem.out
-expectfile mem_snk[8].d prs/brain_aerv_mem.out
-expectfile mem_snk[9].d prs/brain_aerv_mem.out
-expectfile mem_snk[10].d prs/brain_aerv_mem.out
-expectfile mem_snk[11].d prs/brain_aerv_mem.out
-expectfile mem_snk[12].d prs/brain_aerv_mem.out
-expectfile mem_snk[13].d prs/brain_aerv_mem.out
-expectfile mem_snk[14].d prs/brain_aerv_mem.out
-expectfile mem_snk[15].d prs/brain_aerv_mem.out
-
-source r.scr
+loop-injectfile mem_src unit_brain_aerv_mem.in
+loop-expectfile mem_snk[0].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[1].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[2].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[3].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[4].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[5].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[6].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[7].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[8].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[9].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[10].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[11].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[12].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[13].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[14].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[15].d unit_brain_aerv_mem.out
 
 vector m0_0 :1ofN 4 mem_snk[0].d.m[0].n[0] mem_snk[0].d.m[0].n[1] mem_snk[0].d.m[0].n[2] mem_snk[0].d.m[0].n[3]
 vector m0_1 :1ofN 4 mem_snk[0].d.m[1].n[0] mem_snk[0].d.m[1].n[1] mem_snk[0].d.m[1].n[2] mem_snk[0].d.m[1].n[3]
@@ -165,5 +163,37 @@ vwatch m15_1
 vwatch m15_2
 vwatch m15_3
 
+random
+break-on-warn
+
+mode reset
+set g.Vdd 1
+set g.GND 0
+set g.vpsub 1
+set g.vnsub 0
+set g._sReset 0
+set g.sReset 1
+set g._pReset 1
+set g.pReset 0
+
 cycle
-exit
+
+set g._pReset 0
+set g.pReset 1
+
+cycle
+
+watchall
+
+mode run
+set g._pReset 1
+set g.pReset 0
+
+cycle
+
+set g._sReset 1
+set g.sReset 0
+
+status X
+
+advance 1000100000

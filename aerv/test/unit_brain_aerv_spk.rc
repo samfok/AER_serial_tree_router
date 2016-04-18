@@ -65,73 +65,71 @@ channel e1ofN 2 spk_snk[62].d
 channel e1ofN 2 spk_snk[63].d
 
 
-injectfile spk_src prs/brain_aerv_spk.in
-expectfile spk_snk[0].d prs/brain_aerv_spk.out
-expectfile spk_snk[1].d prs/brain_aerv_spk.out
-expectfile spk_snk[2].d prs/brain_aerv_spk.out
-expectfile spk_snk[3].d prs/brain_aerv_spk.out
-expectfile spk_snk[4].d prs/brain_aerv_spk.out
-expectfile spk_snk[5].d prs/brain_aerv_spk.out
-expectfile spk_snk[6].d prs/brain_aerv_spk.out
-expectfile spk_snk[7].d prs/brain_aerv_spk.out
-expectfile spk_snk[8].d prs/brain_aerv_spk.out
-expectfile spk_snk[9].d prs/brain_aerv_spk.out
-expectfile spk_snk[10].d prs/brain_aerv_spk.out
-expectfile spk_snk[11].d prs/brain_aerv_spk.out
-expectfile spk_snk[12].d prs/brain_aerv_spk.out
-expectfile spk_snk[13].d prs/brain_aerv_spk.out
-expectfile spk_snk[14].d prs/brain_aerv_spk.out
-expectfile spk_snk[15].d prs/brain_aerv_spk.out
-expectfile spk_snk[16].d prs/brain_aerv_spk.out
-expectfile spk_snk[17].d prs/brain_aerv_spk.out
-expectfile spk_snk[18].d prs/brain_aerv_spk.out
-expectfile spk_snk[19].d prs/brain_aerv_spk.out
-expectfile spk_snk[20].d prs/brain_aerv_spk.out
-expectfile spk_snk[21].d prs/brain_aerv_spk.out
-expectfile spk_snk[22].d prs/brain_aerv_spk.out
-expectfile spk_snk[23].d prs/brain_aerv_spk.out
-expectfile spk_snk[24].d prs/brain_aerv_spk.out
-expectfile spk_snk[25].d prs/brain_aerv_spk.out
-expectfile spk_snk[26].d prs/brain_aerv_spk.out
-expectfile spk_snk[27].d prs/brain_aerv_spk.out
-expectfile spk_snk[28].d prs/brain_aerv_spk.out
-expectfile spk_snk[29].d prs/brain_aerv_spk.out
-expectfile spk_snk[30].d prs/brain_aerv_spk.out
-expectfile spk_snk[31].d prs/brain_aerv_spk.out
-expectfile spk_snk[32].d prs/brain_aerv_spk.out
-expectfile spk_snk[33].d prs/brain_aerv_spk.out
-expectfile spk_snk[34].d prs/brain_aerv_spk.out
-expectfile spk_snk[35].d prs/brain_aerv_spk.out
-expectfile spk_snk[36].d prs/brain_aerv_spk.out
-expectfile spk_snk[37].d prs/brain_aerv_spk.out
-expectfile spk_snk[38].d prs/brain_aerv_spk.out
-expectfile spk_snk[39].d prs/brain_aerv_spk.out
-expectfile spk_snk[40].d prs/brain_aerv_spk.out
-expectfile spk_snk[41].d prs/brain_aerv_spk.out
-expectfile spk_snk[42].d prs/brain_aerv_spk.out
-expectfile spk_snk[43].d prs/brain_aerv_spk.out
-expectfile spk_snk[44].d prs/brain_aerv_spk.out
-expectfile spk_snk[45].d prs/brain_aerv_spk.out
-expectfile spk_snk[46].d prs/brain_aerv_spk.out
-expectfile spk_snk[47].d prs/brain_aerv_spk.out
-expectfile spk_snk[48].d prs/brain_aerv_spk.out
-expectfile spk_snk[49].d prs/brain_aerv_spk.out
-expectfile spk_snk[50].d prs/brain_aerv_spk.out
-expectfile spk_snk[51].d prs/brain_aerv_spk.out
-expectfile spk_snk[52].d prs/brain_aerv_spk.out
-expectfile spk_snk[53].d prs/brain_aerv_spk.out
-expectfile spk_snk[54].d prs/brain_aerv_spk.out
-expectfile spk_snk[55].d prs/brain_aerv_spk.out
-expectfile spk_snk[56].d prs/brain_aerv_spk.out
-expectfile spk_snk[57].d prs/brain_aerv_spk.out
-expectfile spk_snk[58].d prs/brain_aerv_spk.out
-expectfile spk_snk[59].d prs/brain_aerv_spk.out
-expectfile spk_snk[60].d prs/brain_aerv_spk.out
-expectfile spk_snk[61].d prs/brain_aerv_spk.out
-expectfile spk_snk[62].d prs/brain_aerv_spk.out
-expectfile spk_snk[63].d prs/brain_aerv_spk.out
-
-source r.scr
+loop-injectfile spk_src unit_brain_aerv_spk.in
+loop-expectfile spk_snk[0].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[1].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[2].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[3].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[4].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[5].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[6].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[7].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[8].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[9].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[10].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[11].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[12].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[13].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[14].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[15].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[16].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[17].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[18].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[19].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[20].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[21].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[22].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[23].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[24].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[25].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[26].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[27].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[28].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[29].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[30].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[31].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[32].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[33].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[34].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[35].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[36].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[37].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[38].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[39].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[40].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[41].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[42].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[43].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[44].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[45].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[46].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[47].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[48].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[49].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[50].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[51].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[52].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[53].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[54].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[55].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[56].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[57].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[58].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[59].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[60].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[61].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[62].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[63].d unit_brain_aerv_spk.out
 
 vector spk_src_m0 :1ofN 2 spk_src.m[0].n[0] spk_src.m[0].n[1]
 vector spk_src_m1 :1ofN 2 spk_src.m[1].n[0] spk_src.m[1].n[1]
@@ -279,5 +277,37 @@ vwatch spk_snk61
 vwatch spk_snk62
 vwatch spk_snk63
 
+random
+break-on-warn
+
+mode reset
+set g.Vdd 1
+set g.GND 0
+set g.vpsub 1
+set g.vnsub 0
+set g._sReset 0
+set g.sReset 1
+set g._pReset 1
+set g.pReset 0
+
 cycle
-exit
+
+set g._pReset 0
+set g.pReset 1
+
+cycle
+
+watchall
+
+mode run
+set g._pReset 1
+set g.pReset 0
+
+cycle
+
+set g._sReset 1
+set g.sReset 0
+
+status X
+
+advance 1000100000
