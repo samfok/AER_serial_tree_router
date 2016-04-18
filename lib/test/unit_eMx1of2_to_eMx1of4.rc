@@ -1,9 +1,41 @@
 channel eMx1of2 4 src
 channel eMx1of4 2 snk
 
-loop-injectfile src prs/eMx1of2_to_eMx1of4.in
-loop-expectfile snk prs/eMx1of2_to_eMx1of4.out
-source r.scr
+loop-injectfile src unit_eMx1of2_to_eMx1of4.in
+loop-expectfile snk unit_eMx1of2_to_eMx1of4.out
+
+random
+break-on-warn
+
+mode reset
+set g.Vdd 1
+set g.GND 0
+set g.vpsub 1
+set g.vnsub 0
+set g._sReset 0
+set g.sReset 1
+set g._pReset 1
+set g.pReset 0
+
+cycle
+
+set g._pReset 0
+set g.pReset 1
+
+cycle
+
+watchall
+
+mode run
+set g._pReset 1
+set g.pReset 0
+
+cycle
+
+set g._sReset 1
+set g.sReset 0
+
+status X
 
 set_principal src.m[0].d[0]
 set_principal src.m[0].d[1]
@@ -35,3 +67,5 @@ vwatch x2
 vwatch x3
 vwatch y0
 vwatch y1
+
+advance 1000100000
