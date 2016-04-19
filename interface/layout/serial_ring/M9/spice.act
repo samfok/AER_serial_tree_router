@@ -1,0 +1,33 @@
+import "aer/interface/interface.act";
+import "aer/lib/test.act";
+
+defproc Wrapper (globals_np g_np; eMx1of4<9> src) {
+    bool Vdd;
+    bool GND;
+    bool vpsub;
+    bool vnsub;
+    globals g;
+
+    pint M = 9;
+    pint N = 4;
+    interface::SERIAL_RING<M, N> serial(g,,,,);
+
+    g.Vdd = Vdd;
+    g.GND = GND;
+    g.vpsub = vpsub;
+    g.vnsub = vnsub;
+    prs <Vdd, GND> {
+        g_np._sReset<20> => g.sReset-
+        g_np._pReset<20> => g.pReset-
+    }
+    g._pReset = g_np._pReset;
+    g._sReset = g_np._sReset;
+
+    (; m : M :
+        src.m[m].d = serial.x.m[m].d;
+    )
+    src.e = serial.x.e;
+}
+
+Wrapper dut;
+
