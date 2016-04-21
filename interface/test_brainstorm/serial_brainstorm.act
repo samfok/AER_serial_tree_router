@@ -1,0 +1,19 @@
+import "aer/interface/interface.act";
+import "aer/lib/test.act";
+import "core/serializer/AERSerializer.act";
+import "aer/lib/compat_bs.act";
+import "lib/env.act";
+
+pint M=6;
+
+::aer::globals g_aer;
+::aer::globals g = g_aer;
+globals g_bs;
+::compat_bs::globals g_compat(g_aer, g_bs);
+
+::aer::SOURCE_random_eMx1of2<M> src(g_aer,);
+serializer::AERSERN<M> serial(g_bs,,,,);
+::aer::SINK_SERIAL<4> snk(g_aer, serial.Op, serial.Oe,);
+::compat_bs::eMx1of2<M> serial_I(src.d, serial.I);
+::compat_bs::d1ofN<4> d1ofN(, serial.Od);
+snk.d.d = d1ofN.aer.d;
