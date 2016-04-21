@@ -2,7 +2,6 @@ import "aer/interface/interface.act";
 import "aer/lib/test.act";
 import "core/serializer/AERSerializer.act";
 import "aer/lib/compat_bs.act";
-import "lib/env.act";
 
 pint M=6;
 
@@ -15,5 +14,5 @@ globals g_bs;
 serializer::AERSERN<M> serial(g_bs,,,,);
 ::aer::SINK_SERIAL<4> snk(g_aer, serial.Op, serial.Oe,);
 ::compat_bs::eMx1of2<M> serial_I(src.d, serial.I);
-::compat_bs::d1ofN<4> d1ofN(, serial.Od);
-snk.d.d = d1ofN.aer.d;
+::compat_bs::d1ofN<4> serial_Od(, serial.Od);
+snk.d.d = serial_Od.aer.d;

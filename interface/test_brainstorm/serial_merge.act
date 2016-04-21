@@ -1,0 +1,36 @@
+import "aer/interface/interface.act";
+import "core/serializer/AERSerializer.act";
+import "aer/lib/compat_bs.act";
+
+pint M = 2;
+pint MM[M];
+MM[0] = 18;
+MM[1] = 12;
+pint N = 4;
+
+::aer::globals g_aer;
+::aer::globals g = g_aer;
+globals g_bs;
+::compat_bs::globals g_compat(g_aer, g_bs);
+
+::aer::SOURCE_random_eMx1of2<MM[0]> src0(g_aer,);
+::aer::SOURCE_random_eMx1of2<MM[1]> src1(g_aer,);
+::aer::SINK_e1ofN<N> snk(g_aer,);
+
+serializer::AERSERN<MM[0]> serial0(g_bs,,,,);
+serializer::AERSERN<MM[1]> serial1(g_bs,,,,);
+
+::aer::interface::SERIAL_MERGE<M, N> merge(g,,,,,,);
+::aer::interface::OUT_e1ofN<N> out(g, merge.yp, merge.yi, merge.y, snk.d);
+
+::compat_bs::eMx1of2<MM[0]> serial0_I(src0.d, serial0.I);
+::compat_bs::eMx1of2<MM[1]> serial1_I(src1.d, serial1.I);
+::compat_bs::d1ofN<4> serial0_Od(, serial0.Od);
+::compat_bs::d1ofN<4> serial1_Od(, serial1.Od);
+merge.x[0].d = serial0_Od.aer.d;
+merge.x[1].d = serial1_Od.aer.d;
+
+merge.xp[0] = serial0.Op;
+merge.xo[0] = serial0.Oe;
+merge.xp[1] = serial1.Op;
+merge.xo[1] = serial1.Oe;
