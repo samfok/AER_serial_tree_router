@@ -1,3 +1,4 @@
+namespace aer {
 ////////////////////////////////////////////////////////////////////////////////
 // Standard Code Words
 //
@@ -215,3 +216,5 @@ export defchan a1of2 <: chan(int<1>) (c1of2 m, b; bool d[2], t, f, a) {
     send { }
     recv { }
 }
+
+} // namespace aer

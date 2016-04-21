@@ -1,5 +1,8 @@
 import "aer/lib/arbiter.act";
 
+namespace aer {
+
+export
 template <pint M, K, N>
 defproc TEST_N_ARB_TREE_RING (globals g) {
     // N=K^M
@@ -11,8 +14,10 @@ defproc TEST_N_ARB_TREE_RING (globals g) {
     )
 }
 
-globals g;
+} // namespace aer
+
 pint M=3;
 pint K=2;
 pint N=8;
-TEST_N_ARB_TREE_RING<M, K, N> test(g);
+::aer::globals g;
+::aer::TEST_N_ARB_TREE_RING<M, K, N> test(g);

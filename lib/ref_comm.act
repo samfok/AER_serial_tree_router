@@ -3,6 +3,8 @@
 import "aer/lib/channel.act";
 import "ref_aer_brainstorm/lib/logic.act";
 
+namespace aer {
+
 export
 template <pint M, N>
 defproc VN (aMx1ofN <M, N> d) {
@@ -57,3 +59,5 @@ defproc A_TO_E (aMx1ofN<M, N> i; eMx1ofN<M, N> o) {
         o.e => i.a-
     }
 }
+
+} // namespace aer

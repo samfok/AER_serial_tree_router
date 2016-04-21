@@ -2,6 +2,8 @@
 // The data traverses the tree with a serialized packet format.
 import "aer/lib/arbiter.act";
 
+namespace aer {
+
 namespace transmitter {
     export
     template <pint N; pbool root>
@@ -9,7 +11,7 @@ namespace transmitter {
         // AEXT tree NODE
         bool c_[N], _co[N], v, _v, _u[N];
         c1of<N> p;
-        ::arbiter::N_ARB_S<N> arb(g, _cp, c_);
+        ::aer::arbiter::N_ARB_S<N> arb(g, _cp, c_);
 
         [ ~LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
@@ -116,7 +118,7 @@ namespace transmitter {
     defproc LEAF (globals g; bool _cp[N], co[N], pi, _pp; c1of<N> p) {
         // AEXT tree LEAF
         bool c[N], _c[N], __c[N], _u[N], v, _v, __v, pp;
-        ::arbiter::N_ARB_S<N> arb(g, _cp, c);
+        ::aer::arbiter::N_ARB_S<N> arb(g, _cp, c);
         c1of<N> p_;
         [ ~LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
@@ -255,3 +257,5 @@ defproc AEXT (globals g; bool _xp[NN], xo[NN], pi, pp; c1of<N> p) {
         _._pp<6> -> pp-
     }
 }
+
+} // namespace aer

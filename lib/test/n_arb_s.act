@@ -1,5 +1,8 @@
 import "aer/lib/arbiter.act";
 
+namespace aer {
+
+export
 template <pint N>
 defproc TEST_N_ARB_S (globals g) {
     //tests N_ARB_S
@@ -16,6 +19,8 @@ defproc TEST_N_ARB_S (globals g) {
     }
 }
 
+} // namespace aer
+
 pint N=8;
-globals g;
-TEST_N_ARB_S<N> test(g);
+::aer::globals g;
+::aer::TEST_N_ARB_S<N> test(g);

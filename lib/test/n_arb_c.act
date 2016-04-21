@@ -1,6 +1,9 @@
 // import "ref_aer_brainstorm/lib/arbiter.act";
 import "aer/lib/arbiter.act";
 
+namespace aer {
+
+export
 template <pint N>
 defproc TEST_N_ARB_C (globals g) {
     //tests N_ARB_C
@@ -8,6 +11,8 @@ defproc TEST_N_ARB_C (globals g) {
     arbiter::N_ARB_C<N> n_arb(g, c.o, c.i);
 }
 
+} // namespace aer
+
 pint N=8;
-globals g;
-TEST_N_ARB_C<N> test(g);
+::aer::globals g;
+::aer::TEST_N_ARB_C<N> test(g);

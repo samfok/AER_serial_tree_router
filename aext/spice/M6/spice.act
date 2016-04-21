@@ -1,6 +1,8 @@
 import "aer/aext/aext.act";
 import "aer/interface/interface.act";
 
+namespace aer {
+
 export defproc Wrapper(globals_np g_np; a1of<1> src; eMx1of4<6> snk)
 {
     bool Vdd;
@@ -79,4 +81,6 @@ export defproc Wrapper(globals_np g_np; a1of<1> src; eMx1of4<6> snk)
     )
 }
 
-Wrapper dut;
+}
+
+::aer::Wrapper dut;

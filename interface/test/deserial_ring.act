@@ -2,8 +2,8 @@ import "aer/interface/interface.act";
 
 pint M=6;
 pint N=2;
-globals g;
 
-SOURCE_random_a1ofN<N> src(g,);
-SINK_eMx1ofN<M, N> snk(g,);
-interface::DESERIAL_RING<M, N> deserial(g, src.d, snk.d);
+::aer::globals g;
+::aer::SOURCE_random_a1ofN<N> src(g,);
+::aer::SINK_eMx1ofN<M, N> snk(g,);
+::aer::interface::DESERIAL_RING<M, N> deserial(g, src.d, snk.d);

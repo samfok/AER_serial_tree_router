@@ -1,6 +1,8 @@
 import "aer/aext/aext.act";
 import "aer/interface/interface.act";
 
+namespace aer {
+
 export defproc Wrapper(globals_np g_np; a1of<1> src; eMx1of4<3> snk)
 {
     bool Vdd;
@@ -44,5 +46,6 @@ export defproc Wrapper(globals_np g_np; a1of<1> src; eMx1of4<3> snk)
     deserial.y.e = snk.e;
 }
 
-Wrapper dut;
+}
 
+::aer::Wrapper dut;

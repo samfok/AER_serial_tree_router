@@ -2,20 +2,20 @@ import "aer/interface/interface.act";
 
 pint N = 4;
 
-globals g;
+::aer::globals g;
 bool Reset = g.sReset;
-eMx1ofN<2, N> src0;
-e1of<N> src00;
-e1of<N> src01;
+::aer::eMx1ofN<2, N> src0;
+::aer::e1of<N> src00;
+::aer::e1of<N> src01;
 src00.m = src0.m[0];
 src01.m = src0.m[1];
 src00.e = src0.e;
 src01.e = src0.e;
 
-interface::SERIAL_RING<2, N> serial0(g, src0,,,);
-interface::SERIAL_MERGE<2, N> merge(g,,,,,,);
-interface::OUT_e1ofN<N> out(g, merge.yp, merge.yi, merge.y,);
-SINK_e1ofN<N> snk(g, out.y);
+::aer::interface::SERIAL_RING<2, N> serial0(g, src0,,,);
+::aer::interface::SERIAL_MERGE<2, N> merge(g,,,,,,);
+::aer::interface::OUT_e1ofN<N> out(g, merge.yp, merge.yi, merge.y,);
+::aer::SINK_e1ofN<N> snk(g, out.y);
 
 merge.xp[0] = serial0.yp;
 merge.xp[1] = g.GND;

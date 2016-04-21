@@ -1,5 +1,7 @@
 import "aer/aerv/aerv.act";
 
+namespace aer {
+
 export defproc Wrapper(globals_np g_np; eMx1of4<6> spk_src; a1of2 syn_snk)
 {
     bool Vdd;
@@ -109,4 +111,6 @@ export defproc Wrapper(globals_np g_np; eMx1of4<6> spk_src; a1of2 syn_snk)
     buf_syn.y = syn_snk;
 }
 
-Wrapper dut;
+} // namespace aer
+
+::aer::Wrapper dut;

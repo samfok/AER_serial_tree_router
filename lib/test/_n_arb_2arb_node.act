@@ -1,6 +1,9 @@
 // Tests the n-way active low arbiter
 import "aer/lib/arbiter.act";
 
+namespace aer {
+
+export
 template<pint N>
 defproc TEST__N_ARB_2ARB_NODE (globals g) {
     // tests _N_ARB
@@ -11,6 +14,8 @@ defproc TEST__N_ARB_2ARB_NODE (globals g) {
     _c._i = _n_arb._o;
 }
 
+} // namespace aer
+
 pint N=8;
-globals g;
-TEST__N_ARB_2ARB_NODE<N> test(g);
+::aer::globals g;
+::aer::TEST__N_ARB_2ARB_NODE<N> test(g);

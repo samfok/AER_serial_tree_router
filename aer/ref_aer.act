@@ -3,6 +3,8 @@ import "aer/aext/ref_aext.act";
 import "aer/aerv/ref_aerv.act";
 import "aer/interface/ref_interface.act";
 
+namespace aer {
+
 export
 template <pint M, N, NN>
 defproc AER_NODATA (globals g; bool xp[NN], xo[NN], yi[NN], yp[NN]) {
@@ -19,3 +21,5 @@ defproc AER_NODATA (globals g; bool xp[NN], xo[NN], yi[NN], yp[NN]) {
     interface::DESERIAL_RING<M, N> deserial(g, out.y,);
     interface::SERIAL_RING<M, N> serial(g, deserial.y, aerv.po, aerv.pp, aerv.p);
 }
+
+} //namespace aer

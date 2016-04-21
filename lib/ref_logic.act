@@ -1,6 +1,8 @@
 // Defines N input logic gates
 // Unbubble-reshuffled version of aer_brainstorm/lib/logic.act for reference
 
+namespace aer {
+
 export
 template <pint N>
 defproc AND (bool i[N], o) {
@@ -65,3 +67,5 @@ defproc C_TREE (bool i[N], o) {
         }
     ]
 }
+
+} // namespace aer

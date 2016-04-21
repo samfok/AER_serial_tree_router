@@ -1,10 +1,10 @@
 import "aer/serial/serial.act";
 
-globals g;
 pint N=2;
-SOURCE<N> src(g,,,);
-BUFFER<N> buf(g,,,,,,);
-SINK<N> snk(g,,,);
+::aer::globals g;
+::aer::SOURCE<N> src(g,,,);
+::aer::BUFFER<N> buf(g,,,,,,);
+::aer::SINK<N> snk(g,,,);
 
 src.yp = buf.xp;
 src.yi = buf.xo;

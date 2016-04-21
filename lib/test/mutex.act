@@ -1,6 +1,9 @@
 // Tests the MUTEX circuit
 import "aer/lib/arbiter.act";
 
+namespace aer {
+
+export
 defproc TEST_MUTEX (globals g) {
     // tests MUTEX
     active_handshaker<2> c(g,,);
@@ -10,5 +13,7 @@ defproc TEST_MUTEX (globals g) {
     c.i = arb.o;
 }
 
-globals g;
-TEST_MUTEX test(g);
+} // namespace aer
+
+::aer::globals g;
+::aer::TEST_MUTEX test(g);

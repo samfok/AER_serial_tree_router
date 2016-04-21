@@ -9,20 +9,20 @@ pint M_MEM = M+4;
 pint N_SYN = 64; // 4**M
 pint N_MEM = N_SYN/4;
 pint D     = 4;
-globals g;
 
-SOURCE_BRAIN_AERV<M_SPK, M_SPK-M, 0, 2> spk_src(g,);
-SOURCE_BRAIN_AERV<M_MEM, M_MEM-M, 2, 1> mem_src(g,);
-SINK_a1ofN<2> spk_snk[N_SYN];
-SINK_eMx1ofN<M_MEM-M, D> mem_snk[N_MEM];
+::aer::globals g;
+::aer::SOURCE_BRAIN_AERV<M_SPK, M_SPK-M, 0, 2> spk_src(g,);
+::aer::SOURCE_BRAIN_AERV<M_MEM, M_MEM-M, 2, 1> mem_src(g,);
+::aer::SINK_a1ofN<2> spk_snk[N_SYN];
+::aer::SINK_eMx1ofN<M_MEM-M, D> mem_snk[N_MEM];
 
-a1of2 y_syn[N_SYN];
+::aer::a1of2 y_syn[N_SYN];
 (; n : N_SYN :
     spk_snk[n].g = g;
     spk_snk[n].d.d = y_syn[n].d;
     spk_snk[n].d.a = y_syn[n].a;
 )
-eMx1of4<M_MEM-M> y_mem[N_MEM];
+::aer::eMx1of4<M_MEM-M> y_mem[N_MEM];
 (; n : N_MEM :
     mem_snk[n].g = g;
     (; m : M_MEM - M :
@@ -31,5 +31,5 @@ eMx1of4<M_MEM-M> y_mem[N_MEM];
     mem_snk[n].d.e = y_mem[n].e;
 )
 
-BRAIN_AERV<M, M_SPK, M_MEM, N_SYN, N_MEM> aerv(
+::aer::BRAIN_AERV<M, M_SPK, M_MEM, N_SYN, N_MEM> aerv(
     g, spk_src.d, mem_src.d, y_syn, y_mem);

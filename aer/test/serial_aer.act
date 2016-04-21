@@ -2,13 +2,13 @@
 
 /*CMOS implementable version-------------------------------------------------*/
 import "aer/aer/aer.act";
-globals g;
 pint M=3;
 pint N=2;
 pint NN=8; // NN=N^M
-SOURCE_random_a1of1 src[NN];
-passive_handshaker<NN> y(g,,);
-AER_NODATA<M, N, NN> aer(g,,, y.o, y.i);
+::aer::globals g;
+::aer::SOURCE_random_a1of1 src[NN];
+::aer::passive_handshaker<NN> y(g,,);
+::aer::AER_NODATA<M, N, NN> aer(g,,, y.o, y.i);
 
 (; nn : NN :
     src[nn].g = g;
@@ -23,12 +23,11 @@ prs<g.Vdd, g.GND> {
 /*reference version----------------------------------------------------------*/
 // import "aer/aer/ref_aer.act";
 // 
-// globals g;
-// 
 // pint M=3;
 // pint N=2;
 // pint NN=8;
 // 
-// active_handshaker<NN> x(g,,);
-// passive_handshaker<NN> y(g,,);
-// AER_NODATA<M, N, NN> aer(g, x.o, x.i, y.o, y.i);
+// ::aer::globals g;
+// ::aer::active_handshaker<NN> x(g,,);
+// ::aer::passive_handshaker<NN> y(g,,);
+// ::aer::AER_NODATA<M, N, NN> aer(g, x.o, x.i, y.o, y.i);

@@ -1,13 +1,13 @@
 import "aer/aext/aext.act";
 import "aer/lib/test.act";
 
-globals g;
 pint M=3;
 pint N=2;
 pint NN=8; // NN=N^M
-active_handshaker<NN> a(g,,);
-AEXT<M, N, NN> aext(g,, a.i,,,);
-SINK_SERIAL<N> snk(g, aext.pp, aext.pi, aext.p);
+::aer::globals g;
+::aer::active_handshaker<NN> a(g,,);
+::aer::AEXT<M, N, NN> aext(g,, a.i,,,);
+::aer::SINK_SERIAL<N> snk(g, aext.pp, aext.pi, aext.p);
 prs<g.Vdd, g.GND> {
     (: nn : NN :
         a.o[nn] => aext._xp[nn]-

@@ -2,6 +2,8 @@
 import "aer/lib/channel.act";
 import "aer/lib/logic.act";
 
+namespace aer {
+
 export
 template <pint M, N>
 defproc VN_aMx1ofN (globals g; aMx1ofN<M, N> d) {
@@ -171,3 +173,5 @@ defproc eMx1of4_to_eMx1of2 (globals g; eMx1of4<M_1of4> x; eMx1of2<M_1of2> y) {
     _.y = y.m;
     x.e = y.e;
 }
+
+} // namespace aer

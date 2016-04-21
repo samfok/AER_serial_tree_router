@@ -1,6 +1,9 @@
 // Tests the n-way arbiter
 import "aer/lib/arbiter.act";
 
+namespace aer {
+
+export
 template<pint N>
 defproc TEST_N_ARB_2ARB_NODE (globals g) {
     // tests N_ARB
@@ -11,6 +14,8 @@ defproc TEST_N_ARB_2ARB_NODE (globals g) {
     c.i = n_arb.o;
 }
 
+} // namespace aer
+
 pint N=8;
-globals g;
-TEST_N_ARB_2ARB_NODE<N> test(g);
+::aer::globals g;
+::aer::TEST_N_ARB_2ARB_NODE<N> test(g);

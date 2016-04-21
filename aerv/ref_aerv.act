@@ -2,6 +2,8 @@
 // The data traverses the tree with a serialized packet format.
 import "aer/interface/ref_interface.act";
 
+namespace aer {
+
 namespace receiver {
     export
     template <pint F, D>
@@ -230,3 +232,5 @@ defproc BRAIN_AERV (globals g; eMx1of4<M_SPK> x_spk;
     AERV<M, F_INT, F_LEAF, AERV_TGTS, D> aerv(
         g, aerv_yi, aerv_yp, merge.yp, merge.yi, aerv_y, merge.y);
 }
+
+} // namespace aer

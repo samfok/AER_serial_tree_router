@@ -1,6 +1,8 @@
 import "aer/interface/interface.act";
 import "aer/lib/test.act";
 
+namespace aer {
+
 defproc Wrapper (globals_np g_np; eMx1of4<9> src) {
     bool Vdd;
     bool GND;
@@ -31,5 +33,6 @@ defproc Wrapper (globals_np g_np; eMx1of4<9> src) {
     SINK_SERIAL<N> snk(g, serial.yp, serial.yi, serial.y);
 }
 
-Wrapper dut;
+} // namespace aer
 
+::aer::Wrapper dut;

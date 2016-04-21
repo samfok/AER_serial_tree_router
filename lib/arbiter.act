@@ -3,6 +3,8 @@ import "aer/lib/globals.act";
 import "aer/lib/channel.act";
 import "aer/lib/environment.act";
 
+namespace aer {
+
 namespace arbiter {
     // contains arbiter related processes. 
 
@@ -517,3 +519,5 @@ namespace arbiter {
         _.p.d = _.p.e;
     }
 } // end namespace arbiter
+
+} // namespace aer

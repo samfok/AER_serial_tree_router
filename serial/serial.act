@@ -1,6 +1,9 @@
 import "aer/lib/globals.act";
 import "aer/lib/channel.act";
 
+namespace aer {
+
+export
 template <pint N>
 defproc SOURCE (globals g; bool yi, yp; c1of<N> y) {
     bool u, _yp;
@@ -35,6 +38,7 @@ defproc SOURCE (globals g; bool yi, yp; c1of<N> y) {
     }
 }
 
+export
 template <pint N>
 defproc BUFFER (globals g; bool xp, xo, yi, yp; c1of<N> x, y) {
     prs<g.Vdd, g.GND> {
@@ -46,6 +50,7 @@ defproc BUFFER (globals g; bool xp, xo, yi, yp; c1of<N> x, y) {
     }
 }
 
+export
 template <pint N>
 defproc SINK (globals g; bool xp, xo; c1of<N> x) {
     c1of<N> _x;
@@ -60,3 +65,5 @@ defproc SINK (globals g; bool xp, xo; c1of<N> x) {
         _xo => xo-
     }
 }
+
+} // namespace aer

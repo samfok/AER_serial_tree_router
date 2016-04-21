@@ -1,6 +1,9 @@
 // Processes used in testing
 import "aer/lib/environment.act";
 
+namespace aer {
+
+export
 template <pint M, T_PIDX, T_WIDX, T_N>
 defproc SOURCE_BRAIN_AERV (globals g; eMx1of4<M> d) {
     // generates packets for brainstorm/braindrop receiver
@@ -59,3 +62,5 @@ defproc SINK_SERIAL (globals g; bool p, o; c1of<N> d) {
         _o<9> -> o-
     }
 }
+
+} // namespace aer

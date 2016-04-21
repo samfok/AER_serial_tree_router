@@ -2,6 +2,8 @@ import "aer/lib/globals.act";
 import "aer/lib/channel.act";
 import "aer/lib/comm.act";
 
+namespace aer {
+
 export
 template <pint M, N>
 defproc SOURCE_random_aMx1ofN (globals g; aMx1ofN<M, N> d) {
@@ -252,3 +254,5 @@ namespace test {
         a.o = p.i;
     }
 }
+
+} // namespace aer
