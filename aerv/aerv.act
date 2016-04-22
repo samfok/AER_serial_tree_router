@@ -287,7 +287,6 @@ namespace brain_receiver {
 
     export
     defproc HALF_BUFFER (globals g; a1of2 x, y) {
-        // provides a half cycle of buffering
         // prevents the synapse from holding up the receiver tree
         pint D = 2; // for a1of2
         bool _ya;
@@ -326,6 +325,18 @@ namespace brain_receiver {
                 )
             }
         ]
+    }
+
+    export
+    defproc FULL_BUFFER (globals g; a1of2 x, y) {
+        // provides a full cycle of buffering
+        // prevents the synapse from holding up the receiver tree
+        HALF_BUFFER half_buf[2];
+        half_buf[0].g = g;
+        half_buf[1].g = g;
+        half_buf[0].x = x;
+        half_buf[0].y = half_buf[1].x;
+        half_buf[1].y = y;
     }
 } // namespace brain_receiver
 
@@ -386,7 +397,7 @@ defproc BRAIN_AERV (globals g; eMx1of4<M_SPK> x_spk;
         mem_deserial[n].y.e = y_mem[n].e;
     )
     
-    brain_receiver::HALF_BUFFER buf_syn[N_SYN]; // buffer synapse spikes
+    brain_receiver::FULL_BUFFER buf_syn[N_SYN]; // buffer synapse spikes
     (; n : N_SYN :
         buf_syn[n].g = g;
         // connect synapse to buf_syn
