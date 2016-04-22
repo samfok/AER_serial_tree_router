@@ -1,0 +1,43 @@
+import "aer/aer/";
+import "aer/aext/aext.act";
+import "aer/interface/interface.act";
+
+export defproc Wrapper(aer::globals_np g_np; aer::a1of<1> src[4096]; aer::eMx1of4<6> snk)
+{
+    bool Vdd;
+    bool GND;
+    bool vpsub;
+    bool vnsub;
+
+    aer::globals g;
+    pint M = 6;
+    pint N = 4;
+    pint NN = 4096;
+    aer::AEXT<M, N, NN> aext(g,,,,,);
+    aer::interface::OUT_a1ofN<N> out(aext.g, aext.pp, aext.pi, aext.p,);
+    aer::interface::DESERIAL_RING<M, N> deserial(aext.g, out.y,);
+
+    // rails and reset
+    g.Vdd = Vdd;
+    g.GND = GND;
+    g.vpsub = vpsub;
+    g.vnsub = vnsub;
+    g_np.sReset = g.sReset;
+    g_np.pReset = g.pReset;
+    g._pReset = g_np._pReset;
+    g._sReset = g_np._sReset;
+
+    // connect src
+    (; nn : NN :
+        src[nn].d[0] = aext._xp[nn]; // note active low
+        src[nn].a = aext.xo[nn];
+    )
+
+    // connect snk
+    (; m : M :
+        deserial.y.b[m].d = snk.b[m].d;
+    )
+    deserial.y.e = snk.e;
+}
+
+Wrapper dut;
