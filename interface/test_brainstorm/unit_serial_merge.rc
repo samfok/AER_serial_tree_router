@@ -1,13 +1,7 @@
-channel e1ofN 2 src_[0]
-channel e1ofN 2 src_[1]
-channel e1ofN 2 src_[2]
-channel e1ofN 2 src_[3]
+channel eMx1of2 6 src
 channel e1ofN 4 snk.d
 
-loop-injectfile src_[0] unit_serial_merge_src0.in
-loop-injectfile src_[1] unit_serial_merge_src1.in
-loop-injectfile src_[2] unit_serial_merge_src2.in
-loop-injectfile src_[3] unit_serial_merge_src3.in
+loop-injectfile src unit_serial_merge_src.in
 loop-expectfile snk.d unit_serial_merge_snk.out
 
 random

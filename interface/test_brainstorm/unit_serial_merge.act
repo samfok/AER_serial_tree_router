@@ -2,7 +2,7 @@ import "aer/interface/interface.act";
 import "core/serializer/AERSerializer.act";
 import "aer/lib/compat_bs.act";
 
-pint M = 4;
+pint M = 6;
 
 ::aer::globals g_aer;
 ::aer::globals g = g_aer;
