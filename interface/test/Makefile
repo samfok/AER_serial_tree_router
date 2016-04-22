@@ -17,7 +17,7 @@ sim/%.sim: prs/%.prs %.rc
 
 prs: $(PRS_OBJS)
 
-prs/%.prs: %.act
+prs/%.prs: %.act ${ACT_PATH}/aer/interface/interface.act ${ACT_PATH}/aer/interface/ref_interface.act
 	@mkdir -p prs
 	@printf 'compiling %s...\n' $(subst .act,,$(<F))
 	@cflat -DLAYOUT=false $< > $@ || rm -f $@	
