@@ -1,0 +1,41 @@
+import "aer/aerv/bs_aerv.act";
+
+export defproc Wrapper(aer::globals_np g_np; aer::eMx1of2<8> spk_src; aer::eMx1of2<14> mem_src;
+ aer::a1of2 syn_snk[64]; aer::eMx1of4<4> mem_snk[16])
+{
+    bool Vdd;
+    bool GND;
+    bool vpsub;
+    bool vnsub;
+    aer::globals g;
+
+    pint M_1of4 = 3;
+    pint M_1of2 = 2*M_1of4;
+    pint M_SPK_1of4 = M_1of4+1;
+    pint M_SPK_1of2 = 2*M_SPK_1of4;
+    pint M_MEM_1of4 = M_1of4+4;
+    pint M_MEM_1of2 = 2*M_MEM_1of4;
+    pint N_SYN = 64;
+    pint N_MEM = N_SYN/4;
+    BS_AERV<M_1of2, M_1of4, M_SPK_1of2, M_SPK_1of4, M_MEM_1of2, M_MEM_1of4, N_SYN, N_MEM> aerv(g,,,,);
+
+    // rails and reset
+    g.Vdd = Vdd;
+    g.GND = GND;
+    g.vpsub = vpsub;
+    g.vnsub = vnsub;
+    g_np._sReset = g.sReset;
+    g_np._pReset = g.pReset;
+    g._pReset = g_np._pReset;
+    g._sReset = g_np._sReset;
+
+    // connect src
+    spk_src = aerv.x_spk;
+    mem_src = aerv.x_mem;
+
+    // connect snk
+    syn_snk = aerv.y_syn;
+    mem_snk = aerv.y_mem;
+}
+
+Wrapper dut;
