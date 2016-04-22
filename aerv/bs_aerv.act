@@ -76,7 +76,7 @@ defproc BS_AERV (::aer::globals g; ::aer::eMx1of2<M_SPK_1of2> x_spk;
         mem_deserial[n].y.e = y_mem[n].e;
     )
     
-    ::aer::brain_receiver::HALF_BUFFER buf_syn[N_SYN]; // buffer synapse spikes
+    ::aer::brain_receiver::FULL_BUFFER buf_syn[N_SYN]; // buffer synapse spikes
     (; n : N_SYN :
         buf_syn[n].g = g;
         // connect synapse to buf_syn
