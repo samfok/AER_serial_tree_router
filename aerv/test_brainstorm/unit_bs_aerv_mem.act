@@ -1,19 +1,23 @@
-// tests that brain aerv can deliver memory packets
-import "aer/aerv/aerv.act";
+// tests that bs_aerv can deliver memory packets
+import "aer/aerv/bs_aerv.act";
+import "aer/lib/test.act";
 
-pint M     = 3;
-pint M_SPK = M+1;
-pint M_MEM = M+4;
-pint N_SYN = 64; // 4^M
+pint M_1of4     = 3;
+pint M_1of2     = 2*M_1of4;
+pint M_SPK_1of4 = M_1of4+1;
+pint M_SPK_1of2 = 2*M_SPK_1of4;
+pint M_MEM_1of4 = M_1of4+4;
+pint M_MEM_1of2 = 2*M_MEM_1of4;
+pint N_SYN = 64; // 4**M_1of4
 pint N_MEM = N_SYN/4;
 pint D     = 4;
 
-::aer::globals g;
+aer::globals g;
 bool Reset = g.sReset;
-::aer::SINK_e1ofN<2> spk_snk[N_SYN];
-::aer::SINK_eMx1ofN<M_MEM-M, D> mem_snk[N_MEM];
+aer::SINK_e1ofN<2> spk_snk[N_SYN];
+aer::SINK_eMx1ofN<M_MEM_1of4-M_1of4, D> mem_snk[N_MEM];
 
-::aer::a1of2 y_syn[N_SYN];
+aer::a1of2 y_syn[N_SYN];
 (; n : N_SYN :
     spk_snk[n].g = g;
     spk_snk[n].d.d = y_syn[n].d;
@@ -22,23 +26,22 @@ bool Reset = g.sReset;
     }
 )
 
-::aer::eMx1of4<M_MEM-M> y_mem[N_MEM];
+aer::eMx1of4<M_MEM_1of4-M_1of4> y_mem[N_MEM];
 (; n : N_MEM :
     mem_snk[n].g = g;
-    (; m : M_MEM - M :
+    (; m : M_MEM_1of4 - M_1of4 :
         mem_snk[n].d.m[m].d = y_mem[n].m[m].d;
     )
     mem_snk[n].d.e = y_mem[n].e;
 )
 
-::aer::eMx1of4<M_SPK> spk_src;
-::aer::eMx1of2<2*M_MEM> mem_src;
-(; m : M_SPK:
-    (; n : D :
+aer::eMx1of2<M_SPK_1of2> spk_src;
+aer::eMx1of2<M_MEM_1of2> mem_src;
+(; m : M_SPK_1of2:
+    (; n : 2 :
         spk_src.m[m].n[n] = g.GND;
     )
 )
-::aer::eMx1of2_to_eMx1of4<2*M_MEM, M_MEM> mem_src_(g, mem_src,);
 
-::aer::BRAIN_AERV<M, M_SPK, M_MEM, N_SYN, N_MEM> aerv(
-    g, spk_src, mem_src_.y, y_syn, y_mem);
+BS_AERV<M_1of2, M_1of4, M_SPK_1of2, M_SPK_1of4, M_MEM_1of2, M_MEM_1of4, N_SYN, N_MEM> aerv(
+    g, spk_src, mem_src, y_syn, y_mem);
