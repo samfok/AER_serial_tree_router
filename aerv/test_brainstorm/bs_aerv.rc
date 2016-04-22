@@ -1,0 +1,82 @@
+random
+break-on-warn
+
+mode reset
+set g.Vdd 1
+set g.GND 0
+set g.vpsub 1
+set g.vnsub 0
+set g._sReset 0
+set g.sReset 1
+set g._pReset 1
+set g.pReset 0
+
+cycle
+
+set g._pReset 0
+set g.pReset 1
+
+cycle
+
+# watchall
+
+mode run
+set g._pReset 1
+set g.pReset 0
+
+cycle
+
+set g._sReset 1
+set g.sReset 0
+
+status X
+
+vector spk_src0 :1ofN 4 spk_src.d.m[0].n[0] spk_src.d.m[0].n[1] spk_src.d.m[0].n[2] spk_src.d.m[0].n[3]
+vector spk_src1 :1ofN 4 spk_src.d.m[1].n[0] spk_src.d.m[1].n[1] spk_src.d.m[1].n[2] spk_src.d.m[1].n[3]
+vector spk_src2 :1ofN 2 spk_src.d.m[2].n[0] spk_src.d.m[2].n[1]
+vector spk_src3 :1ofN 4 spk_src.d.m[3].n[0] spk_src.d.m[3].n[1] spk_src.d.m[3].n[2] spk_src.d.m[3].n[3]
+vwatch spk_src0
+vwatch spk_src1
+vwatch spk_src2
+vwatch spk_src3
+vector spk_src00 :1ofN 2 spk_src_4to2.y.m[0].n[0] spk_src_4to2.y.m[0].n[1]
+vector spk_src01 :1ofN 2 spk_src_4to2.y.m[1].n[0] spk_src_4to2.y.m[1].n[1]
+vector spk_src10 :1ofN 2 spk_src_4to2.y.m[2].n[0] spk_src_4to2.y.m[2].n[1]
+vector spk_src11 :1ofN 2 spk_src_4to2.y.m[3].n[0] spk_src_4to2.y.m[3].n[1]
+vector spk_src20 :1ofN 2 spk_src_4to2.y.m[4].n[0] spk_src_4to2.y.m[4].n[1]
+vector spk_src21 :1ofN 2 spk_src_4to2.y.m[5].n[0] spk_src_4to2.y.m[5].n[1]
+vector spk_src30 :1ofN 2 spk_src_4to2.y.m[6].n[0] spk_src_4to2.y.m[6].n[1]
+vector spk_src31 :1ofN 2 spk_src_4to2.y.m[7].n[0] spk_src_4to2.y.m[7].n[1]
+vwatch spk_src00
+vwatch spk_src01
+vwatch spk_src10
+vwatch spk_src11
+vwatch spk_src20
+vwatch spk_src21
+vwatch spk_src30
+vwatch spk_src31
+
+
+vector mem_src0 :1ofN 4 mem_src.d.m[0].n[0] mem_src.d.m[0].n[1] mem_src.d.m[0].n[2] mem_src.d.m[0].n[3]
+vector mem_src1 :1ofN 4 mem_src.d.m[1].n[0] mem_src.d.m[1].n[1] mem_src.d.m[1].n[2] mem_src.d.m[1].n[3]
+vector mem_src2 :1ofN 1 mem_src.d.m[2].n[2]
+vector mem_src3 :1ofN 4 mem_src.d.m[3].n[0] mem_src.d.m[3].n[1] mem_src.d.m[3].n[2] mem_src.d.m[3].n[3]
+vector mem_src4 :1ofN 4 mem_src.d.m[4].n[0] mem_src.d.m[4].n[1] mem_src.d.m[4].n[2] mem_src.d.m[4].n[3]
+vector mem_src5 :1ofN 4 mem_src.d.m[5].n[0] mem_src.d.m[5].n[1] mem_src.d.m[5].n[2] mem_src.d.m[5].n[3]
+vector mem_src6 :1ofN 4 mem_src.d.m[6].n[0] mem_src.d.m[6].n[1] mem_src.d.m[6].n[2] mem_src.d.m[6].n[3]
+vwatch mem_src0
+vwatch mem_src1
+vwatch mem_src2
+vwatch mem_src3
+vwatch mem_src4
+vwatch mem_src5
+vwatch mem_src6
+
+vector merge_x0 :1ofN 4 aerv.merge.x[0].d[0] aerv.merge.x[0].d[1] aerv.merge.x[0].d[2] aerv.merge.x[0].d[3]
+vector merge_x1 :1ofN 4 aerv.merge.x[1].d[0] aerv.merge.x[1].d[1] aerv.merge.x[1].d[2] aerv.merge.x[1].d[3]
+vector merge_y :1ofN 4 aerv.merge.y.d[0] aerv.merge.y.d[1] aerv.merge.y.d[2] aerv.merge.y.d[3]
+vwatch merge_x0
+vwatch merge_x1
+vwatch merge_y
+
+advance 1000100000

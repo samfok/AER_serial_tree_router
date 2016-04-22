@@ -1,0 +1,122 @@
+// This file defines a modified brainstorm receiver that
+// uses the serializer defined in the brainstorm repository
+// This code only compiles when this aer repository is located
+// as a subdirectory of the brainstorm repository, namely in
+// brainstorm/act
+import "aer/aerv/aerv.act";
+import "core/serializer/AERSerializer.act";
+import "aer/lib/compat_bs.act";
+
+export
+template <pint M_1of2, M_1of4, M_SPK_1of2, M_SPK_1of4, M_MEM_1of2, M_MEM_1of4, N_SYN, N_MEM>
+defproc BS_AERV (::aer::globals g; ::aer::eMx1of2<M_SPK_1of2> x_spk; 
+                    ::aer::eMx1of2<M_MEM_1of2> x_mem;
+                    ::aer::a1of2 y_syn[N_SYN]; ::aer::eMx1of4<M_MEM_1of4-M_1of4> y_mem[N_MEM]) {
+    // modified braindrop / brainstorm receiver system that uses
+    // the serializer defined in the brainstorm repository
+    // M tree depth
+    //     M_1of4 = 5 (in production)
+    // M_SPK packet length of spike to deliver to synapse.
+    //     M_SPK_1of4 = M_1of4+1
+    //     M_SPK_1of2 = 2*M_1of4 + 2
+    //     M_SPK_1of2 = 12 (in production)
+    // M_MEM packet length to write config memory
+    //     M_MEM_1of4 = M_1of4 + memory_pacekt_1of4_length
+    //     M_MEM_1of2 = 2*M_1of4 + 2 * memory_packet_1of4_length
+    //     M_MEM_1of2 = 18 (in production)
+    // N_SYN synapses
+    //     N_SYN = 4^M_1of4
+    //     N_SYN = 1024 (in production)
+    // N_MEM configuration memories
+    //     N_MEM = 4^(M_1of4-1)
+    //     N_MEM = 256 (in production)
+    [ (M_1of4*2) != M_1of2 ->
+        1 = 0;
+    ]
+    [ (M_SPK_1of4*2) != M_SPK_1of2 ->
+        1 = 0;
+    ]
+    [ (M_MEM_1of4*2) != M_MEM_1of2 ->
+        1 = 0;
+    ]
+    pint F_INT = 4;
+    pint F_LEAF = 3;
+    pint D = 4;
+    pint AERV_TGTS = N_SYN/2 + N_MEM;
+
+    globals g_bs;
+    ::compat_bs::globals g_compat(g, g_bs);
+
+    serializer::AERSERN<M_SPK_1of2> serial_spk(g_bs,,,,);
+    serializer::AERSERN<M_MEM_1of2> serial_mem(g_bs,,,,);
+
+    ::compat_bs::eMx1of2<M_SPK_1of2> serial_spk_I(x_spk, serial_spk.I);
+    ::compat_bs::eMx1of2<M_MEM_1of2> serial_mem_I(x_mem, serial_mem.I);
+
+    bool merge_xp[2];
+    bool merge_xo[2];
+    ::aer::c1of<D> merge_x[2];
+    merge_xp[0] = serial_spk.Op;
+    merge_xp[1] = serial_mem.Op;
+    merge_xo[0] = serial_spk.Oe;
+    merge_xo[1] = serial_mem.Oe;
+    ::compat_bs::d1of<D> serial_spk_Od(, serial_spk.Od);
+    ::compat_bs::d1of<D> serial_mem_Od(, serial_mem.Od);
+    merge_x[0].d = serial_spk_Od.aer.d;
+    merge_x[1].d = serial_mem_Od.aer.d;
+
+    ::aer::interface::SERIAL_MERGE<2, D> merge(g, merge_xp, merge_xo,,, merge_x,);
+
+    ::aer::interface::DESERIAL_RING<M_MEM_1of4-M_1of4, D> mem_deserial[N_MEM];
+    (; n : N_MEM :
+        mem_deserial[n].g = g;
+        (; m : M_MEM_1of4 - M_1of4 :
+            mem_deserial[n].y.m[m].d = y_mem[n].m[m].d;
+        )
+        mem_deserial[n].y.e = y_mem[n].e;
+    )
+    
+    ::aer::brain_receiver::HALF_BUFFER buf_syn[N_SYN]; // buffer synapse spikes
+    (; n : N_SYN :
+        buf_syn[n].g = g;
+        // connect synapse to buf_syn
+        buf_syn[n].y = y_syn[n];
+    )
+    ::aer::brain_receiver::MERGE_ACK<2> ack_syn[N_SYN/2]; // ack syns
+    ::aer::brain_receiver::MERGE_ACK<1> ack_mem[N_SYN/4]; // ack mems
+    bool aerv__yi[AERV_TGTS];
+    bool aerv_yp[AERV_TGTS];
+    (; n : N_SYN/2 :
+        ack_syn[n].g = g;
+        // connect buf_syn ack to ack_syn
+        ack_syn[n].ci[0] = buf_syn[2*n].x.a;
+        ack_syn[n].ci[1] = buf_syn[2*n+1].x.a;
+    )
+    (; n : N_SYN/4 :
+        ack_mem[n].g = g;
+        // connect aerv pphi to ack_syn 
+        ack_syn[2*n].pp = aerv_yp[3*n];
+        ack_syn[2*n+1].pp = aerv_yp[3*n+1];
+        // connect ack_syn ack to aerv
+        ack_syn[2*n]._po = aerv__yi[3*n];
+        ack_syn[2*n+1]._po = aerv__yi[3*n+1];
+        // connect mem ack to ack_mem
+        ack_mem[n].ci[0] = mem_deserial[n].x.a;
+        // connect aerv pphi to ack_mem
+        ack_mem[n].pp = aerv_yp[3*n+2];
+        // connect ack_mem ack to aerv
+        ack_mem[n]._po = aerv__yi[3*n+2];
+    )
+
+    ::aer::c1of<D> aerv_y[AERV_TGTS];
+    (; n : AERV_TGTS/3 :
+        aerv_y[3*n].d[0..1] = buf_syn[4*n].x.d;
+        aerv_y[3*n].d[2..3] = buf_syn[4*n+1].x.d;
+        aerv_y[3*n+1].d[0..1] = buf_syn[4*n+2].x.d;
+        aerv_y[3*n+1].d[2..3] = buf_syn[4*n+3].x.d;
+        aerv_y[3*n+2].d = mem_deserial[n].x.d;
+    )
+
+    ::aer::AERV<M_1of4, F_INT, F_LEAF, AERV_TGTS, D> aerv(
+        g, aerv__yi, aerv_yp, merge.yp, merge.yi, aerv_y, merge.y);
+}

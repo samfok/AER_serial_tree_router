@@ -20,6 +20,12 @@ defproc SOURCE_BRAIN_AERV (globals g; eMx1of4<M> d) {
     // T_N values for the route tail word
     //     T_N = 2 (in production for spk packets)
     //     T_N = 1 (in production for mem packets)
+    // Example:
+    // M=4, T_PIDX=2, T_WIDX=0, T_N=2
+    // packet is 4 words long
+    // packet[2] is tail word
+    // packet[2][0] is starting index of valid values
+    // packet[2][0], packet[2][1] are valid tail word values
     SOURCE_random_e1ofN<T_N> tail_src(g,);
     SOURCE_random_eMx1of4<M-1> src(g,);
     tail_src.d.e = d.e;

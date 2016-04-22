@@ -22,7 +22,7 @@ namespace compat_bs {
 
   export
   template <pint N>
-  defproc d1ofN (::aer::d1of<N> aer;  d1of<N> bs) {
+  defproc d1of (::aer::d1of<N> aer;  d1of<N> bs) {
       aer.d = bs.d;
   }
 

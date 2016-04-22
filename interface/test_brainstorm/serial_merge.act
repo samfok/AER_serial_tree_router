@@ -25,8 +25,8 @@ serializer::AERSERN<MM[1]> serial1(g_bs,,,,);
 
 ::compat_bs::eMx1of2<MM[0]> serial0_I(src0.d, serial0.I);
 ::compat_bs::eMx1of2<MM[1]> serial1_I(src1.d, serial1.I);
-::compat_bs::d1ofN<4> serial0_Od(, serial0.Od);
-::compat_bs::d1ofN<4> serial1_Od(, serial1.Od);
+::compat_bs::d1of<4> serial0_Od(, serial0.Od);
+::compat_bs::d1of<4> serial1_Od(, serial1.Od);
 merge.x[0].d = serial0_Od.aer.d;
 merge.x[1].d = serial1_Od.aer.d;
 
