@@ -1,33 +1,33 @@
 // Tests the serial tree AER system
 
 /*CMOS implementable version-------------------------------------------------*/
-// import "aer/aer/aer.act";
-// pint M=3;
-// pint N=2;
-// pint NN=8; // NN=N^M
-// ::aer::globals g;
-// ::aer::SOURCE_random_a1of1 src[NN];
-// ::aer::passive_handshaker<NN> y(g,,);
-// ::aer::AER_NODATA<M, N, NN> aer(g,,, y.o, y.i);
-// 
-// (; nn : NN :
-//     src[nn].g = g;
-//     src[nn].d.a = aer.xo[nn];
-// )
-// prs<g.Vdd, g.GND> {
-//     (: nn : NN :
-//         src[nn].d.d => aer._xp[nn]-
-//     )
-// }
-
-/*reference version----------------------------------------------------------*/
-import "aer/aer/ref_aer.act";
-
+import "aer/aer/aer.act";
 pint M=3;
 pint N=2;
-pint NN=8;
-
+pint NN=8; // NN=N^M
 ::aer::globals g;
-::aer::active_handshaker<NN> x(g,,);
+::aer::SOURCE_random_a1of1 src[NN];
 ::aer::passive_handshaker<NN> y(g,,);
-::aer::AER_NODATA<M, N, NN> aer(g, x.o, x.i, y.o, y.i);
+::aer::AER_NODATA<M, N, NN> aer(g,,, y.o, y.i);
+
+(; nn : NN :
+    src[nn].g = g;
+    src[nn].d.a = aer.xo[nn];
+)
+prs<g.Vdd, g.GND> {
+    (: nn : NN :
+        src[nn].d.d => aer._xp[nn]-
+    )
+}
+
+/*reference version----------------------------------------------------------*/
+// import "aer/aer/ref_aer.act";
+// 
+// pint M=1;
+// pint N=4;
+// pint NN=4;
+// 
+// ::aer::globals g;
+// ::aer::active_handshaker<NN> x(g,,);
+// ::aer::passive_handshaker<NN> y(g,,);
+// ::aer::AER_NODATA<M, N, NN> aer(g, x.o, x.i, y.o, y.i);

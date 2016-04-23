@@ -1,6 +1,6 @@
 // tests that brain aerv works without deadlock, instability, or interference
 // while both spikes and memory packets are being delivered randomly
-import "aer/aerv/aerv.act";
+import "aer/aerv/ref_aerv.act";
 import "aer/lib/test.act";
 
 pint M     = 3;

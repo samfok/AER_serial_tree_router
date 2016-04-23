@@ -43,7 +43,7 @@ namespace receiver {
         // node in AERV tree
         // F fanout (radix)
         // D 1-of-D data
-        bool u[F], uu, cc[F], v;
+        bool u[F], uu, v;
         prs<g.Vdd, g.GND> {
             (| : f : F : u[f]) => uu+
 
@@ -62,12 +62,9 @@ namespace receiver {
             )
 
             (: f : F :
-                cp[f] & ci[f] => cc[f]+
-            )
-
-            (: f : F :
                 (: d : D :
-                    p.d[d] & cc[f] => c[f].d[d]+
+                    p.d[d] & cp[f] & ci[f] -> c[f].d[d]+
+                    ~p.d[d] & ~ci[f] -> c[f].d[d]-
                 )
             )
         }
