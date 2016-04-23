@@ -288,41 +288,39 @@ namespace brain_receiver {
     export
     defproc HALF_BUFFER (globals g; a1of2 x, y) {
         // prevents the synapse from holding up the receiver tree
+        // wchb providing a half cycle of buffering
         pint D = 2; // for a1of2
-        bool _ya;
+        bool _xa = x.a; // active low
+        bool _ya = y.a; // active low
         c1of2 _y;
+        c1of2 __y = y.m;
         [ ~LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                y.a => _ya-
-
-                ~_ya & (| : d : D : ~_y.d[d]) => x.a+
-
                 (: d : D :
-                    _ya & x.d[d] -> _y.d[d]-
-                    ~x.d[d] -> _y.d[d]+
+                    x.d[d] & _ya -> _y.d[d]-
+                    g.pReset | ~x.d[d] & ~_ya -> _y.d[d]+
                 )
 
                 (: d : D :
-                    _y.d[d] => y.d[d]-
+                    _y.d[d] => __y.d[d]-
                 )
+
+                (| : d : D : __y.d[d]) => _xa-
             }
         [] LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                ~y.a -> _ya+
-                y.a -> _ya-
-
-                ~_ya<9> & (| : d : D : ~_y.d[d]<9>) -> x.a+
-                _ya<6> | (& : d : D : _y.d[d]<9>) -> x.a-
-
                 (: d : D :
-                    _ya<12> & x.d[d]<12> -> _y.d[d]-
-                    ~x.d[d]<9> -> _y.d[d]+
+                    x.d[d]<9> & _ya<9> -> _y.d[d]-
+                    g.pReset | ~x.d[d]<12> & ~_ya<12> -> _y.d[d]+
                 )
 
                 (: d : D :
-                    ~_y.d[d]<9> -> y.d[d]+
-                    _y.d[d]<6> -> y.d[d]-
+                    ~_y.d[d]<9> -> __y.d[d]+
+                    _y.d[d]<6> -> __y.d[d]-
                 )
+
+                (| : d : D : __y.d[d]<6>) -> _xa-
+                (& : d : D : ~__y.d[d]<12>) -> _xa+
             }
         ]
     }
@@ -334,9 +332,15 @@ namespace brain_receiver {
         HALF_BUFFER half_buf[2];
         half_buf[0].g = g;
         half_buf[1].g = g;
-        half_buf[0].x = x;
+        half_buf[0].x.d = x.d;
         half_buf[0].y = half_buf[1].x;
-        half_buf[1].y = y;
+        half_buf[1].y.d = y.d;
+
+        // active low acks internally
+        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+            half_buf[0].x.a => x.a-
+            y.a => half_buf[1].y.a-
+        }
     }
 } // namespace brain_receiver
 

@@ -47,12 +47,15 @@ namespace receiver {
         prs<g.Vdd, g.GND> {
             (| : f : F : u[f]) => uu+
 
-            pp & ~uu | (| : f : F : cp[f] & (& : d : D : ~c[f].d[d])) => po+
+            pp & ~uu | (| : f : 2 : cp[f] & (& : d : D : ~c[f].d[d])) | ci[2] => po+
+            
 
-            (: f : F :
+            (: f : 2 :
                 p.d[f] & ~v & ~ci[f]-> u[f]+
                 g.pReset | ~pp & ci[f] -> u[f]-
             )
+            p.d[2] & ~v -> u[2]+
+            g.pReset | ~pp -> u[2]-
 
             uu & (& : f : F : ~p.d[f]) -> v+
             ~uu -> v-
@@ -61,13 +64,42 @@ namespace receiver {
                 v & u[f] => cp[f]+
             )
 
-            (: f : F :
+            (: f : 2 :
                 (: d : D :
                     p.d[d] & cp[f] & ci[f] -> c[f].d[d]+
                     ~p.d[d] & ~ci[f] -> c[f].d[d]-
                 )
             )
+            (: d : D :
+                p.d[d] & cp[2] => c[2].d[d]+
+            )
         }
+        /* ref
+            prs<g.Vdd, g.GND> {
+                (| : f : F : u[f]) => uu+
+
+                pp & ~uu | (| : f : F : cp[f] & (& : d : D : ~c[f].d[d])) => po+
+
+                (: f : F :
+                    p.d[f] & ~v & ~ci[f]-> u[f]+
+                    g.pReset | ~pp & ci[f] -> u[f]-
+                )
+
+                uu & (& : f : F : ~p.d[f]) -> v+
+                ~uu -> v-
+
+                (: f : F :
+                    v & u[f] => cp[f]+
+                )
+
+                (: f : F :
+                    (: d : D :
+                        p.d[d] & cp[f] & ci[f] -> c[f].d[d]+
+                        ~p.d[d] & ~ci[f] -> c[f].d[d]-
+                    )
+                )
+            }
+        */
     }
 
     export
@@ -151,15 +183,16 @@ namespace brain_receiver {
 
     export
     defproc HALF_BUFFER (globals g; a1of2 x, y) {
-        // provides a half cycle of buffering
+        // prevents the synapse from holding up the receiver tree
+        // wchb providing a half cycle of buffering
         pint D = 2; // for a1of2
         prs<g.Vdd, g.GND> {
-            y.a & (| : d : D : y.d[d]) => x.a+
-
             (: d : D :
-                ~y.a & x.d[d] -> y.d[d]+
-                ~x.d[d] -> y.d[d]-
+                x.d[d] & ~y.a -> y.d[d]+
+                g.pReset | ~x.d[d] & y.a -> y.d[d]-
             )
+
+            (| : d : D : y.d[d]) => x.a+
         }
     }
 
