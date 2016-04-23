@@ -69,4 +69,26 @@ defproc SINK_SERIAL (globals g; bool p, o; c1of<N> d) {
     }
 }
 
+export
+defproc SYNAPSE (globals g; a1of2 spk) {
+    // mimics the interface provided by Ben
+    bool _ENPU, PULSE, s, Vm;
+    bool _PULSE;
+
+    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+        _ENPU => Vm-
+    
+        Vm => _PULSE-
+        _PULSE => PULSE-
+    
+        (spk.d[0] | spk.d[1]) & s -> _ENPU-
+        ~spk.d[0] & ~spk.d[1] | ~s -> _ENPU+
+    
+        PULSE -> s-
+        ~PULSE & ~spk.d[0] & ~spk.d[1] -> s+
+    
+        ~s & ~PULSE -> spk.a+
+        s | PULSE -> spk.a-
+    }
+}
 } // namespace aer
