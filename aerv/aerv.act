@@ -298,7 +298,7 @@ namespace brain_receiver {
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                 (: d : D :
                     x.d[d] & _ya -> _y.d[d]-
-                    g.pReset | ~x.d[d] & ~_ya -> _y.d[d]+
+                    ~g._pReset | ~x.d[d] & ~_ya -> _y.d[d]+
                 )
 
                 (: d : D :
@@ -311,7 +311,7 @@ namespace brain_receiver {
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                 (: d : D :
                     x.d[d]<9> & _ya<9> -> _y.d[d]-
-                    g.pReset | ~x.d[d]<12> & ~_ya<12> -> _y.d[d]+
+                    ~g._pReset | ~x.d[d]<12> & ~_ya<12> -> _y.d[d]+
                 )
 
                 (: d : D :
