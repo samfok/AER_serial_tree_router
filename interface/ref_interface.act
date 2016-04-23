@@ -5,6 +5,8 @@ import "aer/lib/channel.act";
 import "aer/lib/arbiter.act";
 import "aer/lib/logic.act";
 
+namespace aer {
+
 namespace interface {
     export
     template <pint N | pint M>
@@ -139,11 +141,13 @@ namespace interface {
         // merges aext/aerv protocol serial streams
         // M client streams to merge
         // N 1-of-N data
-        ::arbiter::N_ARB_S_PREQ<M> arb_req(g, xp, xo, yi, yp);
+        ::aer::arbiter::N_ARB_S_PREQ<M> arb_req(g, xp, xo, yi, yp);
         prs<g.Vdd, g.GND> {
             (: n : N :
                 (| : m : M : x[m].d[n]) => y.d[n]+
             )
         }
     }
+}
+
 }

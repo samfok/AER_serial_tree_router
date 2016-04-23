@@ -38,6 +38,42 @@ namespace receiver {
     }
 
     export
+    template <pint F, D>
+    defproc LEAF (globals g; bool pp, po, ci[F], cp[F]; c1of<D> p, c[F]) {
+        // node in AERV tree
+        // F fanout (radix)
+        // D 1-of-D data
+        bool u[F], uu, cc[F], v;
+        prs<g.Vdd, g.GND> {
+            (| : f : F : u[f]) => uu+
+
+            pp & ~uu | (| : f : F : cp[f] & (& : d : D : ~c[f].d[d])) => po+
+
+            (: f : F :
+                p.d[f] & ~v & ~ci[f]-> u[f]+
+                g.pReset | ~pp & ci[f] -> u[f]-
+            )
+
+            uu & (& : f : F : ~p.d[f]) -> v+
+            ~uu -> v-
+
+            (: f : F :
+                v & u[f] => cp[f]+
+            )
+
+            (: f : F :
+                cp[f] & ci[f] => cc[f]+
+            )
+
+            (: f : F :
+                (: d : D :
+                    p.d[d] & cc[f] => c[f].d[d]+
+                )
+            )
+        }
+    }
+
+    export
     template <pint N>
     defproc LEAF_NODATA (globals g; bool pp, po, ci[N], cp[N]; c1of<N> p) {
         // leaf of AERV tree that does not transmit data
@@ -66,7 +102,7 @@ defproc AERV (globals g; bool yi[T], yp[T], pp, po; c1of<D> y[T], p) {
     // D 1-of-D data
     [ M = 1 ->
         T = F_LEAF;
-        receiver::NODE<F_LEAF, D> leaf(g, pp, po, yi, yp, p, y);
+        receiver::LEAF<F_LEAF, D> leaf(g, pp, po, yi, yp, p, y);
     [] M > 1 ->
         AERV<M-1, F_INT, F_LEAF, T/F_INT, D> _[F_INT];
         receiver::NODE<F_INT, D> node(g, pp, po,,, p,);
