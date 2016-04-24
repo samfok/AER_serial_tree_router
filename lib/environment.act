@@ -159,6 +159,13 @@ defproc SOURCE_random_e1of1 (globals g; e1of1 d) {
 }
 
 export
+defproc SINK_e1of2 (globals g; e1of2 d) {
+    SINK_eMx1ofN<1, 2> snk(g,);
+    snk.d.m[0].d = d.d;
+    snk.d.e = d.e;
+}
+
+export
 template <pint N>
 defproc SINK_e1ofN (globals g; e1of<N> d) {
     SINK_eMx1ofN<1, N> snk(g,);

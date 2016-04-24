@@ -1450,50 +1450,27 @@ MERGE ACK (2) accounting:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{AERV HALF BUF \label{sec:AERV_HALF_BUF}}
 
-The HALF BUF provides half a cycle of slack between the receiver and the
-synapse. 
-
-\subsubsection*{HSE}
+The HALF BUF is a WCHB and provides half a cycle of slack between the receiver
+and the synapse. 
 
 \begin{hse}
-*[[X];Y+;[ya];xa+;[~X];Y-;xa-;[~ya]]
+*[xe+;[X&ye];Y+;xe-;[~X&~ye];Y-]
 \end{hse}
 
-\subsubsection*{PRS}
+\begin{prs}
+~y0 & ~y1 -> xe+
+y0 | y1 -> xe-
+\end{prs}
 
 \begin{prs2}
-ya & (y0 | y1) -> xa+
-~ya | ~y0 & ~y1 -> xa-
-\end{prs2}
+x0 & ye -> y0+
+~x0 & ~ye -> y0-
 
-\begin{prs2}
-~ya & x0 -> y0+
-~x0 -> y0-
-
-~ya & x1 -> y1+
-~x1 -> y1-
+x1 & ye -> y1+
+~x1 & ~ye -> y1-
 \end{prs2}
 
 \subsubsection*{CMOS-implementable PRS}
-
-
-\begin{prs2}
-~ya -> _ya+
-ya -> _ya-
-\end{prs2}
-
-\begin{prs2}
-~_ya & (~_y0 | ~_y1) -> xa+
-_ya | _y0 & _y1 -> xa-
-\end{prs2}
-
-\begin{prs2}
-_ya & x0 -> _y0-
-~x0 -> _y0+
-
-_ya & x1 -> _y1-
-~x1 -> _y1+
-\end{prs2}
 
 \begin{prs2}
 ~_y0 -> __y0+
@@ -1503,6 +1480,19 @@ _y0 -> __y0-
 _y1 -> __y1-
 \end{prs2}
 
+\begin{prs2}
+~__y0 & ~__y1 -> xe+
+__y0 | __y1 -> xe-
+\end{prs2}
+
+\begin{prs2}
+x0 & ye -> _y0-
+~x0 & ~ye -> _y0+
+
+x1 & ye -> _y1-
+~x1 & ~ye -> _y1+
+\end{prs2}
+
 \noindent
 Accounting:
 
@@ -1510,11 +1500,10 @@ Accounting:
     \begin{tabular}{|r|l|l|}
     \hline
     rule & transistor count & comments \\ \hline
-    $\_y_a$ & 2 & \\ \hline
-    $x_a$ & 6 & \\ \hline
-    $\_y[0,1]$ & 6 & staticized by $\_\_y[0,1]$ \\ \hline
     $\_\_y[0,1]$ & 8 & staticizes $\_y[0,1]$ \\ \hline
-    \hline total & 22 & \\ \hline
+    $\_y[0,1]$ & 8 & staticized by $\_\_y[0,1]$ \\ \hline
+    $\_x_e$ & 4 & \\ \hline
+    \hline total & 20 & \\ \hline
     \end{tabular}
 \end{center}
 
