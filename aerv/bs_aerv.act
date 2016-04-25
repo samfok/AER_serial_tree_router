@@ -62,12 +62,12 @@ defproc BS_AERV (aer::globals g; aer::eMx1of2<M_SPK_1of2> x_spk;
     aer::interface::SERIAL_MERGE<2, D> merge(g, merge_xp, merge_xo,,, merge_x,);
     bool aerv_pp = merge.yp;
     bool aerv_po = merge.yi;
-    c1of<D> aerv_p = merge.y;
+    aer::c1of<D> aerv_p = merge.y;
     
-    brain_receiver::DESERIALIZER<M_MEM_1of4-M_1of4> mem_deserial[N_MEM];
+    aer::brain_receiver::DESERIALIZER<M_MEM_1of4-M_1of4> mem_deserial[N_MEM];
     bool aerv_cp[Mp4];
     bool aerv_ci[Mp4];
-    c1of4 aerv_mem[N_MEM];
+    aer::c1of4 aerv_mem[N_MEM];
     (; n : N_MEM :
         mem_deserial[n].g = g;
         mem_deserial[n].xp = aerv_cp[n*4+2]; // connect deserial to aerv
@@ -77,13 +77,13 @@ defproc BS_AERV (aer::globals g; aer::eMx1of2<M_SPK_1of2> x_spk;
     )
 
     aer::brain_receiver::HALF_BUFFER buf_syn[N_SYN]; // buffer synapse spikes
-    e1of2 aerv_syn[N_SYN];
+    aer::e1of2 aerv_syn[N_SYN];
     (; n : N_SYN :
         buf_syn[n].g = g;
         buf_syn[n].x = aerv_syn[n]; // connect buf_syn to aerv
         buf_syn[n].y = y_syn[n]; // connect buf_syn to synapse
     )
 
-    AERV<M_1of4, Mp4, N_SYN, N_MEM> aerv(
+    aer::AERV<M_1of4, Mp4, N_SYN, N_MEM> aerv(
         g, aerv_pp, aerv_po, aerv_cp, aerv_ci, aerv_p, aerv_syn, aerv_mem);
 }
