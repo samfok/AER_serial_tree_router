@@ -1386,6 +1386,206 @@ po -> _po-
 \end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{AERV LEAF \label{sec:AERV_LEAF}}
+
+We designed a custom leaf because the synapse needed buffering.
+
+\subsubsection*{HSE}
+
+\begin{hse}
+*[[p\phi->po+;
+    [p0->u0+;uu+;po-;[~p0];v+;c0\phi+;po+
+    []p1->u1+;uu+;po-;[~p1];v+;c1\phi+;po+
+    []p2->u2+;uu+;po-;[~p2];v+;c2\phi+;[c2i];po+
+    ]
+  []p0&c0\phi->[c00e];c000+;po-;[~c00e&~p0];c000-;po+;
+  []p1&c0\phi->[c00e];c001+;po-;[~c00e&~p1];c001-;po+;
+  []p2&c0\phi->[c01e];c010+;po-;[~c01e&~p2];c010-;po+;
+  []p3&c0\phi->[c01e];c011+;po-;[~c01e&~p3];c011-;po+;
+  []p0&c1\phi->[c10e];c100+;po-;[~c10e&~p0];c100-;po+;
+  []p1&c1\phi->[c10e];c101+;po-;[~c10e&~p1];c101-;po+;
+  []p2&c1\phi->[c11e];c100+;po-;[~c11e&~p2];c110-;po+;
+  []p3&c1\phi->[c11e];c101+;po-;[~c11e&~p3];c111-;po+;
+  []p0&c2\phi->;c20+;[~c2i];po-;[~p0];c20-;[c2i];po+;
+  []p1&c2\phi->;c21+;[~c2i];po-;[~p1];c21-;[c2i];po+;
+  []p2&c2\phi->;c22+;[~c2i];po-;[~p2];c22-;[c2i];po+;
+  []p3&c2\phi->;c23+;[~c2i];po-;[~p3];c23-;[c2i];po+;
+  []~p\phi&c0\phi->u0-;(uu-;v-),(c0\phi-;po-)
+  []~p\phi&c1\phi->u1-;(uu-;v-),(c1\phi-;po-)
+  []~p\phi&c2\phi->u2-;(uu-;v-),(c2\phi-;[~c2i];po-)
+ ]]
+\end{hse}
+
+\subsubsection*{PRS}
+
+\begin{prs2}
+u0 | u1 | u2 -> uu+
+~u0 & ~u1 & ~u2 -> uu-
+\end{prs2}
+
+\begin{prs2}
+pp & ~uu | c0\phi & ~c0[0,1][0,1] | c1\phi & ~c1[0,1][0,1] | c2i -> po+
+(~pp | uu) & (~c0\phi | c0[0,1][0,1]) & (~c1\phi | c1[0,1][0,1]) & ~c2i -> po-
+\end{prs2}
+
+\begin{prs2}
+p[0,1,2] & ~v -> u[0,1,2]+
+~p\phi -> u[0,1,2]-
+\end{prs2}
+
+\begin{prs2}
+uu & ~p[0,1,2] -> v+
+~uu -> v-
+\end{prs2}
+
+\begin{prs2}
+v & u[0,1,2] -> c[0,1,2]\phi+
+~v | ~u[0,1,2] -> c[0,1,2]\phi-
+\end{prs2}
+
+\begin{prs2}
+p0 & c[0,1]\phi & c[0,1]0e -> c[0,1]00+
+~p0 & ~c[0,1]0e -> c[0,1]00-
+
+p1 & c[0,1]\phi & c[0,1]0e -> c[0,1]01+
+~p1 & ~c[0,1]0e -> c[0,1]01-
+
+p2 & c[0,1]\phi & c[0,1]0e -> c[0,1]10+
+~p2 & ~c[0,1]0e -> c[0,1]10-
+
+p3 & c[0,1]\phi & c[0,1]1e -> c[0,1]11+
+~p3 & ~c[0,1]1e -> c[0,1]11-
+\end{prs2}
+
+\begin{prs2}
+p[0,1,2,3] & c2\phi -> c2[0,1,2,3]+
+~p[0,1,2,3] | ~c2\phi -> c2[0,1,2,3]-
+\end{prs2}
+
+\noindent
+approximate accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $uu$ & 6 & \\ \hline
+    $p_o$ & 26 & \\ \hline
+    $u[0,1,2]$ & 21 & \\ \hline
+    $v$ & 9 & \\ \hline
+    $c[0,1,2]\phi$ & 12 & \\ \hline
+    $c[0,1][0,1][0,1]$ & 72 & \\ \hline
+    $c2[0,1,2,3]$ & 16 & \\
+    \hline total & 162 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\subsubsection*{CMOS-implementable PRS}
+
+\begin{prs2}
+~__u0 | ~_u1 | ~_u2 -> uu+
+_u0 & _u1 & _u2 -> uu-
+\end{prs2}
+
+\begin{prs2}
+~uu -> _uu+
+uu -> _uu-
+\end{prs2}
+
+\begin{prs2}
+p\phi & _uu | c0\phi & _c0[0,1][0,1] | c1\phi & _c1[0,1][0,1] | c2i -> _po-
+(~p\phi | ~_uu) & (~c0\phi | ~_c0[0,1][0,1]) & (~c1\phi | ~_c1[0,1][0,1]) & ~c2i -> _po+
+\end{prs2}
+
+\begin{prs2}
+~v -> _v+
+v -> _v-
+\end{prs2}
+
+\begin{prs2}
+p[0,1,2] & _v -> _u[0,1,2]-
+~p\phi -> _u[0,1,2]+
+\end{prs2}
+
+\begin{prs2}
+~_uu & ~p[0,1,2] -> v+
+_uu -> v-
+\end{prs2}
+
+\begin{prs2}
+~_v & ~_u[0,1,2] -> c[0,1,2]\phi+
+_v | _u[0,1,2] -> c[0,1,2]\phi-
+\end{prs2}
+
+\begin{prs2}
+p0 & c[0,1]\phi & c[0,1]0e -> _c[0,1]00-
+~p0 & ~c[0,1]0e -> _c[0,1]00+
+
+p1 & c[0,1]\phi & c[0,1]0e -> _c[0,1]01-
+~p1 & ~c[0,1]0e -> _c[0,1]01+
+
+p2 & c[0,1]\phi & c[0,1]0e -> _c[0,1]10-
+~p2 & ~c[0,1]0e -> _c[0,1]10+
+
+p3 & c[0,1]\phi & c[0,1]1e -> _c[0,1]11-
+~p3 & ~c[0,1]1e -> _c[0,1]11+
+\end{prs2}
+
+\begin{prs2}
+p[0,1,2,3] & c2\phi -> _c2[0,1,2,3]-
+~p[0,1,2,3] | ~c2\phi -> _c2[0,1,2,3]+
+\end{prs2}
+
+% interface inverters
+
+\begin{prs2}
+~_p\phi -> p\phi+
+_p\phi -> p\phi-
+\end{prs2}
+
+\begin{prs2}
+~_c[0,1]00 -> __c[0,1]00+
+_c[0,1]00 -> __c[0,1]00-
+
+~_c[0,1]01 -> __c[0,1]01+
+_c[0,1]01 -> __c[0,1]01-
+
+~_c[0,1]10 -> __c[0,1]10+
+_c[0,1]10 -> __c[0,1]10-
+
+~_c[0,1]11 -> __c[0,1]11+
+_c[0,1]11 -> __c[0,1]11-
+\end{prs2}
+
+\begin{prs2}
+~_c2[0,1,2,3] -> __c2[0,1,2,3]+
+_c2[0,1,2,3] -> __c2[0,1,2,3]-
+\end{prs2}
+
+\noindent
+accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $uu$ & 6 & \\ \hline
+    $\_uu$ & 2 & \\ \hline
+    $\_p_o$ & 26 & \\ \hline
+    $\_v$ & 2 & \\ \hline
+    $\_u[0,1,2]$ & 21 & \\ \hline
+    $v$ & 9 & \\ \hline
+    $c[0,1,2]\phi$ & 12 & \\ \hline
+    $\_c[0,1][0,1][0,1]$ & 40 & staticized by $\_\_c[0,1][0,1][0,1]$ \\ \hline
+    $\_c2[0,1,2,3]$ & 16 & \\
+    $p\phi$ & 2 & \\
+    $\_c[0,1][0,1][0,1]$ & 32 & staticizes $\_c[0,1][0,1][0,1]$ \\ \hline
+    $\_\_c2[0,1,2,3]$ & 8 & \\ \hline
+    \hline total & 176 & \\ \hline
+    \end{tabular}
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{AERV MERGE ACK \label{sec:AERV_MERGE_ACK}}
 
 The MERGE ACK process merges the $\phi$ communications at the receiver leaves
@@ -1404,46 +1604,32 @@ with the acknowledges from the synapses or deserializer.
 \subsubsection*{PRS}
 
 \begin{prs}
-p\phi & ~c0i & ~c1i -> po+
-~p\phi | c0i | c1i -> po-
+p\phi & ~c0i -> po+
+~p\phi | c0i -> po-
 \end{prs}
 
 \subsubsection*{CMOS-implementable PRS}
 
 \begin{prs2}
-~c0i & ~c1i -> c+
-c0i | c1i -> c-
+~p\phi -> _p\phi+
+p\phi -> _p\phi-
+\end{prs2}
 
-p\phi & c -> _po-
-~p\phi | ~c -> _po+
+\begin{prs2}
+~_p\phi & ~c0i -> po+
+_p\phi | c0i -> po-
 \end{prs2}
 
 \noindent
-The size of the $c$ gate grows with the number of child acknowledges to merge. \\
-
-\noindent
-MERGE ACK (1) accounting:
+accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
     \hline
     rule & transistor count & comments \\ \hline
-    $c$ & 2 & \\ \hline
+    $\_p\phi$ & 2 & \\ \hline
     $\_po$ & 4 & \\ \hline
     \hline total & 6 & \\ \hline
-    \end{tabular}
-\end{center}
-
-\noindent
-MERGE ACK (2) accounting:
-
-\begin{center}
-    \begin{tabular}{|r|l|l|}
-    \hline
-    rule & transistor count & comments \\ \hline
-    $c$ & 4 & \\ \hline
-    $\_po$ & 4 & \\ \hline
-    \hline total & 8 & \\ \hline
     \end{tabular}
 \end{center}
 

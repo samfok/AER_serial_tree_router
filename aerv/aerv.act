@@ -146,6 +146,76 @@ namespace receiver {
     }
 
     export
+    defproc LEAF (globals g; bool _pp, _po, cp[4], ci[4]; c1of<4> p; e1of2 syn[4]; c1of4 mem) {
+        // node in AERV tree
+        pint D = 4; // 1-of-D data
+        pint F = 3; // fanout ports
+        bool pp, _u[F], uu, _uu, v, _v;
+        e1of2 syn_[2][2];
+        (; c : 2 : (; s : 2 : syn_[c][s] = syn[2*c+s];))
+        c1of2 _syn_d[2][2];
+        c1of4 _mem;
+        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+            (| : f : F : ~_u[f]) => uu+
+
+            uu => _uu-
+
+            pp & _uu |
+            (|:c:2: cp[c] & (&:s:2: (&:d:2: _syn_d[c][s].d[d]))) | ci[2] => _po-
+
+            v => _v-
+            
+            (: f : F :
+                p.d[f] & _v -> _u[f]-
+                ~pp -> _u[f]+
+            )
+
+            uu & (& : f : F : ~p.d[f]) -> v+
+            ~uu -> v-
+
+            (: f : F :
+                ~_v & ~_u[f] => cp[f]+
+            )
+
+            (: c : 2 :
+                (: s : 2 :
+                    (: d : 2 :
+                        p.d[2*s+d] & cp[c] & syn_[c][s].e -> _syn_d[c][s].d[d]-
+                        g.pReset | ~p.d[2*s+d] & ~syn_[c][s].e -> _syn_d[c][s].d[d]+
+                    )
+                )
+            )
+
+            (: d : D :
+                p.d[d] & cp[2] => _mem.d[d]-
+            )
+        }
+        // inverters for interfaces
+        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+            _pp => pp-
+
+            (: c : 2 :
+                (: s : 2 :
+                    (: d : 2 :
+                        _syn_d[c][s].d[d] => syn_[c][s].d[d]-
+                    )
+                )
+            )
+
+            (: d : D :
+                _mem.d[d] => mem.d[d]-
+            )
+
+        }
+
+        // ground dummy nodes
+        ci[0] = g.GND;
+        ci[1] = g.GND;
+        ci[3] = g.GND;
+        cp[3] = g.GND;
+    }
+
+    export
     template <pint N>
     defproc LEAF_NODATA (globals g; bool pp, po, ci[N], cp[N]; c1of<N> p) {
         // AERV tree LEAF that does not transmit data
@@ -175,23 +245,32 @@ namespace receiver {
     }
 
     export
-    template <pint M, F_INT, F_LEAF, T, D>
-    defproc AERV_ (globals g; bool _yi[T], _yp[T], _pp, _po; c1of<D> y[T], p) {
+    template <pint M, Mp4, N_SYN, N_MEM>
+    defproc AERV_ (globals g; bool _pp, _po, cp[Mp4], ci[Mp4]; c1of<4> p; e1of2 syn[N_SYN]; c1of4 mem[N_MEM]) {
         // utility for AERV
+        pint D = 4; // 1-of-D data
+        pint F = 4; // fanout for intermediate nodes
         [ M = 1 ->
-            NODE<F_LEAF, D> leaf(g, _pp, _po, _yi, _yp, p, y);
+            N_SYN = 4; // assert
+            N_MEM = 1; // assert
+            Mp4 = 4; // assert
+            LEAF leaf(g, _pp, _po, cp, ci, p, syn, mem[0]);
         [] M > 1 ->
-            AERV_<M-1, F_INT, F_LEAF, T/F_INT, D> _[F_INT];
-            NODE<F_INT, D> node(g, _pp, _po,,, p,);
-            pint k = T/F_INT;
-            (; f : F_INT :
+            N_MEM*4 = N_SYN; // assert
+            pint k = Mp4/4;
+            pint k_syn = N_SYN/4;
+            pint k_mem = N_MEM/4;
+            AERV_<M-1, k, k_syn, k_mem> _[F];
+            NODE<F, D> node(g, _pp, _po,,, p,);
+            (; f : F:
                 _[f].g = g;
                 _[f].p = node.c[f];
                 _[f]._pp = node._cp[f];
                 _[f]._po = node._ci[f];
-                _[f]._yi = _yi[f*k..(f+1)*k-1];
-                _[f]._yp = _yp[f*k..(f+1)*k-1];
-                _[f].y = y[f*k..(f+1)*k-1];
+                _[f].cp = cp[f*k..(f+1)*k-1];
+                _[f].ci = ci[f*k..(f+1)*k-1];
+                _[f].syn = syn[f*k_syn..(f+1)*k_syn-1];
+                _[f].mem = mem[f*k_mem..(f+1)*k_mem-1];
             )
         ]
     }
@@ -224,24 +303,21 @@ namespace receiver {
 } // namespace receiver
 
 export
-template <pint M, F_INT, F_LEAF, T, D>
-defproc AERV (globals g; bool _yi[T], yp[T], pp, po; c1of<D> y[T], p) {
+template <pint M, Mp4, N_SYN, N_MEM>
+defproc AERV (globals g; bool pp, po, cp[Mp4], ci[Mp4]; c1of<4> p; e1of2 syn[N_SYN]; c1of4 mem[N_MEM]) {
     // receiver capable of sending data to neuron
     // M tree levels
-    // F_INT intermediate node fanout (radix)
-    // F_LEAF leaf node fanout (radix)
-    // T targets. T = F_LEAF * F_INT^(M-1)
-    // D 1-of-D data
-    receiver::AERV_<M, F_INT, F_LEAF, T, D> _(g, _yi,,,, y, p);
+    // Mp4 = M^4 potential output ports
+    // N_SYN synapses
+    // N_MEM memories
+    bool aerv__pp;
+    bool aerv__po;
+    receiver::AERV_<M, Mp4, N_SYN, N_MEM> _(g, aerv__pp, aerv__po, cp, ci, p, syn, mem);
     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-        (: t : T :
-            ~_._yp[t]<9> -> yp[t]+
-            _._yp[t]<6> -> yp[t]-
-        )
-        ~pp<9> -> _._pp+
-        pp<6> -> _._pp-
-        ~_._po<9> -> po+
-        _._po<6> -> po-
+        ~pp<9> -> aerv__pp+
+        pp<6> -> aerv__pp-
+        ~aerv__po<9> -> po+
+        aerv__po<6> -> po-
     }
 }
 
@@ -265,93 +341,98 @@ defproc AERV_NODATA (globals g; bool yi[NN], yp[NN], pp, po; c1of<N> p) {
 namespace brain_receiver {
     export
     template <pint C>
-    defproc MERGE_ACK (globals g; bool pp, _po, ci[C]) {
+    defproc MERGE_ACK (globals g; bool pp, po, ci[C]) {
         // merges acknowledges from children with pphi acknowledge
         // C clients
-        bool _cci;
+        bool _pp;
         [ ~LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                (& : c : C : ~ci[c]) => _cci+
-                pp & _cci => _po-
+                pp => _pp-
+
+                ~_pp & (& : c : C : ~ci[c]) => po+
             }
         [] LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                (& : c : C : ~ci[c]<9*C>) -> _cci+
-                (| : c : C : ci[c]<6>) -> _cci-
+                ~pp<9> -> _pp+
+                pp<6> -> _pp-
 
-                pp<12> & _cci<12> -> _po-
-                ~pp<9> | ~_cci<9> -> _po+
+                ~_pp & (& : c : C : ~ci[c]) -> po+
+                _pp | (| : c : C : ci[c]) -> po-
             }
         ]
     }
 
     export
-    defproc HALF_BUFFER (globals g; a1of2 x, y) {
+    template <pint M>
+    defproc DESERIALIZER (globals g; bool xp, xo; c1of4 x; eMx1of4<M> y) {
+        // wrapper for the deserializer
+        pint D = 4; // 1-of-D data
+
+        MERGE_ACK<1> merge_ack(g, xp, xo,);
+        ::aer::interface::DESERIAL_RING<M, D> deserial(g,,);
+        deserial.x.d = x.d;
+        deserial.x.a = merge_ack.ci[0];
+        (; m : M :
+            deserial.y.m[m].d = y.m[m].d;
+        )
+        deserial.y.e = y.e;
+    }
+
+    export
+    defproc HALF_BUFFER (globals g; e1of2 x; a1of2 y) {
         // prevents the synapse from holding up the receiver tree
         // wchb providing a half cycle of buffering
-        pint D = 2; // for a1of2
-        bool _xa = x.a; // active low
-        bool _ya = y.a; // active low
+        pint D = 2; // for 1of2
+        bool ye;
         c1of2 _y;
         c1of2 __y = y.m;
         [ ~LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+                y.a => ye-
+
+                (& : d : D : ~y.d[d]) => x.e+
+
                 (: d : D :
-                    x.d[d] & _ya -> _y.d[d]-
-                    ~g._pReset | ~x.d[d] & ~_ya -> _y.d[d]+
+                    x.d[d] & ye -> _y.d[d]-
+                    ~g._pReset | ~x.d[d] & ~ye -> _y.d[d]+
                 )
 
                 (: d : D :
                     _y.d[d] => __y.d[d]-
                 )
-
-                (| : d : D : __y.d[d]) => _xa-
             }
         [] LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+                ~y.a<9> -> ye+
+                y.a<6> -> ye-
+
+                (& : d : D : ~y.d[d]<18>) -> x.e+
+                (| : d : D : y.d[d]<6>) -> x.e-
+
                 (: d : D :
-                    x.d[d]<9> & _ya<9> -> _y.d[d]-
-                    ~g._pReset | ~x.d[d]<12> & ~_ya<12> -> _y.d[d]+
+                    x.d[d]<18> & ye<18> -> _y.d[d]-
+                    ~g._pReset | ~x.d[d]<12> & ~ye<12> -> _y.d[d]+
                 )
 
                 (: d : D :
                     ~_y.d[d]<9> -> __y.d[d]+
                     _y.d[d]<6> -> __y.d[d]-
                 )
-
-                (| : d : D : __y.d[d]<6>) -> _xa-
-                (& : d : D : ~__y.d[d]<12>) -> _xa+
             }
         ]
-    }
-
-    export
-    defproc FULL_BUFFER (globals g; a1of2 x, y) {
-        // provides a full cycle of buffering
-        // prevents the synapse from holding up the receiver tree
-        HALF_BUFFER half_buf[2];
-        half_buf[0].g = g;
-        half_buf[1].g = g;
-        half_buf[0].x.d = x.d;
-        half_buf[0].y = half_buf[1].x;
-        half_buf[1].y.d = y.d;
-
-        // active low acks internally
-        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-            half_buf[0].x.a => x.a-
-            y.a => half_buf[1].y.a-
-        }
     }
 } // namespace brain_receiver
 
 export
-template <pint M, M_SPK, M_MEM, N_SYN, N_MEM>
+template <pint M, Mp4, M_SPK, M_MEM, N_SYN, N_MEM>
 defproc BRAIN_AERV (globals g; eMx1of4<M_SPK> x_spk; 
                     eMx1of4<M_MEM> x_mem;
                     a1of2 y_syn[N_SYN]; eMx1of4<M_MEM-M> y_mem[N_MEM]) {
     // braindrop / brainstorm receiver system
     // M tree depth
     //     M = 5 (in production)
+    // Mp4 potential ports
+    //     Mp4 = M^4
     // M_SPK packet length of spike to deliver to synapse.
     //     M_SPK = M + 1
     //     M_SPK = 6 (in production)
@@ -364,10 +445,8 @@ defproc BRAIN_AERV (globals g; eMx1of4<M_SPK> x_spk;
     // N_MEM configuration memories
     //     N_MEM = 4^(M-1)
     //     N_MEM = 256 (in production)
-    pint F_INT = 4;
-    pint F_LEAF = 3;
     pint D = 4;
-    pint AERV_TGTS = N_SYN/2 + N_MEM;
+    N_MEM*4 = N_SYN; // assert
 
     interface::SERIAL_RING<M_SPK, D> serial_spk(g,,,,);
     interface::SERIAL_RING<M_MEM, D> serial_mem(g,,,,);
@@ -391,59 +470,32 @@ defproc BRAIN_AERV (globals g; eMx1of4<M_SPK> x_spk;
     merge_x[1] = serial_mem.y;
 
     interface::SERIAL_MERGE<2, D> merge(g, merge_xp, merge_xo,,, merge_x,);
+    bool aerv_pp = merge.yp;
+    bool aerv_po = merge.yi;
+    c1of<D> aerv_p = merge.y;
 
-    interface::DESERIAL_RING<M_MEM-M, D> mem_deserial[N_MEM];
+    brain_receiver::DESERIALIZER<M_MEM-M> mem_deserial[N_MEM];
+    bool aerv_cp[Mp4];
+    bool aerv_ci[Mp4];
+    c1of4 aerv_mem[N_MEM];
     (; n : N_MEM :
         mem_deserial[n].g = g;
-        (; m : M_MEM - M :
-            mem_deserial[n].y.m[m].d = y_mem[n].m[m].d;
-        )
-        mem_deserial[n].y.e = y_mem[n].e;
+        mem_deserial[n].xp = aerv_cp[n*4+2]; // connect deserial to aerv
+        mem_deserial[n].xo = aerv_ci[n*4+2];
+        mem_deserial[n].x = aerv_mem[n];
+        mem_deserial[n].y = y_mem[n]; // connect deserial to memory
     )
     
-    brain_receiver::FULL_BUFFER buf_syn[N_SYN]; // buffer synapse spikes
+    brain_receiver::HALF_BUFFER buf_syn[N_SYN]; // buffer synapse spikes
+    e1of2 aerv_syn[N_SYN];
     (; n : N_SYN :
         buf_syn[n].g = g;
-        // connect synapse to buf_syn
-        buf_syn[n].y = y_syn[n];
-    )
-    brain_receiver::MERGE_ACK<2> ack_syn[N_SYN/2]; // ack syns
-    brain_receiver::MERGE_ACK<1> ack_mem[N_SYN/4]; // ack mems
-    bool aerv__yi[AERV_TGTS];
-    bool aerv_yp[AERV_TGTS];
-    (; n : N_SYN/2 :
-        ack_syn[n].g = g;
-        // connect buf_syn ack to ack_syn
-        ack_syn[n].ci[0] = buf_syn[2*n].x.a;
-        ack_syn[n].ci[1] = buf_syn[2*n+1].x.a;
-    )
-    (; n : N_SYN/4 :
-        ack_mem[n].g = g;
-        // connect aerv pphi to ack_syn 
-        ack_syn[2*n].pp = aerv_yp[3*n];
-        ack_syn[2*n+1].pp = aerv_yp[3*n+1];
-        // connect ack_syn ack to aerv
-        ack_syn[2*n]._po = aerv__yi[3*n];
-        ack_syn[2*n+1]._po = aerv__yi[3*n+1];
-        // connect mem ack to ack_mem
-        ack_mem[n].ci[0] = mem_deserial[n].x.a;
-        // connect aerv pphi to ack_mem
-        ack_mem[n].pp = aerv_yp[3*n+2];
-        // connect ack_mem ack to aerv
-        ack_mem[n]._po = aerv__yi[3*n+2];
+        buf_syn[n].x = aerv_syn[n]; // connect buf_syn to aerv
+        buf_syn[n].y = y_syn[n]; // connect buf_syn to synapse
     )
 
-    c1of<D> aerv_y[AERV_TGTS];
-    (; n : AERV_TGTS/3 :
-        aerv_y[3*n].d[0..1] = buf_syn[4*n].x.d;
-        aerv_y[3*n].d[2..3] = buf_syn[4*n+1].x.d;
-        aerv_y[3*n+1].d[0..1] = buf_syn[4*n+2].x.d;
-        aerv_y[3*n+1].d[2..3] = buf_syn[4*n+3].x.d;
-        aerv_y[3*n+2].d = mem_deserial[n].x.d;
-    )
-
-    AERV<M, F_INT, F_LEAF, AERV_TGTS, D> aerv(
-        g, aerv__yi, aerv_yp, merge.yp, merge.yi, aerv_y, merge.y);
+    AERV<M, Mp4, N_SYN, N_MEM> aerv(
+        g, aerv_pp, aerv_po, aerv_cp, aerv_ci, aerv_p, aerv_syn, aerv_mem);
 }
 
 } // namespace aer
