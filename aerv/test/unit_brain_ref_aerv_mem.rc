@@ -1,0 +1,199 @@
+channel eMx1of2 14 mem_src
+channel eMx1of4 4 mem_snk[0].d
+channel eMx1of4 4 mem_snk[1].d
+channel eMx1of4 4 mem_snk[2].d
+channel eMx1of4 4 mem_snk[3].d
+channel eMx1of4 4 mem_snk[4].d
+channel eMx1of4 4 mem_snk[5].d
+channel eMx1of4 4 mem_snk[6].d
+channel eMx1of4 4 mem_snk[7].d
+channel eMx1of4 4 mem_snk[8].d
+channel eMx1of4 4 mem_snk[9].d
+channel eMx1of4 4 mem_snk[10].d
+channel eMx1of4 4 mem_snk[11].d
+channel eMx1of4 4 mem_snk[12].d
+channel eMx1of4 4 mem_snk[13].d
+channel eMx1of4 4 mem_snk[14].d
+channel eMx1of4 4 mem_snk[15].d
+
+loop-injectfile mem_src unit_brain_aerv_mem.in
+loop-expectfile mem_snk[0].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[1].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[2].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[3].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[4].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[5].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[6].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[7].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[8].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[9].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[10].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[11].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[12].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[13].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[14].d unit_brain_aerv_mem.out
+loop-expectfile mem_snk[15].d unit_brain_aerv_mem.out
+
+vector m0_0 :1ofN 4 mem_snk[0].d.m[0].n[0] mem_snk[0].d.m[0].n[1] mem_snk[0].d.m[0].n[2] mem_snk[0].d.m[0].n[3]
+vector m0_1 :1ofN 4 mem_snk[0].d.m[1].n[0] mem_snk[0].d.m[1].n[1] mem_snk[0].d.m[1].n[2] mem_snk[0].d.m[1].n[3]
+vector m0_2 :1ofN 4 mem_snk[0].d.m[2].n[0] mem_snk[0].d.m[2].n[1] mem_snk[0].d.m[2].n[2] mem_snk[0].d.m[2].n[3]
+vector m0_3 :1ofN 4 mem_snk[0].d.m[3].n[0] mem_snk[0].d.m[3].n[1] mem_snk[0].d.m[3].n[2] mem_snk[0].d.m[3].n[3]
+vector m1_0 :1ofN 4 mem_snk[1].d.m[0].n[0] mem_snk[1].d.m[0].n[1] mem_snk[1].d.m[0].n[2] mem_snk[1].d.m[0].n[3]
+vector m1_1 :1ofN 4 mem_snk[1].d.m[1].n[0] mem_snk[1].d.m[1].n[1] mem_snk[1].d.m[1].n[2] mem_snk[1].d.m[1].n[3]
+vector m1_2 :1ofN 4 mem_snk[1].d.m[2].n[0] mem_snk[1].d.m[2].n[1] mem_snk[1].d.m[2].n[2] mem_snk[1].d.m[2].n[3]
+vector m1_3 :1ofN 4 mem_snk[1].d.m[3].n[0] mem_snk[1].d.m[3].n[1] mem_snk[1].d.m[3].n[2] mem_snk[1].d.m[3].n[3]
+vector m2_0 :1ofN 4 mem_snk[2].d.m[0].n[0] mem_snk[2].d.m[0].n[1] mem_snk[2].d.m[0].n[2] mem_snk[2].d.m[0].n[3]
+vector m2_1 :1ofN 4 mem_snk[2].d.m[1].n[0] mem_snk[2].d.m[1].n[1] mem_snk[2].d.m[1].n[2] mem_snk[2].d.m[1].n[3]
+vector m2_2 :1ofN 4 mem_snk[2].d.m[2].n[0] mem_snk[2].d.m[2].n[1] mem_snk[2].d.m[2].n[2] mem_snk[2].d.m[2].n[3]
+vector m2_3 :1ofN 4 mem_snk[2].d.m[3].n[0] mem_snk[2].d.m[3].n[1] mem_snk[2].d.m[3].n[2] mem_snk[2].d.m[3].n[3]
+vector m3_0 :1ofN 4 mem_snk[3].d.m[0].n[0] mem_snk[3].d.m[0].n[1] mem_snk[3].d.m[0].n[2] mem_snk[3].d.m[0].n[3]
+vector m3_1 :1ofN 4 mem_snk[3].d.m[1].n[0] mem_snk[3].d.m[1].n[1] mem_snk[3].d.m[1].n[2] mem_snk[3].d.m[1].n[3]
+vector m3_2 :1ofN 4 mem_snk[3].d.m[2].n[0] mem_snk[3].d.m[2].n[1] mem_snk[3].d.m[2].n[2] mem_snk[3].d.m[2].n[3]
+vector m3_3 :1ofN 4 mem_snk[3].d.m[3].n[0] mem_snk[3].d.m[3].n[1] mem_snk[3].d.m[3].n[2] mem_snk[3].d.m[3].n[3]
+vector m4_0 :1ofN 4 mem_snk[4].d.m[0].n[0] mem_snk[4].d.m[0].n[1] mem_snk[4].d.m[0].n[2] mem_snk[4].d.m[0].n[3]
+vector m4_1 :1ofN 4 mem_snk[4].d.m[1].n[0] mem_snk[4].d.m[1].n[1] mem_snk[4].d.m[1].n[2] mem_snk[4].d.m[1].n[3]
+vector m4_2 :1ofN 4 mem_snk[4].d.m[2].n[0] mem_snk[4].d.m[2].n[1] mem_snk[4].d.m[2].n[2] mem_snk[4].d.m[2].n[3]
+vector m4_3 :1ofN 4 mem_snk[4].d.m[3].n[0] mem_snk[4].d.m[3].n[1] mem_snk[4].d.m[3].n[2] mem_snk[4].d.m[3].n[3]
+vector m5_0 :1ofN 4 mem_snk[5].d.m[0].n[0] mem_snk[5].d.m[0].n[1] mem_snk[5].d.m[0].n[2] mem_snk[5].d.m[0].n[3]
+vector m5_1 :1ofN 4 mem_snk[5].d.m[1].n[0] mem_snk[5].d.m[1].n[1] mem_snk[5].d.m[1].n[2] mem_snk[5].d.m[1].n[3]
+vector m5_2 :1ofN 4 mem_snk[5].d.m[2].n[0] mem_snk[5].d.m[2].n[1] mem_snk[5].d.m[2].n[2] mem_snk[5].d.m[2].n[3]
+vector m5_3 :1ofN 4 mem_snk[5].d.m[3].n[0] mem_snk[5].d.m[3].n[1] mem_snk[5].d.m[3].n[2] mem_snk[5].d.m[3].n[3]
+vector m6_0 :1ofN 4 mem_snk[6].d.m[0].n[0] mem_snk[6].d.m[0].n[1] mem_snk[6].d.m[0].n[2] mem_snk[6].d.m[0].n[3]
+vector m6_1 :1ofN 4 mem_snk[6].d.m[1].n[0] mem_snk[6].d.m[1].n[1] mem_snk[6].d.m[1].n[2] mem_snk[6].d.m[1].n[3]
+vector m6_2 :1ofN 4 mem_snk[6].d.m[2].n[0] mem_snk[6].d.m[2].n[1] mem_snk[6].d.m[2].n[2] mem_snk[6].d.m[2].n[3]
+vector m6_3 :1ofN 4 mem_snk[6].d.m[3].n[0] mem_snk[6].d.m[3].n[1] mem_snk[6].d.m[3].n[2] mem_snk[6].d.m[3].n[3]
+vector m7_0 :1ofN 4 mem_snk[7].d.m[0].n[0] mem_snk[7].d.m[0].n[1] mem_snk[7].d.m[0].n[2] mem_snk[7].d.m[0].n[3]
+vector m7_1 :1ofN 4 mem_snk[7].d.m[1].n[0] mem_snk[7].d.m[1].n[1] mem_snk[7].d.m[1].n[2] mem_snk[7].d.m[1].n[3]
+vector m7_2 :1ofN 4 mem_snk[7].d.m[2].n[0] mem_snk[7].d.m[2].n[1] mem_snk[7].d.m[2].n[2] mem_snk[7].d.m[2].n[3]
+vector m7_3 :1ofN 4 mem_snk[7].d.m[3].n[0] mem_snk[7].d.m[3].n[1] mem_snk[7].d.m[3].n[2] mem_snk[7].d.m[3].n[3]
+vector m8_0 :1ofN 4 mem_snk[8].d.m[0].n[0] mem_snk[8].d.m[0].n[1] mem_snk[8].d.m[0].n[2] mem_snk[8].d.m[0].n[3]
+vector m8_1 :1ofN 4 mem_snk[8].d.m[1].n[0] mem_snk[8].d.m[1].n[1] mem_snk[8].d.m[1].n[2] mem_snk[8].d.m[1].n[3]
+vector m8_2 :1ofN 4 mem_snk[8].d.m[2].n[0] mem_snk[8].d.m[2].n[1] mem_snk[8].d.m[2].n[2] mem_snk[8].d.m[2].n[3]
+vector m8_3 :1ofN 4 mem_snk[8].d.m[3].n[0] mem_snk[8].d.m[3].n[1] mem_snk[8].d.m[3].n[2] mem_snk[8].d.m[3].n[3]
+vector m9_0 :1ofN 4 mem_snk[9].d.m[0].n[0] mem_snk[9].d.m[0].n[1] mem_snk[9].d.m[0].n[2] mem_snk[9].d.m[0].n[3]
+vector m9_1 :1ofN 4 mem_snk[9].d.m[1].n[0] mem_snk[9].d.m[1].n[1] mem_snk[9].d.m[1].n[2] mem_snk[9].d.m[1].n[3]
+vector m9_2 :1ofN 4 mem_snk[9].d.m[2].n[0] mem_snk[9].d.m[2].n[1] mem_snk[9].d.m[2].n[2] mem_snk[9].d.m[2].n[3]
+vector m9_3 :1ofN 4 mem_snk[9].d.m[3].n[0] mem_snk[9].d.m[3].n[1] mem_snk[9].d.m[3].n[2] mem_snk[9].d.m[3].n[3]
+vector m10_0 :1ofN 4 mem_snk[10].d.m[0].n[0] mem_snk[10].d.m[0].n[1] mem_snk[10].d.m[0].n[2] mem_snk[10].d.m[0].n[3]
+vector m10_1 :1ofN 4 mem_snk[10].d.m[1].n[0] mem_snk[10].d.m[1].n[1] mem_snk[10].d.m[1].n[2] mem_snk[10].d.m[1].n[3]
+vector m10_2 :1ofN 4 mem_snk[10].d.m[2].n[0] mem_snk[10].d.m[2].n[1] mem_snk[10].d.m[2].n[2] mem_snk[10].d.m[2].n[3]
+vector m10_3 :1ofN 4 mem_snk[10].d.m[3].n[0] mem_snk[10].d.m[3].n[1] mem_snk[10].d.m[3].n[2] mem_snk[10].d.m[3].n[3]
+vector m11_0 :1ofN 4 mem_snk[11].d.m[0].n[0] mem_snk[11].d.m[0].n[1] mem_snk[11].d.m[0].n[2] mem_snk[11].d.m[0].n[3]
+vector m11_1 :1ofN 4 mem_snk[11].d.m[1].n[0] mem_snk[11].d.m[1].n[1] mem_snk[11].d.m[1].n[2] mem_snk[11].d.m[1].n[3]
+vector m11_2 :1ofN 4 mem_snk[11].d.m[2].n[0] mem_snk[11].d.m[2].n[1] mem_snk[11].d.m[2].n[2] mem_snk[11].d.m[2].n[3]
+vector m11_3 :1ofN 4 mem_snk[11].d.m[3].n[0] mem_snk[11].d.m[3].n[1] mem_snk[11].d.m[3].n[2] mem_snk[11].d.m[3].n[3]
+vector m12_0 :1ofN 4 mem_snk[12].d.m[0].n[0] mem_snk[12].d.m[0].n[1] mem_snk[12].d.m[0].n[2] mem_snk[12].d.m[0].n[3]
+vector m12_1 :1ofN 4 mem_snk[12].d.m[1].n[0] mem_snk[12].d.m[1].n[1] mem_snk[12].d.m[1].n[2] mem_snk[12].d.m[1].n[3]
+vector m12_2 :1ofN 4 mem_snk[12].d.m[2].n[0] mem_snk[12].d.m[2].n[1] mem_snk[12].d.m[2].n[2] mem_snk[12].d.m[2].n[3]
+vector m12_3 :1ofN 4 mem_snk[12].d.m[3].n[0] mem_snk[12].d.m[3].n[1] mem_snk[12].d.m[3].n[2] mem_snk[12].d.m[3].n[3]
+vector m13_0 :1ofN 4 mem_snk[13].d.m[0].n[0] mem_snk[13].d.m[0].n[1] mem_snk[13].d.m[0].n[2] mem_snk[13].d.m[0].n[3]
+vector m13_1 :1ofN 4 mem_snk[13].d.m[1].n[0] mem_snk[13].d.m[1].n[1] mem_snk[13].d.m[1].n[2] mem_snk[13].d.m[1].n[3]
+vector m13_2 :1ofN 4 mem_snk[13].d.m[2].n[0] mem_snk[13].d.m[2].n[1] mem_snk[13].d.m[2].n[2] mem_snk[13].d.m[2].n[3]
+vector m13_3 :1ofN 4 mem_snk[13].d.m[3].n[0] mem_snk[13].d.m[3].n[1] mem_snk[13].d.m[3].n[2] mem_snk[13].d.m[3].n[3]
+vector m14_0 :1ofN 4 mem_snk[14].d.m[0].n[0] mem_snk[14].d.m[0].n[1] mem_snk[14].d.m[0].n[2] mem_snk[14].d.m[0].n[3]
+vector m14_1 :1ofN 4 mem_snk[14].d.m[1].n[0] mem_snk[14].d.m[1].n[1] mem_snk[14].d.m[1].n[2] mem_snk[14].d.m[1].n[3]
+vector m14_2 :1ofN 4 mem_snk[14].d.m[2].n[0] mem_snk[14].d.m[2].n[1] mem_snk[14].d.m[2].n[2] mem_snk[14].d.m[2].n[3]
+vector m14_3 :1ofN 4 mem_snk[14].d.m[3].n[0] mem_snk[14].d.m[3].n[1] mem_snk[14].d.m[3].n[2] mem_snk[14].d.m[3].n[3]
+vector m15_0 :1ofN 4 mem_snk[15].d.m[0].n[0] mem_snk[15].d.m[0].n[1] mem_snk[15].d.m[0].n[2] mem_snk[15].d.m[0].n[3]
+vector m15_1 :1ofN 4 mem_snk[15].d.m[1].n[0] mem_snk[15].d.m[1].n[1] mem_snk[15].d.m[1].n[2] mem_snk[15].d.m[1].n[3]
+vector m15_2 :1ofN 4 mem_snk[15].d.m[2].n[0] mem_snk[15].d.m[2].n[1] mem_snk[15].d.m[2].n[2] mem_snk[15].d.m[2].n[3]
+vector m15_3 :1ofN 4 mem_snk[15].d.m[3].n[0] mem_snk[15].d.m[3].n[1] mem_snk[15].d.m[3].n[2] mem_snk[15].d.m[3].n[3]
+vwatch m0_0
+vwatch m0_1
+vwatch m0_2
+vwatch m0_3
+vwatch m1_0
+vwatch m1_1
+vwatch m1_2
+vwatch m1_3
+vwatch m2_0
+vwatch m2_1
+vwatch m2_2
+vwatch m2_3
+vwatch m3_0
+vwatch m3_1
+vwatch m3_2
+vwatch m3_3
+vwatch m4_0
+vwatch m4_1
+vwatch m4_2
+vwatch m4_3
+vwatch m5_0
+vwatch m5_1
+vwatch m5_2
+vwatch m5_3
+vwatch m6_0
+vwatch m6_1
+vwatch m6_2
+vwatch m6_3
+vwatch m7_0
+vwatch m7_1
+vwatch m7_2
+vwatch m7_3
+vwatch m8_0
+vwatch m8_1
+vwatch m8_2
+vwatch m8_3
+vwatch m9_0
+vwatch m9_1
+vwatch m9_2
+vwatch m9_3
+vwatch m10_0
+vwatch m10_1
+vwatch m10_2
+vwatch m10_3
+vwatch m11_0
+vwatch m11_1
+vwatch m11_2
+vwatch m11_3
+vwatch m12_0
+vwatch m12_1
+vwatch m12_2
+vwatch m12_3
+vwatch m13_0
+vwatch m13_1
+vwatch m13_2
+vwatch m13_3
+vwatch m14_0
+vwatch m14_1
+vwatch m14_2
+vwatch m14_3
+vwatch m15_0
+vwatch m15_1
+vwatch m15_2
+vwatch m15_3
+
+random
+break-on-warn
+
+mode reset
+set g.Vdd 1
+set g.GND 0
+set g.vpsub 1
+set g.vnsub 0
+set g._sReset 0
+set g.sReset 1
+set g._pReset 1
+set g.pReset 0
+
+cycle
+
+set g._pReset 0
+set g.pReset 1
+
+cycle
+
+watchall
+
+mode run
+set g._pReset 1
+set g.pReset 0
+
+cycle
+
+set g._sReset 1
+set g.sReset 0
+
+status X
+
+advance 1000100000

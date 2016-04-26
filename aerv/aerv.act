@@ -364,18 +364,18 @@ namespace brain_receiver {
 
     export
     template <pint M>
-    defproc DESERIALIZER (globals g; bool xp, xo; c1of4 x; eMx1of4<M> y) {
+    defproc DESERIALIZER (globals g; bool xp, xo; c1of4 x; eMx1of4<M> _y) {
         // wrapper for the deserializer
         pint D = 4; // 1-of-D data
 
         MERGE_ACK<1> merge_ack(g, xp, xo,);
-        ::aer::interface::DESERIAL_RING<M, D> deserial(g,,);
+        ::aer::interface::DESERIAL_RING<M, D, true> deserial(g,,);
         deserial.x.d = x.d;
         deserial.x.a = merge_ack.ci[0];
         (; m : M :
-            deserial.y.m[m].d = y.m[m].d;
+            deserial.y.m[m].d = _y.m[m].d;
         )
-        deserial.y.e = y.e;
+        deserial.y.e = _y.e;
     }
 
     export
@@ -427,7 +427,7 @@ export
 template <pint M, Mp4, M_SPK, M_MEM, N_SYN, N_MEM>
 defproc BRAIN_AERV (globals g; eMx1of4<M_SPK> x_spk; 
                     eMx1of4<M_MEM> x_mem;
-                    a1of2 y_syn[N_SYN]; eMx1of4<M_MEM-M> y_mem[N_MEM]) {
+                    a1of2 y_syn[N_SYN]; eMx1of4<M_MEM-M> _y_mem[N_MEM]) {
     // braindrop / brainstorm receiver system
     // M tree depth
     //     M = 5 (in production)
@@ -483,7 +483,7 @@ defproc BRAIN_AERV (globals g; eMx1of4<M_SPK> x_spk;
         mem_deserial[n].xp = aerv_cp[n*4+2]; // connect deserial to aerv
         mem_deserial[n].xo = aerv_ci[n*4+2];
         mem_deserial[n].x = aerv_mem[n];
-        mem_deserial[n].y = y_mem[n]; // connect deserial to memory
+        mem_deserial[n]._y = _y_mem[n]; // connect deserial to memory
     )
     
     brain_receiver::HALF_BUFFER buf_syn[N_SYN]; // buffer synapse spikes

@@ -11,7 +11,7 @@ export
 template <pint M_1of2, M_1of4, Mp4, M_SPK_1of2, M_SPK_1of4, M_MEM_1of2, M_MEM_1of4, N_SYN, N_MEM>
 defproc BS_AERV (aer::globals g; aer::eMx1of2<M_SPK_1of2> x_spk; 
                     aer::eMx1of2<M_MEM_1of2> x_mem;
-                    aer::a1of2 y_syn[N_SYN]; aer::eMx1of4<M_MEM_1of4-M_1of4> y_mem[N_MEM]) {
+                    aer::a1of2 y_syn[N_SYN]; aer::eMx1of4<M_MEM_1of4-M_1of4> _y_mem[N_MEM]) {
     // modified braindrop / brainstorm receiver system that uses
     // the serializer defined in the brainstorm repository
     // M tree depth
@@ -73,7 +73,7 @@ defproc BS_AERV (aer::globals g; aer::eMx1of2<M_SPK_1of2> x_spk;
         mem_deserial[n].xp = aerv_cp[n*4+2]; // connect deserial to aerv
         mem_deserial[n].xo = aerv_ci[n*4+2];
         mem_deserial[n].x = aerv_mem[n];
-        mem_deserial[n].y = y_mem[n]; // connect deserial to memory
+        mem_deserial[n]._y = _y_mem[n]; // connect deserial to memory
     )
 
     aer::brain_receiver::HALF_BUFFER buf_syn[N_SYN]; // buffer synapse spikes

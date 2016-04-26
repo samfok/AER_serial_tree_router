@@ -3,19 +3,19 @@ import "aer/interface/interface.act";
 pint M=3;
 pint N=4;
 
-::aer::globals g;
+aer::globals g;
 bool Reset = g.sReset;
-::aer::e1of<N> src;
-::aer::SINK_eMx1ofN<M, N> snk(g,);
-::aer::a1of<N> d;
+aer::e1of<N> src;
+aer::SINK_eMx1ofN<M, N> snk(g,);
+aer::a1of<N> d;
 d.d = src.d;
 prs<g.Vdd, g.GND> {
     d.a => src.e-
 }
-::aer::interface::DESERIAL_RING<M, N> deserial(g, d, snk.d);
+aer::interface::DESERIAL_RING<M, N, false> deserial(g, d, snk.d);
 
 // break up eMx1ofN into M e1ofN channels for parsing
-::aer::e1of<N> snk_[M];
+aer::e1of<N> snk_[M];
 (; m : M :
     snk_[m].b = snk.d.b[m];
     snk_[m].e = snk.d.e;

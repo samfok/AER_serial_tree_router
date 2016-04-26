@@ -32,7 +32,7 @@ namespace interface {
         }
         
         export
-        template <pint N>
+        template <pint N; pbool invert_y>
         defproc NODE (globals g; a1of<N> x; c1of<N> y; bool si, so) {
             bool vy, s;
             prs<g.Vdd, g.GND> {
@@ -54,11 +54,11 @@ namespace interface {
     } // namespace deserial_ring
     
     export
-    template <pint M, N>
+    template <pint M, N; pbool invert_y>
     defproc DESERIAL_RING (globals g; a1of<N> x; eMx1ofN<M, N> y) {
         // convert AEXT/AERV serial protocol to eMx1ofN with ring
         deserial_ring::SPLIT<M, N> split(g, x,);
-        deserial_ring::NODE<N> node[M];
+        deserial_ring::NODE<N, invert_y> node[M];
         (; m : M :
             node[m].g = g;
             node[m].x = split.y[m];

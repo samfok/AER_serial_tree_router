@@ -1,5 +1,5 @@
-// tests that brain aerv can deliver spikes
-import "aer/aerv/aerv.act";
+// tests that brain aerv can deliver memory packets
+import "aer/aerv/ref_aerv.act";
 
 pint M     = 3;
 pint Mp4   = 64; // 4**M
@@ -26,26 +26,20 @@ aer::a1of2 y_syn[N_SYN];
 aer::eMx1of4<M_MEM-M> y_mem[N_MEM];
 (; n : N_MEM :
     mem_snk[n].g = g;
+    (; m : M_MEM - M :
+        mem_snk[n].d.m[m].d = y_mem[n].m[m].d;
+    )
     mem_snk[n].d.e = y_mem[n].e;
 )
-prs<g.Vdd, g.GND> {
-    (: n : N_MEM :
-        (: m : M_MEM - M :
-            (: d : D :
-                y_mem[n].m[m].d[d] => mem_snk[n].d.m[m].d[d]-
-            )
-        )
-    )
-}
 
-aer::eMx1of2<2*M_SPK> spk_src;
-aer::eMx1of4<M_MEM> mem_src;
-aer::eMx1of2_to_eMx1of4<2*M_SPK, M_SPK> spk_src_(g, spk_src,);
-(; m : M_MEM:
+aer::eMx1of4<M_SPK> spk_src;
+aer::eMx1of2<2*M_MEM> mem_src;
+(; m : M_SPK:
     (; n : D :
-        mem_src.m[m].n[n] = g.GND;
+        spk_src.m[m].n[n] = g.GND;
     )
 )
+aer::eMx1of2_to_eMx1of4<2*M_MEM, M_MEM> mem_src_(g, mem_src,);
 
 aer::BRAIN_AERV<M, Mp4, M_SPK, M_MEM, N_SYN, N_MEM> aerv(
-    g, spk_src_.y, mem_src, y_syn, y_mem);
+    g, spk_src, mem_src_.y, y_syn, y_mem);

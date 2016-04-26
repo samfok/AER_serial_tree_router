@@ -18,7 +18,7 @@ defproc AER_NODATA (globals g; bool xp[NN], xo[NN], yi[NN], yp[NN]) {
     AEXT<M, N, NN> aext(g, xp, xo,,,);
     AERV_NODATA<M, N, NN> aerv(g, yi, yp,,,);
     interface::OUT_a1ofN<N> out(g, aext.pp, aext.pi, aext.p,);
-    interface::DESERIAL_RING<M, N> deserial(g, out.y,);
+    interface::DESERIAL_RING<M, N, false> deserial(g, out.y,);
     interface::SERIAL_RING<M, N> serial(g, deserial.y, aerv.po, aerv.pp, aerv.p);
 }
 

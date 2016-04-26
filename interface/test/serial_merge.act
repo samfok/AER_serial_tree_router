@@ -7,15 +7,15 @@ MM[0] = 9;
 MM[1] = 6;
 pint N = 4;
 
-::aer::globals g;
-::aer::SOURCE_random_eMx1ofN<MM[0], N> src0(g,);
-::aer::SOURCE_random_eMx1ofN<MM[1], N> src1(g,);
-::aer::SINK_e1ofN<N> snk(g,);
+aer::globals g;
+aer::SOURCE_random_eMx1ofN<MM[0], N> src0(g,);
+aer::SOURCE_random_eMx1ofN<MM[1], N> src1(g,);
+aer::SINK_e1ofN<N> snk(g,);
 
-::aer::interface::SERIAL_RING<MM[0], N> serial0(g, src0.d,,,);
-::aer::interface::SERIAL_RING<MM[1], N> serial1(g, src1.d,,,);
-::aer::interface::SERIAL_MERGE<M, N> merge(g,,,,,,);
-::aer::interface::OUT_e1ofN<N> out(g, merge.yp, merge.yi, merge.y, snk.d);
+aer::interface::SERIAL_RING<MM[0], N> serial0(g, src0.d,,,);
+aer::interface::SERIAL_RING<MM[1], N> serial1(g, src1.d,,,);
+aer::interface::SERIAL_MERGE<M, N> merge(g,,,,,,);
+aer::interface::OUT_e1ofN<N> out(g, merge.yp, merge.yi, merge.y, snk.d);
 
 merge.xp[0] = serial0.yp;
 merge.xo[0] = serial0.yi;

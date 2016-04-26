@@ -1,0 +1,313 @@
+channel eMx1of2 8 spk_src
+channel e1ofN 2 spk_snk[0].d
+channel e1ofN 2 spk_snk[1].d
+channel e1ofN 2 spk_snk[2].d
+channel e1ofN 2 spk_snk[3].d
+channel e1ofN 2 spk_snk[4].d
+channel e1ofN 2 spk_snk[5].d
+channel e1ofN 2 spk_snk[6].d
+channel e1ofN 2 spk_snk[7].d
+channel e1ofN 2 spk_snk[8].d
+channel e1ofN 2 spk_snk[9].d
+channel e1ofN 2 spk_snk[10].d
+channel e1ofN 2 spk_snk[11].d
+channel e1ofN 2 spk_snk[12].d
+channel e1ofN 2 spk_snk[13].d
+channel e1ofN 2 spk_snk[14].d
+channel e1ofN 2 spk_snk[15].d
+channel e1ofN 2 spk_snk[16].d
+channel e1ofN 2 spk_snk[17].d
+channel e1ofN 2 spk_snk[18].d
+channel e1ofN 2 spk_snk[19].d
+channel e1ofN 2 spk_snk[20].d
+channel e1ofN 2 spk_snk[21].d
+channel e1ofN 2 spk_snk[22].d
+channel e1ofN 2 spk_snk[23].d
+channel e1ofN 2 spk_snk[24].d
+channel e1ofN 2 spk_snk[25].d
+channel e1ofN 2 spk_snk[26].d
+channel e1ofN 2 spk_snk[27].d
+channel e1ofN 2 spk_snk[28].d
+channel e1ofN 2 spk_snk[29].d
+channel e1ofN 2 spk_snk[30].d
+channel e1ofN 2 spk_snk[31].d
+channel e1ofN 2 spk_snk[32].d
+channel e1ofN 2 spk_snk[33].d
+channel e1ofN 2 spk_snk[34].d
+channel e1ofN 2 spk_snk[35].d
+channel e1ofN 2 spk_snk[36].d
+channel e1ofN 2 spk_snk[37].d
+channel e1ofN 2 spk_snk[38].d
+channel e1ofN 2 spk_snk[39].d
+channel e1ofN 2 spk_snk[40].d
+channel e1ofN 2 spk_snk[41].d
+channel e1ofN 2 spk_snk[42].d
+channel e1ofN 2 spk_snk[43].d
+channel e1ofN 2 spk_snk[44].d
+channel e1ofN 2 spk_snk[45].d
+channel e1ofN 2 spk_snk[46].d
+channel e1ofN 2 spk_snk[47].d
+channel e1ofN 2 spk_snk[48].d
+channel e1ofN 2 spk_snk[49].d
+channel e1ofN 2 spk_snk[50].d
+channel e1ofN 2 spk_snk[51].d
+channel e1ofN 2 spk_snk[52].d
+channel e1ofN 2 spk_snk[53].d
+channel e1ofN 2 spk_snk[54].d
+channel e1ofN 2 spk_snk[55].d
+channel e1ofN 2 spk_snk[56].d
+channel e1ofN 2 spk_snk[57].d
+channel e1ofN 2 spk_snk[58].d
+channel e1ofN 2 spk_snk[59].d
+channel e1ofN 2 spk_snk[60].d
+channel e1ofN 2 spk_snk[61].d
+channel e1ofN 2 spk_snk[62].d
+channel e1ofN 2 spk_snk[63].d
+
+
+loop-injectfile spk_src unit_brain_aerv_spk.in
+loop-expectfile spk_snk[0].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[1].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[2].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[3].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[4].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[5].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[6].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[7].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[8].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[9].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[10].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[11].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[12].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[13].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[14].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[15].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[16].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[17].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[18].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[19].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[20].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[21].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[22].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[23].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[24].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[25].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[26].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[27].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[28].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[29].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[30].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[31].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[32].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[33].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[34].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[35].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[36].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[37].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[38].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[39].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[40].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[41].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[42].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[43].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[44].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[45].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[46].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[47].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[48].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[49].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[50].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[51].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[52].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[53].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[54].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[55].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[56].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[57].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[58].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[59].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[60].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[61].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[62].d unit_brain_aerv_spk.out
+loop-expectfile spk_snk[63].d unit_brain_aerv_spk.out
+
+vector spk_src_m0 :1ofN 2 spk_src.m[0].n[0] spk_src.m[0].n[1]
+vector spk_src_m1 :1ofN 2 spk_src.m[1].n[0] spk_src.m[1].n[1]
+vector spk_src_m2 :1ofN 2 spk_src.m[2].n[0] spk_src.m[2].n[1]
+vector spk_src_m3 :1ofN 2 spk_src.m[3].n[0] spk_src.m[3].n[1]
+vector spk_src_m4 :1ofN 2 spk_src.m[4].n[0] spk_src.m[4].n[1]
+vector spk_src_m5 :1ofN 2 spk_src.m[5].n[0] spk_src.m[5].n[1]
+vector spk_src_m6 :1ofN 2 spk_src.m[6].n[0] spk_src.m[6].n[1]
+vector spk_src_m7 :1ofN 2 spk_src.m[7].n[0] spk_src.m[7].n[1]
+vwatch spk_src_m0
+vwatch spk_src_m1
+vwatch spk_src_m2
+vwatch spk_src_m3
+vwatch spk_src_m4
+vwatch spk_src_m5
+vwatch spk_src_m6
+vwatch spk_src_m7
+
+vector spk_snk0 :1ofN 2 spk_snk[0].d.d[0] spk_snk[0].d.d[1]
+vector spk_snk1 :1ofN 2 spk_snk[1].d.d[0] spk_snk[1].d.d[1]
+vector spk_snk2 :1ofN 2 spk_snk[2].d.d[0] spk_snk[2].d.d[1]
+vector spk_snk3 :1ofN 2 spk_snk[3].d.d[0] spk_snk[3].d.d[1]
+vector spk_snk4 :1ofN 2 spk_snk[4].d.d[0] spk_snk[4].d.d[1]
+vector spk_snk5 :1ofN 2 spk_snk[5].d.d[0] spk_snk[5].d.d[1]
+vector spk_snk6 :1ofN 2 spk_snk[6].d.d[0] spk_snk[6].d.d[1]
+vector spk_snk7 :1ofN 2 spk_snk[7].d.d[0] spk_snk[7].d.d[1]
+vector spk_snk8 :1ofN 2 spk_snk[8].d.d[0] spk_snk[8].d.d[1]
+vector spk_snk9 :1ofN 2 spk_snk[9].d.d[0] spk_snk[9].d.d[1]
+vector spk_snk10 :1ofN 2 spk_snk[10].d.d[0] spk_snk[10].d.d[1]
+vector spk_snk11 :1ofN 2 spk_snk[11].d.d[0] spk_snk[11].d.d[1]
+vector spk_snk12 :1ofN 2 spk_snk[12].d.d[0] spk_snk[12].d.d[1]
+vector spk_snk13 :1ofN 2 spk_snk[13].d.d[0] spk_snk[13].d.d[1]
+vector spk_snk14 :1ofN 2 spk_snk[14].d.d[0] spk_snk[14].d.d[1]
+vector spk_snk15 :1ofN 2 spk_snk[15].d.d[0] spk_snk[15].d.d[1]
+vector spk_snk16 :1ofN 2 spk_snk[16].d.d[0] spk_snk[16].d.d[1]
+vector spk_snk17 :1ofN 2 spk_snk[17].d.d[0] spk_snk[17].d.d[1]
+vector spk_snk18 :1ofN 2 spk_snk[18].d.d[0] spk_snk[18].d.d[1]
+vector spk_snk19 :1ofN 2 spk_snk[19].d.d[0] spk_snk[19].d.d[1]
+vector spk_snk20 :1ofN 2 spk_snk[20].d.d[0] spk_snk[20].d.d[1]
+vector spk_snk21 :1ofN 2 spk_snk[21].d.d[0] spk_snk[21].d.d[1]
+vector spk_snk22 :1ofN 2 spk_snk[22].d.d[0] spk_snk[22].d.d[1]
+vector spk_snk23 :1ofN 2 spk_snk[23].d.d[0] spk_snk[23].d.d[1]
+vector spk_snk24 :1ofN 2 spk_snk[24].d.d[0] spk_snk[24].d.d[1]
+vector spk_snk25 :1ofN 2 spk_snk[25].d.d[0] spk_snk[25].d.d[1]
+vector spk_snk26 :1ofN 2 spk_snk[26].d.d[0] spk_snk[26].d.d[1]
+vector spk_snk27 :1ofN 2 spk_snk[27].d.d[0] spk_snk[27].d.d[1]
+vector spk_snk28 :1ofN 2 spk_snk[28].d.d[0] spk_snk[28].d.d[1]
+vector spk_snk29 :1ofN 2 spk_snk[29].d.d[0] spk_snk[29].d.d[1]
+vector spk_snk30 :1ofN 2 spk_snk[30].d.d[0] spk_snk[30].d.d[1]
+vector spk_snk31 :1ofN 2 spk_snk[31].d.d[0] spk_snk[31].d.d[1]
+vector spk_snk32 :1ofN 2 spk_snk[32].d.d[0] spk_snk[32].d.d[1]
+vector spk_snk33 :1ofN 2 spk_snk[33].d.d[0] spk_snk[33].d.d[1]
+vector spk_snk34 :1ofN 2 spk_snk[34].d.d[0] spk_snk[34].d.d[1]
+vector spk_snk35 :1ofN 2 spk_snk[35].d.d[0] spk_snk[35].d.d[1]
+vector spk_snk36 :1ofN 2 spk_snk[36].d.d[0] spk_snk[36].d.d[1]
+vector spk_snk37 :1ofN 2 spk_snk[37].d.d[0] spk_snk[37].d.d[1]
+vector spk_snk38 :1ofN 2 spk_snk[38].d.d[0] spk_snk[38].d.d[1]
+vector spk_snk39 :1ofN 2 spk_snk[39].d.d[0] spk_snk[39].d.d[1]
+vector spk_snk40 :1ofN 2 spk_snk[40].d.d[0] spk_snk[40].d.d[1]
+vector spk_snk41 :1ofN 2 spk_snk[41].d.d[0] spk_snk[41].d.d[1]
+vector spk_snk42 :1ofN 2 spk_snk[42].d.d[0] spk_snk[42].d.d[1]
+vector spk_snk43 :1ofN 2 spk_snk[43].d.d[0] spk_snk[43].d.d[1]
+vector spk_snk44 :1ofN 2 spk_snk[44].d.d[0] spk_snk[44].d.d[1]
+vector spk_snk45 :1ofN 2 spk_snk[45].d.d[0] spk_snk[45].d.d[1]
+vector spk_snk46 :1ofN 2 spk_snk[46].d.d[0] spk_snk[46].d.d[1]
+vector spk_snk47 :1ofN 2 spk_snk[47].d.d[0] spk_snk[47].d.d[1]
+vector spk_snk48 :1ofN 2 spk_snk[48].d.d[0] spk_snk[48].d.d[1]
+vector spk_snk49 :1ofN 2 spk_snk[49].d.d[0] spk_snk[49].d.d[1]
+vector spk_snk50 :1ofN 2 spk_snk[50].d.d[0] spk_snk[50].d.d[1]
+vector spk_snk51 :1ofN 2 spk_snk[51].d.d[0] spk_snk[51].d.d[1]
+vector spk_snk52 :1ofN 2 spk_snk[52].d.d[0] spk_snk[52].d.d[1]
+vector spk_snk53 :1ofN 2 spk_snk[53].d.d[0] spk_snk[53].d.d[1]
+vector spk_snk54 :1ofN 2 spk_snk[54].d.d[0] spk_snk[54].d.d[1]
+vector spk_snk55 :1ofN 2 spk_snk[55].d.d[0] spk_snk[55].d.d[1]
+vector spk_snk56 :1ofN 2 spk_snk[56].d.d[0] spk_snk[56].d.d[1]
+vector spk_snk57 :1ofN 2 spk_snk[57].d.d[0] spk_snk[57].d.d[1]
+vector spk_snk58 :1ofN 2 spk_snk[58].d.d[0] spk_snk[58].d.d[1]
+vector spk_snk59 :1ofN 2 spk_snk[59].d.d[0] spk_snk[59].d.d[1]
+vector spk_snk60 :1ofN 2 spk_snk[60].d.d[0] spk_snk[60].d.d[1]
+vector spk_snk61 :1ofN 2 spk_snk[61].d.d[0] spk_snk[61].d.d[1]
+vector spk_snk62 :1ofN 2 spk_snk[62].d.d[0] spk_snk[62].d.d[1]
+vector spk_snk63 :1ofN 2 spk_snk[63].d.d[0] spk_snk[63].d.d[1]
+vwatch spk_snk0
+vwatch spk_snk1
+vwatch spk_snk2
+vwatch spk_snk3
+vwatch spk_snk4
+vwatch spk_snk5
+vwatch spk_snk6
+vwatch spk_snk7
+vwatch spk_snk8
+vwatch spk_snk9
+vwatch spk_snk10
+vwatch spk_snk11
+vwatch spk_snk12
+vwatch spk_snk13
+vwatch spk_snk14
+vwatch spk_snk15
+vwatch spk_snk16
+vwatch spk_snk17
+vwatch spk_snk18
+vwatch spk_snk19
+vwatch spk_snk20
+vwatch spk_snk21
+vwatch spk_snk22
+vwatch spk_snk23
+vwatch spk_snk24
+vwatch spk_snk25
+vwatch spk_snk26
+vwatch spk_snk27
+vwatch spk_snk28
+vwatch spk_snk29
+vwatch spk_snk30
+vwatch spk_snk31
+vwatch spk_snk32
+vwatch spk_snk33
+vwatch spk_snk34
+vwatch spk_snk35
+vwatch spk_snk36
+vwatch spk_snk37
+vwatch spk_snk38
+vwatch spk_snk39
+vwatch spk_snk40
+vwatch spk_snk41
+vwatch spk_snk42
+vwatch spk_snk43
+vwatch spk_snk44
+vwatch spk_snk45
+vwatch spk_snk46
+vwatch spk_snk47
+vwatch spk_snk48
+vwatch spk_snk49
+vwatch spk_snk50
+vwatch spk_snk51
+vwatch spk_snk52
+vwatch spk_snk53
+vwatch spk_snk54
+vwatch spk_snk55
+vwatch spk_snk56
+vwatch spk_snk57
+vwatch spk_snk58
+vwatch spk_snk59
+vwatch spk_snk60
+vwatch spk_snk61
+vwatch spk_snk62
+vwatch spk_snk63
+
+random
+break-on-warn
+
+mode reset
+set g.Vdd 1
+set g.GND 0
+set g.vpsub 1
+set g.vnsub 0
+set g._sReset 0
+set g.sReset 1
+set g._pReset 1
+set g.pReset 0
+
+cycle
+
+set g._pReset 0
+set g.pReset 1
+
+cycle
+
+watchall
+
+mode run
+set g._pReset 1
+set g.pReset 0
+
+cycle
+
+set g._sReset 1
+set g.sReset 0
+
+status X
+
+advance 1000100000

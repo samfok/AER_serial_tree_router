@@ -7,16 +7,16 @@ pint M=6;
 pint N=4;
 pint NN=4096; // NN=N^M
 
-::aer::globals g;
+aer::globals g;
 bool Reset = g.sReset;
 
-::aer::e1of<NN> src;
-::aer::eMx1of4<M> snk;
+aer::e1of<NN> src;
+aer::eMx1of4<M> snk;
 
-::aer::AEXT<M, N, NN> aext(g,,,,,);
-::aer::interface::OUT_a1ofN<N> out(g, aext.pp, aext.pi, aext.p,);
-::aer::interface::DESERIAL_RING<M, N> deserial(g, out.y,);
-::aer::SINK_eMx1ofN<M, N> snk_(g, deserial.y);
+aer::AEXT<M, N, NN> aext(g,,,,,);
+aer::interface::OUT_a1ofN<N> out(g, aext.pp, aext.pi, aext.p,);
+aer::interface::DESERIAL_RING<M, N, false> deserial(g, out.y,);
+aer::SINK_eMx1ofN<M, N> snk_(g, deserial.y);
 
 prs<g.Vdd, g.GND> {
     (: nn : NN :
@@ -37,16 +37,16 @@ deserial.y.e = snk.e;
 // pint N=4;
 // pint NN=4096; // NN=N^M
 // 
-// ::aer::globals g;
+// aer::globals g;
 // bool Reset = g.sReset;
 // 
-// ::aer::e1of<NN> src;
-// ::aer::eMx1of4<M> snk;
+// aer::e1of<NN> src;
+// aer::eMx1of4<M> snk;
 // 
-// ::aer::AEXT<M, N, NN> aext(g, src.d,,,,);
-// ::aer::interface::OUT_a1ofN<N> out(g, aext.pp, aext.pi, aext.p,);
-// ::aer::interface::DESERIAL_RING<M, N> deserial(g, out.y,);
-// ::aer::SINK_eMx1ofN<M, N> snk_(g, deserial.y);
+// aer::AEXT<M, N, NN> aext(g, src.d,,,,);
+// aer::interface::OUT_a1ofN<N> out(g, aext.pp, aext.pi, aext.p,);
+// aer::interface::DESERIAL_RING<M, N> deserial(g, out.y,);
+// aer::SINK_eMx1ofN<M, N> snk_(g, deserial.y);
 // 
 // prs<g.Vdd, g.GND> {
 //     (| : nn : NN : aext.xo[nn]) => src.e-

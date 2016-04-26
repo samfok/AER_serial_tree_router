@@ -93,17 +93,23 @@ namespace interface {
         }
 
         export
-        template <pint N>
+        template <pint N; pbool invert_y>
         defproc NODE (globals g; a1of<N> _x; c1of<N> y; bool _si, _so) {
             bool _s, __s, vy;
+            c1of<N> y_;
             c1of<N> _y;
+            [ ~invert_y ->
+                y_ = y;
+            [] invert_y ->
+                _y = y;
+            ]
             [ ~LAYOUT ->
                 prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     _s => __s-
 
                     (: n : N :
-                        ~__s & ~_si & ~_x.d[n] -> y.d[n]+
-                        _si -> y.d[n]-
+                        ~__s & ~_si & ~_x.d[n] -> y_.d[n]+
+                        _si -> y_.d[n]-
                     )
 
                     _so & vy => _x.a-
@@ -114,7 +120,7 @@ namespace interface {
                     __s => _so-
 
                     (: n : N :
-                        y.d[n] => _y.d[n]-
+                        y_.d[n] => _y.d[n]-
                     )
 
                     (| : n : N : ~_y.d[n]) => vy+
@@ -125,8 +131,8 @@ namespace interface {
                     _s<10> -> __s-
 
                     (: n : N :
-                        ~__s<27> & ~_x.d[n]<27> & ~_si<27> -> y.d[n]+
-                        _si<15> -> y.d[n]-
+                        ~__s<27> & ~_x.d[n]<27> & ~_si<27> -> y_.d[n]+
+                        _si<15> -> y_.d[n]-
                     )
 
                     _so<9> & vy<9> -> _x.a-
@@ -139,8 +145,8 @@ namespace interface {
                     ~__s<18> -> _so+
 
                     (: n : N :
-                        ~y.d[n]<12> -> _y.d[n]+
-                        y.d[n]<12> -> _y.d[n]-
+                        ~y_.d[n]<12> -> _y.d[n]+
+                        y_.d[n]<12> -> _y.d[n]-
                     )
 
                     (| : n : N : ~_y.d[n]<12>) -> vy+
@@ -151,12 +157,14 @@ namespace interface {
     } // namespace deserial_ring
 
     export
-    template <pint M, N>
+    template <pint M, N; pbool invert_y>
     defproc DESERIAL_RING (globals g; a1of<N> x; eMx1ofN<M, N> y) {
         // convert AEXT/AERV serial protocol to eMx1ofN with ring
         // first word in input is highest order word in output
+        // M 1-in-N words
+        // invert_y flip the sense of y
         deserial_ring::SPLIT<M, N> split(g, x,);
-        deserial_ring::NODE<N> node[M];
+        deserial_ring::NODE<N, invert_y> node[M];
         (; m : M :
             node[m].g = g;
             node[m]._x = split._y[m];
