@@ -4,26 +4,26 @@ import "aer/lib/compat_bs.act";
 
 pint M = 6;
 
-::aer::globals g_aer;
-::aer::globals g = g_aer;
+aer::globals g_aer;
+aer::globals g = g_aer;
 globals g_bs;
-::compat_bs::globals g_compat(g_aer, g_bs);
+compat_bs::globals g_compat(g_aer, g_bs);
 bool Reset = g.sReset;
 
-::aer::eMx1of2<M> src;
-::aer::e1of2 src_[M];
+aer::eMx1of2<M> src;
+aer::e1of2 src_[M];
 (; m : M :
     src.m[m] = src_[m].m;
     src.e = src_[m].e;
 )
 
 serializer::AERSERN<M> serial(g_bs,,,,);
-::aer::interface::SERIAL_MERGE<2, 4> merge(g,,,,,,);
-::aer::interface::OUT_e1ofN<4> out(g, merge.yp, merge.yi, merge.y,);
-::aer::SINK_e1ofN<4> snk(g, out.y);
+aer::interface::SERIAL_MERGE<2, 4> merge(g,,,,,,);
+aer::interface::OUT_e1ofN<4> out(g, merge.yp, merge.yi, merge.y,);
+aer::SINK_e1ofN<4> snk(g, out.y);
 
-::compat_bs::eMx1of2<M> serial_I(src, serial.I);
-::compat_bs::d1of<4> serial_Od(, serial.Od);
+compat_bs::eMx1of2<M> serial_I(src, serial.I);
+compat_bs::d1of<4> serial_Od(, serial.Od);
 
 merge.xp[0] = serial.Op;
 merge.xp[1] = g.GND;

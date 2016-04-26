@@ -1,0 +1,4 @@
+This directory is for testing the memory defined in the brainstorm library.
+These tests can only be run if this aer repository is positioned as a
+directory within the brainstorm repository, namely as a directory within
+brainstorm/act.
