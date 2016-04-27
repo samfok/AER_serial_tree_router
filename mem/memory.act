@@ -1,6 +1,8 @@
 // contains a modified version of the brainstorm config memory definition
 // assumes aer repository positioned as submodule within brainstorm repository
 // i.e. as brainstorm/act/aer
+import "aer/lib/channel.act";
+import "aer/lib/comm.act";
 import "lib/channel.act";
 import "lib/logic.act";
 import "mem/interface.act";
@@ -10,8 +12,51 @@ import "mem/config_bank.act";
 
 namespace aer {
 
+template <pint M_1of4, M_1of2>
+defproc word_1of4_to_1of2 (globals g; c1of4 _x[M_1of4]; c1of2 y[M_1of2]) {
+    // converts word from Mx1of4 to Mx1of2
+    M_1of2 = (M_1of4*2); // assert
+    prs<g.Vdd, g.GND> {
+        (: m4 : M_1of4 :
+            ~_x[m4].d[0]<9> | ~_x[m4].d[2]<9> -> y[m4*2].d[0]+
+            _x[m4].d[0]<12> & _x[m4].d[2]<12> -> y[m4*2].d[0]-
+
+            ~_x[m4].d[1]<9> | ~_x[m4].d[3]<9> -> y[m4*2].d[1]+
+            _x[m4].d[1]<12> & _x[m4].d[3]<12> -> y[m4*2].d[1]-
+
+            ~_x[m4].d[0]<9> | ~_x[m4].d[1]<9> -> y[m4*2+1].d[0]+
+            _x[m4].d[0]<12> & _x[m4].d[1]<12> -> y[m4*2+1].d[0]-
+
+            ~_x[m4].d[2]<9> | ~_x[m4].d[3]<9> -> y[m4*2+1].d[1]+
+            _x[m4].d[2]<12> & _x[m4].d[3]<12> -> y[m4*2+1].d[1]-
+        )
+    }
+}
+
+template <pint log4_rows>
+defproc row_vn (globals g; c1of4 _row_addr[log4_rows]; bool vn) {
+    // checks validity/neutrality of row address data
+    pint D = 4; // 1-in-D data
+    pint M = log4_rows;
+    bool v[M];
+    bool _vn;
+    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+        (: m : M :
+            (& : d : D : _row_addr[m].d[d]<12>) -> v[m]-
+            (| : d : D : ~_row_addr[m].d[d]<9>) -> v[m]+
+        )
+
+        (& : m : M : ~v[m]<12>) -> _vn+
+        (& : m : M : v[m]<6>) -> _vn-
+
+        ~_vn<9> -> vn+
+        _vn<6> -> vn-
+    }
+}
+
+
 template <pint log4_rows, rows>
-defproc config_sram_row_addr_decoder(globals g; c1of4 row_addr[log4_rows]; bool row_select[rows], write_e, data_e) {
+defproc config_sram_row_addr_decoder (globals g; c1of4 _row_addr[log4_rows]; bool row_select[rows], write_e, data_e) {
     // Converts log4_rows address 1of4 words into an array of row select lines
     // Only supports hardcoded log4_rows and rows. Can be made to support 
     // variable parameter values if necessary.
@@ -19,70 +64,30 @@ defproc config_sram_row_addr_decoder(globals g; c1of4 row_addr[log4_rows]; bool 
     rows = 16; // assert
     pint D = 4; // 1-in-D data
 
-    VN_eMx1ofN<log4_rows, D> vn(g,);
-    (; m : log4_rows :
-        vn.d.m[m].d = row_addr[m].d;
-    )
+    row_vn<log4_rows> vn(g, _row_addr,); 
 
+    bool  _write_e;
     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-        vn.d.e & write_e -> data_e+
-        ~vn.d.e & ~write_e -> data_e-
+        ~write_e<9> -> _write_e+
+        write_e<6> -> _write_e-
+
+        ~vn.vn & ~_write_e -> data_e+
+        vn.vn & _write_e -> data_e-
     }
 
     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-        row_addr[0].d[0] & row_addr[1].d[0] -> row_select[0]+
-        ~row_addr[0].d[0] | ~row_addr[1].d[0] -> row_select[0]-
-
-        row_addr[0].d[1] & row_addr[1].d[0] -> row_select[1]+
-        ~row_addr[0].d[1] | ~row_addr[1].d[0] -> row_select[1]-
-
-        row_addr[0].d[2] & row_addr[1].d[0] -> row_select[2]+
-        ~row_addr[0].d[2] | ~row_addr[1].d[0] -> row_select[2]-
-
-        row_addr[0].d[3] & row_addr[1].d[0] -> row_select[3]+
-        ~row_addr[0].d[3] | ~row_addr[1].d[0] -> row_select[3]-
-
-        row_addr[0].d[0] & row_addr[1].d[1] -> row_select[4]+
-        ~row_addr[0].d[0] | ~row_addr[1].d[1] -> row_select[4]-
-
-        row_addr[0].d[1] & row_addr[1].d[1] -> row_select[5]+
-        ~row_addr[0].d[1] | ~row_addr[1].d[1] -> row_select[5]-
-
-        row_addr[0].d[2] & row_addr[1].d[1] -> row_select[6]+
-        ~row_addr[0].d[2] | ~row_addr[1].d[1] -> row_select[6]-
-
-        row_addr[0].d[3] & row_addr[1].d[1] -> row_select[7]+
-        ~row_addr[0].d[3] | ~row_addr[1].d[1] -> row_select[7]-
-
-        row_addr[0].d[0] & row_addr[1].d[2] -> row_select[8]+
-        ~row_addr[0].d[0] | ~row_addr[1].d[2] -> row_select[8]-
-
-        row_addr[0].d[1] & row_addr[1].d[2] -> row_select[9]+
-        ~row_addr[0].d[1] | ~row_addr[1].d[2] -> row_select[9]-
-
-        row_addr[0].d[2] & row_addr[1].d[2] -> row_select[10]+
-        ~row_addr[0].d[2] | ~row_addr[1].d[2] -> row_select[10]-
-
-        row_addr[0].d[3] & row_addr[1].d[2] -> row_select[11]+
-        ~row_addr[0].d[3] | ~row_addr[1].d[2] -> row_select[11]-
-
-        row_addr[0].d[0] & row_addr[1].d[3] -> row_select[12]+
-        ~row_addr[0].d[0] | ~row_addr[1].d[3] -> row_select[12]-
-
-        row_addr[0].d[1] & row_addr[1].d[3] -> row_select[13]+
-        ~row_addr[0].d[1] | ~row_addr[1].d[3] -> row_select[13]-
-
-        row_addr[0].d[2] & row_addr[1].d[3] -> row_select[14]+
-        ~row_addr[0].d[2] | ~row_addr[1].d[3] -> row_select[14]-
-
-        row_addr[0].d[3] & row_addr[1].d[3] -> row_select[15]+
-        ~row_addr[0].d[3] | ~row_addr[1].d[3] -> row_select[15]-
+        (: d : D :
+            (: dd : D :
+                ~_row_addr[0].d[dd] & ~_row_addr[1].d[d] -> row_select[4*d+dd]+
+                _row_addr[0].d[dd] | _row_addr[1].d[d] -> row_select[4*d+dd]-
+            )
+        )
     }
 }
 
 export
 template <pint aerv_words, sram_word_size, cols, rows, log4_rows>
-defproc config_sram_interface (globals g; eMx1of4<aerv_words> aerv_data; eMx1of2<sram_word_size> sram_write; bool sram_col_select[cols], sram_row_select[rows]) {
+defproc config_sram_interface (globals g; eMx1of4<aerv_words> _aerv_data; eMx1of2<sram_word_size> sram_write; bool sram_col_select[cols], sram_row_select[rows]) {
     // -------------------------------
     //         aerv_data
     //  write   coladdr   rowaddr  
@@ -103,15 +108,19 @@ defproc config_sram_interface (globals g; eMx1of4<aerv_words> aerv_data; eMx1of2
     cols = 4; // assert
     rows = 16; //assert
     log4_rows = 2; // assert
-    Mx1of4_to_Mx1of2<1, 2> con_4to2(g,,); // convert the write data to dual rail
+    word_1of4_to_1of2<1, 2> word_4to2(g,,); // convert the write data to dual rail
     config_sram_row_addr_decoder<log4_rows, rows> row_decoder(g,,,,);  // predecode the row address. col address can be used directly
 
-    aerv_data.e = row_decoder.data_e;
-    aerv_data.m[0] = con_4to2.x[0];
-    aerv_data.m[2..3] = row_decoder.row_addr;
+    _aerv_data.e = row_decoder.data_e;
+    _aerv_data.m[0] = word_4to2._x[0];
+    _aerv_data.m[2..3] = row_decoder._row_addr;
     sram_write.e = row_decoder.write_e;
-    sram_write.m = con_4to2.y;
-    sram_col_select = aerv_data.m[1].d;
+    sram_write.m = word_4to2.y;
+    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+        (: d : cols :
+            _aerv_data.m[1].d[d] => sram_col_select[d]-
+        )
+    }
     sram_row_select = row_decoder.row_select;
 }
 
@@ -120,25 +129,25 @@ defproc config_sram_interface (globals g; eMx1of4<aerv_words> aerv_data; eMx1of2
 namespace mem {
 
 /*
-                                col_select
-                         C0     C1      C2     C3  
-                         |      |       |      |
-      write =============&======&=======&======& 
-                         |      |       |      |  
-                        _v______v_______v______v___
-                       | W0     W1      W2     W3 |
-              r R0---->|S0                        |
-              o        |                          |
-              w        |                          |
-              | R1---->|S1                        |
-              s        |                          |
-              e        |          bank            |
-              l        |                          |
-              e R2---->|S2                        |
-              c        |                          |
-              t        |                          |
-                R3---->|S3                        |
-                       |__________________________|
+                                  col_select
+                          C0      C1      C2     C3  
+                          |       |       |       |
+   write =================&=======&=======&=======& 
+                         | |     | |     | |     | |  
+                     ____v v_____v_v_____v_v_____v_v__ 
+                    | W0[f,t] W1[f,t] W2[t,f] W3[t,f] |
+           r R0---->|S0                               |
+           o        |                                 |
+           w        |                                 |
+           | R1---->|S1                               |
+           s    .   |                                 |
+           e    .   |              bank               |
+           l    .   |                                 |
+           e R14--->|S14                              |
+           c        |                                 |
+           t        |                                 |
+             R15--->|S15                              |
+                    |_________________________________|
 
 Notes:
 
