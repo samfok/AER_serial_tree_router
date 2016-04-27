@@ -4,13 +4,22 @@
 import "aer/lib/channel.act";
 import "aer/lib/comm.act";
 import "lib/channel.act";
-import "lib/logic.act";
 import "mem/interface.act";
 import "mem/decoder.act";
 import "mem/bank.act";
 import "mem/config_bank.act";
 
 namespace aer {
+
+template <pint M>
+defproc flip_word_order (globals g; eMx1of4<M> x, y) {
+    //flips the word order from x to y
+    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {} // HACK to appease netgen -b
+    x.e = y.e;
+    (; m : M :
+        x.m[m] = y.m[M-1-m];
+    )
+}
 
 template <pint M_1of4, M_1of2>
 defproc word_1of4_to_1of2 (globals g; c1of4 _x[M_1of4]; c1of2 y[M_1of2]) {
@@ -58,6 +67,7 @@ defproc row_vn (globals g; c1of4 _row_addr[log4_rows]; bool vn) {
 template <pint log4_rows, rows>
 defproc config_sram_row_addr_decoder (globals g; c1of4 _row_addr[log4_rows]; bool row_select[rows], write_e, data_e) {
     // Converts log4_rows address 1of4 words into an array of row select lines
+    // high order word _row_addr[0] low order word _row_addr[1]
     // Only supports hardcoded log4_rows and rows. Can be made to support 
     // variable parameter values if necessary.
     log4_rows = 2; // assert
@@ -78,8 +88,8 @@ defproc config_sram_row_addr_decoder (globals g; c1of4 _row_addr[log4_rows]; boo
     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
         (: d : D :
             (: dd : D :
-                ~_row_addr[0].d[dd] & ~_row_addr[1].d[d] -> row_select[4*d+dd]+
-                _row_addr[0].d[dd] | _row_addr[1].d[d] -> row_select[4*d+dd]-
+                ~_row_addr[0].d[dd] & ~_row_addr[1].d[d] -> row_select[4*dd+d]+
+                _row_addr[0].d[dd] | _row_addr[1].d[d] -> row_select[4*dd+d]-
             )
         )
     }
@@ -111,14 +121,17 @@ defproc config_sram_interface (globals g; eMx1of4<aerv_words> _aerv_data; eMx1of
     word_1of4_to_1of2<1, 2> word_4to2(g,,); // convert the write data to dual rail
     config_sram_row_addr_decoder<log4_rows, rows> row_decoder(g,,,,);  // predecode the row address. col address can be used directly
 
-    _aerv_data.e = row_decoder.data_e;
-    _aerv_data.m[0] = word_4to2._x[0];
-    _aerv_data.m[2..3] = row_decoder._row_addr;
+    eMx1of4<aerv_words>  _aerv_data_;
+    flip_word_order<aerv_words> flip(g, _aerv_data, _aerv_data_);
+
+    _aerv_data_.e = row_decoder.data_e;
+    _aerv_data_.m[0] = word_4to2._x[0];
+    _aerv_data_.m[2..3] = row_decoder._row_addr;
     sram_write.e = row_decoder.write_e;
     sram_write.m = word_4to2.y;
     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
         (: d : cols :
-            _aerv_data.m[1].d[d] => sram_col_select[d]-
+            _aerv_data_.m[1].d[d] => sram_col_select[d]-
         )
     }
     sram_row_select = row_decoder.row_select;

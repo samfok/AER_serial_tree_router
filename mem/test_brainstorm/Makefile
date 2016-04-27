@@ -17,7 +17,7 @@ sim/%.sim: prs/%.prs %.rc
 
 prs: $(PRS_OBJS)
 
-prs/%.prs: %.act ${ACT_PATH}/aer/aerv/aerv.act ${ACT_PATH}/aer/aerv/bs_aerv.act
+prs/%.prs: %.act ${ACT_PATH}/aer/aerv/aerv.act ${ACT_PATH}/aer/aerv/bs_aerv.act ${ACT_PATH}/aer/mem/memory.act
 	@mkdir -p prs
 	@printf 'compiling %s...\n' $(subst .act,,$(<F))
 	@cflat -DLAYOUT=false $< > $@ || rm -f $@	
