@@ -11,7 +11,7 @@ e1of<2> src;
 
 AEXT<M, N, NN> aext(g,,,,,);
 interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
-interface::DESERIAL_RING<M, N> deserial(g, out.y,);
+interface::DESERIAL_RING<M, N, false, true> deserial(g, out.y,);
 SINK_eMx1ofN<M, N> snk_(g, deserial.y);
 
 src.d[0] = aext.xi[0];

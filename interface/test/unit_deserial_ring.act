@@ -12,7 +12,7 @@ d.d = src.d;
 prs<g.Vdd, g.GND> {
     d.a => src.e-
 }
-aer::interface::DESERIAL_RING<M, N, false> deserial(g, d, snk.d);
+aer::interface::DESERIAL_RING<M, N, false, true> deserial(g, d, snk.d);
 
 // break up eMx1ofN into M e1ofN channels for parsing
 aer::e1of<N> snk_[M];

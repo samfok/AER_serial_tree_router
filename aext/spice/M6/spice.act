@@ -18,7 +18,7 @@ export defproc Wrapper(globals_np g_np; a1of<1> src; eMx1of4<6> snk)
     transmitter::NODE<N, false> node[4];
     transmitter::LEAF<N, false> leaf(g,,, node[0].co[0], node[0]._cp[0], node[0]._c[0]);
     interface::OUT_a1ofN<N> out(g,, root.pi, root._p,);
-    interface::DESERIAL_RING<M, N> deserial(g, out.y,);
+    interface::DESERIAL_RING<M, N, false, true> deserial(g, out.y,);
     (; m : 4 : 
         node[m].g = g;
     )

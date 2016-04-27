@@ -12,7 +12,7 @@ export defproc Wrapper(globals_np g_np; a1of<4> src; eMx1of4<4> snk)
 
     pint M = 4;
     pint N = 4;
-    interface::DESERIAL_RING<M, N> deserial(g,,);
+    interface::DESERIAL_RING<M, N, false, true> deserial(g,,);
 
     g.Vdd = Vdd;
     g.GND = GND;

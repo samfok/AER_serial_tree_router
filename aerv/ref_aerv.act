@@ -174,7 +174,7 @@ namespace brain_receiver {
         pint D = 4; // 1-of-D data
 
         MERGE_ACK<1> merge_ack(g, xp, xo,);
-        ::aer::interface::DESERIAL_RING<M, D, true> deserial(g,,);
+        ::aer::interface::DESERIAL_RING<M, D, true, true> deserial(g,,);
         deserial.x.d = x.d;
         deserial.x.a = merge_ack.ci[0];
         (; m : M :

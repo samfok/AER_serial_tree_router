@@ -15,7 +15,7 @@ export defproc Wrapper(aer::globals_np g_np; aer::a1of<1> src[64]; aer::eMx1of4<
     pint NN = 64;
     aer::AEXT<M, N, NN> aext(g,,,,,);
     aer::interface::OUT_a1ofN<N> out(aext.g, aext.pp, aext.pi, aext.p,);
-    aer::interface::DESERIAL_RING<M, N> deserial(aext.g, out.y,);
+    aer::interface::DESERIAL_RING<M, N, false, true> deserial(aext.g, out.y,);
 
     // rails and reset
     g.Vdd = Vdd;

@@ -6,4 +6,4 @@ pint N=2;
 aer::globals g;
 aer::SOURCE_random_a1ofN<N> src(g,);
 aer::SINK_eMx1ofN<M, N> snk(g,);
-aer::interface::DESERIAL_RING<M, N, false> deserial(g, src.d, snk.d);
+aer::interface::DESERIAL_RING<M, N, false, true> deserial(g, src.d, snk.d);

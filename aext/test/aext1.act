@@ -11,7 +11,7 @@ aer::globals g;
 aer::SOURCE_random_a1of1 src(g,);
 aer::AEXT<M, N, NN> aext(g,,,,,);
 aer::interface::OUT_a1ofN<N> out(g, aext.pp, aext.pi, aext.p,);
-aer::interface::DESERIAL_RING<M, N, false> deserial(g, out.y,);
+aer::interface::DESERIAL_RING<M, N, false, true> deserial(g, out.y,);
 aer::SINK_eMx1ofN<M, N> snk(g, deserial.y);
 
 [ nn > 0 ->
@@ -42,7 +42,7 @@ prs<g.Vdd, g.GND> {
 // aer::active_handshaker<1> a(g,,);
 // aer::AEXT<M, N, NN> aext(g,,,,,);
 // aer::interface::OUT_a1ofN<N> out(g, aext.pp, aext.pi, aext.p,);
-// aer::interface::DESERIAL_RING<M, N> deserial(
+// aer::interface::DESERIAL_RING<M, N, false, true> deserial(
 //     g, out.y,);
 // aer::SINK_eMx1ofN<M, N> snk(g, deserial.y);
 // 
