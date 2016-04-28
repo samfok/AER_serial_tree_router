@@ -1,0 +1,74 @@
+// tests that brain aerv can:
+//  - deliver memory packets
+// tests that the memory interface can:
+//  - decode row addresses 
+//  - convert words from 1of4 to 1of2
+// Spikes are randomly injected into input stream.
+import "aer/aerv/bs_aerv.act";
+import "aer/lib/test.act";
+import "aer/lib/compat_bs.act";
+import "aer/mem/memory.act";
+
+pint M_1of4     = 1;
+pint M_1of2     = 2*M_1of4;
+pint Mp4        = 4; // 4**M_1of4
+pint M_SPK_1of4 = M_1of4+1;
+pint M_SPK_1of2 = 2*M_SPK_1of4;
+pint M_MEM_1of4 = M_1of4+4;
+pint M_MEM_1of2 = 2*M_MEM_1of4;
+pint N_SYN      = Mp4;
+pint N_MEM      = N_SYN/4;
+pint D          = 4;
+
+
+aer::globals g_aer;
+aer::globals g = g_aer;
+globals g_bs;
+compat_bs::globals g_compat(g_aer, g_bs);
+bool Reset = g.sReset;
+
+aer::SOURCE_BRAIN_AERV<M_SPK_1of4, M_SPK_1of4-M_1of4, 0, 2> spk_src(g,);
+aer::eMx1of4<M_MEM_1of4> mem_src;
+aer::eMx1of4_to_eMx1of2<M_SPK_1of4, M_SPK_1of2> spk_src_4to2(g, spk_src.d,);
+aer::eMx1of4_to_eMx1of2<M_MEM_1of4, M_MEM_1of2> mem_src_4to2(g, mem_src,);
+aer::SYNAPSE spk_snk[N_SYN];
+
+pint rows = 16;
+pint log4_rows = 2;
+pint cols = 4;
+pint word_size = 2;
+pint write_delay = 0;
+pint precharge_delay = 0;
+pint pn = 2;
+pint width = 10;
+aer::config_sram_interface<M_MEM_1of4-M_1of4, word_size, cols, rows, log4_rows> sram_interface[N_MEM];
+mem::config_sramNxM_addr_decoded<rows, cols, word_size, write_delay, precharge_delay, pn, width> sram[N_MEM];
+compat_bs::eMx1of2<word_size> write[N_MEM];
+aer::eMx1of4<M_MEM_1of4-M_1of4> aerv__y_mem[N_MEM];
+(; n : N_MEM :
+    sram_interface[n].g = g;
+    sram[n].g = g_bs;
+    sram_interface[n]._aerv_data = aerv__y_mem[n];
+    write[n].aer = sram_interface[n].sram_write;
+    write[n].bs = sram[n].write;
+    sram_interface[n].sram_col_select = sram[n].col_select;
+    sram_interface[n].sram_row_select = sram[n].row_select;
+)
+
+aer::a1of2 aerv_y_syn[N_SYN];
+(; n : N_SYN :
+    spk_snk[n].g = g;
+    spk_snk[n].spk = aerv_y_syn[n];
+)
+
+BS_AERV<M_1of2, M_1of4, Mp4, M_SPK_1of2, M_SPK_1of4, M_MEM_1of2, M_MEM_1of4, N_SYN, N_MEM> aerv(
+    g, spk_src_4to2.y, mem_src_4to2.y, aerv_y_syn, aerv__y_mem);
+
+aer::eMx1of2<word_size> mem_write;
+aer::e1of<4> mem_col_select;
+aer::e1of<16> mem_row_select;
+mem_write = sram_interface[0].sram_write;
+mem_col_select.d = sram_interface[0].sram_col_select;
+mem_col_select.e = mem_write.e;
+mem_row_select.d = sram_interface[0].sram_row_select;
+mem_row_select.e = mem_write.e;
