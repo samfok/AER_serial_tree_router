@@ -1,4 +1,5 @@
-\documentclass[aer.tex]{subfiles}
+\documentclass{article}
+\usepackage{mystyle}
 
 \begin{document}
 
@@ -65,7 +66,7 @@ The N-way arbiter $N\_ARB$ arbitrates between N clients (see Figure~\ref{fig:n_a
 
 \begin{figure}
   \centering
-  \includegraphics[width=.5\textwidth]{img/transmitter/n_arb.pdf}
+  \includegraphics[width=.5\textwidth]{img/n_arb.pdf}
   \caption{N\_ARB arbitrates between N children.}
   \label{fig:n_arb}
 \end{figure}
@@ -77,7 +78,7 @@ N_ARB\equiv
 
 \begin{figure}
   \centering
-  \includegraphics[width=.5\textwidth]{img/transmitter/n_arb_n_arb_.pdf}
+  \includegraphics[width=.5\textwidth]{img/n_arb_n_arb_.pdf}
   \caption{N\_ARB decomposed as a binary tree of N\_ARB\_ cells. Here is an N\_ARB instance servicing 4 children. The top N\_ARB\_ cell can simplified to not have a P port or have its P connected back to itself.}
   \label{fig:n_arb_n_arb_}
 \end{figure}
@@ -382,11 +383,11 @@ accounting:
     \begin{tabular}{|r|l|l|}
     \hline
     rule & transistor count & comments \\ \hline
-    $\_p_o$ & 8 & \\ \hline
+    $\_p_o$ & 8 & staticized by $p_o$ \\ \hline
     $c[0,1]$ & 12 & standard 2-way arbiter \\ \hline
-    $\_c[0,1]_o$ & 8 & \\ \hline
-    $p_o$ & 4 & staticizer \\ \hline
-    $c[0,1]_o$ & 8 & staticizer \\ \hline
+    $\_c[0,1]_o$ & 8 & staticized by $c[0,1]_o$ \\ \hline
+    $p_o$ & 4 & staticizes $\_p_o$ \\ \hline
+    $c[0,1]_o$ & 8 & staticizes $\_c[0,1]_o$ \\ \hline
     \hline total & 40 & \\ \hline
     \end{tabular}
 \end{center}
@@ -444,7 +445,7 @@ H\_ARB implements a greedy yet fair arbitration algorithm. H\_ARB is greedy beca
 
 \begin{figure}
   \centering
-  \includegraphics[width=.5\textwidth]{img/transmitter/arb_h_detail.pdf}
+  \includegraphics[width=.5\textwidth]{img/arb_h_detail.pdf}
   \caption{$H\_ARB$ decomposition. Dotted line indicates wire used for probing only.}
   \label{fig:h_arb_detail}
 \end{figure}
@@ -457,7 +458,7 @@ H\_ARB\equiv\!CTRL\pll\!C_ARB\pll\!C_ARB
 
 \begin{figure}
   \centering
-  \includegraphics[width=.7\textwidth]{img/transmitter/H_ARB_bubble_reshuffled.pdf}
+  \includegraphics[width=.7\textwidth]{img/H_ARB_bubble_reshuffled.pdf}
   \caption{H\_ARB after bubble reshuffling. Ports are expanded and inverters introduced by bubble reshuffling are shown.}
   \label{fig:h_arb_bubbled}
 \end{figure}
