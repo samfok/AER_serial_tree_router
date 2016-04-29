@@ -150,62 +150,126 @@ namespace receiver {
         // node in AERV tree
         pint D = 4; // 1-of-D data
         pint F = 3; // fanout ports
-        bool pp, _u[F], uu, _uu, v, _v;
+        bool __pp, _u[F], uu, _uu, v, _v;
         e1of2 syn_[2][2];
         (; c : 2 : (; s : 2 : syn_[c][s] = syn[2*c+s];))
         c1of2 _syn_d[2][2];
         c1of4 _mem;
-        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-            (| : f : F : ~_u[f]) => uu+
+        [ ~LAYOUT ->
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+                (| : f : F : ~_u[f]) => uu+
 
-            uu => _uu-
+                uu => _uu-
 
-            pp & _uu |
-            (|:c:2: cp[c] & (&:s:2: (&:d:2: _syn_d[c][s].d[d]))) | ci[2] => _po-
+                __pp & _uu |
+                (|:c:2: cp[c] & (&:s:2: (&:d:2: _syn_d[c][s].d[d]))) | ci[2] => _po-
 
-            v => _v-
-            
-            (: f : F :
-                p.d[f] & _v -> _u[f]-
-                ~pp -> _u[f]+
-            )
+                v => _v-
+                
+                (: f : F :
+                    p.d[f] & _v -> _u[f]-
+                    ~__pp -> _u[f]+
+                )
 
-            ~_uu & (& : f : F : ~p.d[f]) -> v+
-            _uu -> v-
+                ~_uu & (& : f : F : ~p.d[f]) -> v+
+                _uu -> v-
 
-            (: f : F :
-                ~_v & ~_u[f] => cp[f]+
-            )
+                (: f : F :
+                    ~_v & ~_u[f] => cp[f]+
+                )
 
-            (: c : 2 :
-                (: s : 2 :
-                    (: d : 2 :
-                        p.d[2*s+d] & cp[c] & syn_[c][s].e -> _syn_d[c][s].d[d]-
-                        g.pReset | ~p.d[2*s+d] & ~syn_[c][s].e -> _syn_d[c][s].d[d]+
+                (: c : 2 :
+                    (: s : 2 :
+                        (: d : 2 :
+                            p.d[2*s+d] & cp[c] & syn_[c][s].e -> _syn_d[c][s].d[d]-
+                            ~g._pReset | ~p.d[2*s+d] & ~syn_[c][s].e -> _syn_d[c][s].d[d]+
+                        )
                     )
                 )
-            )
 
-            (: d : D :
-                p.d[d] & cp[2] => _mem.d[d]-
-            )
-        }
-        // inverters for interfaces
-        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-            _pp => pp-
+                (: d : D :
+                    p.d[d] & cp[2] => _mem.d[d]-
+                )
+            }
+            // inverters for interfaces
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+                _pp => __pp-
 
-            (: c : 2 :
-                (: s : 2 :
-                    (: d : 2 :
-                        _syn_d[c][s].d[d] => syn_[c][s].d[d]-
+                (: c : 2 :
+                    (: s : 2 :
+                        (: d : 2 :
+                            _syn_d[c][s].d[d] => syn_[c][s].d[d]-
+                        )
                     )
                 )
-            )
 
-            (: d : D :
-                _mem.d[d] => mem.d[d]-
-            )
-        }
+                (: d : D :
+                    _mem.d[d] => mem.d[d]-
+                )
+            }
+        [] LAYOUT ->
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+                (| : f : F : ~_u[f]<9>) -> uu+
+                (& : f : F : _u[f]<18>) -> uu-
+
+                ~uu<9> -> _uu+
+                uu<6> -> _uu-
+
+                __pp<12> & _uu<12> |
+                (|:c:2: cp[c]<18> & (&:s:2: (&:d:2: _syn_d[c][s].d[d]<18>))) | ci[2]<6> -> _po-
+                (~__pp<27> | ~_uu<27>) &
+                (&:c:2: ~cp[c]<27> | (|:s:2: (|:d:2: ~_syn_d[c][s].d[d]<27>))) & ~ci[2]<27> -> _po+
+
+                ~v<9> -> _v+
+                v<6> -> _v-
+                
+                (: f : F :
+                    p.d[f]<12> & _v<12> -> _u[f]-
+                    ~__pp<9> -> _u[f]+
+                )
+
+                ~_uu<18> & (& : f : F : ~p.d[f]<18>) -> v+
+                _uu<6> -> v-
+
+                (: f : F :
+                    ~_v<18> & ~_u[f]<18> -> cp[f]+
+                    _v<6> | _u[f]<6> -> cp[f]-
+                )
+
+                (: c : 2 :
+                    (: s : 2 :
+                        (: d : 2 :
+                            p.d[2*s+d]<18> & cp[c]<18> & syn_[c][s].e<18> -> _syn_d[c][s].d[d]-
+                            ~g._pReset | ~p.d[2*s+d]<18> & ~syn_[c][s].e<18> -> _syn_d[c][s].d[d]+
+                        )
+                    )
+                )
+
+                (: d : D :
+                    p.d[d] & cp[2] -> _mem.d[d]-
+                    ~p.d[d] | ~cp[2] -> _mem.d[d]+
+                )
+            }
+            // inverters for interfaces
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+                _pp<6> -> __pp-
+                ~_pp<9> -> __pp+
+
+                (: c : 2 :
+                    (: s : 2 :
+                        (: d : 2 :
+                            _syn_d[c][s].d[d]<6> -> syn_[c][s].d[d]-
+                            ~_syn_d[c][s].d[d]<9> -> syn_[c][s].d[d]+
+                        )
+                    )
+                )
+
+                (: d : D :
+                    _mem.d[d]<6> -> mem.d[d]-
+                    ~_mem.d[d]<9> -> mem.d[d]+
+                )
+            }
+        ]
 
         // ground dummy nodes
         ci[0] = g.GND;
@@ -355,8 +419,8 @@ namespace brain_receiver {
                 ~pp<9> -> _pp+
                 pp<6> -> _pp-
 
-                ~_pp & (& : c : C : ~ci[c]) -> po+
-                _pp | (| : c : C : ci[c]) -> po-
+                ~_pp<12> & (& : c : C : ~ci[c]<12>) -> po+
+                _pp<6> | (| : c : C : ci[c]<6>) -> po-
             }
         ]
     }

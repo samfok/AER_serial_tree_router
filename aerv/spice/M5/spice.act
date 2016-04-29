@@ -32,8 +32,7 @@ export defproc Wrapper(globals_np g_np; eMx1of4<6> spk_src; a1of2 syn_snk)
     interface::SERIAL_MERGE<2, D> merge(g,,,,,,);
     receiver::NODE<F_INT, D> root(g,,,,,,);
     receiver::NODE<F_INT, D> node[M-2];
-    receiver::NODE<F_LEAF, D> leaf(g,,,,,,);
-    brain_receiver::MERGE_ACK<2> ack_syn(g,,,);
+    receiver::LEAF leaf(g,,,,,,,);
     brain_receiver::HALF_BUFFER buf_syn(g,,);
     // connect globals
     (; m : M-2 :
@@ -90,22 +89,12 @@ export defproc Wrapper(globals_np g_np; eMx1of4<6> spk_src; a1of2 syn_snk)
     )
     node[M-3].c[0] = leaf.p;
 
-    // connect leaf to ack_syn
-    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-        ~leaf._cp[0]<9> -> ack_syn.pp+
-        leaf._cp[0]<6> -> ack_syn.pp-
-    }
-    leaf._ci[0] = ack_syn._po;
-    (; f : 1..F_LEAF-1 :
-        leaf._ci[f] = g.Vdd;
-    )
-
-    //  connect ack_syn to buf_syn
-    ack_syn.ci[0] = buf_syn.x.a;
-    ack_syn.ci[1] = g.GND;
-
     // connect leaf to buf_syn
-    leaf.c[0].d[0..1] = buf_syn.x.d;
+    leaf.syn[0] = buf_syn.x;
+
+    // connect unused leaf ports to rails
+    leaf.syn[1].e = g.Vdd;
+    leaf.ci[2] = g.GND;
 
     // connect buf_syn to snk
     buf_syn.y = syn_snk;

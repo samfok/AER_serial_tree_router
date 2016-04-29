@@ -11,13 +11,6 @@ export defproc Wrapper(globals_np g_np; eMx1of4<4> spk_src; eMx1of4<4> mem_src;
     bool vnsub;
     globals g;
 
-    pint M = 3;
-    pint M_SPK = M+1;
-    pint M_MEM = M+1;
-    pint N_SYN = 64;
-    pint N_MEM = 16;
-    BRAIN_AERV<M, M_SPK, M_MEM, N_SYN, N_MEM> aerv(g,,,,);
-
     // rails and reset
     g.Vdd = Vdd;
     g.GND = GND;
@@ -30,13 +23,33 @@ export defproc Wrapper(globals_np g_np; eMx1of4<4> spk_src; eMx1of4<4> mem_src;
     g._pReset = g_np._pReset;
     g._sReset = g_np._sReset;
 
+    pint M     = 3;
+    pint Mp4   = 64; // 4**M
+    pint M_SPK = M+1;
+    pint M_MEM = M+1;
+    pint N_SYN = 64;
+    pint N_MEM = 16;
+    pint D     = 4;
+    BRAIN_AERV<M, Mp4, M_SPK, M_MEM, N_SYN, N_MEM> aerv(g,,,,);
+
     // connect src
     spk_src = aerv.x_spk;
     mem_src = aerv.x_mem;
 
     // connect snk
     syn_snk = aerv.y_syn;
-    mem_snk = aerv.y_mem;
+    (; n : N_MEM :
+        mem_snk[n].e = aerv._y_mem[n].e;
+    )
+    prs <Vdd, GND> {
+        (: n : N_MEM :
+            (: m : M_MEM-M :
+                (: d : D :
+                    aerv._y_mem[n].m[m].d[d] => mem_snk[n].m[m].d[d]-
+                )
+            )
+        )
+    }
 }
 
 } // namespace aer
