@@ -1,0 +1,113 @@
+import "aer/aerv/aerv.act";
+
+namespace aer {
+
+export defproc Wrapper(globals_np g_np; eMx1of4<9> mem_src; eMx1of4<4> mem_snk)
+{
+    bool Vdd;
+    bool GND;
+    bool vpsub;
+    bool vnsub;
+    globals g;
+
+    // rails and reset
+    g.Vdd = Vdd;
+    g.GND = GND;
+    g.vpsub = vpsub;
+    g.vnsub = vnsub;
+    prs <Vdd, GND> {
+        g_np._sReset<20> => g.sReset-
+        g_np._pReset<20> => g.pReset-
+    }
+    g._pReset = g_np._pReset;
+    g._sReset = g_np._sReset;
+
+    pint M = 5;
+    pint M_MEM = M+4;
+    pint F_INT = 4;
+    pint D = 4;
+
+    interface::SERIAL_RING<M_MEM, D> serial_mem(g,,,,);
+    interface::SERIAL_MERGE<2, D> merge(g,,,,,,);
+    receiver::NODE<F_INT, D> root(g,,,,,,);
+    receiver::NODE<F_INT, D> node[M-2];
+    receiver::LEAF leaf(g,,,,,,,);
+    brain_receiver::DESERIALIZER<M_MEM-M> mem_deserial(g,,,,);
+    // connect globals
+    (; m : M-2 :
+        node[m].g = g;
+    )
+
+    // connect mem_src to spike serializer
+    mem_src.e = serial_mem.x.e;
+    (; m : M_MEM :
+        mem_src.m[m].d = serial_mem.x.m[m].d;
+    )
+
+    // connect spike serializer to serial merge
+    serial_mem.yp = merge.xp[1];
+    g.GND = merge.xp[0];
+    serial_mem.yi = merge.xo[1];
+    serial_mem.y = merge.x[1];
+    (; d : D :
+        merge.x[1].d[d] = g.GND;
+    )
+
+    // connect serial merge to root
+    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+        ~merge.yp<9> -> root._pp+
+        merge.yp<6> -> root._pp-
+        ~root._po<9> -> merge.yi+
+        root._po<6> -> merge.yi-
+    }
+    merge.y = root.p;
+
+    // connect root to node[0]
+    root._cp[0] = node[0]._pp;
+    root._ci[0] = node[0]._po;
+    (; f : 1..F_INT-1 :
+        root._ci[f] = g.Vdd;
+    )
+    root.c[0] = node[0].p;
+
+    // connect nodes
+    (; m : M-3 :
+        node[m]._cp[0] = node[m+1]._pp;
+        node[m]._ci[0] = node[m+1]._po;
+        (; f : 1..F_INT-1 :
+            node[m]._ci[f] = g.Vdd;
+        )
+        node[m].c[0] = node[m+1].p;
+    )
+
+    // connect node[-1] to leaf
+    node[M-3]._cp[0] = leaf._pp;
+    node[M-3]._ci[0] = leaf._po;
+    (; f : 1..F_INT-1 :
+        node[M-3]._ci[f] = g.Vdd;
+    )
+    node[M-3].c[0] = leaf.p;
+
+    // connect leaf to mem_deserial
+    leaf.cp[2] = mem_deserial.xp;
+    leaf.ci[2] = mem_deserial.xo;
+    leaf.mem = mem_deserial.x;
+
+    // connect unused leaf ports to rails
+    leaf.syn[0].e = g.Vdd;
+    leaf.syn[1].e = g.Vdd;
+
+    // connect mem_deserial to snk
+    mem_deserial._y.e = mem_snk.e;
+    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+        (: m : M_MEM-M :
+            (: d : D :
+                mem_deserial._y.m[m].d[d] => mem_snk.m[m].d[d]-
+            )
+        )
+    }
+}
+
+} // namespace aer
+
+::aer::Wrapper dut;
