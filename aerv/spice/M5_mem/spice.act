@@ -50,7 +50,7 @@ export defproc Wrapper(globals_np g_np; eMx1of4<9> mem_src; eMx1of4<4> mem_snk)
     serial_mem.yi = merge.xo[1];
     serial_mem.y = merge.x[1];
     (; d : D :
-        merge.x[1].d[d] = g.GND;
+        merge.x[0].d[d] = g.GND;
     )
 
     // connect serial merge to root
@@ -96,6 +96,8 @@ export defproc Wrapper(globals_np g_np; eMx1of4<9> mem_src; eMx1of4<4> mem_snk)
     // connect unused leaf ports to rails
     leaf.syn[0].e = g.Vdd;
     leaf.syn[1].e = g.Vdd;
+    leaf.syn[2].e = g.Vdd;
+    leaf.syn[3].e = g.Vdd;
 
     // connect mem_deserial to snk
     mem_deserial._y.e = mem_snk.e;
