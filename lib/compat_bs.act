@@ -18,12 +18,14 @@ namespace compat_bs {
       aer._sReset = bs._sReset;
       aer.vpsub = bs.vpsub;
       aer.vnsub = bs.vnsub;
+      prs {} // HACK so netgen -B doesn't complain
   }
 
   export
   template <pint N>
   defproc d1of (::aer::d1of<N> aer;  d1of<N> bs) {
       aer.d = bs.d;
+      prs {} // HACK so netgen -B doesn't complain
   }
 
   export
@@ -33,5 +35,6 @@ namespace compat_bs {
       (; m : M :
           aer.b[m].d = bs.b[m].d;
       )
+      prs {} // HACK so netgen -B doesn't complain
   }
 } // namespace compat_bs
