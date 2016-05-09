@@ -308,6 +308,47 @@ namespace receiver {
     }
 
     export
+    template <pint D; pint cap_a, cap_b>
+    defproc AMP_WIRES (globals g; bool _pcp, _pci, _cpp, _cpo; c1of<D> pc, cp) {
+        // model the amplifiers and wire capacitances internal to the aerv tree
+        // cap_a capacitance from source to repeater (72 fF)
+        // cap_b capacitance from repeater to destination (150 fF)
+        bool _pcp_cpp[3]; // connect parent _cp to child _pp
+        bool _cpo_pci[3]; // connect child _po to parent _ci
+        c1of<4> pc_cp[3]; // 
+        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+            ~_pcp<3*9> -> _pcp_cpp[0]+
+            _pcp<3*6> -> _pcp_cpp[0]-
+            [loadcap=cap_a] ~_pcp_cpp[0]<10*9> -> _pcp_cpp[1]+
+            [loadcap=cap_a] _pcp_cpp[0]<10*6> -> _pcp_cpp[1]-
+            ~_pcp_cpp[1]<6*9> -> _pcp_cpp[2]+
+            _pcp_cpp[1]<6*6> -> _pcp_cpp[2]-
+            [loadcap=cap_b] ~_pcp_cpp[2]<36*9> -> _cpp+
+            [loadcap=cap_b] _pcp_cpp[2]<36*6> -> _cpp-
+
+            ~_cpo<3*9> -> _cpo_pci[0]+
+            _cpo<3*6> -> _cpo_pci[0]-
+            [loadcap=cap_a] ~_cpo_pci[0]<10*9> -> _cpo_pci[1]+
+            [loadcap=cap_a] _cpo_pci[0]<10*6> -> _cpo_pci[1]-
+            ~_cpo_pci[1]<6*9> -> _cpo_pci[2]+
+            _cpo_pci[1]<6*6> -> _cpo_pci[2]-
+            [loadcap=cap_b] ~_cpo_pci[2]<36*9> -> _pci+
+            [loadcap=cap_b] _cpo_pci[2]<36*6> -> _pci-
+
+            (: d : D :
+                ~pc.d[d]<3*9> -> pc_cp[0].d[d]+
+                pc.d[d]<3*6> -> pc_cp[0].d[d]-
+                [loadcap=cap_a] ~pc_cp[0].d[d]<10*9> -> pc_cp[1].d[d]+
+                [loadcap=cap_a] pc_cp[0].d[d]<10*6> -> pc_cp[1].d[d]-
+                ~pc_cp[1].d[d]<6*9> -> pc_cp[2].d[d]+
+                pc_cp[1].d[d]<6*6> -> pc_cp[2].d[d]-
+                [loadcap=cap_b] ~pc_cp[2].d[d]<36*9> -> cp.d[d]+
+                [loadcap=cap_b] pc_cp[2].d[d]<36*6> -> cp.d[d]-
+            )
+        }
+    }
+
+    export
     template <pint M, Mp4, N_SYN, N_MEM>
     defproc AERV_ (globals g; bool _pp, _po, cp[Mp4], ci[Mp4]; c1of<4> p; e1of2 syn[N_SYN]; c1of4 mem[N_MEM]) {
         // utility for AERV
@@ -324,17 +365,32 @@ namespace receiver {
             pint k_syn = N_SYN/4;
             pint k_mem = N_MEM/4;
             AERV_<M-1, k, k_syn, k_mem> _[F];
-            NODE<F, D> node(g, _pp, _po,,, p,);
-            (; f : F:
+            (; f : F :
                 _[f].g = g;
-                _[f].p = node.c[f];
-                _[f]._pp = node._cp[f];
-                _[f]._po = node._ci[f];
                 _[f].cp = cp[f*k..(f+1)*k-1];
                 _[f].ci = ci[f*k..(f+1)*k-1];
                 _[f].syn = syn[f*k_syn..(f+1)*k_syn-1];
                 _[f].mem = mem[f*k_mem..(f+1)*k_mem-1];
             )
+            NODE<F, D> node(g, _pp, _po,,, p,);
+            // connect with wires modeled
+            AMP_WIRES<D, 72, 150> w[F];
+            (; f : F :
+                w[f].g = g;
+                node.c[f] = w[f].pc;
+                w[f].cp = _[f].p;
+                node._cp[f] = w[f]._pcp;
+                w[f]._cpp = _[f]._pp;
+                _[f]._po = w[f]._cpo;
+                w[f]._pci = node._ci[f];
+            )
+            // direct connection
+            // (; f : F :
+            //     _[f].g = g;
+            //     _[f].p = node.c[f];
+            //     _[f]._pp = node._cp[f];
+            //     _[f]._po = node._ci[f];
+            // )
         ]
     }
 

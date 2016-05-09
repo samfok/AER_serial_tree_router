@@ -222,6 +222,47 @@ namespace transmitter {
     }
 
     export
+    template <pint D; pint cap_a, cap_b>
+    defproc AMP_WIRES (globals g; bool _cpp, cpi, _pcp, pco; c1of<D> _cp, _pc) {
+        // model the amplifiers and wire capacitances internal to the aext tree
+        // cap_a capacitance from source to repeater (72 fF)
+        // cap_b capacitance from repeater to destination (150 fF)
+        bool _cpp_pcp[3]; // connect parent _cp to child _pp
+        bool pco_cpi[3]; // connect child _po to parent _ci
+        c1of<4> _cp_pc[3]; // 
+        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+            ~_cpp<3*9> -> _cpp_pcp[0]+
+            _cpp<3*6> -> _cpp_pcp[0]-
+            [loadcap=cap_a] ~_cpp_pcp[0]<10*9> -> _cpp_pcp[1]+
+            [loadcap=cap_a] _cpp_pcp[0]<10*6> -> _cpp_pcp[1]-
+            ~_cpp_pcp[1]<6*9> -> _cpp_pcp[2]+
+            _cpp_pcp[1]<6*6> -> _cpp_pcp[2]-
+            [loadcap=cap_b] ~_cpp_pcp[2]<36*9> -> _pcp+
+            [loadcap=cap_b] _cpp_pcp[2]<36*6> -> _pcp-
+
+            ~pco<3*9> -> pco_cpi[0]+
+            pco<3*6> -> pco_cpi[0]-
+            [loadcap=cap_a] ~pco_cpi[0]<10*9> -> pco_cpi[1]+
+            [loadcap=cap_a] pco_cpi[0]<10*6> -> pco_cpi[1]-
+            ~pco_cpi[1]<6*9> -> pco_cpi[2]+
+            pco_cpi[1]<6*6> -> pco_cpi[2]-
+            [loadcap=cap_b] ~pco_cpi[2]<36*9> -> cpi+
+            [loadcap=cap_b] pco_cpi[2]<36*6> -> cpi-
+
+            (: d : D :
+                [loadcap=cap_a] ~_cp.d[d]<5*9> -> _cp_pc[0].d[d]+
+                [loadcap=cap_a] _cp.d[d]<5*6> -> _cp_pc[0].d[d]-
+                ~_cp_pc[0].d[d]<1*9> -> _cp_pc[1].d[d]+
+                _cp_pc[0].d[d]<1*6> -> _cp_pc[1].d[d]-
+                ~_cp_pc[1].d[d]<5*9> -> _cp_pc[2].d[d]+
+                _cp_pc[1].d[d]<5*6> -> _cp_pc[2].d[d]-
+                [loadcap=cap_b] ~_cp_pc[2].d[d]<25*9> -> _pc.d[d]+
+                [loadcap=cap_b] _cp_pc[2].d[d]<25*6> -> _pc.d[d]-
+            )
+        }
+    }
+
+    export
     template <pint M, N, NN; pbool root>
     defproc AEXT_ (globals g; bool _xp[NN], xo[NN], pi, _pp; c1of<N> p) {
         // utility for AEXT
@@ -236,8 +277,28 @@ namespace transmitter {
                 _[n]._xp = _xp[n*k..(n+1)*k-1];
                 _[n].xo = xo[n*k..(n+1)*k-1];
             )
-
             NODE<N, root> node(g,,, pi, _pp,, p);
+        ]
+        [ M > 2 ->
+            // connect with wires modeled
+            AMP_WIRES<N, 72, 150> w[N];
+            (; n : N :
+                w[n].g = g;
+                _[n]._pp = w[n]._cpp;
+                w[n]._pcp = node._cp[n];
+                node.co[n] = w[n].pco;
+                w[n].cpi = _[n].pi;
+                _[n].p = w[n]._cp;
+                w[n]._pc = node._c[n];
+            )
+            // direct connection
+            // (; n : N :
+            //     node._cp[n] = _[n]._pp;
+            //     node.co[n] = _[n].pi;
+            //     node._c[n] = _[n].p;
+            // )
+        [] M = 2 ->
+            // direct connection
             (; n : N :
                 node._cp[n] = _[n]._pp;
                 node.co[n] = _[n].pi;
