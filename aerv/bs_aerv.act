@@ -8,7 +8,7 @@ import "core/serializer/AERSerializer.act";
 import "aer/lib/compat_bs.act";
 
 export
-template <pint M_1of2, M_1of4, Mp4, M_SPK_1of2, M_SPK_1of4, M_MEM_1of2, M_MEM_1of4, N_SYN, N_MEM>
+template <pint M_1of2, M_1of4, Mp4, M_SPK_1of2, M_SPK_1of4, M_MEM_1of2, M_MEM_1of4, N_SYN, N_MEM; pbool flip_mem_out>
 defproc BS_AERV (aer::globals g; aer::eMx1of2<M_SPK_1of2> x_spk; 
                     aer::eMx1of2<M_MEM_1of2> x_mem;
                     aer::a1of2 y_syn[N_SYN]; aer::eMx1of4<M_MEM_1of4-M_1of4> _y_mem[N_MEM]) {
@@ -32,6 +32,7 @@ defproc BS_AERV (aer::globals g; aer::eMx1of2<M_SPK_1of2> x_spk;
     // N_MEM configuration memories
     //     N_MEM = 4^(M_1of4-1)
     //     N_MEM = 256 (in production)
+    // flip_mem_out flip memory output word order
     M_1of4*2 = M_1of2; // assert
     M_SPK_1of4*2 = M_SPK_1of2; //assert
     M_MEM_1of4*2 = M_MEM_1of2; // assert
@@ -64,7 +65,7 @@ defproc BS_AERV (aer::globals g; aer::eMx1of2<M_SPK_1of2> x_spk;
     bool aerv_po = merge.yi;
     aer::c1of<D> aerv_p = merge.y;
     
-    aer::brain_receiver::DESERIALIZER<M_MEM_1of4-M_1of4> mem_deserial[N_MEM];
+    aer::brain_receiver::DESERIALIZER<M_MEM_1of4-M_1of4, flip_mem_out> mem_deserial[N_MEM];
     bool aerv_cp[Mp4];
     bool aerv_ci[Mp4];
     aer::c1of4 aerv_mem[N_MEM];

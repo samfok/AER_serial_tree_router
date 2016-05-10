@@ -10,6 +10,7 @@ pint M_MEM = M+4;
 pint N_SYN = Mp4;
 pint N_MEM = N_SYN/4;
 pint D     = 4;
+pbool flip_mem_out = true;
 
 aer::globals g;
 aer::SOURCE_BRAIN_AERV<M_SPK, M_SPK-M, 0, 2> spk_src(g,);
@@ -38,5 +39,5 @@ prs<g.Vdd, g.GND> {
     )
 }
 
-aer::BRAIN_AERV<M, Mp4, M_SPK, M_MEM, N_SYN, N_MEM> aerv(
+aer::BRAIN_AERV<M, Mp4, M_SPK, M_MEM, N_SYN, N_MEM, flip_mem_out> aerv(
     g, spk_src.d, mem_src.d, y_syn, _y_mem);
