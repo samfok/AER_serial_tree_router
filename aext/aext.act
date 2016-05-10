@@ -233,31 +233,31 @@ namespace transmitter {
         prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
             ~_cpp<3*9> -> _cpp_pcp[0]+
             _cpp<3*6> -> _cpp_pcp[0]-
-            [loadcap=cap_a] ~_cpp_pcp[0]<10*9> -> _cpp_pcp[1]+
-            [loadcap=cap_a] _cpp_pcp[0]<10*6> -> _cpp_pcp[1]-
+            [loadcap=cap_a*.25] ~_cpp_pcp[0]<10*9> -> _cpp_pcp[1]+
+            [loadcap=cap_a*.25] _cpp_pcp[0]<10*6> -> _cpp_pcp[1]-
             ~_cpp_pcp[1]<6*9> -> _cpp_pcp[2]+
             _cpp_pcp[1]<6*6> -> _cpp_pcp[2]-
-            [loadcap=cap_b] ~_cpp_pcp[2]<36*9> -> _pcp+
-            [loadcap=cap_b] _cpp_pcp[2]<36*6> -> _pcp-
+            [loadcap=cap_b*.25] ~_cpp_pcp[2]<36*9> -> _pcp+
+            [loadcap=cap_b*.25] _cpp_pcp[2]<36*6> -> _pcp-
 
             ~pco<3*9> -> pco_cpi[0]+
             pco<3*6> -> pco_cpi[0]-
-            [loadcap=cap_a] ~pco_cpi[0]<10*9> -> pco_cpi[1]+
-            [loadcap=cap_a] pco_cpi[0]<10*6> -> pco_cpi[1]-
+            [loadcap=cap_a*.25] ~pco_cpi[0]<10*9> -> pco_cpi[1]+
+            [loadcap=cap_a*.25] pco_cpi[0]<10*6> -> pco_cpi[1]-
             ~pco_cpi[1]<6*9> -> pco_cpi[2]+
             pco_cpi[1]<6*6> -> pco_cpi[2]-
-            [loadcap=cap_b] ~pco_cpi[2]<36*9> -> cpi+
-            [loadcap=cap_b] pco_cpi[2]<36*6> -> cpi-
+            [loadcap=cap_b*.25] ~pco_cpi[2]<36*9> -> cpi+
+            [loadcap=cap_b*.25] pco_cpi[2]<36*6> -> cpi-
 
             (: d : D :
-                [loadcap=cap_a] ~_cp.d[d]<5*9> -> _cp_pc[0].d[d]+
-                [loadcap=cap_a] _cp.d[d]<5*6> -> _cp_pc[0].d[d]-
+                [loadcap=cap_a.25] ~_cp.d[d]<5*9> -> _cp_pc[0].d[d]+
+                [loadcap=cap_a.25] _cp.d[d]<5*6> -> _cp_pc[0].d[d]-
                 ~_cp_pc[0].d[d]<1*9> -> _cp_pc[1].d[d]+
                 _cp_pc[0].d[d]<1*6> -> _cp_pc[1].d[d]-
                 ~_cp_pc[1].d[d]<5*9> -> _cp_pc[2].d[d]+
                 _cp_pc[1].d[d]<5*6> -> _cp_pc[2].d[d]-
-                [loadcap=cap_b] ~_cp_pc[2].d[d]<25*9> -> _pc.d[d]+
-                [loadcap=cap_b] _cp_pc[2].d[d]<25*6> -> _pc.d[d]-
+                [loadcap=cap_b*.25] ~_cp_pc[2].d[d]<25*9> -> _pc.d[d]+
+                [loadcap=cap_b*.25] _cp_pc[2].d[d]<25*6> -> _pc.d[d]-
             )
         }
     }
