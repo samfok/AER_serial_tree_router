@@ -42,39 +42,84 @@ defproc word_1of4_to_1of2 (globals g; c1of4 _x[M_1of4]; c1of2 y[M_1of2]) {
     }
 }
 
-template <pint log4_rows>
-defproc row_vn (globals g; c1of4 _row_addr[log4_rows]; bool vn) {
-    // checks validity/neutrality of row address data
-    pint D = 4; // 1-in-D data
-    pint M = log4_rows;
-    bool v[M];
-    bool _vn;
+template <pint words_1of4, words_1of2>
+defproc addr_vn (globals g; c1of4 _addr4[words_1of4]; c1of2 _addr2[words_1of2]; bool vn) {
+    // checks validity/neutrality of address data
+    words_1of4 = 2; // assert
+    words_1of2 = 2; // assert
+    pint M4 = words_1of4;
+    pint M2 = words_1of2;
+    pint D4 = 4;
+    pint D2 = 2;
+    bool v4[M4];
+    bool v2[M2];
+    bool _vn4;
+    bool _vn2;
     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-        (: m : M :
-            (& : d : D : _row_addr[m].d[d]<12>) -> v[m]-
-            (| : d : D : ~_row_addr[m].d[d]<9>) -> v[m]+
+        (: m : M4 :
+            (& : d : D4 : _addr4[m].d[d]<12>) -> v4[m]-
+            (| : d : D4 : ~_addr4[m].d[d]<9>) -> v4[m]+
+        )
+        (: m : M2 :
+            (& : d : D2 : _addr2[m].d[d]<12>) -> v2[m]-
+            (| : d : D2 : ~_addr2[m].d[d]<9>) -> v2[m]+
         )
 
-        (& : m : M : ~v[m]<12>) -> _vn+
-        (& : m : M : v[m]<6>) -> _vn-
+        (& : m : M4 : ~v4[m]<12>) -> _vn4+
+        (& : m : M4 : v4[m]<6>) -> _vn4-
 
-        ~_vn<9> -> vn+
-        _vn<6> -> vn-
+        (& : m : M2 : ~v2[m]<12>) -> _vn2+
+        (& : m : M2 : v2[m]<6>) -> _vn2-
+
+        ~_vn4<12> & ~_vn2<12> -> vn+
+        _vn4<6> & _vn2<6> -> vn-
     }
 }
 
 
-template <pint log4_rows, rows>
-defproc config_sram_row_addr_decoder (globals g; c1of4 _row_addr[log4_rows]; bool row_select[rows], write_e, data_e) {
-    // Converts log4_rows address 1of4 words into an array of row select lines
-    // high order word _row_addr[0] low order word _row_addr[1]
-    // Only supports hardcoded log4_rows and rows. Can be made to support 
-    // variable parameter values if necessary.
-    log4_rows = 2; // assert
-    rows = 16; // assert
-    pint D = 4; // 1-in-D data
+template <pint addr_1of4, rows, cols>
+defproc config_sram_addr_decoder (globals g; c1of4 _addr[addr_1of4]; bool row_select[rows], col_select[cols], write_e, data_e) {
+    // Converts addr_1of4 address into arrays of row and column select lines
+    // high order word _addr[0] low order word _addr[3]
+    // Only supports hardcoded addr_1of4, rows, cols 
+    // Can be made to support variable parameter values if necessary
+    addr_1of4 = 3; // assert
+    rows = 8; // assert
+    cols = 8; // assert
+    pint D2 = 2;
+    pint D4 = 4;
 
-    row_vn<log4_rows> vn(g, _row_addr,); 
+    // convert middle word to 1of2 representation
+    c1of2 addr_mid[2];
+    c1of2 _addr_mid[2];
+    word_1of4_to_1of2 (g, _addr[1], addr_mid);
+
+    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+        (: m : 2 :
+            (: d : 2 :
+                ~addr_mid[m].d[d] -> _addr_mid[m].d[d]+
+                addr_mid[m].d[d] -> _addr_mid[m].d[d]-
+            )
+        )
+
+        (: d : D4 :
+            (: dd : D2 :
+                ~_addr[0].d[d] & ~_addr_mid[0].d[dd] -> col_select[2*d+dd]+
+                _addr[0].d[d] | _addr_mid[0].d[dd] -> col_select[2*d+dd]-
+            )
+        )
+
+        (: d : D4 :
+            (: dd : D2 :
+                ~_addr[2].d[d] & ~_addr_mid[1].d[dd] -> row_select[4*dd+d]+
+                _addr[2].d[d] | _addr_mid[1].d[dd] -> row_select[4*dd+d]-
+            )
+        )
+    }
+
+    c1of4 vn__addr4[2] = _addr[0] # _addr[2];
+    c1of2 vn__addr2[2] = _addr_mid[0] # _addr_mid[1];
+    addr_vn<2, 2> vn(g, vn__addr4, vn__addr2,); 
 
     bool  _write_e;
     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
@@ -84,57 +129,45 @@ defproc config_sram_row_addr_decoder (globals g; c1of4 _row_addr[log4_rows]; boo
         ~vn.vn & ~_write_e -> data_e+
         vn.vn & _write_e -> data_e-
     }
-
-    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-        (: d : D :
-            (: dd : D :
-                ~_row_addr[0].d[dd] & ~_row_addr[1].d[d] -> row_select[4*dd+d]+
-                _row_addr[0].d[dd] | _row_addr[1].d[d] -> row_select[4*dd+d]-
-            )
-        )
-    }
 }
 
 export
-template <pint aerv_words, sram_word_size, cols, rows, log4_rows>
+template <pint aerv_words, sram_word_size, cols, rows, addr_1of4>
 defproc config_sram_interface (globals g; eMx1of4<aerv_words> _aerv_data; eMx1of2<sram_word_size> sram_write; bool sram_col_select[cols], sram_row_select[rows]) {
-    // -------------------------------
-    //         aerv_data
-    //  write   coladdr   rowaddr  
-    // -------------------------------
-    //    [0]  |  [1]  |    [2,3]     
-    // ------------------------------- 
-    //     |       |          |
-    //     v       |          v
-    //  1in4to2    |        decode
-    //     |       |          |
-    //     v       v          v
     // ------------------------------
-    // write   col_select  row_select
+    //           aerv_data
+    //  write      row/col addr
+    // ------------------------------
+    //   [0]  |  [     1,2,3    ]    
+    // ------------------------------ 
+    //    |              |       
+    //    v              v      
+    // 1in4to2     .--decode--.
+    //    |        |          |     
+    //    v        v          v
+    // ------------------------------
+    // write   col_select row_select
     //            sram
     // ------------------------------
     aerv_words = 4; // assert
     sram_word_size = 2; // assert
-    cols = 4; // assert
-    rows = 16; //assert
-    log4_rows = 2; // assert
+    cols = 8; // assert
+    rows = 8; //assert
+    addr_1of4 = 3; // assert
     word_1of4_to_1of2<1, 2> word_4to2(g,,); // convert the write data to dual rail
-    config_sram_row_addr_decoder<log4_rows, rows> row_decoder(g,,,,);  // predecode the row address. col address can be used directly
+    config_sram_addr_decoder<addr_1of4, rows, cols> addr_decoder(g,,,,,);
 
-    eMx1of4<aerv_words>  _aerv_data_;
-    flip_word_order<aerv_words> flip(g, _aerv_data, _aerv_data_);
-
-    _aerv_data_.e = row_decoder.data_e;
-    _aerv_data_.m[0] = word_4to2._x[0];
-    _aerv_data_.m[2..3] = row_decoder._row_addr;
-    sram_write.e = row_decoder.write_e;
+    _aerv_data_.e = addr_decoder.data_e;
+    _aerv_data_.m[0] = word_4to2._x[0]; // want to raise write lines high first
+    _aerv_data_.m[1..3] = addr_decoder._addr;
+    sram_write.e = addr_decoder.write_e;
     sram_write.m = word_4to2.y;
     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
         (: d : cols :
             _aerv_data_.m[1].d[d] => sram_col_select[d]-
         )
     }
-    sram_row_select = row_decoder.row_select;
+    sram_row_select = addr_decoder.row_select;
 }
 
 } // namespace aer
@@ -169,36 +202,62 @@ export template <pint rows, cols, word_size, write_delay, precharge_delay, pn, w
 defproc config_sramNxM_addr_decoded(globals g; eMx1of2<word_size> write; bool col_select[cols], row_select[rows]; dualrail _q[rows][cols][word_size])
 {
 	config_bankNxM<rows, cols, word_size, write_delay, precharge_delay, pn, width> bank;
+    config_arrayNxM<rows, cols, word_size> array(g.Vdd, g.GND, g.sReset, g.pReset, g._sReset, g._pReset,,,);
 
-	bank.g = g;
-	bank._q = _q;
 
-	/****************** write, col_select => bank.write **********************/
-	::logic::andN<cols, false, pn, width, width> get_write_e;
+	/****************** write, col_select => array._bl **********************/
 	dualrail _write[cols][word_size];
 	(;i:cols:
-		get_write_e.a[i] = bank.write[i].e;
-
 		(;j:word_size:
 			prs <g.Vdd, g.GND | g.vpsub, g.vnsub>
 			{
-				write.b[j].f<2*width> & col_select[i]<2*width> -> _write[i][j].f-
-				write.b[j].t<2*width> & col_select[i]<2*width> -> _write[i][j].t-
-				~write.b[j].f<2*pn*width> & ~col_select[i]<2*pn*width> -> _write[i][j].f+
-				~write.b[j].t<2*pn*width> & ~col_select[i]<2*pn*width> -> _write[i][j].t+
-				_write[i][j].f<width> -> bank.write[i].b[j].f-
-				~_write[i][j].f<pn*width> -> bank.write[i].b[j].f+
-				_write[i][j].t<width> -> bank.write[i].b[j].t-
-				~_write[i][j].t<pn*width> -> bank.write[i].b[j].t+
+				[after=1] write.b[j].f<2*width> & col_select[i]<2*width> -> _write[i][j].f-
+				[after=1] write.b[j].t<2*width> & col_select[i]<2*width> -> _write[i][j].t-
+				[after=1] ~write.b[j].f<2*pn*width> & ~col_select[i]<2*pn*width> -> _write[i][j].f+
+				[after=1] ~write.b[j].t<2*pn*width> & ~col_select[i]<2*pn*width> -> _write[i][j].t+
+				[after=1] _write[i][j].f<width> -> array._bl[i].b[j].f-
+				[after=1] ~_write[i][j].f<pn*width> -> array._bl[i].b[j].f+
+				[after=1] _write[i][j].t<width> -> array._bl[i].b[j].t-
+				[after=1] ~_write[i][j].t<pn*width> -> array._bl[i].b[j].t+
 			}
 		)
 	)
 
-	get_write_e.g = g;
-	write.e = get_write_e.b;
-
 	/************************* row_select => bank ****************************/
-	bank.select = row_select;
+    row_select = array.wl;
+
+
+	// config_bankNxM<rows, cols, word_size, write_delay, precharge_delay, pn, width> bank;
+
+	// bank.g = g;
+	// bank._q = _q;
+
+	// /****************** write, col_select => bank.write **********************/
+	// ::logic::andN<cols, false, pn, width, width> get_write_e;
+	// dualrail _write[cols][word_size];
+	// (;i:cols:
+	// 	get_write_e.a[i] = bank.write[i].e;
+
+	// 	(;j:word_size:
+	// 		prs <g.Vdd, g.GND | g.vpsub, g.vnsub>
+	// 		{
+	// 			write.b[j].f<2*width> & col_select[i]<2*width> -> _write[i][j].f-
+	// 			write.b[j].t<2*width> & col_select[i]<2*width> -> _write[i][j].t-
+	// 			~write.b[j].f<2*pn*width> & ~col_select[i]<2*pn*width> -> _write[i][j].f+
+	// 			~write.b[j].t<2*pn*width> & ~col_select[i]<2*pn*width> -> _write[i][j].t+
+	// 			_write[i][j].f<width> -> bank.write[i].b[j].f-
+	// 			~_write[i][j].f<pn*width> -> bank.write[i].b[j].f+
+	// 			_write[i][j].t<width> -> bank.write[i].b[j].t-
+	// 			~_write[i][j].t<pn*width> -> bank.write[i].b[j].t+
+	// 		}
+	// 	)
+	// )
+
+	// get_write_e.g = g;
+	// write.e = get_write_e.b;
+
+	// /************************* row_select => bank ****************************/
+	// bank.select = row_select;
 }
 
 } // mem
