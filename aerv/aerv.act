@@ -487,9 +487,10 @@ namespace brain_receiver {
     defproc DESERIALIZER (globals g; bool xp, xo; c1of4 x; eMx1of4<M> _y) {
         // wrapper for the deserializer
         pint D = 4; // 1-of-D data
+        pbool invert_y = true;
 
         MERGE_ACK<1> merge_ack(g, xp, xo,);
-        ::aer::interface::DESERIAL_RING<M, D, true, flip> deserial(g,,);
+        ::aer::interface::DESERIAL_RING<M, D, invert_y, flip> deserial(g,,);
         deserial.x.d = x.d;
         deserial.x.a = merge_ack.ci[0];
         (; m : M :

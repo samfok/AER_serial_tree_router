@@ -78,7 +78,7 @@ defproc addr_vn (globals g; c1of4 _addr4[words_1of4]; c1of2 _addr2[words_1of2]; 
 
 
 template <pint addr_1of4, rows, cols>
-defproc config_sram_addr_decoder (globals g; c1of4 _addr[addr_1of4]; bool row_select[rows], col_select[cols], write_e, data_e) {
+defproc config_sram_addr_decoder (globals g; c1of4 _addr[addr_1of4]; bool row_select[rows], col_select[cols], data_e) {
     // Converts addr_1of4 address into arrays of row and column select lines
     // high order word _addr[0] low order word _addr[3]
     // Only supports hardcoded addr_1of4, rows, cols 
@@ -92,7 +92,7 @@ defproc config_sram_addr_decoder (globals g; c1of4 _addr[addr_1of4]; bool row_se
     // convert middle word to 1of2 representation
     c1of2 addr_mid[2];
     c1of2 _addr_mid[2];
-    word_1of4_to_1of2 (g, _addr[1], addr_mid);
+    word_1of4_to_1of2<1, 2> decode_mid(g, {_addr[1]}, addr_mid);
 
     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
         (: m : 2 :
@@ -102,38 +102,38 @@ defproc config_sram_addr_decoder (globals g; c1of4 _addr[addr_1of4]; bool row_se
             )
         )
 
+        // we assume sufficient latency in the receiver for the bitcell to be written
         (: d : D4 :
             (: dd : D2 :
-                ~_addr[0].d[d] & ~_addr_mid[0].d[dd] -> col_select[2*d+dd]+
-                _addr[0].d[d] | _addr_mid[0].d[dd] -> col_select[2*d+dd]-
+                [after=0] ~_addr[0].d[d] & ~_addr_mid[0].d[dd] -> col_select[2*d+dd]+
+                [after=0] _addr[0].d[d] | _addr_mid[0].d[dd] -> col_select[2*d+dd]-
             )
         )
 
+        // we assume sufficient latency in the receiver for the bitcell to be written
         (: d : D4 :
             (: dd : D2 :
-                ~_addr[2].d[d] & ~_addr_mid[1].d[dd] -> row_select[4*dd+d]+
-                _addr[2].d[d] | _addr_mid[1].d[dd] -> row_select[4*dd+d]-
+                [after=0] ~_addr[2].d[d] & ~_addr_mid[1].d[dd] -> row_select[4*dd+d]+
+                [after=0] _addr[2].d[d] | _addr_mid[1].d[dd] -> row_select[4*dd+d]-
             )
         )
     }
 
-    c1of4 vn__addr4[2] = _addr[0] # _addr[2];
-    c1of2 vn__addr2[2] = _addr_mid[0] # _addr_mid[1];
+    c1of4 vn__addr4[2];
+    c1of2 vn__addr2[2];
+    vn__addr4 = {_addr[0], _addr[2]};
+    vn__addr2 = {_addr_mid[0], _addr_mid[1]};
     addr_vn<2, 2> vn(g, vn__addr4, vn__addr2,); 
 
-    bool  _write_e;
     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-        ~write_e<9> -> _write_e+
-        write_e<6> -> _write_e-
-
-        ~vn.vn & ~_write_e -> data_e+
-        vn.vn & _write_e -> data_e-
+        ~vn.vn -> data_e+
+        vn.vn -> data_e-
     }
 }
 
 export
-template <pint aerv_words, sram_word_size, cols, rows, addr_1of4>
-defproc config_sram_interface (globals g; eMx1of4<aerv_words> _aerv_data; eMx1of2<sram_word_size> sram_write; bool sram_col_select[cols], sram_row_select[rows]) {
+template <pint aerv_words, word_size, cols, rows, addr_1of4>
+defproc config_sram_interface (globals g; eMx1of4<aerv_words> _aerv_data; dualrail sram_write[word_size]; bool sram_col_select[cols], sram_row_select[rows]) {
     // ------------------------------
     //           aerv_data
     //  write      row/col addr
@@ -150,23 +150,21 @@ defproc config_sram_interface (globals g; eMx1of4<aerv_words> _aerv_data; eMx1of
     //            sram
     // ------------------------------
     aerv_words = 4; // assert
-    sram_word_size = 2; // assert
+    word_size = 2; // assert
     cols = 8; // assert
     rows = 8; //assert
     addr_1of4 = 3; // assert
     word_1of4_to_1of2<1, 2> word_4to2(g,,); // convert the write data to dual rail
-    config_sram_addr_decoder<addr_1of4, rows, cols> addr_decoder(g,,,,,);
+    config_sram_addr_decoder<addr_1of4, rows, cols> addr_decoder(g,,,,);
 
-    _aerv_data_.e = addr_decoder.data_e;
-    _aerv_data_.m[0] = word_4to2._x[0]; // want to raise write lines high first
-    _aerv_data_.m[1..3] = addr_decoder._addr;
-    sram_write.e = addr_decoder.write_e;
-    sram_write.m = word_4to2.y;
-    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-        (: d : cols :
-            _aerv_data_.m[1].d[d] => sram_col_select[d]-
-        )
-    }
+    _aerv_data.e = addr_decoder.data_e;
+    _aerv_data.m[0] = word_4to2._x[0]; // want to raise write lines high first
+    _aerv_data.m[1..3] = addr_decoder._addr;
+    (; w : word_size :
+        word_4to2.y[w].d = sram_write[w].d;
+    )
+
+    sram_col_select = addr_decoder.col_select;
     sram_row_select = addr_decoder.row_select;
 }
 
@@ -199,65 +197,47 @@ Notes:
 
 */
 export template <pint rows, cols, word_size, write_delay, precharge_delay, pn, width>
-defproc config_sramNxM_addr_decoded(globals g; eMx1of2<word_size> write; bool col_select[cols], row_select[rows]; dualrail _q[rows][cols][word_size])
+defproc config_sramNxM_addr_decoded(globals g; dualrail write[word_size]; bool col_select[cols], row_select[rows]; dualrail _q[rows][cols][word_size])
 {
-	config_bankNxM<rows, cols, word_size, write_delay, precharge_delay, pn, width> bank;
     config_arrayNxM<rows, cols, word_size> array(g.Vdd, g.GND, g.sReset, g.pReset, g._sReset, g._pReset,,,);
-
 
 	/****************** write, col_select => array._bl **********************/
 	dualrail _write[cols][word_size];
+	dualrail __write[cols][word_size];
+    // we assume sufficient latency in the receiver for the bitcell to be written
 	(;i:cols:
 		(;j:word_size:
 			prs <g.Vdd, g.GND | g.vpsub, g.vnsub>
 			{
-				[after=1] write.b[j].f<2*width> & col_select[i]<2*width> -> _write[i][j].f-
-				[after=1] write.b[j].t<2*width> & col_select[i]<2*width> -> _write[i][j].t-
-				[after=1] ~write.b[j].f<2*pn*width> & ~col_select[i]<2*pn*width> -> _write[i][j].f+
-				[after=1] ~write.b[j].t<2*pn*width> & ~col_select[i]<2*pn*width> -> _write[i][j].t+
-				[after=1] _write[i][j].f<width> -> array._bl[i].b[j].f-
-				[after=1] ~_write[i][j].f<pn*width> -> array._bl[i].b[j].f+
-				[after=1] _write[i][j].t<width> -> array._bl[i].b[j].t-
-				[after=1] ~_write[i][j].t<pn*width> -> array._bl[i].b[j].t+
+				[after=0] write[j].f<2*width> & col_select[i]<2*width> -> _write[i][j].f-
+				[after=0] ~write[j].f<2*pn*width> | ~col_select[i]<2*pn*width> -> _write[i][j].f+
+				[after=0] write[j].t<2*width> & col_select[i]<2*width> -> _write[i][j].t-
+				[after=0] ~write[j].t<2*pn*width> | ~col_select[i]<2*pn*width> -> _write[i][j].t+
+
+                [after=0] _write[i][j].f<width> -> __write[i][j].f-
+                [after=0] ~_write[i][j].f<pn*width> -> __write[i][j].f+
+                [after=0] _write[i][j].t<width> -> __write[i][j].t-
+                [after=0] ~_write[i][j].t<pn*width> -> __write[i][j].t+
+
+				[after=0] __write[i][j].f<width> -> array._bl[i][j][0]-
+				[after=0] ~__write[i][j].f<pn*width> -> array._bl[i][j][0]+
+				[after=0] __write[i][j].t<width> -> array._bl[i][j][1]-
+				[after=0] ~__write[i][j].t<pn*width> -> array._bl[i][j][1]+
 			}
 		)
 	)
 
-	/************************* row_select => bank ****************************/
+	/************************ row_select => array.wl *************************/
     row_select = array.wl;
 
-
-	// config_bankNxM<rows, cols, word_size, write_delay, precharge_delay, pn, width> bank;
-
-	// bank.g = g;
-	// bank._q = _q;
-
-	// /****************** write, col_select => bank.write **********************/
-	// ::logic::andN<cols, false, pn, width, width> get_write_e;
-	// dualrail _write[cols][word_size];
-	// (;i:cols:
-	// 	get_write_e.a[i] = bank.write[i].e;
-
-	// 	(;j:word_size:
-	// 		prs <g.Vdd, g.GND | g.vpsub, g.vnsub>
-	// 		{
-	// 			write.b[j].f<2*width> & col_select[i]<2*width> -> _write[i][j].f-
-	// 			write.b[j].t<2*width> & col_select[i]<2*width> -> _write[i][j].t-
-	// 			~write.b[j].f<2*pn*width> & ~col_select[i]<2*pn*width> -> _write[i][j].f+
-	// 			~write.b[j].t<2*pn*width> & ~col_select[i]<2*pn*width> -> _write[i][j].t+
-	// 			_write[i][j].f<width> -> bank.write[i].b[j].f-
-	// 			~_write[i][j].f<pn*width> -> bank.write[i].b[j].f+
-	// 			_write[i][j].t<width> -> bank.write[i].b[j].t-
-	// 			~_write[i][j].t<pn*width> -> bank.write[i].b[j].t+
-	// 		}
-	// 	)
-	// )
-
-	// get_write_e.g = g;
-	// write.e = get_write_e.b;
-
-	// /************************* row_select => bank ****************************/
-	// bank.select = row_select;
+	/**************************** _q => array._q *****************************/
+	(;i:rows:
+		(;j:cols:
+			(;k:word_size:
+				_q[i][j][k].d = array._q[i][j][k];
+			)
+		)
+	)
 }
 
 } // mem

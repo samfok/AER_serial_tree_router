@@ -8,33 +8,49 @@ import "lib/globals.act";
 import "lib/channel.act";
 
 namespace compat_bs {
-  export 
-  defproc globals (::aer::globals aer;  globals bs) {
-      aer.Vdd = bs.Vdd;
-      aer.GND = bs.GND;
-      aer.pReset = bs.pReset;
-      aer._pReset = bs._pReset;
-      aer.sReset = bs.sReset;
-      aer._sReset = bs._sReset;
-      aer.vpsub = bs.vpsub;
-      aer.vnsub = bs.vnsub;
-      prs {} // HACK so netgen -B doesn't complain
-  }
+    export 
+    defproc globals (::aer::globals aer;  globals bs) {
+        aer.Vdd = bs.Vdd;
+        aer.GND = bs.GND;
+        aer.pReset = bs.pReset;
+        aer._pReset = bs._pReset;
+        aer.sReset = bs.sReset;
+        aer._sReset = bs._sReset;
+        aer.vpsub = bs.vpsub;
+        aer.vnsub = bs.vnsub;
+        prs {} // HACK so netgen -B doesn't complain
+    }
 
-  export
-  template <pint N>
-  defproc d1of (::aer::d1of<N> aer;  d1of<N> bs) {
-      aer.d = bs.d;
-      prs {} // HACK so netgen -B doesn't complain
-  }
+    export
+    template <pint N>
+    defproc d1of (::aer::d1of<N> aer;  d1of<N> bs) {
+        aer.d = bs.d;
+        prs {} // HACK so netgen -B doesn't complain
+    }
 
-  export
-  template <pint M>
-  defproc eMx1of2 (::aer::eMx1of2<M> aer; eMx1of2<M> bs) {
-      aer.e = bs.e;
-      (; m : M :
-          aer.b[m].d = bs.b[m].d;
-      )
-      prs {} // HACK so netgen -B doesn't complain
-  }
+    export
+    template <pint M>
+    defproc eMx1of2 (::aer::eMx1of2<M> aer; eMx1of2<M> bs) {
+        aer.e = bs.e;
+        (; m : M :
+            aer.b[m].d = bs.b[m].d;
+        )
+        prs {} // HACK so netgen -B doesn't complain
+    }
+
+    export
+    defproc dualrail (::aer::dualrail aer; dualrail bs) {
+        aer.d = bs.d;
+        prs {} // HACK so netgen -B doesn't complain
+    }
+
+    export
+    template <pint M>
+    defproc dualrail_arr (::aer::dualrail aer[M]; ::dualrail bs[M]) {
+        dualrail _[M];
+        (; m : M :
+            _[m].aer = aer[m];
+            _[m].bs = bs[m];
+        )
+    }
 } // namespace compat_bs
