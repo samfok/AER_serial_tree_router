@@ -313,37 +313,38 @@ namespace receiver {
         // model the amplifiers and wire capacitances internal to the aerv tree
         // cap_a capacitance from source to repeater (72 fF)
         // cap_b capacitance from repeater to destination (150 fF)
+        preal c = 0.25; // capacitance multiplier
         bool _pcp_cpp[3]; // connect parent _cp to child _pp
         bool _cpo_pci[3]; // connect child _po to parent _ci
         c1of<4> pc_cp[3]; // 
         prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
             ~_pcp<3*9> -> _pcp_cpp[0]+
             _pcp<3*6> -> _pcp_cpp[0]-
-            [loadcap=cap_a*.25] ~_pcp_cpp[0]<10*9> -> _pcp_cpp[1]+
-            [loadcap=cap_a*.25] _pcp_cpp[0]<10*6> -> _pcp_cpp[1]-
+            [loadcap=cap_a*c] ~_pcp_cpp[0]<10*9> -> _pcp_cpp[1]+
+            [loadcap=cap_a*c] _pcp_cpp[0]<10*6> -> _pcp_cpp[1]-
             ~_pcp_cpp[1]<6*9> -> _pcp_cpp[2]+
             _pcp_cpp[1]<6*6> -> _pcp_cpp[2]-
-            [loadcap=cap_b*.25] ~_pcp_cpp[2]<36*9> -> _cpp+
-            [loadcap=cap_b*.25] _pcp_cpp[2]<36*6> -> _cpp-
+            [loadcap=cap_b*c] ~_pcp_cpp[2]<36*9> -> _cpp+
+            [loadcap=cap_b*c] _pcp_cpp[2]<36*6> -> _cpp-
 
             ~_cpo<3*9> -> _cpo_pci[0]+
             _cpo<3*6> -> _cpo_pci[0]-
-            [loadcap=cap_a*.25] ~_cpo_pci[0]<10*9> -> _cpo_pci[1]+
-            [loadcap=cap_a*.25] _cpo_pci[0]<10*6> -> _cpo_pci[1]-
+            [loadcap=cap_a*c] ~_cpo_pci[0]<10*9> -> _cpo_pci[1]+
+            [loadcap=cap_a*c] _cpo_pci[0]<10*6> -> _cpo_pci[1]-
             ~_cpo_pci[1]<6*9> -> _cpo_pci[2]+
             _cpo_pci[1]<6*6> -> _cpo_pci[2]-
-            [loadcap=cap_b*.25] ~_cpo_pci[2]<36*9> -> _pci+
-            [loadcap=cap_b*.25] _cpo_pci[2]<36*6> -> _pci-
+            [loadcap=cap_b*c] ~_cpo_pci[2]<36*9> -> _pci+
+            [loadcap=cap_b*c] _cpo_pci[2]<36*6> -> _pci-
 
             (: d : D :
                 ~pc.d[d]<3*9> -> pc_cp[0].d[d]+
                 pc.d[d]<3*6> -> pc_cp[0].d[d]-
-                [loadcap=cap_a*.25] ~pc_cp[0].d[d]<10*9> -> pc_cp[1].d[d]+
-                [loadcap=cap_a*.25] pc_cp[0].d[d]<10*6> -> pc_cp[1].d[d]-
+                [loadcap=cap_a*c] ~pc_cp[0].d[d]<10*9> -> pc_cp[1].d[d]+
+                [loadcap=cap_a*c] pc_cp[0].d[d]<10*6> -> pc_cp[1].d[d]-
                 ~pc_cp[1].d[d]<6*9> -> pc_cp[2].d[d]+
                 pc_cp[1].d[d]<6*6> -> pc_cp[2].d[d]-
-                [loadcap=cap_b*.25] ~pc_cp[2].d[d]<36*9> -> cp.d[d]+
-                [loadcap=cap_b*.25] pc_cp[2].d[d]<36*6> -> cp.d[d]-
+                [loadcap=cap_b*c] ~pc_cp[2].d[d]<36*9> -> cp.d[d]+
+                [loadcap=cap_b*c] pc_cp[2].d[d]<36*6> -> cp.d[d]-
             )
         }
     }
