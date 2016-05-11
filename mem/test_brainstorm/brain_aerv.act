@@ -27,22 +27,18 @@ pint rows = 8;
 pint cols = 8;
 pint addr_1of4 = 3;
 pint word_size = 2;
-pint write_delay = 0;
-pint precharge_delay = 0;
-pint pn = 2;
-pint width = 10;
 aer::config_sram_interface<M_MEM-M, word_size, cols, rows, addr_1of4> sram_interface[N_MEM];
-mem::config_sramNxM_addr_decoded<rows, cols, word_size, write_delay, precharge_delay, pn, width> sram[N_MEM];
+mem::config_sramNxM_addr_decoded<rows, cols, word_size> sram[N_MEM];
 compat_bs::dualrail_arr<word_size> write[N_MEM];
 aer::eMx1of4<M_MEM-M> aerv__y_mem[N_MEM];
 (; n : N_MEM :
     sram_interface[n].g = g;
     sram[n].g = g_bs;
     sram_interface[n]._aerv_data = aerv__y_mem[n];
-    write[n].aer = sram_interface[n].sram_write;
-    write[n].bs = sram[n].write;
-    sram_interface[n].sram_col_select = sram[n].col_select;
-    sram_interface[n].sram_row_select = sram[n].row_select;
+    write[n].aer = sram_interface[n]._write;
+    write[n].bs = sram[n]._write;
+    sram_interface[n]._col_select = sram[n]._col_select;
+    sram_interface[n].row_select = sram[n].row_select;
 )
 
 aer::a1of2 aerv_y_syn[N_SYN];

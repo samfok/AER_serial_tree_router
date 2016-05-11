@@ -133,7 +133,7 @@ defproc config_sram_addr_decoder (globals g; c1of4 _addr[addr_1of4]; bool row_se
 
 export
 template <pint aerv_words, word_size, cols, rows, addr_1of4>
-defproc config_sram_interface (globals g; eMx1of4<aerv_words> _aerv_data; dualrail sram_write[word_size]; bool sram_col_select[cols], sram_row_select[rows]) {
+defproc config_sram_interface (globals g; eMx1of4<aerv_words> _aerv_data; dualrail _write[word_size]; bool _col_select[cols], row_select[rows]) {
     // ------------------------------
     //           aerv_data
     //  write      row/col addr
@@ -160,12 +160,27 @@ defproc config_sram_interface (globals g; eMx1of4<aerv_words> _aerv_data; dualra
     _aerv_data.e = addr_decoder.data_e;
     word_4to2._x = {_aerv_data.m[3]}; // want to raise write lines high first
     _aerv_data.m[0..2] = addr_decoder._addr;
-    (; w : word_size :
-        word_4to2.y[w].d = sram_write[w].d;
-    )
+    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+        // we assume sufficient latency in the receiver for the bitcell to be written
+        (: w : word_size :
+            (: d : 2 :
+                [after=0] ~word_4to2.y[w].d[d]<9> -> _write[w].d[d]+
+                [after=0] word_4to2.y[w].d[d]<6> -> _write[w].d[d]-
+            )
+        )
+    }
 
-    sram_col_select = addr_decoder.col_select;
-    sram_row_select = addr_decoder.row_select;
+    bool col_select[cols];
+    col_select = addr_decoder.col_select;
+    row_select = addr_decoder.row_select;
+
+    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+        // we assume sufficient latency in the receiver for the bitcell to be written
+        (: n : cols :
+            [after=0] ~col_select[n]<9> -> _col_select[n]+
+            [after=0] col_select[n]<6> -> _col_select[n]-
+        )
+    }
 }
 
 } // namespace aer
@@ -196,33 +211,27 @@ namespace mem {
 Notes:
 
 */
-export template <pint rows, cols, word_size, write_delay, precharge_delay, pn, width>
-defproc config_sramNxM_addr_decoded(globals g; dualrail write[word_size]; bool col_select[cols], row_select[rows]; dualrail _q[rows][cols][word_size])
+export template <pint rows, cols, word_size>
+defproc config_sramNxM_addr_decoded(globals g; dualrail _write[word_size]; bool _col_select[cols], row_select[rows]; dualrail _q[rows][cols][word_size])
 {
     config_arrayNxM<rows, cols, word_size> array(g.Vdd, g.GND, g.sReset, g.pReset, g._sReset, g._pReset,,,);
 
 	/****************** write, col_select => array._bl **********************/
-	dualrail _write[cols][word_size];
 	dualrail __write[cols][word_size];
     // we assume sufficient latency in the receiver for the bitcell to be written
 	(;i:cols:
 		(;j:word_size:
 			prs <g.Vdd, g.GND | g.vpsub, g.vnsub>
 			{
-				[after=0] write[j].f<2*width> & col_select[i]<2*width> -> _write[i][j].f-
-				[after=0] ~write[j].f<2*pn*width> | ~col_select[i]<2*pn*width> -> _write[i][j].f+
-				[after=0] write[j].t<2*width> & col_select[i]<2*width> -> _write[i][j].t-
-				[after=0] ~write[j].t<2*pn*width> | ~col_select[i]<2*pn*width> -> _write[i][j].t+
+				[after=0] ~_write[j].f<12> & ~_col_select[i]<12> -> __write[i][j].f+
+				[after=0] _write[j].f<6> | _col_select[i]<6> -> __write[i][j].f-
+				[after=0] ~_write[j].t<12> & ~_col_select[i]<12> -> __write[i][j].t+
+				[after=0] _write[j].t<6> | _col_select[i]<6> -> __write[i][j].t-
 
-                [after=0] _write[i][j].f<width> -> __write[i][j].f-
-                [after=0] ~_write[i][j].f<pn*width> -> __write[i][j].f+
-                [after=0] _write[i][j].t<width> -> __write[i][j].t-
-                [after=0] ~_write[i][j].t<pn*width> -> __write[i][j].t+
-
-				[after=0] __write[i][j].f<width> -> array._bl[i][j][0]-
-				[after=0] ~__write[i][j].f<pn*width> -> array._bl[i][j][0]+
-				[after=0] __write[i][j].t<width> -> array._bl[i][j][1]-
-				[after=0] ~__write[i][j].t<pn*width> -> array._bl[i][j][1]+
+				[after=0] __write[i][j].f<6> -> array._bl[i][j][0]-
+				[after=0] ~__write[i][j].f<9> -> array._bl[i][j][0]+
+				[after=0] __write[i][j].t<6> -> array._bl[i][j][1]-
+				[after=0] ~__write[i][j].t<9> -> array._bl[i][j][1]+
 			}
 		)
 	)
