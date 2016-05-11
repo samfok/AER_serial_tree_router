@@ -42,37 +42,12 @@ defproc word_1of4_to_1of2 (globals g; c1of4 _x[M_1of4]; c1of2 y[M_1of2]) {
     }
 }
 
-template <pint words_1of4, words_1of2>
-defproc addr_vn (globals g; c1of4 _addr4[words_1of4]; c1of2 _addr2[words_1of2]; bool vn) {
-    // checks validity/neutrality of address data
-    words_1of4 = 2; // assert
-    words_1of2 = 2; // assert
-    pint M4 = words_1of4;
-    pint M2 = words_1of2;
-    pint D4 = 4;
-    pint D2 = 2;
-    bool v4[M4];
-    bool v2[M2];
-    bool _vn4;
-    bool _vn2;
+defproc addr_vn (globals g; c1of4 _addr; bool vn) {
+    // checks validity/neutrality of address data. only checks last word
+    pint D = 4;
     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-        (: m : M4 :
-            (& : d : D4 : _addr4[m].d[d]<12>) -> v4[m]-
-            (| : d : D4 : ~_addr4[m].d[d]<9>) -> v4[m]+
-        )
-        (: m : M2 :
-            (& : d : D2 : _addr2[m].d[d]<12>) -> v2[m]-
-            (| : d : D2 : ~_addr2[m].d[d]<9>) -> v2[m]+
-        )
-
-        (& : m : M4 : ~v4[m]<12>) -> _vn4+
-        (& : m : M4 : v4[m]<6>) -> _vn4-
-
-        (& : m : M2 : ~v2[m]<12>) -> _vn2+
-        (& : m : M2 : v2[m]<6>) -> _vn2-
-
-        ~_vn4<12> & ~_vn2<12> -> vn+
-        _vn4<6> & _vn2<6> -> vn-
+        (& : d : D : _addr.d[d]<12>) -> vn-
+        (| : d : D : ~_addr.d[d]<9>) -> vn+
     }
 }
 
@@ -119,11 +94,7 @@ defproc config_sram_addr_decoder (globals g; c1of4 _addr[addr_1of4]; bool row_se
         )
     }
 
-    c1of4 vn__addr4[2];
-    c1of2 vn__addr2[2];
-    vn__addr4 = {_addr[0], _addr[2]};
-    vn__addr2 = {_addr_mid[0], _addr_mid[1]};
-    addr_vn<2, 2> vn(g, vn__addr4, vn__addr2,); 
+    addr_vn vn(g, _addr[0],); 
 
     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
         ~vn.vn -> data_e+
