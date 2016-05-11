@@ -24,10 +24,9 @@ aer::SOURCE_BRAIN_AERV<M_MEM, M_MEM-M, 2, 1> mem_src(g,);
 aer::SYNAPSE spk_snk[N_SYN];
 
 pint rows = 8;
-pint cols = 8;
-pint addr_1of4 = 3;
-pint word_size = 2;
-aer::config_sram_interface<M_MEM-M, word_size, cols, rows, addr_1of4> sram_interface[N_MEM];
+pint cols = 16;
+pint word_size = 1;
+aer::config_sram_interface<M_MEM-M, word_size, cols, rows> sram_interface[N_MEM];
 mem::config_sramNxM_addr_decoded<rows, cols, word_size> sram[N_MEM];
 compat_bs::dualrail_arr<word_size> write[N_MEM];
 aer::eMx1of4<M_MEM-M> aerv__y_mem[N_MEM];

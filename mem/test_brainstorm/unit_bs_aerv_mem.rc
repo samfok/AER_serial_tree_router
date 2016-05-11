@@ -1,6 +1,6 @@
 channel eMx1of4 5 mem_src
-channel eMx1of2 2 mem_write
-channel e1ofN 8 mem_col_select
+channel eMx1of2 1 mem_write
+channel e1ofN 16 mem_col_select
 channel e1ofN 8 mem_row_select
 
 loop-injectfile mem_src unit_bs_aerv_mem.in
