@@ -12,7 +12,7 @@ pint M_MEM = M+4;
 pint N_SYN = Mp4;
 pint N_MEM = N_SYN/4;
 pint D     = 4;
-pbool flip_mem_out = false;
+pbool flip_mem_out = true;
 
 aer::globals g_aer;
 aer::globals g = g_aer;

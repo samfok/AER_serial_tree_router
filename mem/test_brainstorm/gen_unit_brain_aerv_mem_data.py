@@ -10,8 +10,8 @@ mem_col_select_out = []
 mem_write_out = []
 for i in xrange(N):
   mem_in += [i]
-  mem_row_select_out += [i % 16]
-  mem_col_select_out += [(i/16) % 4]
+  mem_row_select_out += [i % 8]
+  mem_col_select_out += [(i/8) % 8]
   mem_write_out += [i / 64]
 
 mem_in = np.array(mem_in) + OFFSET

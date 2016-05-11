@@ -105,16 +105,16 @@ defproc config_sram_addr_decoder (globals g; c1of4 _addr[addr_1of4]; bool row_se
         // we assume sufficient latency in the receiver for the bitcell to be written
         (: d : D4 :
             (: dd : D2 :
-                [after=0] ~_addr[0].d[d] & ~_addr_mid[0].d[dd] -> col_select[2*d+dd]+
-                [after=0] _addr[0].d[d] | _addr_mid[0].d[dd] -> col_select[2*d+dd]-
+                [after=0] ~_addr[2].d[d] & ~_addr_mid[1].d[dd] -> col_select[2*d+dd]+
+                [after=0] _addr[2].d[d] | _addr_mid[1].d[dd] -> col_select[2*d+dd]-
             )
         )
 
         // we assume sufficient latency in the receiver for the bitcell to be written
         (: d : D4 :
             (: dd : D2 :
-                [after=0] ~_addr[2].d[d] & ~_addr_mid[1].d[dd] -> row_select[4*dd+d]+
-                [after=0] _addr[2].d[d] | _addr_mid[1].d[dd] -> row_select[4*dd+d]-
+                [after=0] ~_addr[0].d[d] & ~_addr_mid[0].d[dd] -> row_select[4*dd+d]+
+                [after=0] _addr[0].d[d] | _addr_mid[0].d[dd] -> row_select[4*dd+d]-
             )
         )
     }
@@ -158,8 +158,8 @@ defproc config_sram_interface (globals g; eMx1of4<aerv_words> _aerv_data; dualra
     config_sram_addr_decoder<addr_1of4, rows, cols> addr_decoder(g,,,,);
 
     _aerv_data.e = addr_decoder.data_e;
-    _aerv_data.m[0] = word_4to2._x[0]; // want to raise write lines high first
-    _aerv_data.m[1..3] = addr_decoder._addr;
+    word_4to2._x = {_aerv_data.m[3]}; // want to raise write lines high first
+    _aerv_data.m[0..2] = addr_decoder._addr;
     (; w : word_size :
         word_4to2.y[w].d = sram_write[w].d;
     )
