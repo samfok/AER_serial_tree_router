@@ -1,5 +1,11 @@
 include ${ACT_PATH}/aer/standard_defs.mk
 
+CFLAT := cflat -DLAYOUT=false -DPRSIM=true
+PRSIM := prsim
+
+AER_PATH := ${ACT_PATH}/aer
+AERV_PATH := ${AER_PATH}/aerv
+
 TESTS := $(sort $(shell find * -name '*.act'))
 PRS_OBJS := $(TESTS:%.act=prs/%.prs)
 SIM_OBJS := $(TESTS:%.act=sim/%.sim)
@@ -11,17 +17,23 @@ test: $(SIM_OBJS)
 sim/%.sim: prs/%.prs %.rc
 	@mkdir -p sim
 	@printf '%-30s' $(subst .prs,,$(<F))
-	@cat $(word 2,$^) | prsim $< > $@
+	@cat $(word 2,$^) | $(PRSIM) $< > $@
 	@grep -e ERROR -e WARNING $@ > $(subst .sim,.err,$@) && (echo -e "${redfont}FAIL${resetterm}") && touch $< || \
 	(grep -q -E "$(shell grep advance $(word 2,$^) | cut -b 9)[0-9]{$(shell expr $(shell grep advance $(word 2,$^) | cut -d \  -f 2 | wc -c) - 2)} " $@ && echo -e "${greenfont}PASS${resetterm}" || (echo -e "${redfont}DEADLOCK${resetterm}" && touch $<))
 
 prs: $(PRS_OBJS)
 
-prs/%.prs: %.act ${ACT_PATH}/aer/aerv/aerv.act ${ACT_PATH}/aer/aerv/ref_aerv.act
+prs/%.prs: %.act ${AERV_PATH}/aerv.act ${AERV_PATH}/ref_aerv.act ${AER_PATH}/interface/interface.act ${AER_PATH}/lib/comm.act ${AER_PATH}/lib/arbiter.act
 	@mkdir -p prs
 	@printf 'compiling %s...\n' $(subst .act,,$(<F))
-	@cflat -DLAYOUT=false $< > $@ || rm -f $@	
+	@$(CFLAT) $< > $@ || rm -f $@	
 
+test:
+	@echo ${ACT_PATH}
+	@echo ${AER_PATH}
+	@echo ${AERV_PATH}
+
+.PHONY: clean
 clean:
 	@rm -rf prs
 	@rm -rf sim

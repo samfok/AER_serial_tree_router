@@ -3,6 +3,9 @@ include ${ACT_PATH}/aer/standard_defs.mk
 CFLAT := cflat -DLAYOUT=false -DPRSIM=true
 PRSIM := prsim
 
+AER_PATH := ${ACT_PATH}/aer
+MEM_PATH := ${AER_PATH}/mem
+
 TESTS := $(sort $(shell find * -name '*.act'))
 PRS_OBJS := $(TESTS:%.act=prs/%.prs)
 SIM_OBJS := $(TESTS:%.act=sim/%.sim)
@@ -20,7 +23,7 @@ sim/%.sim: prs/%.prs %.rc
 
 prs: $(PRS_OBJS)
 
-prs/%.prs: %.act ${ACT_PATH}/aer/aerv/aerv.act ${ACT_PATH}/aer/aerv/bs_aerv.act ${ACT_PATH}/aer/mem/memory.act
+prs/%.prs: %.act ${AER_PATH}/aerv/aerv.act ${AER_PATH}/aerv/bs_aerv.act ${MEM_PATH}/memory.act
 	@mkdir -p prs
 	@printf 'compiling %s...\n' $(subst .act,,$(<F))
 	@$(CFLAT) $< > $@ || rm -f $@	
