@@ -308,64 +308,64 @@ namespace receiver {
     }
 
     export
-    template <pint D; pint cap_a, cap_b>
+    template <pint D, R; pint S[R], CAP[R]>
     defproc AMP_WIRES (globals g; bool _pcp, _pci, _cpp, _cpo; c1of<D> pc, cp) {
-        // model the amplifiers and wire capacitances internal to the aerv tree
-        // cap_a capacitance from source to repeater (72 fF)
-        // cap_b capacitance from repeater to destination (150 fF)
-        preal c = 0.25; // capacitance multiplier
-        bool _pcp_cpp[3]; // connect parent _cp to child _pp
-        bool _cpo_pci[3]; // connect child _po to parent _ci
-        c1of<4> pc_cp[3]; // 
-        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-            ~_pcp<3*9> -> _pcp_cpp[0]+
-            _pcp<3*6> -> _pcp_cpp[0]-
-            [loadcap=cap_a*c] ~_pcp_cpp[0]<10*9> -> _pcp_cpp[1]+
-            [loadcap=cap_a*c] _pcp_cpp[0]<10*6> -> _pcp_cpp[1]-
-            ~_pcp_cpp[1]<6*9> -> _pcp_cpp[2]+
-            _pcp_cpp[1]<6*6> -> _pcp_cpp[2]-
-            [loadcap=cap_b*c] ~_pcp_cpp[2]<36*9> -> _cpp+
-            [loadcap=cap_b*c] _pcp_cpp[2]<36*6> -> _cpp-
-
-            ~_cpo<3*9> -> _cpo_pci[0]+
-            _cpo<3*6> -> _cpo_pci[0]-
-            [loadcap=cap_a*c] ~_cpo_pci[0]<10*9> -> _cpo_pci[1]+
-            [loadcap=cap_a*c] _cpo_pci[0]<10*6> -> _cpo_pci[1]-
-            ~_cpo_pci[1]<6*9> -> _cpo_pci[2]+
-            _cpo_pci[1]<6*6> -> _cpo_pci[2]-
-            [loadcap=cap_b*c] ~_cpo_pci[2]<36*9> -> _pci+
-            [loadcap=cap_b*c] _cpo_pci[2]<36*6> -> _pci-
-
-            (: d : D :
-                ~pc.d[d]<3*9> -> pc_cp[0].d[d]+
-                pc.d[d]<3*6> -> pc_cp[0].d[d]-
-                [loadcap=cap_a*c] ~pc_cp[0].d[d]<10*9> -> pc_cp[1].d[d]+
-                [loadcap=cap_a*c] pc_cp[0].d[d]<10*6> -> pc_cp[1].d[d]-
-                ~pc_cp[1].d[d]<6*9> -> pc_cp[2].d[d]+
-                pc_cp[1].d[d]<6*6> -> pc_cp[2].d[d]-
-                [loadcap=cap_b*c] ~pc_cp[2].d[d]<36*9> -> cp.d[d]+
-                [loadcap=cap_b*c] pc_cp[2].d[d]<36*6> -> cp.d[d]-
-            )
-        }
+        // model the amplifier and wire capacitances internal to the aerv tree
+        // D 1-of-D data
+        // R repeater inverters
+        // CAP capacitance source to repeater (units of min size inverter cap)
+        // in production: D=4
+        // .--------------------------------------------------------------.
+        // |                 link  | R | S              | CAP             |
+        // |-----------------------|---|----------------|-----------------|
+        // | array edge -> root    | 4 | {3, 10, 6, 36} | {4, 64, 4, 192} |
+        // | root       -> node[0] | 4 | {3, 10, 6, 36} | {4, 64, 4, 192} |
+        // | node[0]    -> node[1] | 4 | {3, 10, 6, 36} | {4, 64, 4, 64}  |
+        // | node[1]    -> node[2] | 2 | {3, 10}        | {4, 64}         |
+        // | node[2]    -> leaf    | 2 | {3, 10}        | {4, 32}         |
+        // ----------------------------------------------------------------
+        // assume min_inv_cap=0.25
+        preal min_inv_cap = 0.25;
+        
+        preal C[R];
+        (; r : R :
+            C[r] = min_inv_cap * CAP[r];
+        )
+        REPEATER_BOOL<R, S, C> _pcp_cpp(g, _pcp, _cpp);
+        REPEATER_BOOL<R, S, C> _cpo_pci(g, _cpo, _pci);
+        REPEATER_c1of<D, R, S, C> pc_cp(g, pc, cp);
     }
 
     export
-    template <pint M, Mp4, N_SYN, N_MEM>
+    template <pint M, Mp4, N_SYN, N_MEM; pint M0, Rmax, m0; pint R[M0], S[M0][Rmax], CAP[M0][Rmax]>
     defproc AERV_ (globals g; bool _pp, _po, cp[Mp4], ci[Mp4]; c1of<4> p; e1of2 syn[N_SYN]; c1of4 mem[N_MEM]) {
         // utility for AERV
+        // additional parameters:
+        //   M0 total depth of tree
+        //   m0 indexes into R, S, CAP
         pint D = 4; // 1-of-D data
         pint F = 4; // fanout for intermediate nodes
+
+        // connect parent ports to repeaters and wires
+        bool w__pcp = _pp;
+        bool w__pci = _po;
+        bool w__cpp, w__cpo;
+        c1of<D> w_pc = p; 
+        c1of<D> w_cp;
+        AMP_WIRES<D, R[m0], S[m0][0..R[m0]-1], CAP[m0][0..R[m0]-1]>
+            w(g, w__pcp, w__pci, w__cpp, w__cpo, w_pc, w_cp);
         [ M = 1 ->
             N_SYN = 4; // assert
             N_MEM = 1; // assert
             Mp4 = 4; // assert
-            LEAF leaf(g, _pp, _po, cp, ci, p, syn, mem[0]);
+            m0 = M0-1; //assert
+            LEAF leaf(g, w__cpp, w__cpo, cp, ci, w_cp, syn, mem[0]);
         [] M > 1 ->
             N_MEM*4 = N_SYN; // assert
             pint k = Mp4/4;
             pint k_syn = N_SYN/4;
             pint k_mem = N_MEM/4;
-            AERV_<M-1, k, k_syn, k_mem> _[F];
+            AERV_<M-1, k, k_syn, k_mem, M0, Rmax, m0+1, R, S, CAP> _[F];
             (; f : F :
                 _[f].g = g;
                 _[f].cp = cp[f*k..(f+1)*k-1];
@@ -373,25 +373,13 @@ namespace receiver {
                 _[f].syn = syn[f*k_syn..(f+1)*k_syn-1];
                 _[f].mem = mem[f*k_mem..(f+1)*k_mem-1];
             )
-            NODE<F, D> node(g, _pp, _po,,, p,);
-            // connect with wires modeled
-            AMP_WIRES<D, 72, 150> w[F];
+
+            NODE<F, D> node(g, w__cpp, w__cpo,,, w_cp,);
             (; f : F :
-                w[f].g = g;
-                node.c[f] = w[f].pc;
-                w[f].cp = _[f].p;
-                node._cp[f] = w[f]._pcp;
-                w[f]._cpp = _[f]._pp;
-                _[f]._po = w[f]._cpo;
-                w[f]._pci = node._ci[f];
+                node._cp[f] = _[f]._pp;
+                _[f]._po = node._ci[f];
+                node.c[f] = _[f].p;
             )
-            // direct connection
-            // (; f : F :
-            //     _[f].g = g;
-            //     _[f].p = node.c[f];
-            //     _[f]._pp = node._cp[f];
-            //     _[f]._po = node._ci[f];
-            // )
         ]
     }
 
@@ -423,16 +411,21 @@ namespace receiver {
 } // namespace receiver
 
 export
-template <pint M, Mp4, N_SYN, N_MEM>
+template <pint M, Mp4, N_SYN, N_MEM; pint Rmax; pint R[M], S[M][Rmax], CAP[M][Rmax]>
 defproc AERV (globals g; bool pp, po, cp[Mp4], ci[Mp4]; c1of<4> p; e1of2 syn[N_SYN]; c1of4 mem[N_MEM]) {
     // receiver capable of sending data to neuron
     // M tree levels
     // Mp4 = M^4 potential output ports
     // N_SYN synapses
     // N_MEM memories
+    // Rmax max repeaters between levels of the AERV tree
+    // R[M] repeaters between each AERV tree level
+    // S[M][Rmax] repeater sizing between each AERV tree level
+    // CAP[M][Rmax] wire cap driven by repeaters between AERV tree levels
     bool aerv__pp;
     bool aerv__po;
-    receiver::AERV_<M, Mp4, N_SYN, N_MEM> _(g, aerv__pp, aerv__po, cp, ci, p, syn, mem);
+    receiver::AERV_<M, Mp4, N_SYN, N_MEM, M, Rmax, 0, R, S, CAP>
+        _(g, aerv__pp, aerv__po, cp, ci, p, syn, mem);
     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
         ~pp<9> -> aerv__pp+
         pp<6> -> aerv__pp-
@@ -545,7 +538,8 @@ namespace brain_receiver {
 } // namespace brain_receiver
 
 export
-template <pint M, Mp4, M_SPK, M_MEM, N_SYN, N_MEM; pbool flip_mem_out>
+template <pint M, Mp4, M_SPK, M_MEM, N_SYN, N_MEM; pbool flip_mem_out;
+          pint Rmax; pint R[M], S[M][Rmax], CAP[M][Rmax]>
 defproc BRAIN_AERV (globals g; eMx1of4<M_SPK> x_spk; 
                     eMx1of4<M_MEM> x_mem;
                     a1of2 y_syn[N_SYN]; eMx1of4<M_MEM-M> _y_mem[N_MEM]) {
@@ -567,6 +561,10 @@ defproc BRAIN_AERV (globals g; eMx1of4<M_SPK> x_spk;
     //     N_MEM = 4^(M-1)
     //     N_MEM = 256 (in production)
     // flip_mem_out flip memory output word order
+    // Rmax max repeaters between levels of the AERV tree
+    // R[M] repeaters between each AERV tree level
+    // S[M][Rmax] repeater sizing between each AERV tree level
+    // CAP[M][Rmax] wire cap driven by repeaters between AERV tree levels
     pint D = 4;
     N_MEM*4 = N_SYN; // assert
 
@@ -616,8 +614,8 @@ defproc BRAIN_AERV (globals g; eMx1of4<M_SPK> x_spk;
         buf_syn[n].y = y_syn[n]; // connect buf_syn to synapse
     )
 
-    AERV<M, Mp4, N_SYN, N_MEM> aerv(
-        g, aerv_pp, aerv_po, aerv_cp, aerv_ci, aerv_p, aerv_syn, aerv_mem);
+    AERV<M, Mp4, N_SYN, N_MEM, Rmax, R, S, CAP> 
+        aerv(g, aerv_pp, aerv_po, aerv_cp, aerv_ci, aerv_p, aerv_syn, aerv_mem);
 }
 
 } // namespace aer

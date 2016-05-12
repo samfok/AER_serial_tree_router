@@ -28,11 +28,6 @@ prs/%.prs: %.act ${AERV_PATH}/aerv.act ${AERV_PATH}/ref_aerv.act ${AER_PATH}/int
 	@printf 'compiling %s...\n' $(subst .act,,$(<F))
 	@$(CFLAT) $< > $@ || rm -f $@	
 
-test:
-	@echo ${ACT_PATH}
-	@echo ${AER_PATH}
-	@echo ${AERV_PATH}
-
 .PHONY: clean
 clean:
 	@rm -rf prs

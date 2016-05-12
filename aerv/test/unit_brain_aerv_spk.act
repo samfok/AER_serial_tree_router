@@ -9,6 +9,17 @@ pint N_SYN = Mp4;
 pint N_MEM = N_SYN/4;
 pint D     = 4;
 pbool flip_mem_out = true;
+pint Rmax = 4;
+pint R[M];
+pint S[M][Rmax];
+pint CAP[M][Rmax];
+R = {4, 2, 2};
+S = {{3, 10, 6, 36},
+     {3, 10, 0, 0},
+     {3, 10, 0, 0}};
+CAP = {{4, 64, 4, 64},
+       {4, 64, 0, 0},
+       {4, 32, 0, 0}};
 
 aer::globals g;
 bool Reset = g.sReset;
@@ -48,5 +59,5 @@ aer::eMx1of2_to_eMx1of4<2*M_SPK, M_SPK> spk_src_(g, spk_src,);
     )
 )
 
-aer::BRAIN_AERV<M, Mp4, M_SPK, M_MEM, N_SYN, N_MEM, flip_mem_out> aerv(
-    g, spk_src_.y, mem_src, y_syn, y_mem);
+aer::BRAIN_AERV<M, Mp4, M_SPK, M_MEM, N_SYN, N_MEM, flip_mem_out, Rmax, R, S, CAP>
+    aerv(g, spk_src_.y, mem_src, y_syn, y_mem);
