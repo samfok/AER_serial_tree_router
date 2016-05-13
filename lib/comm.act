@@ -193,6 +193,7 @@ defproc REPEATER_BOOL (globals g; bool i, o) {
             [loadcap=C[M-1]] ~x[M-2]<S[M-1]*9> -> o+
         }
     [] M = 0 ->
+        i = o;
         prs<g.Vdd, g.GND> {} // HACK so netgen -B doesn't complain
     ]
 }

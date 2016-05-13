@@ -1,0 +1,22 @@
+// Tests serial tree AER system with 1 neuron
+import "aer/aer/aer.act";
+
+pint M=3;
+pint N=2;
+pint NN=8;
+
+aer::globals g;
+aer::SOURCE_random_a1of1 src(g,);
+aer::passive_handshaker<1> y(g,,);
+aer::AER_NODATA<M, N, NN> aer(g,,,,);
+
+src.d.a = aer.xo[0];
+prs<g.Vdd, g.GND> {
+    src.d.d => aer._xp[0]-
+}
+aer.yi[0] = y.o[0];
+aer.yp[0] = y.i[0];
+(; nn : 1..NN-1 :
+    aer._xp[nn] = g.Vdd;
+    aer.yi[nn] = g.GND;
+)

@@ -1,0 +1,11 @@
+// Tests the serial tree AER system
+import "aer/aer/ref_aer.act";
+
+pint M=3;
+pint N=2;
+pint NN=8;
+
+aer::globals g;
+aer::active_handshaker<NN> x(g,,);
+aer::passive_handshaker<NN> y(g,,);
+aer::AER_NODATA<M, N, NN> aer(g, x.o, x.i, y.o, y.i);

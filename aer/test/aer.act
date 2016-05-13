@@ -1,0 +1,19 @@
+// Tests the serial tree AER system
+import "aer/aer/aer.act";
+pint M=3;
+pint N=2;
+pint NN=8; // NN=N^M
+aer::globals g;
+aer::SOURCE_random_a1of1 src[NN];
+aer::passive_handshaker<NN> y(g,,);
+aer::AER_NODATA<M, N, NN> aer(g,,, y.o, y.i);
+
+(; nn : NN :
+    src[nn].g = g;
+    src[nn].d.a = aer.xo[nn];
+)
+prs<g.Vdd, g.GND> {
+    (: nn : NN :
+        src[nn].d.d => aer._xp[nn]-
+    )
+}

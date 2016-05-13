@@ -313,7 +313,8 @@ namespace receiver {
         // model the amplifier and wire capacitances internal to the aerv tree
         // D 1-of-D data
         // R repeater inverters
-        // CAP capacitance source to repeater (units of min size inverter cap)
+        // S[R] scales size of repeater inverters
+        // CAP[R] capacitive load along repeaters (units of min size inverter cap)
         // in production: D=4
         // .--------------------------------------------------------------.
         // |                 link  | R | S              | CAP             |
@@ -413,7 +414,7 @@ namespace receiver {
 export
 template <pint M, Mp4, N_SYN, N_MEM; pint Rmax; pint R[M], S[M][Rmax], CAP[M][Rmax]>
 defproc AERV (globals g; bool pp, po, cp[Mp4], ci[Mp4]; c1of<4> p; e1of2 syn[N_SYN]; c1of4 mem[N_MEM]) {
-    // receiver capable of sending data to neuron
+    // Receiver receives data from datapath and sends spikes to neuron and data to memory
     // M tree levels
     // Mp4 = M^4 potential output ports
     // N_SYN synapses

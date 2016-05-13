@@ -222,88 +222,66 @@ namespace transmitter {
     }
 
     export
-    template <pint D; pint cap_a, cap_b>
-    defproc AMP_WIRES (globals g; bool _cpp, cpi, _pcp, pco; c1of<D> _cp, _pc) {
-        // model the amplifiers and wire capacitances internal to the aext tree
-        // cap_a capacitance from source to repeater (72 fF)
-        // cap_b capacitance from repeater to destination (150 fF)
-        preal c = 0.25; // capacitance multiplier
-        bool _cpp_pcp[3]; // connect parent _cp to child _pp
-        bool pco_cpi[3]; // connect child _po to parent _ci
-        c1of<4> _cp_pc[3]; // 
-        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-            ~_cpp<3*9> -> _cpp_pcp[0]+
-            _cpp<3*6> -> _cpp_pcp[0]-
-            [loadcap=cap_a*c] ~_cpp_pcp[0]<10*9> -> _cpp_pcp[1]+
-            [loadcap=cap_a*c] _cpp_pcp[0]<10*6> -> _cpp_pcp[1]-
-            ~_cpp_pcp[1]<6*9> -> _cpp_pcp[2]+
-            _cpp_pcp[1]<6*6> -> _cpp_pcp[2]-
-            [loadcap=cap_b*c] ~_cpp_pcp[2]<36*9> -> _pcp+
-            [loadcap=cap_b*c] _cpp_pcp[2]<36*6> -> _pcp-
-
-            ~pco<3*9> -> pco_cpi[0]+
-            pco<3*6> -> pco_cpi[0]-
-            [loadcap=cap_a*c] ~pco_cpi[0]<10*9> -> pco_cpi[1]+
-            [loadcap=cap_a*c] pco_cpi[0]<10*6> -> pco_cpi[1]-
-            ~pco_cpi[1]<6*9> -> pco_cpi[2]+
-            pco_cpi[1]<6*6> -> pco_cpi[2]-
-            [loadcap=cap_b*c] ~pco_cpi[2]<36*9> -> cpi+
-            [loadcap=cap_b*c] pco_cpi[2]<36*6> -> cpi-
-
-            (: d : D :
-                [loadcap=cap_a*c] ~_cp.d[d]<5*9> -> _cp_pc[0].d[d]+
-                [loadcap=cap_a*c] _cp.d[d]<5*6> -> _cp_pc[0].d[d]-
-                ~_cp_pc[0].d[d]<1*9> -> _cp_pc[1].d[d]+
-                _cp_pc[0].d[d]<1*6> -> _cp_pc[1].d[d]-
-                ~_cp_pc[1].d[d]<5*9> -> _cp_pc[2].d[d]+
-                _cp_pc[1].d[d]<5*6> -> _cp_pc[2].d[d]-
-                [loadcap=cap_b*c] ~_cp_pc[2].d[d]<25*9> -> _pc.d[d]+
-                [loadcap=cap_b*c] _cp_pc[2].d[d]<25*6> -> _pc.d[d]-
-            )
-        }
+    template <pint D, R; pint Se[R], CAPe[R], Spd[R], CAPpd[R]>
+    defproc AMP_WIRES (globals g; bool _cpp, cpi, _pcp, pco; c1of<D> cp, pc) {
+        // model the amplifier and wire capacitances internal to the aext tree
+        // D 1-of-D data
+        // R repeater inverters
+        // Se[R] scales size of repeater inverters (for enable pco->cpi)
+        // CAPe[R] capacitive load along repeaters (units of min size inverter cap) (for enable pco->cpi)
+        // Spd[R] scales size of repeater inverters (for phi _cpp->_pcp and data cp->pc)
+        // CAPpd[R] capacitive load along repeaters (units of min size inverter cap) (for phi _cpp->_pcp and data cp->pc)
+        // in production: D=4
+        // .-------------------------------------------------------------------------------------------------.
+        // |                 link  | R | Se             | CAPe            | Spd            | CAPpd           |
+        // |-----------------------|---|----------------|-----------------|----------------|-----------------|
+        // | root    -> array edge | 4 | {3, 10, 6, 36} | {4, 64, 4, 192} | {5, 1, 5, 25}  | {64, 4, 4, 192} |
+        // | node[0] -> root       | 4 | {3, 10, 6, 36} | {4, 64, 4, 192} | {5, 1, 5, 25}  | {64, 4, 4, 192} |
+        // | node[1] -> node[0]    | 4 | {3, 10, 6, 36} | {4, 64, 4, 64}  | {5, 1, 5, 25}  | {64, 4, 4, 64}  |
+        // | node[2] -> node[1]    | 2 | {3, 10}        | {4, 64}         | {5, 1}         | {64, 4}         |
+        // | node[3] -> node[2]    | 2 | {3, 10}        | {4, 32}         | {5, 1}         | {32, 4}         |
+        // | leaf    -> node[3]    | 2 | {3, 10}        | {4, 16}         | {5, 1}         | {16, 4}         |
+        // ---------------------------------------------------------------------------------------------------
+        // assume min_inv_cap=0.25
+        preal min_inv_cap = 0.25;
+        
+        preal Ce[R];
+        preal Cpd[R];
+        (; r : R :
+            Ce[r] = min_inv_cap * CAPe[r];
+            Cpd[r] = min_inv_cap * CAPpd[r];
+        )
+        REPEATER_BOOL<R, Spd, Cpd> _pcp_cpp(g, _cpp, _pcp);
+        REPEATER_BOOL<R, Se, Ce> _cpo_pci(g, pco, cpi);
+        REPEATER_c1of<D, R, Spd, Cpd> pc_cp(g, cp, pc);
     }
 
     export
-    template <pint M, N, NN; pbool root>
+    template <pint M, N, NN; pbool root; pint M0, Rmax, m0;
+              pint R[M0], Se[M0][Rmax], CAPe[M0][Rmax], Spd[M0][Rmax], CAPpd[M0][Rmax]>
     defproc AEXT_ (globals g; bool _xp[NN], xo[NN], pi, _pp; c1of<N> p) {
         // utility for AEXT
+        bool w__cpp, w_cpi;
+        bool w__pcp = _pp;
+        bool w_pco = pi;
+        c1of<N> w_pc = p; 
+        c1of<N> w_cp;
+        AMP_WIRES<N, R[m0], Se[m0][0..R[m0]-1], CAPe[m0][0..R[m0]-1], Spd[m0][0..R[m0]-1], CAPpd[m0][0..R[m0]-1]>
+            w(g, w__cpp, w_cpi, w__pcp, w_pco, w_cp, w_pc);
         [ M = 1 ->
             NN = N;
-            LEAF<N, root> leaf(g, _xp, xo, pi, _pp, p);
+            LEAF<N, root> leaf(g, _xp, xo, w_cpi, w__cpp, w_cp);
         [] M > 1 ->
+            NODE<N, root> node(g,,, w_cpi, w__cpp,, w_cp);
             pint k = NN/N;
-            AEXT_<M-1, N, k, false> _[N];
+            AEXT_<M-1, N, k, false, M0, Rmax, m0+1, R, Se, CAPe, Spd, CAPpd> _[N];
             (; n : N :
                 _[n].g = g;
                 _[n]._xp = _xp[n*k..(n+1)*k-1];
                 _[n].xo = xo[n*k..(n+1)*k-1];
-            )
-            NODE<N, root> node(g,,, pi, _pp,, p);
-        ]
-        [ M > 2 ->
-            // connect with wires modeled
-            AMP_WIRES<N, 72, 150> w[N];
-            (; n : N :
-                w[n].g = g;
-                _[n]._pp = w[n]._cpp;
-                w[n]._pcp = node._cp[n];
-                node.co[n] = w[n].pco;
-                w[n].cpi = _[n].pi;
-                _[n].p = w[n]._cp;
-                w[n]._pc = node._c[n];
-            )
-            // direct connection
-            // (; n : N :
-            //     node._cp[n] = _[n]._pp;
-            //     node.co[n] = _[n].pi;
-            //     node._c[n] = _[n].p;
-            // )
-        [] M = 2 ->
-            // direct connection
-            (; n : N :
-                node._cp[n] = _[n]._pp;
-                node.co[n] = _[n].pi;
-                node._c[n] = _[n].p;
+                _[n].pi = node.co[n];
+                _[n]._pp = node._cp[n];
+                _[n].p = node._c[n];
             )
         ]
     }
@@ -312,8 +290,51 @@ namespace transmitter {
 export
 template <pint M, N, NN>
 defproc AEXT (globals g; bool _xp[NN], xo[NN], pi, pp; c1of<N> p) {
-    // Transmitter
-    transmitter::AEXT_<M, N, NN, true> _(g, _xp, xo, pi,, p);
+    // Transmitter transmits spikes from neurons to datapath
+    // M tree levels
+    // N children per node
+    // NN total neurons
+    pint Mmax = 6;
+    pint Rmax = 4;
+    pint R[Mmax];
+    pint Se[Mmax][Rmax], Spd[Mmax][Rmax];
+    pint CAPe[Mmax][Rmax], CAPpd[Mmax][Rmax];
+    // repeaters per stage
+    R = {4, 4, 4, 2, 2, 2};
+    // sizing per repeater per stage
+    Se = {{3, 10, 6, 36},
+          {3, 10, 6, 36},
+          {3, 10, 6, 36},
+          {3, 10, 0, 0 },
+          {3, 10, 0, 0 },
+          {3, 10, 0, 0 }};
+    Spd = {{5, 1, 5, 25},
+           {5, 1, 5, 25},
+           {5, 1, 5, 25},
+           {5, 1, 0, 0 },
+           {5, 1, 0, 0 },
+           {5, 1, 0, 0 }};
+    // cap per repeater per stage
+    CAPe = {{4, 64, 4, 192},
+            {4, 64, 4, 192},
+            {4, 64, 4, 64 },
+            {4, 64, 0, 0  },
+            {4, 32, 0, 0  },
+            {4, 16, 0, 0  }};
+    CAPpd = {{64, 4, 4, 192},
+             {64, 4, 4, 192},
+             {64, 4, 4, 64 },
+             {64, 4, 0, 0  },
+             {32, 4, 0, 0  },
+             {16, 4, 0, 0  }};
+
+    [M > Mmax -> 0=1;] // assert false
+    pint ms = Mmax-M; // start idx
+
+    transmitter::AEXT_<M, N, NN, true, M, Rmax, 0, R[ms..Mmax-1],
+                       Se[ms..Mmax-1], CAPe[ms..Mmax-1],
+                       Spd[ms..Mmax-1], CAPpd[ms..Mmax-1]>
+        _(g, _xp, xo, pi,, p);
     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
         ~_._pp<9> -> pp+
         _._pp<6> -> pp-
