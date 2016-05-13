@@ -341,9 +341,16 @@ namespace receiver {
     template <pint M, Mp4, N_SYN, N_MEM; pint M0, Rmax, m0; pint R[M0], S[M0][Rmax], CAP[M0][Rmax]>
     defproc AERV_ (globals g; bool _pp, _po, cp[Mp4], ci[Mp4]; c1of<4> p; e1of2 syn[N_SYN]; c1of4 mem[N_MEM]) {
         // utility for AERV
-        // additional parameters:
-        //   M0 total depth of tree
-        //   m0 indexes into R, S, CAP
+        // M tree levels
+        // Mp4 = M^4 potential output ports
+        // N_SYN synapses
+        // N_MEM memories
+        // M0 total depth of tree
+        // Rmax max repeaters between levels of the AERV tree
+        // m0 indexes into R, S, CAP
+        // R[M] repeaters between each AERV tree level
+        // S[M][Rmax] repeater sizing between each AERV tree level
+        // CAP[M][Rmax] wire cap driven by repeaters between AERV tree levels
         pint D = 4; // 1-of-D data
         pint F = 4; // fanout for intermediate nodes
 
@@ -412,20 +419,42 @@ namespace receiver {
 } // namespace receiver
 
 export
-template <pint M, Mp4, N_SYN, N_MEM; pint Rmax; pint R[M], S[M][Rmax], CAP[M][Rmax]>
+template <pint M, Mp4, N_SYN, N_MEM>
 defproc AERV (globals g; bool pp, po, cp[Mp4], ci[Mp4]; c1of<4> p; e1of2 syn[N_SYN]; c1of4 mem[N_MEM]) {
     // Receiver receives data from datapath and sends spikes to neuron and data to memory
     // M tree levels
     // Mp4 = M^4 potential output ports
     // N_SYN synapses
     // N_MEM memories
-    // Rmax max repeaters between levels of the AERV tree
-    // R[M] repeaters between each AERV tree level
-    // S[M][Rmax] repeater sizing between each AERV tree level
-    // CAP[M][Rmax] wire cap driven by repeaters between AERV tree levels
+    pint Mmax = 6;
+    pint Rmax = 4;
+    pint R[Mmax];
+    pint S[Mmax][Rmax];
+    pint CAP[Mmax][Rmax];
+    // repeaters per stage
+    R = {4, 4, 4, 2, 2, 2};
+    // sizing per repeater per stage
+    S = {{3, 10, 6, 36},
+         {3, 10, 6, 36},
+         {3, 10, 6, 36},
+         {3, 10, 0, 0 },
+         {3, 10, 0, 0 },
+         {3, 10, 0, 0 }};
+    // cap per repeater per stage
+    CAP = {{4, 64, 4, 192},
+           {4, 64, 4, 192},
+           {4, 64, 4, 64 },
+           {4, 64, 0, 0  },
+           {4, 32, 0, 0  },
+           {4, 16, 0, 0  }};
+
+    [M > Mmax -> 0=1;] // assert false
+    pint ms = Mmax-M; // start idx
+
     bool aerv__pp;
     bool aerv__po;
-    receiver::AERV_<M, Mp4, N_SYN, N_MEM, M, Rmax, 0, R, S, CAP>
+    receiver::AERV_<M, Mp4, N_SYN, N_MEM, M, Rmax, 0,
+                    R[ms..Mmax-1], S[ms..Mmax-1], CAP[ms..Mmax-1]>
         _(g, aerv__pp, aerv__po, cp, ci, p, syn, mem);
     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
         ~pp<9> -> aerv__pp+
@@ -539,8 +568,7 @@ namespace brain_receiver {
 } // namespace brain_receiver
 
 export
-template <pint M, Mp4, M_SPK, M_MEM, N_SYN, N_MEM; pbool flip_mem_out;
-          pint Rmax; pint R[M], S[M][Rmax], CAP[M][Rmax]>
+template <pint M, Mp4, M_SPK, M_MEM, N_SYN, N_MEM; pbool flip_mem_out>
 defproc BRAIN_AERV (globals g; eMx1of4<M_SPK> x_spk; 
                     eMx1of4<M_MEM> x_mem;
                     a1of2 y_syn[N_SYN]; eMx1of4<M_MEM-M> _y_mem[N_MEM]) {
@@ -562,10 +590,6 @@ defproc BRAIN_AERV (globals g; eMx1of4<M_SPK> x_spk;
     //     N_MEM = 4^(M-1)
     //     N_MEM = 256 (in production)
     // flip_mem_out flip memory output word order
-    // Rmax max repeaters between levels of the AERV tree
-    // R[M] repeaters between each AERV tree level
-    // S[M][Rmax] repeater sizing between each AERV tree level
-    // CAP[M][Rmax] wire cap driven by repeaters between AERV tree levels
     pint D = 4;
     N_MEM*4 = N_SYN; // assert
 
@@ -615,7 +639,7 @@ defproc BRAIN_AERV (globals g; eMx1of4<M_SPK> x_spk;
         buf_syn[n].y = y_syn[n]; // connect buf_syn to synapse
     )
 
-    AERV<M, Mp4, N_SYN, N_MEM, Rmax, R, S, CAP> 
+    AERV<M, Mp4, N_SYN, N_MEM> 
         aerv(g, aerv_pp, aerv_po, aerv_cp, aerv_ci, aerv_p, aerv_syn, aerv_mem);
 }
 
