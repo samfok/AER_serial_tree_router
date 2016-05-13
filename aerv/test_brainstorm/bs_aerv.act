@@ -3,34 +3,9 @@
 import "aer/aerv/bs_aerv.act";
 import "aer/lib/test.act";
 
-/*---------- M=3 ------------*/
 pint M_1of4     = 3;
 pint M_1of2     = 2*M_1of4;
 pint Mp4        = 64; // 4**M_1of4
-pint Rmax = 4;
-pint R[M_1of4];
-pint S[M_1of4][Rmax];
-pint CAP[M_1of4][Rmax];
-R = {4, 2, 2};
-S = {{3, 10, 6, 36},
-     {3, 10, 0, 0},
-     {3, 10, 0, 0}};
-CAP = {{4, 64, 4, 64},
-       {4, 64, 0, 0},
-       {4, 32, 0, 0}};
-/*---------- M=1 ------------*/
-// pint M_1of4     = 1;
-// pint M_1of2     = 2*M_1of4;
-// pint Mp4        = 4; // 4**M_1of4
-// pint Rmax = 2;
-// pint R[M_1of4];
-// pint S[M_1of4][Rmax];
-// pint CAP[M_1of4][Rmax];
-// R = {2};
-// S = {{3, 10}};
-// CAP = {{4, 32}};
-/*---------------------------*/
-
 pint M_SPK_1of4 = M_1of4+1;
 pint M_SPK_1of2 = 2*M_SPK_1of4;
 pint M_MEM_1of4 = M_1of4+4;
@@ -70,5 +45,5 @@ prs<g.Vdd, g.GND> {
     )
 }
 
-BS_AERV<M_1of2, M_1of4, Mp4, M_SPK_1of2, M_SPK_1of4, M_MEM_1of2, M_MEM_1of4, N_SYN, N_MEM, flip_mem_out, Rmax, R, S, CAP> aerv(
+BS_AERV<M_1of2, M_1of4, Mp4, M_SPK_1of2, M_SPK_1of4, M_MEM_1of2, M_MEM_1of4, N_SYN, N_MEM, flip_mem_out> aerv(
     g, spk_src_4to2.y, mem_src_4to2.y, y_syn, _y_mem);
