@@ -28,10 +28,39 @@ export defproc Wrapper(globals_np g_np; eMx1of4<6> spk_src; a1of2 syn_snk)
     pint F_LEAF = 3;
     pint D = 4;
 
+    pint Rmax = 4; // max repeaters between AERV nodes
+    pint R[M];
+    pint S[M][Rmax];
+    pint CAP[M][Rmax];
+    // repeaters per stage
+    R = {4, 4, 4, 2, 2};
+    // sizing per repeater per stage
+    S = {{3, 10, 6, 36},
+         {3, 10, 6, 36},
+         {3, 10, 6, 36},
+         {3, 10, 0, 0 },
+         {3, 10, 0, 0 }};
+    // cap per repeater per stage
+    CAP = {{4, 64, 4, 192},
+           {4, 64, 4, 192},
+           {4, 64, 4, 64 },
+           {4, 64, 0, 0  },
+           {4, 32, 0, 0  }};
+
     interface::SERIAL_RING<M_SPK, D> serial_spk(g,,,,);
     interface::SERIAL_MERGE<2, D> merge(g,,,,,,);
+    receiver::AMP_WIRES<D, R[0], S[0][0..R[0]-1], CAP[0][0..R[0]-1]>
+        w_er(g,,,,,,); // edge to root
     receiver::NODE<F_INT, D> root(g,,,,,,);
+    receiver::AMP_WIRES<D, R[1], S[1][0..R[1]-1], CAP[1][0..R[1]-1]>
+        w_rn0(g,,,,,,); // root to node[0]
     receiver::NODE<F_INT, D> node[M-2];
+    receiver::AMP_WIRES<D, R[2], S[2][0..R[2]-1], CAP[2][0..R[2]-1]>
+        w_n0n1(g,,,,,,); // node[0] to node[1]
+    receiver::AMP_WIRES<D, R[3], S[3][0..R[3]-1], CAP[3][0..R[3]-1]>
+        w_n1n2(g,,,,,,); // node[1] to node[2]
+    receiver::AMP_WIRES<D, R[4], S[4][0..R[4]-1], CAP[4][0..R[4]-1]>
+        w_n2l(g,,,,,,); // node[2] to leaf
     receiver::LEAF leaf(g,,,,,,,);
     brain_receiver::HALF_BUFFER buf_syn(g,,);
     // connect globals
@@ -56,44 +85,66 @@ export defproc Wrapper(globals_np g_np; eMx1of4<6> spk_src; a1of2 syn_snk)
 
     // connect serial merge to root
     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-        ~merge.yp<9> -> root._pp+
-        merge.yp<6> -> root._pp-
-        ~root._po<9> -> merge.yi+
-        root._po<6> -> merge.yi-
+        ~merge.yp<9> -> w_er._pcp+
+        merge.yp<6> -> w_er._pcp-
+
+        ~root._po<9> -> w_er._cpo+
+        root._po<6> -> w_er._cpo-
     }
-    merge.y = root.p;
+    w_er._cpp = root._pp;
+    w_er._pci = merge.yi;
+    merge.y = w_er.pc;
+    w_er.cp = root.p;
 
     // connect root to node[0]
-    root._cp[0] = node[0]._pp;
-    root._ci[0] = node[0]._po;
+    root._cp[0] = w_rn0._pcp;
+    w_rn0._cpp = node[0]._pp;
+    node[0]._po = w_rn0._cpo;
+    w_rn0._pci = root._ci[0];
     (; f : 1..F_INT-1 :
         root._ci[f] = g.Vdd;
     )
-    root.c[0] = node[0].p;
+    root.c[0] = w_rn0.pc;
+    w_rn0.cp = node[0].p;
 
     // connect nodes
-    (; m : M-3 :
-        node[m]._cp[0] = node[m+1]._pp;
-        node[m]._ci[0] = node[m+1]._po;
-        (; f : 1..F_INT-1 :
-            node[m]._ci[f] = g.Vdd;
-        )
-        node[m].c[0] = node[m+1].p;
+    node[0]._cp[0] = w_n0n1._pcp;
+    w_n0n1._cpp = node[1]._pp;
+    node[1]._po = w_n0n1._cpo;
+    w_n0n1._pci = node[0]._ci[0];
+    (; f : 1..F_INT-1 :
+        node[0]._ci[f] = g.Vdd;
     )
+    node[0].c[0] = w_n0n1.pc;
+    w_n0n1.cp = node[1].p;
+    node[1]._cp[0] = w_n1n2._pcp;
+    w_n1n2._cpp = node[2]._pp;
+    node[2]._po = w_n1n2._cpo;
+    w_n1n2._pci = node[1]._ci[0];
+    (; f : 1..F_INT-1 :
+        node[1]._ci[f] = g.Vdd;
+    )
+    node[1].c[0] = w_n1n2.pc;
+    w_n1n2.cp = node[2].p;
 
     // connect node[-1] to leaf
-    node[M-3]._cp[0] = leaf._pp;
-    node[M-3]._ci[0] = leaf._po;
+    node[M-3]._cp[0] = w_n2l._pcp;
+    w_n2l._cpp = leaf._pp;
+    leaf._po = w_n2l._cpo;
+    w_n2l._pci = node[M-3]._ci[0];
     (; f : 1..F_INT-1 :
         node[M-3]._ci[f] = g.Vdd;
     )
-    node[M-3].c[0] = leaf.p;
+    node[M-3].c[0] = w_n2l.pc;
+    w_n2l.cp = leaf.p;
 
     // connect leaf to buf_syn
     leaf.syn[0] = buf_syn.x;
 
     // connect unused leaf ports to rails
     leaf.syn[1].e = g.Vdd;
+    leaf.syn[2].e = g.Vdd;
+    leaf.syn[3].e = g.Vdd;
     leaf.ci[2] = g.GND;
 
     // connect buf_syn to snk

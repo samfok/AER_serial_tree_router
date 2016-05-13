@@ -291,11 +291,11 @@ export
 template <pint M, N, NN>
 defproc AEXT (globals g; bool _xp[NN], xo[NN], pi, pp; c1of<N> p) {
     // Transmitter transmits spikes from neurons to datapath
-    // M tree levels
+    // M tree levels (max 6)
     // N children per node
     // NN total neurons
-    pint Mmax = 6;
-    pint Rmax = 4;
+    pint Mmax = 6; // max AERV tree depth
+    pint Rmax = 4; // max repeaters between AERV nodes
     pint R[Mmax];
     pint Se[Mmax][Rmax], Spd[Mmax][Rmax];
     pint CAPe[Mmax][Rmax], CAPpd[Mmax][Rmax];

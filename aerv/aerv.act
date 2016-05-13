@@ -422,22 +422,21 @@ export
 template <pint M, Mp4, N_SYN, N_MEM>
 defproc AERV (globals g; bool pp, po, cp[Mp4], ci[Mp4]; c1of<4> p; e1of2 syn[N_SYN]; c1of4 mem[N_MEM]) {
     // Receiver receives data from datapath and sends spikes to neuron and data to memory
-    // M tree levels
+    // M tree levels (max 5)
     // Mp4 = M^4 potential output ports
     // N_SYN synapses
     // N_MEM memories
-    pint Mmax = 6;
-    pint Rmax = 4;
+    pint Mmax = 5; // max AERV tree depth
+    pint Rmax = 4; // max repeaters between AERV nodes
     pint R[Mmax];
     pint S[Mmax][Rmax];
     pint CAP[Mmax][Rmax];
     // repeaters per stage
-    R = {4, 4, 4, 2, 2, 2};
+    R = {4, 4, 4, 2, 2};
     // sizing per repeater per stage
     S = {{3, 10, 6, 36},
          {3, 10, 6, 36},
          {3, 10, 6, 36},
-         {3, 10, 0, 0 },
          {3, 10, 0, 0 },
          {3, 10, 0, 0 }};
     // cap per repeater per stage
@@ -445,8 +444,7 @@ defproc AERV (globals g; bool pp, po, cp[Mp4], ci[Mp4]; c1of<4> p; e1of2 syn[N_S
            {4, 64, 4, 192},
            {4, 64, 4, 64 },
            {4, 64, 0, 0  },
-           {4, 32, 0, 0  },
-           {4, 16, 0, 0  }};
+           {4, 32, 0, 0  }};
 
     [M > Mmax -> 0=1;] // assert false
     pint ms = Mmax-M; // start idx
