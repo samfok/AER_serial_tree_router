@@ -1,0 +1,73 @@
+import "aer/aer/";
+import "aer/aext/aext.act";
+import "aer/interface/interface.act";
+
+export defproc Wrapper(aer::globals_np g_np)
+{
+    bool Vdd;
+    bool GND;
+    bool vpsub;
+    bool vnsub;
+    aer::globals g;
+
+    // rails and reset
+    g.Vdd = Vdd;
+    g.GND = GND;
+    g.vpsub = vpsub;
+    g.vnsub = vnsub;
+    g_np.sReset = g.sReset;
+    g_np.pReset = g.pReset;
+    g._pReset = g_np._pReset;
+    g._sReset = g_np._sReset;
+
+    pint M = 2;
+    pint N = 4;
+    pint NN = 16;
+
+    // AEXT_ 4 leafs 1 node
+    pint AEXT_Mmax = 2; // max AEXT tree depth
+    pint AEXT_Rmax = 4; // max repeaters between AEXT nodes
+    pint AEXT_R[AEXT_Mmax];
+    pint AEXT_Se[AEXT_Mmax][AEXT_Rmax], AEXT_Spd[AEXT_Mmax][AEXT_Rmax];
+    pint AEXT_CAPe[AEXT_Mmax][AEXT_Rmax], AEXT_CAPpd[AEXT_Mmax][AEXT_Rmax];
+    // repeaters per stage
+    AEXT_R = {2, 2};
+    // sizing per repeater per stage
+    AEXT_Se = {{3, 10, 0, 0 },
+               {3, 10, 0, 0 }};
+    AEXT_Spd = {{5, 1, 0, 0 },
+                {5, 1, 0, 0 }};
+    // cap per repeater per stage
+    AEXT_CAPe = {{4, 32, 0, 0  },
+                 {4, 16, 0, 0  }};
+    AEXT_CAPpd = {{32, 4, 0, 0  },
+                  {16, 4, 0, 0  }};
+    aer::transmitter::AEXT_<M, N, NN, false, AEXT_Mmax, AEXT_Rmax, 0, 
+                            AEXT_R, AEXT_Se, AEXT_CAPe, AEXT_Spd, AEXT_CAPpd>
+        aext(g,,,,,);
+    
+    // AERV 1 leaf, 1 node
+    pint AERV_Mmax = 2; // max AERV tree depth
+    pint AERV_Rmax = 4; // max repeaters between AERV nodes
+    pint AERV_R[AERV_Mmax];
+    pint AERV_S[AERV_Mmax][AERV_Rmax];
+    pint AERV_CAP[AERV_Mmax][AERV_Rmax];
+    // repeaters per stage
+    AERV_R = {2, 2};
+    // sizing per repeater per stage
+    AERV_S = {{3, 10, 0, 0 },
+              {3, 10, 0, 0 }};
+    // cap per repeater per stage
+    AERV_CAP = {{4, 64, 0, 0  },
+                {4, 32, 0, 0  }};
+    aer::receiver::AERV_<1, 4, 4, AERV_Mmax, AERV_Mmax, AERV_Rmax, 1,
+                         AERV_R, AERV_S, AERV_CAP>
+        aerv(g,,,,,,,,);
+
+    aer::receiver::NODE<N, N> aerv_node(g,,,,,,);
+    aer::receiver::AMP_WIRES<N, AERV_R[0], AERV_S[0], AERV_CAP[0]>
+        aerv_node_leaf_wires(g,,,,,,);
+
+}
+
+Wrapper dut;
