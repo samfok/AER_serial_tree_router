@@ -55,7 +55,7 @@ defproc Wrap_AERV(aer::globals g) {
         w(g,,,,,,);
     aer::receiver::NODE<N, N> node(g, w._cpp, w._cpo,,, w.cp,);
     aer::receiver::AERV_<1, 4, 4, 1, Mmax, Rmax, 1, R, S, CAP>
-        aerv_leaf(g, node._cp[0], node._ci[0],,,node._c[0],,);
+        aerv_leaf(g, node._cp[0], node._ci[0],,,node.c[0],,);
     // might have to include a bit more of the memory periphery
     // 1of4 to 1of2 converter
     // valid/neutral check on last row word
