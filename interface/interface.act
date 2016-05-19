@@ -24,7 +24,7 @@ namespace interface {
                 ~xp<12> -> _xp+
                 xp<9> -> _xp-
 
-                ~_xp<40> & ~y.a<40> -> xo+
+                ~_xp<27> & ~y.a<27> -> xo+
                 _xp<16> | y.a<16> -> xo-
             }
         ]
