@@ -199,10 +199,10 @@ defproc config_sramNxM_addr_decoded(globals g; dualrail _write[word_size]; bool 
 				[after=0] ~_write[j].t<12> & ~_col_select[i]<12> -> __write[i][j].t+
 				[after=0] _write[j].t<6> | _col_select[i]<6> -> __write[i][j].t-
 
-				[after=0] __write[i][j].f<6> -> array._bl[i][j][0]-
-				[after=0] ~__write[i][j].f<9> -> array._bl[i][j][0]+
-				[after=0] __write[i][j].t<6> -> array._bl[i][j][1]-
-				[after=0] ~__write[i][j].t<9> -> array._bl[i][j][1]+
+				[after=0] __write[i][j].f<12> -> array._bl[i][j][0]-
+				[after=0] ~__write[i][j].f<18> -> array._bl[i][j][0]+
+				[after=0] __write[i][j].t<12> -> array._bl[i][j][1]-
+				[after=0] ~__write[i][j].t<18> -> array._bl[i][j][1]+
 			}
 		)
 	)

@@ -73,7 +73,7 @@ namespace transmitter {
                 )
 
                 ~pi<20> & (| : n : N : ~_u[n]<20>) -> v+
-                _pp_<20> & (& : n : N : _co[n]<20>) -> v-
+                _pp_<18> & (& : n : N : _co[n]<18>) -> v-
 
                 ~v<15> -> _v+
                 v<9> -> _v-
