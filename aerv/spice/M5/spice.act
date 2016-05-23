@@ -153,4 +153,4 @@ export defproc Wrapper(globals_np g_np; eMx1of4<6> spk_src; a1of2 syn_snk)
 
 } // namespace aer
 
-::aer::Wrapper dut;
+aer::Wrapper dut;
