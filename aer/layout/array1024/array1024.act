@@ -20,7 +20,7 @@ defproc Wrap_AERV(aer::globals g) {
     pint M_SPK_1of4 = M_1of4 + 1;
     pint M_SPK_1of2 = M_SPK_1of4*2;
     pint M_MEM_1of4 = M_1of4 + 4;
-    pint M_MEM_1of2 = M_SPK_1of4*2;
+    pint M_MEM_1of2 = M_MEM_1of4*2;
     pint N_SYN = Mp4;
     pint N_MEM = N_SYN/4;
     pbool flip_mem_out = true;
