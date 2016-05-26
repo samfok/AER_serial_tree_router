@@ -1,4 +1,4 @@
-// test the aer transmitter
+// tests the aer transmitter specific to braindrop/brainstorm
 import "aer/aext/aext.act";
 import "aer/interface/interface.act";
 pint M=6;
@@ -11,15 +11,12 @@ bool Reset = g.sReset;
 aer::e1of<NN> src;
 aer::eMx1of4<M> snk;
 
-aer::AEXT<M, N, NN> aext(g,,,,,);
+aer::BRAIN_AEXT<M, N, NN> aext(g, src.d,,,,);
 aer::interface::OUT_a1ofN<N> out(g, aext.pp, aext.pi, aext.p,);
 aer::interface::DESERIAL_RING<M, N, false, true> deserial(g, out.y,);
 aer::SINK_eMx1ofN<M, N> snk_(g, deserial.y);
 
 prs<g.Vdd, g.GND> {
-    (: nn : NN :
-        src.d[nn] => aext._xp[nn]-
-    )
     (| : nn : NN : aext.xo[nn]) => src.e-
 }
 
@@ -27,3 +24,4 @@ deserial.y.e = snk.e;
 (; m : M :
     deserial.y.m[m].d = snk.m[m].d;
 )
+

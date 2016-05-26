@@ -106,4 +106,37 @@ defproc AEXT (globals g; bool xp[NN], xo[NN], pi, pp; c1of<N> p) {
     ]
 }
 
+namespace brain_transmitter {
+    export
+    template <pint NN>
+    defproc NRN_BUF (globals g; bool xp[NN], xo[NN], yi[NN], yp[NN]) {
+        // buffer the neuron spikes so that the refractory period does not
+        // hold up the transmitter
+        // NN neurons
+        prs<g.Vdd, g.GND> {
+            (: nn : NN :
+                xp[nn] & ~xo[nn] => yp[nn]+
+
+                yi[nn] -> xo[nn]+
+                ~yi[nn] & ~xp[nn] -> xo[nn]-
+            )
+        }
+    }
+} // namespace brain_transmitter
+
+export
+template <pint M, N, NN>
+defproc BRAIN_AEXT (globals g; bool xp[NN], xo[NN], pi, pp; c1of<N> p) {
+    // braindrop / brainstorm transmitter system
+    // M tree depth
+    //     M = 6 in production
+    // N node fanout
+    //     N = 4 in production
+    // NN neurons
+    //     NN = 4^M
+    //     NN = 4096 in production
+    AEXT<M, N, NN> _(g,,, pi, pp, p);
+    brain_transmitter::NRN_BUF<NN> buf(g, xp, xo, _.xo, _.xp);
+}
+
 } // namespace aer

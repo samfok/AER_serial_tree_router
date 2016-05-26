@@ -62,10 +62,10 @@ namespace transmitter {
                 ~g._pReset | (| : n : N : ~_co[n]<24> & ~c_[n]<24>) -> _pp_+
 
                 ~_pp_<12> -> __pp+
-                _pp_<8> -> __pp-
+                _pp_<9> -> __pp-
 
                 ~__pp<12> -> _pp+
-                __pp<8> -> _pp-
+                __pp<9> -> _pp-
 
                 (: n : N :
                     c_[n]<18> & pi<18> & _v<18> -> _u[n]-
@@ -339,6 +339,59 @@ defproc AEXT (globals g; bool _xp[NN], xo[NN], pi, pp; c1of<N> p) {
         ~_._pp<9> -> pp+
         _._pp<6> -> pp-
     }
+}
+
+namespace brain_transmitter {
+    export
+    template <pint NN>
+    defproc NRN_BUF (globals g; bool xp[NN], xo[NN], yi[NN], _yp[NN]) {
+        // buffer the neuron spikes so that the refractory period does not
+        // hold up the transmitter
+        // NN neurons
+        bool _xo[NN];
+        bool __xo[NN];
+        __xo = xo;
+        [ ~LAYOUT ->
+            prs<g.Vdd, g.GND> {
+                (: nn : NN :
+                    xp[nn] & _xo[nn] => _yp[nn]-
+
+                    yi[nn] -> _xo[nn]-
+                    ~yi[nn] & ~xp[nn] -> _xo[nn]+
+
+                    _xo[nn] => __xo[nn]-
+                )
+            }
+        [] LAYOUT ->
+            prs<g.Vdd, g.GND> {
+                (: nn : NN :
+                    xp[nn]<12> & _xo[nn]<12> -> _yp[nn]-
+                    ~xp[nn]<9> | ~_xo[nn]<9> -> _yp[nn]+
+
+                    yi[nn]<6> -> _xo[nn]-
+                    ~yi[nn]<18> & ~xp[nn]<18> -> _xo[nn]+
+
+                    ~_xo[nn]<9> -> __xo[nn]+
+                    _xo[nn]<6> -> __xo[nn]-
+                )
+            }
+        ]
+    }
+} // namespace brain_transmitter
+
+export
+template <pint M, N, NN>
+defproc BRAIN_AEXT (globals g; bool xp[NN], xo[NN], pi, pp; c1of<N> p) {
+    // braindrop / brainstorm transmitter system
+    // M tree depth
+    //     M = 6 in production
+    // N node fanout
+    //     N = 4 in production
+    // NN neurons
+    //     NN = 4^M
+    //     NN = 4096 in production
+    AEXT<M, N, NN> _(g,,, pi, pp, p);
+    brain_transmitter::NRN_BUF<NN> buf(g, xp, xo, _.xo, _._xp);
 }
 
 } // namespace aer

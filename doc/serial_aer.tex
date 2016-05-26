@@ -232,7 +232,7 @@ LEAF and NODE, a spike packet is prepended with a word indicating which
 branch it came from.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{NRN \label{sec:AEXT_NRN}}
+\subsection{Neuron (NRN) \label{sec:AEXT_NRN}}
 
 From the perspective of the transmitter, neurons simply transmit $\phi$ to 
 emit a spike and $\neg\phi$ after reset.
@@ -251,6 +251,18 @@ emit a spike and $\neg\phi$ after reset.
 
 \noindent
 The HSE implements the two CHP communications using a pair of 2-phase handshakes.
+
+\noindent
+With the neuron's internal signals,
+
+\begin{hse}
+*[[~_SPK];REQ+;[ACK];[_SPK];REQ-;[~ACK]]
+\end{hse}
+
+\begin{prs2}
+~_SPK & ~ACK -> REQ+
+_SPK & ACK -> REQ-
+\end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{AEXT LEAF \label{sec:AEXT_LEAF}}
@@ -931,6 +943,73 @@ We simply present a normal-sense $p_i$, $p\phi$, and $p[0,1]$ interface to the e
     $p[0,1,2,3]$ & 40 & \\ \hline
     $\_p[0,1,2,3]$ & 8 & \\ \hline
     \hline total & 255 & \\ \hline
+    \end{tabular}
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Neuron Buffer (NRN\_BUF) \label{sec:AEXT_NRN_BUF}}
+
+The refractory period of the neuron can last up to milliseconds, so we need to
+add some buffering between the neuron and the transmitter to prevent a neuron
+from locking up the whole transmitter tree during its refractory period.
+
+We assume that neuron contains a C-element at its output already.
+
+\subsubsection{HSE}
+
+\begin{hse}
+*[[x\phi];y\phi+;[yi];xo+;y\phi-;[~yi&~x\phi];xo-]
+\end{hse}
+
+\subsubsection{PRS}
+
+\begin{prs2}
+x\phi & ~xo -> y\phi+
+~x\phi | xo -> y\phi-
+
+yi -> xo+
+~x\phi & ~yi -> xo-
+\end{prs2}
+
+\noindent
+approximate accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $y\phi$ & 4 & \\ \hline
+    $x_o$ & 7 & \\ \hline
+    \hline total & 11 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\subsubsection{CMOS-implementable PRS}
+
+\begin{prs2}
+x\phi & _xo -> _y\phi-
+~x\phi | ~_xo -> _y\phi+
+
+yi -> _xo-
+~x\phi & ~yi -> _xo+
+\end{prs2}
+
+\begin{prs2}
+~_xo -> __xo+
+_xo -> __xo-
+\end{prs2}
+
+\noindent
+accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $y\phi$ & 4 & \\ \hline
+    $\_x_o$ & 3 & staticized by $\_\_x_o$ \\ \hline
+    $\_\_x_o$ & 4 & staticizes $x_o$ \\ \hline
+    \hline total & 11 & \\ \hline
     \end{tabular}
 \end{center}
 
@@ -2481,9 +2560,10 @@ request of another child without waiting for the reset of its children to comple
 \begin{center}
     \begin{tabular}{|r|l|l|l|l|}
     \hline component & transistors/component & components & transistors & transistors/neuron \\ \hline
+    NRN\_BUF & 11 & 4096 & 45,056 & 11.0 \\ \hline
     LEAF & 211 & 1024 & 216,064 & 52.8 \\ \hline
     NODE & 255 & 341 & 86,955 & 21.2 \\ \hline
-    \hline \multicolumn{3}{|r|}{total} & 303,019& 74.0 \\ \hline
+    \hline \multicolumn{3}{|r|}{total} & 348,075 & 85.0 \\ \hline
     \end{tabular}
 \end{center}
 

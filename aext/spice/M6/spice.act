@@ -11,18 +11,6 @@ export defproc Wrapper(globals_np g_np; a1of<1> src; eMx1of4<6> snk)
     bool vnsub;
     globals g;
 
-    pint M = 6;
-    pint N = 4;
-    pint NN = 4096;
-    transmitter::NODE<N, true> root(g,,,,,,);
-    transmitter::NODE<N, false> node[4];
-    transmitter::LEAF<N, false> leaf(g,,, node[0].co[0], node[0]._cp[0], node[0]._c[0]);
-    interface::OUT_a1ofN<N> out(g,, root.pi, root._p,);
-    interface::DESERIAL_RING<M, N, false, true> deserial(g, out.y,);
-    (; m : 4 : 
-        node[m].g = g;
-    )
-
     // rails and reset
     g.Vdd = Vdd;
     g.GND = GND;
@@ -35,11 +23,26 @@ export defproc Wrapper(globals_np g_np; a1of<1> src; eMx1of4<6> snk)
     g._pReset = g_np._pReset;
     g._sReset = g_np._sReset;
 
-    // connect src
-    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-        src.d[0] => leaf._cp[0]-
-    }
-    src.a = leaf.co[0];
+    pint M = 6;
+    pint N = 4;
+    pint NN = 4096;
+    transmitter::NODE<N, true> root(g,,,,,,);
+    transmitter::NODE<N, false> node[4];
+    transmitter::LEAF<N, false> leaf(g,,, node[0].co[0], node[0]._cp[0], node[0]._c[0]);
+    brain_transmitter::NRN_BUF<1> buf(g,,,,,);
+    interface::OUT_a1ofN<N> out(g,, root.pi, root._p,);
+    interface::DESERIAL_RING<M, N, false, true> deserial(g, out.y,);
+    (; m : 4 : 
+        node[m].g = g;
+    )
+
+    // connect src to buf
+    src.d[0] = buf.xp[0];
+    src.a = buf.xo[0];
+
+    // connect buf to leaf
+    buf._yp[0] = leaf._cp[0];
+    buf.yi[0] = leaf.co[0];
 
     // connect snk
     (; m : M :
@@ -83,4 +86,4 @@ export defproc Wrapper(globals_np g_np; a1of<1> src; eMx1of4<6> snk)
 
 }
 
-::aer::Wrapper dut;
+aer::Wrapper dut;

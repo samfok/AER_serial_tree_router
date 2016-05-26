@@ -15,7 +15,7 @@ export defproc Wrapper(globals_np g_np; a1of<1> src[16]; eMx1of4<2> snk)
     pint M = 2;
     pint N = 4;
     pint NN = 16;
-    AEXT<M, N, NN> aext(g,,,,,);
+    BRAIN_AEXT<M, N, NN> aext(g,,,,,);
     interface::OUT_a1ofN<N> out(aext.g, aext.pp, aext.pi, aext.p,);
     interface::DESERIAL_RING<M, N, false, true> deserial(aext.g, out.y,);
 
@@ -32,11 +32,9 @@ export defproc Wrapper(globals_np g_np; a1of<1> src[16]; eMx1of4<2> snk)
     g._sReset = g_np._sReset;
 
     // connect src
-    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-        (: nn : NN :
-            src[nn].d[0] => aext._xp[nn]-
-        )
-    }
+    (; nn : NN :
+        src[nn].d[0] = aext.xp[nn];
+    )
     (; nn : NN :
         src[nn].a = aext.xo[nn];
     )
@@ -50,4 +48,4 @@ export defproc Wrapper(globals_np g_np; a1of<1> src[16]; eMx1of4<2> snk)
 
 }
 
-::aer::Wrapper dut;
+aer::Wrapper dut;
