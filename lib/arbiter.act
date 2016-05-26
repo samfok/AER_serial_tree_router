@@ -17,28 +17,32 @@ namespace arbiter {
             mk_excllo(_x[0], _x[1])
         }
     
-        //Cross-Coupled NANDs
-        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-            i[0]<6> & _x[1]<6> -> _x[0]-
-            ~i[0]<9> | ~_x[1]<9> -> _x[0]+
-            i[1]<6> & _x[0]<6> -> _x[1]-
-            ~i[1]<9> | ~_x[0]<9> -> _x[1]+
-        }
-        
-    
-        //Filter
         [ ~LAYOUT ->
             prs <g.Vdd, g.GND> {
+                //Cross-Coupled NANDs
+                i[0] & _x[1] => _x[0]-
+                i[1] & _x[0] => _x[1]-
+
+                //Filter
                 _x[0] => o[0]-
                 _x[1] => o[1]-
             }
         [] LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                [keeper=0] passp<18>(_x[0], _x[1], o[0])
-                [keeper=0] _x[0]<6> -> o[0]-
+                subckt {
+                    //Cross-Coupled NANDs
+                    i[0]<6> & _x[1]<6> -> _x[0]-
+                    ~i[0]<9> | ~_x[1]<9> -> _x[0]+
+                    i[1]<6> & _x[0]<6> -> _x[1]-
+                    ~i[1]<9> | ~_x[0]<9> -> _x[1]+
+
+                    //Filter
+                    [keeper=0] passp<18>(_x[0], _x[1], o[0])
+                    [keeper=0] _x[0]<6> -> o[0]-
     
-                [keeper=0] passp<18>(_x[1], _x[0], o[1])
-                [keeper=0] _x[1]<6> -> o[1]-
+                    [keeper=0] passp<18>(_x[1], _x[0], o[1])
+                    [keeper=0] _x[1]<6> -> o[1]-
+                }
             }
         ]
     }
@@ -52,27 +56,32 @@ namespace arbiter {
             mk_exclhi(x[0], x[1])
         }
     
-        //Cross-Coupled NORs
-        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-            _i[0]<6> | x[1]<6> -> x[0]-
-            ~_i[0]<15> & ~x[1]<15> -> x[0]+
-            _i[1]<6> | x[0]<6> -> x[1]-
-            ~_i[1]<15> & ~x[0]<15> -> x[1]+
-        }
-    
-        //Filter
         [ ~LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+                //Cross-Coupled NORs
+                _i[0] | x[1] => x[0]-
+                _i[1] | x[0] => x[1]-
+
+                //Filter
                 x[0] => _o[0]-
                 x[1] => _o[1]-
             }
         [] LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                [keeper=0] passn<6>(x[0], x[1], _o[0])
-                [keeper=0] ~x[0]<9> -> _o[0]+
+                subckt {
+                    //Cross-Coupled NORs
+                    _i[0]<6> | x[1]<6> -> x[0]-
+                    ~_i[0]<15> & ~x[1]<15> -> x[0]+
+                    _i[1]<6> | x[0]<6> -> x[1]-
+                    ~_i[1]<15> & ~x[0]<15> -> x[1]+
+
+                    //Filter
+                    [keeper=0] passn<6>(x[0], x[1], _o[0])
+                    [keeper=0] ~x[0]<9> -> _o[0]+
     
-                [keeper=0] passn<6>(x[1], x[0], _o[1])
-                [keeper=0] ~x[1]<9> -> _o[1]+
+                    [keeper=0] passn<6>(x[1], x[0], _o[1])
+                    [keeper=0] ~x[1]<9> -> _o[1]+
+                }
             }
         ]
     }

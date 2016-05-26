@@ -28,7 +28,7 @@ defproc Wrap_AEXT(aer::globals g) {
                  {4, 16, 0, 0  }};
     AEXT_CAPpd = {{32, 4, 0, 0  },
                   {16, 4, 0, 0  }};
-    aer::transmitter::AEXT_<M, N, NN, false, AEXT_Mmax, AEXT_Rmax, 0, 
+    aer::transmitter::BRAIN_AEXT_<M, N, NN, false, AEXT_Mmax, AEXT_Rmax, 0, 
                             AEXT_R, AEXT_Se, AEXT_CAPe, AEXT_Spd, AEXT_CAPpd>
         aext(g,,,,,);
 }

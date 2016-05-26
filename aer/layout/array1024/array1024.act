@@ -1,12 +1,12 @@
-// defines a transmitter/receiver for 64 neurons and 16 synapses
+// defines a transmitter/receiver for 1024 neurons and 256 synapses
 import "aer/aext/aext.act";
 import "aer/aerv/bs_aerv.act";
 import "aer/interface/interface.act";
 
 defproc Wrap_AEXT(aer::globals g) {
-    pint M = 3;
+    pint M = 5;
     pint N = 4;
-    pint NN = 64;
+    pint NN = 1024;
 
     aer::BRAIN_AEXT<M, N, NN> aext(g,,,,,);
     aer::interface::OUT_a1ofN<N> out(g, aext.pp, aext.pi, aext.p,);
@@ -14,9 +14,9 @@ defproc Wrap_AEXT(aer::globals g) {
 }
 
 defproc Wrap_AERV(aer::globals g) {
-    pint M_1of4 = 2;
+    pint M_1of4 = 4;
     pint M_1of2 = M_1of4*2;
-    pint Mp4 = 16; // 4^M_1of4
+    pint Mp4 = 256; // 4^M_1of4
     pint M_SPK_1of4 = M_1of4 + 1;
     pint M_SPK_1of2 = M_SPK_1of4*2;
     pint M_MEM_1of4 = M_1of4 + 4;

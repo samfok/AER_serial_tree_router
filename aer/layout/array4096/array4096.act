@@ -1,4 +1,4 @@
-// defines a full transmitter/receiver array for 4096 neurons and 1024 synapses
+// defines a full transmitter/receiver for 4096 neurons and 1024 synapses
 import "aer/aext/aext.act";
 import "aer/aerv/bs_aerv.act";
 import "aer/interface/interface.act";
@@ -8,7 +8,7 @@ defproc Wrap_AEXT(aer::globals g) {
     pint N = 4;
     pint NN = 4096;
 
-    aer::AEXT<M, N, NN> aext(g,,,,,);
+    aer::BRAIN_AEXT<M, N, NN> aext(g,,,,,);
     aer::interface::OUT_a1ofN<N> out(g, aext.pp, aext.pi, aext.p,);
     aer::interface::DESERIAL_RING<M, N, false, true> deserial(g, out.y,);
 }
