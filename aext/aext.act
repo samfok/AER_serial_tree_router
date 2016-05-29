@@ -352,7 +352,7 @@ namespace brain_transmitter {
         bool __xo[NN];
         __xo = xo;
         [ ~LAYOUT ->
-            prs<g.Vdd, g.GND> {
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                 (: nn : NN :
                     xp[nn] & _xo[nn] => _yp[nn]-
 
@@ -363,7 +363,7 @@ namespace brain_transmitter {
                 )
             }
         [] LAYOUT ->
-            prs<g.Vdd, g.GND> {
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                 (: nn : NN :
                     xp[nn]<12> & _xo[nn]<12> -> _yp[nn]-
                     ~xp[nn]<9> | ~_xo[nn]<9> -> _yp[nn]+
