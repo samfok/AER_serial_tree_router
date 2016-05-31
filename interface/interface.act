@@ -139,7 +139,7 @@ namespace interface {
                     ~_so<9> | ~vy<9> -> _x.a+
 
                     vy<18> & (& : n : N : _x.d[n]<18>) -> _s-
-                    ~g._pReset | ~vy<20> -> _s+
+                    ~g._pReset<9> | ~vy<20> -> _s+
 
                     __s<12> -> _so-
                     ~__s<18> -> _so+
@@ -257,7 +257,7 @@ namespace interface {
                 prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     (: n : N :
                         (| : m : M : ~_x[m].d[n]<27> & ~_si_[m]<27> & ~__u[m]<27>) -> y.d[n]+
-                        g.pReset | (| : m : M : _so_[m]<18> & __u[m]<18>) -> y.d[n]-
+                        g.pReset<6> | (| : m : M : _so_[m]<18> & __u[m]<18>) -> y.d[n]-
                     )
 
                     (: m : M :
@@ -284,7 +284,7 @@ namespace interface {
 
                     (: m : M :
                         ya<18> & __si[m]<18> -> _u[m]-
-                        ~g._pReset | ~__si[m]<16> -> _u[m]+
+                        ~g._pReset<9> | ~__si[m]<16> -> _u[m]+
                     )
 
                     (: m : M :
@@ -343,10 +343,10 @@ namespace interface {
             [] LAYOUT ->
                 prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     (| : n : N : ~_y.d[n]<27>) & ~yi<27> -> xa+
-                    g.pReset | yi<18> -> xa-
+                    g.pReset<6> | yi<18> -> xa-
 
                     (| : n : N : ~_x.d[n]<15>) -> yp+
-                    g.pReset | _si<18> & yi<18> -> yp-
+                    g.pReset<6> | _si<18> & yi<18> -> yp-
 
                     ~_si<12> -> __si+
                     _si<9> -> __si-

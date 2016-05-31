@@ -59,7 +59,7 @@ namespace transmitter {
             bool __pp, _pp_;
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                 _v<15> & (| : n : N : c_[n]<15>) -> _pp_-
-                ~g._pReset | (| : n : N : ~_co[n]<24> & ~c_[n]<24>) -> _pp_+
+                ~g._pReset<9> | (| : n : N : ~_co[n]<24> & ~c_[n]<24>) -> _pp_+
 
                 ~_pp_<12> -> __pp+
                 _pp_<9> -> __pp-
@@ -69,7 +69,7 @@ namespace transmitter {
 
                 (: n : N :
                     c_[n]<18> & pi<18> & _v<18> -> _u[n]-
-                    ~g._pReset | ~_v<16> -> _u[n]+
+                    ~g._pReset<9> | ~_v<16> -> _u[n]+
                 )
 
                 ~pi<20> & (| : n : N : ~_u[n]<20>) -> v+
@@ -178,7 +178,7 @@ namespace transmitter {
                 )
 
                 (| : n : N : ~_c[n]<27>) & ~__v<27> -> pp+
-                g.pReset | pi<12> & __v<12> -> pp-
+                g.pReset<6> | pi<12> & __v<12> -> pp-
 
                 (: n: N :
                     ~_c[n]<9> -> __c[n]+

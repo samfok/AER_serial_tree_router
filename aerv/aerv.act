@@ -240,7 +240,7 @@ namespace receiver {
                     (: s : 2 :
                         (: d : 2 :
                             p.d[2*s+d]<18> & cp[c]<18> & syn_[c][s].e<18> -> _syn_d[c][s].d[d]-
-                            ~g._pReset | ~p.d[2*s+d]<18> & ~syn_[c][s].e<18> -> _syn_d[c][s].d[d]+
+                            ~g._pReset<9> | ~p.d[2*s+d]<18> & ~syn_[c][s].e<18> -> _syn_d[c][s].d[d]+
                         )
                     )
                 )
@@ -553,7 +553,7 @@ namespace brain_receiver {
 
                 (: d : D :
                     x.d[d]<18> & ye<18> -> _y.d[d]-
-                    ~g._pReset | ~x.d[d]<12> & ~ye<12> -> _y.d[d]+
+                    ~g._pReset<9> | ~x.d[d]<12> & ~ye<12> -> _y.d[d]+
                 )
 
                 (: d : D :
