@@ -251,9 +251,9 @@ namespace transmitter {
             Ce[r] = min_inv_cap * CAPe[r];
             Cpd[r] = min_inv_cap * CAPpd[r];
         )
-        REPEATER_BOOL<R, Spd, Cpd> _pcp_cpp(g, _cpp, _pcp);
-        REPEATER_BOOL<R, Se, Ce> _cpo_pci(g, pco, cpi);
-        REPEATER_c1of<D, R, Spd, Cpd> pc_cp(g, cp, pc);
+        REPEATER_BOOL<R, Spd, Cpd, 1> _pcp_cpp(g, _cpp, _pcp);
+        REPEATER_BOOL<R, Se, Ce, 2> _cpo_pci(g, pco, cpi);
+        REPEATER_c1of<D, R, Spd, Cpd, 1> pc_cp(g, cp, pc);
     }
 
     export

@@ -2,8 +2,8 @@
 import "aer/aer/aer.act";
 
 pint M=3;
-pint N=2;
-pint NN=8;
+pint N=4;
+pint NN=64;
 
 aer::globals g;
 aer::SOURCE_random_a1of1 src(g,);

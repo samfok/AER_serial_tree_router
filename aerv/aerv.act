@@ -332,9 +332,9 @@ namespace receiver {
         (; r : R :
             C[r] = min_inv_cap * CAP[r];
         )
-        REPEATER_BOOL<R, S, C> _pcp_cpp(g, _pcp, _cpp);
-        REPEATER_BOOL<R, S, C> _cpo_pci(g, _cpo, _pci);
-        REPEATER_c1of<D, R, S, C> pc_cp(g, pc, cp);
+        REPEATER_BOOL<R, S, C, 2> _pcp_cpp(g, _pcp, _cpp);
+        REPEATER_BOOL<R, S, C, 2> _cpo_pci(g, _cpo, _pci);
+        REPEATER_c1of<D, R, S, C, 2> pc_cp(g, pc, cp);
     }
 
     export

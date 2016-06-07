@@ -170,27 +170,20 @@ defproc eMx1of4_to_eMx1of2 (globals g; eMx1of4<M_1of4> x; eMx1of2<M_1of2> y) {
     x.e = y.e;
 }
 
-export
 template <pint M; pint S[M]; preal C[M]>
-defproc REPEATER_BOOL (globals g; bool i, o) {
-    // inverter chain with wire cap modeling support
-    // M stages (must be even to preserve sense)
-    // S[M] scalings (applied to min inverter size)
-    // C[M] capacitances 
-    (M % 2) = 0; // assert
+defproc REPEATER_BOOL_ (globals g; bool i, o) {
+    // utility for REPEATER_BOOL
     [ M > 0 ->
-        bool x[M-1];
+        bool x[M+1];
+        x[0] = i;
+        x[M] = o;
         prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-            [loadcap=C[0]] i<S[0]*6> -> x[0]-
-            [loadcap=C[0]] ~i<S[0]*9> -> x[0]+
-
-            (: m : M-2 :
-                [loadcap=C[m+1]] x[m]<S[m+1]*6> -> x[m+1]-
-                [loadcap=C[m+1]] ~x[m]<S[m+1]*9> -> x[m+1]+
-            )
-
-            [loadcap=C[M-1]] x[M-2]<S[M-1]*6> -> o-
-            [loadcap=C[M-1]] ~x[M-2]<S[M-1]*9> -> o+
+            subckt {
+                (: m : M :
+                    [loadcap=C[m]] x[m]<S[m]*6> -> x[m+1]-
+                    [loadcap=C[m]] ~x[m]<S[m]*9> -> x[m+1]+
+                )
+            }
         }
     [] M = 0 ->
         i = o;
@@ -199,14 +192,34 @@ defproc REPEATER_BOOL (globals g; bool i, o) {
 }
 
 export
-template <pint N, M; pint S[M]; preal C[M]>
+template <pint M; pint S[M]; preal C[M]; pint D>
+defproc REPEATER_BOOL (globals g; bool i, o) {
+    // inverter chain with wire cap modeling support
+    // M stages (must be even to preserve sense)
+    // S[M] scalings (applied to min inverter size)
+    // C[M] capacitances 
+    // D index to divide repeater inverters into subcircuits
+    (M % 2) = 0; // assert
+    bool w;
+    // first block
+    REPEATER_BOOL_<D, S[0..D-1], C[0..D-1]> repeater_0(g, i, w);
+    [ M > D ->
+        REPEATER_BOOL_<M-D, S[D..M-1], C[D..M-1]> repeater_1(g, w, o);
+    [] M = D ->
+        w = o;
+    ]
+}
+
+export
+template <pint N, M; pint S[M]; preal C[M]; pint D>
 defproc REPEATER_c1of (globals g; c1of<N> i, o) {
     // data repeater with wire cap modeling support
     // N 1-of-N data
     // M inverter stages (must be even to preserve sense)
     // S[M] scalings (applied to min inverter size)
     // C[M] capacitances 
-    REPEATER_BOOL<M, S, C> _[N];
+    // D index to divide repeater inverters into subcircuits
+    REPEATER_BOOL<M, S, C, D> _[N];
     (; n : N :
         _[n].g = g;
         _[n].i = i.d[n];
