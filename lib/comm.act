@@ -178,12 +178,10 @@ defproc REPEATER_BOOL_ (globals g; bool i, o) {
         x[0] = i;
         x[M] = o;
         prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-            subckt {
-                (: m : M :
-                    [loadcap=C[m]] x[m]<S[m]*6> -> x[m+1]-
-                    [loadcap=C[m]] ~x[m]<S[m]*9> -> x[m+1]+
-                )
-            }
+            (: m : M :
+                [loadcap=C[m]] x[m]<S[m]*6> -> x[m+1]-
+                [loadcap=C[m]] ~x[m]<S[m]*9> -> x[m+1]+
+            )
         }
     [] M = 0 ->
         i = o;

@@ -1,0 +1,46 @@
+// defines a mutex
+import "aer/lib/comm.act";
+
+export defproc Wrapper(aer::globals_np g_np)
+{
+    bool Vdd;
+    bool GND;
+    bool vpsub;
+    bool vnsub;
+    aer::globals g;
+
+    // rails and reset
+    g.Vdd = Vdd;
+    g.GND = GND;
+    g.vpsub = vpsub;
+    g.vnsub = vnsub;
+    g_np.sReset = g.sReset;
+    g_np.pReset = g.pReset;
+    g._pReset = g_np._pReset;
+    g._sReset = g_np._sReset;
+
+    // match parameters to those hardcoded in the transmitter/receiver
+    pint S_AERV_AEXT_e_4[4];
+    pint S_AERV_AEXT_e_2[2];
+    pint S_AEXT_p_d_4[4];
+    pint S_AEXT_p_d_2[2];
+
+    // sizing per repeater per stage
+    S_AERV_AEXT_e_4 = {3, 10, 6, 36};
+    S_AERV_AEXT_e_2 = {3, 10};
+    S_AEXT_p_d_4 = {5, 1, 5, 25};
+    S_AEXT_p_d_2 = {5, 1};
+
+    // capacitance info unused in layout, use dummycap instead
+    preal dummycap_4[4];
+    preal dummycap_2[2];
+    dummycap_4 = {1., 1., 1., 1.};
+    dummycap_2 = {1., 1.};
+
+    aer::REPEATER_BOOL<4, S_AERV_AEXT_e_4, dummycap_4, 2> aerv_aext_e_4(g,,);
+    aer::REPEATER_BOOL<2, S_AERV_AEXT_e_2, dummycap_2, 2> aerv_aext_e_2(g,,);
+    aer::REPEATER_BOOL<4, S_AEXT_p_d_4, dummycap_4, 1> aext_p_d_4(g,,);
+    aer::REPEATER_BOOL<2, S_AEXT_p_d_2, dummycap_2, 1> aext_p_d_2(g,,);
+}
+
+Wrapper dut;
