@@ -51,97 +51,50 @@ namespace receiver {
                 po => _po-
             }
         [] LAYOUT ->
-            [ F = 3 ->
-                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                    (: f : F :
-                        ~u[f]<9> -> _u[f]+
-                        u[f]<6> -> _u[f]-
-                    )
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+                (: f : F :
+                    ~u[f]<9> -> _u[f]+
+                    u[f]<6> -> _u[f]-
+                )
 
-                    (| : f : F : ~_u[f]<12>) -> uu+
-                    (& : f : F : _u[f]<12>) -> uu-
+                (| : f : F : ~_u[f]<12>) -> uu+
+                (& : f : F : _u[f]<15>) -> uu-
 
-                    ~_pp<27> & ~uu<27> | (| : f : F : ~_ci[f]<27>) -> po+
-                    (_pp<18> | uu<18>) & (& : f : F : _ci[f]<18>) -> po-
+                ~_pp<27> & ~uu<27> | (| : f : F : ~_ci[f]<27>) -> po+
+                (_pp<18> | uu<18>) & (& : f : F : _ci[f]<18>) -> po-
 
-                    ~_v<12> -> __v+
-                    _v<9> -> __v-
+                ~_v<15> -> __v+
+                _v<9> -> __v-
 
+                (: d : D :
+                    ~p.d[d]<12> -> _p.d[d]+
+                    p.d[d]<9> -> _p.d[d]-
+                )
+
+                (: f : F :
+                    ~_p.d[f]<18> & ~__v<18> -> u[f]+
+                    _pp<6> -> u[f]-
+                )
+
+                uu<18> & (& : f : F : _p.d[f]<18>) -> _v-
+                ~uu<18> -> _v+
+
+                (: f : F :
+                    ~__v<12> | ~u[f]<12> -> _cp[f]+
+                    __v<15> & u[f]<15> -> _cp[f]-
+                )
+
+                (: f : F :
                     (: d : D :
-                        ~p.d[d]<12> -> _p.d[d]+
-                        p.d[d]<9> -> _p.d[d]-
+                        ~_p.d[d]<18> & ~_cp[f]<18> -> c[f].d[d]+
+                        _p.d[d]<6> | _cp[f]<6> -> c[f].d[d]-
                     )
-
-                    (: f : F :
-                        ~_p.d[f]<18> & ~__v<18> -> u[f]+
-                        _pp<6> -> u[f]-
-                    )
-
-                    uu<18> & (& : f : F : _p.d[f]<18>) -> _v-
-                    ~uu<15> -> _v+
-
-                    (: f : F :
-                        ~__v<12> | ~u[f]<12> -> _cp[f]+
-                        __v<15> & u[f]<15> -> _cp[f]-
-                    )
-
-                    (: f : F :
-                        (: d : D :
-                            ~_p.d[d]<18> & ~_cp[f]<18> -> c[f].d[d]+
-                            _p.d[d]<6> | _cp[f]<6> -> c[f].d[d]-
-                        )
-                    )
-                }
-                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                    ~po<12> -> _po+
-                    po<9> -> _po-
-                }
-            [] F = 4 ->
-                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                    (: f : F :
-                        ~u[f]<9> -> _u[f]+
-                        u[f]<6> -> _u[f]-
-                    )
-
-                    (| : f : F : ~_u[f]<12>) -> uu+
-                    (& : f : F : _u[f]<15>) -> uu-
-
-                    ~_pp<27> & ~uu<27> | (| : f : F : ~_ci[f]<27>) -> po+
-                    (_pp<18> | uu<18>) & (& : f : F : _ci[f]<18>) -> po-
-
-                    ~_v<15> -> __v+
-                    _v<9> -> __v-
-
-                    (: d : D :
-                        ~p.d[d]<12> -> _p.d[d]+
-                        p.d[d]<9> -> _p.d[d]-
-                    )
-
-                    (: f : F :
-                        ~_p.d[f]<18> & ~__v<18> -> u[f]+
-                        _pp<6> -> u[f]-
-                    )
-
-                    uu<18> & (& : f : F : _p.d[f]<18>) -> _v-
-                    ~uu<18> -> _v+
-
-                    (: f : F :
-                        ~__v<12> | ~u[f]<12> -> _cp[f]+
-                        __v<15> & u[f]<15> -> _cp[f]-
-                    )
-
-                    (: f : F :
-                        (: d : D :
-                            ~_p.d[d]<18> & ~_cp[f]<18> -> c[f].d[d]+
-                            _p.d[d]<6> | _cp[f]<6> -> c[f].d[d]-
-                        )
-                    )
-                }
-                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                    ~po<12> -> _po+
-                    po<9> -> _po-
-                }
-            ]
+                )
+            }
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+                ~po<12> -> _po+
+                po<9> -> _po-
+            }
         ]
     }
 
@@ -246,8 +199,8 @@ namespace receiver {
                 )
 
                 (: d : D :
-                    p.d[d] & cp[2] -> _mem.d[d]-
-                    ~p.d[d] | ~cp[2] -> _mem.d[d]+
+                    p.d[d]<6> & cp[2]<6> -> _mem.d[d]-
+                    ~p.d[d]<9> | ~cp[2]<9> -> _mem.d[d]+
                 )
             }
             // inverters for interfaces
