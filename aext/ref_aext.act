@@ -84,25 +84,54 @@ namespace transmitter {
 export
 template <pint M, N, NN>
 defproc AEXT (globals g; bool xp[NN], xo[NN], pi, pp; c1of<N> p) {
-    // utility for AEXT
+    // M depth of AEXT tree
+    // N radix of AEXT tree
+    // NN neurons = N^M
+    pint N_LEAF = NN/N; // = N^(M-1)
+    pint N_NODE = (NN-N) / (N*(N-1)); // = (N^(M-1)-1) / (N-1)
+    // N_LEAF + N_NODE = (N^M-1) / (N-1)
+    transmitter::LEAF<N> leaf[N_LEAF];
+
+    (; n : N_LEAF :
+        leaf[n].g = g;
+        leaf[n].cp = xp[n*N..(n+1)*N-1];
+        leaf[n].co = xo[n*N..(n+1)*N-1];
+    )
+
     [ M = 1 ->
-        NN = N;
-        transmitter::LEAF<N> leaf(g, xp, xo, pi, pp, p);
+        NN = N; // assert
+        leaf[0].pi = pi;
+        leaf[0].pp = pp;
+        leaf[0].p = p;
     [] M > 1 ->
-        pint k = NN/N;
-        AEXT<M-1, N, k> _[N];
-        (; n : N :
-            _[n].g = g;
-            _[n].xp = xp[n*k..(n+1)*k-1];
-            _[n].xo = xo[n*k..(n+1)*k-1];
+        transmitter::NODE<N> node[N_NODE];
+        (; n : N_NODE :
+            node[n].g = g;
+        )
+        node[0].pi = pi;
+        node[0].pp = pp;
+        node[0].p = p;
+
+        // connect NODEs to LEAFs
+        pint N_LOW_NODE = N_LEAF/N; // NODEs connecting to LEAFs
+        pint NODE_BASE_IDX = N_NODE-N_LOW_NODE;
+        (; node_idx : NODE_BASE_IDX..N_NODE-1 :
+            (; n : N :
+                node[node_idx].co[n] = leaf[(node_idx-NODE_BASE_IDX)*N+n].pi;
+                node[node_idx].cp[n] = leaf[(node_idx-NODE_BASE_IDX)*N+n].pp;
+                node[node_idx].c[n] = leaf[(node_idx-NODE_BASE_IDX)*N+n].p;
+            )
         )
 
-        transmitter::NODE<N> node(g,,, pi, pp,, p);
-        (; n : N :
-            node.cp[n] = _[n].pp;
-            node.co[n] = _[n].pi;
-            node.c[n] = _[n].p;
-        )
+        [ M > 2 ->
+            (; np : NODE_BASE_IDX :
+                (; nc : N :
+                    node[np].cp[nc] = node[np*N+nc+1].pp;
+                    node[np].co[nc] = node[np*N+nc+1].pi;
+                    node[np].c[nc] =  node[np*N+nc+1].p;
+                )
+            )
+        ]
     ]
 }
 
