@@ -9,14 +9,14 @@ namespace transmitter {
     template <pint N; pbool root>
     defproc NODE (globals g; bool _cp[N], co[N], pi, _pp; c1of<N> _c[N], _p) {
         // AEXT tree NODE
-        bool c_[N], _co[N], v, _v, _u[N];
+        bool c_[N], _co[N], v, _v, _u[N], _pp_;
         c1of<N> p;
         ::aer::arbiter::N_ARB_S<N> arb(g, _cp, c_);
 
         [ ~LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                _v & (| : n : N : c_[n]) -> _pp-
-                ~g._pReset | (| : n : N : ~_co[n] & ~c_[n]) -> _pp+
+                _v & (| : n : N : c_[n]) -> _pp_-
+                ~g._pReset | (| : n : N : ~_co[n] & ~c_[n]) -> _pp_+
 
                 (: n : N :
                     c_[n] & pi & _v -> _u[n]-
@@ -24,7 +24,7 @@ namespace transmitter {
                 )
 
                 ~pi & (| : n : N : ~_u[n]) -> v+
-                _pp & (& : n : N : _co[n]) -> v-
+                _pp_ & (& : n : N : _co[n]) -> v-
 
                 v => _v-
 
@@ -52,20 +52,17 @@ namespace transmitter {
                         p.d[n] => _p.d[n]-
                     )
                 }
+                _pp_ = _pp;
             [] root ->
                 p = _p;
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+                    _pp_ => _pp- // switch to active high
+                }
             ]
         [] LAYOUT ->
-            bool __pp, _pp_;
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                 _v<15> & (| : n : N : c_[n]<15>) -> _pp_-
                 ~g._pReset<9> | (| : n : N : ~_co[n]<24> & ~c_[n]<24>) -> _pp_+
-
-                ~_pp_<12> -> __pp+
-                _pp_<9> -> __pp-
-
-                ~__pp<12> -> _pp+
-                __pp<9> -> _pp-
 
                 (: n : N :
                     c_[n]<18> & pi<18> & _v<18> -> _u[n]-
@@ -107,8 +104,12 @@ namespace transmitter {
                         p.d[n]<9> -> _p.d[n]-
                     )
                 }
+                _pp_ = _pp;
             [] root ->
                 p = _p;
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+                    _pp_ => _pp- // switch to active high
+                }
             ]
         ]
     }
@@ -152,16 +153,15 @@ namespace transmitter {
                     ~_u[n] & ~_v => co[n]+
                 )
             }
-            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                pp => _pp-
-            }
             [ root ->
                 p_ = p; // preserve sense
+                pp = _pp; // preserve sense
             [] ~root ->
                 prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     (: n : N :
                         p_.d[n] => p.d[n]- // switch to active low
                     )
+                    pp => _pp- // switch to active low
                 }
             ]
         [] LAYOUT ->
@@ -203,12 +203,9 @@ namespace transmitter {
                     _u[n]<6> | _v<6> -> co[n]-
                 )
             }
-            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                ~pp<9> -> _pp+
-                pp<6> -> _pp-
-            }
             [ root ->
                 p_ = p; // preserve sense
+                pp = _pp; // preserve sense
             [] ~root ->
                 prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                     (: n : N :
@@ -216,6 +213,9 @@ namespace transmitter {
                         ~p_.d[n]<9> -> p.d[n]+
                         p_.d[n]<6> -> p.d[n]-
                     )
+                    // switch to active low
+                    ~pp<9> -> _pp+
+                    pp<6> -> _pp-
                 }
             ]
         ]
@@ -334,11 +334,7 @@ defproc AEXT (globals g; bool _xp[NN], xo[NN], pi, pp; c1of<N> p) {
     transmitter::AEXT_<M, N, NN, true, M, Rmax, 0, R[ms..Mmax-1],
                        Se[ms..Mmax-1], CAPe[ms..Mmax-1],
                        Spd[ms..Mmax-1], CAPpd[ms..Mmax-1]>
-        _(g, _xp, xo, pi,, p);
-    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-        ~_._pp<9> -> pp+
-        _._pp<6> -> pp-
-    }
+        _(g, _xp, xo, pi, pp, p);
 }
 
 namespace brain_transmitter {
