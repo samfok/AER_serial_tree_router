@@ -8,13 +8,13 @@ pint NN=8; // NN=N^M
 aer::globals g;
 aer::active_handshaker<1> a(g,,);
 aer::AEXT<M, N, NN> aext(g,,,,,);
-aer::interface::OUT_a1ofN<N> out(g, aext.pp, aext.pi, aext.p,);
+aer::interface::OUT_a1ofN<N> out(g, aext.pp, aext.pe, aext.p,);
 aer::interface::DESERIAL_RING<M, N, false, true> deserial(
     g, out.y,);
 aer::SINK_eMx1ofN<M, N> snk(g, deserial.y);
 
 a.o[0] = aext.xp[0];
-a.i[0] = aext.xo[0];
+a.i[0] = aext.xa[0];
 (; idx : 1..NN-1 :
     aext.xp[idx] = g.GND;
 )

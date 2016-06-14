@@ -14,7 +14,7 @@ export defproc Wrapper(globals_np g_np; a1of<1> src[4]; eMx1of4<1> snk)
     pint N = 4;
     pint NN = 4;
     BRAIN_AEXT<M, N, NN> aext(g,,,,,);
-    interface::OUT_a1ofN<N> out(aext.g, aext.pp, aext.pi, aext.p,);
+    interface::OUT_a1ofN<N> out(aext.g, aext.pp, aext.pe, aext.p,);
     interface::DESERIAL_RING<M, N, false, true> deserial(aext.g, out.y,);
 
     // rails and reset
@@ -34,7 +34,7 @@ export defproc Wrapper(globals_np g_np; a1of<1> src[4]; eMx1of4<1> snk)
         src[nn].d[0] = aext.xp[nn];
     )
     (; nn : NN :
-        src[nn].a = aext.xo[nn];
+        src[nn].a = aext.xa[nn];
     )
 
     // connect snk

@@ -7,7 +7,7 @@ pint NN=8; // NN=N^M
 aer::globals g;
 aer::SOURCE_random_a1of1 src(g,);
 aer::AEXT<M, N, NN> aext(g,,,,,);
-aer::interface::OUT_a1ofN<N> out(g, aext.pp, aext.pi, aext.p,);
+aer::interface::OUT_a1ofN<N> out(g, aext.pp, aext.pe, aext.p,);
 aer::interface::DESERIAL_RING<M, N, false, true> deserial(g, out.y,);
 aer::SINK_eMx1ofN<M, N> snk(g, deserial.y);
 
@@ -15,7 +15,7 @@ aer::SINK_eMx1ofN<M, N> snk(g, deserial.y);
     aext._xp[idx] = g.Vdd;
 )
     
-src.d.a = aext.xo[0];
+src.d.a = aext.xa[0];
 prs<g.Vdd, g.GND> {
     src.d.d => aext._xp[0]-
 }

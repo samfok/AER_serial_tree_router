@@ -6,89 +6,80 @@ namespace aer {
 
 namespace transmitter {
     export
-    template <pint N; pbool root>
-    defproc NODE (globals g; bool _cp[N], co[N], pi, _pp; c1of<N> _c[N], _p) {
+    template <pint N>
+    defproc NODE (globals g; bool _cp[N], ce[N], pe, _pp; c1of<N> _c[N], _p) {
         // AEXT tree NODE
-        bool c_[N], _co[N], v, _v, _u[N], _pp_;
+        bool c_[N], _ce[N], v, _v, _u[N];
         c1of<N> p;
         ::aer::arbiter::N_ARB_S<N> arb(g, _cp, c_);
 
         [ ~LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                _v & (| : n : N : c_[n]) -> _pp_-
-                ~g._pReset | (| : n : N : ~_co[n] & ~c_[n]) -> _pp_+
+                _v & (| : n : N : c_[n]) -> _pp-
+                ~g._pReset | (| : n : N : ~_ce[n] & ~c_[n]) -> _pp+
 
                 (: n : N :
-                    c_[n] & pi & _v -> _u[n]-
+                    c_[n] & pe & _v -> _u[n]-
                     ~g._pReset | ~_v -> _u[n]+
                 )
 
-                ~pi & (| : n : N : ~_u[n]) -> v+
-                _pp_ & (& : n : N : _co[n]) -> v-
+                ~pe & (| : n : N : ~_u[n]) -> v+
+                _pp & (& : n : N : _ce[n]) -> v-
 
                 v => _v-
 
-                c_[0] & v & pi & (& : n : 1..N-1 : _co[n]) -> _co[0]-
+                c_[0] & v & pe & (& : n : 1..N-1 : _ce[n]) -> _ce[0]-
                 (: n : 1..N-2:
-                    c_[n] & v & pi & 
-                        (& : nn : 0..n-1 : _co[nn]) & 
-                        (& : nn : n+1..N-1 : _co[nn]) -> _co[n]-
+                    c_[n] & v & pe & 
+                        (& : nn : 0..n-1 : _ce[nn]) & 
+                        (& : nn : n+1..N-1 : _ce[nn]) -> _ce[n]-
                 )
-                c_[N-1] & v & pi & (& : n : 0..N-2 : _co[n]) -> _co[N-1]-
+                c_[N-1] & v & pe & (& : n : 0..N-2 : _ce[n]) -> _ce[N-1]-
                 (: n : N :
-                    ~pi -> _co[n]+
+                    ~pe -> _ce[n]+
 
-                    _co[n] => co[n]-
+                    _ce[n] => ce[n]-
                 )
 
                 (: n : N :
                     (| : nc : N : ~_c[nc].d[n]) | ~_u[n] => p.d[n]+
                 )
             }
-
-            [ ~root ->
-                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                    (: n : N :
-                        p.d[n] => _p.d[n]-
-                    )
-                }
-                _pp_ = _pp;
-            [] root ->
-                p = _p;
-                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                    _pp_ => _pp- // switch to active high
-                }
-            ]
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+                (: n : N :
+                    p.d[n] => _p.d[n]-
+                )
+            }
         [] LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                _v<15> & (| : n : N : c_[n]<15>) -> _pp_-
-                ~g._pReset<9> | (| : n : N : ~_co[n]<24> & ~c_[n]<24>) -> _pp_+
+                _v<15> & (| : n : N : c_[n]<15>) -> _pp-
+                ~g._pReset<9> | (| : n : N : ~_ce[n]<24> & ~c_[n]<24>) -> _pp+
 
                 (: n : N :
-                    c_[n]<18> & pi<18> & _v<18> -> _u[n]-
+                    c_[n]<18> & pe<18> & _v<18> -> _u[n]-
                     ~g._pReset<9> | ~_v<16> -> _u[n]+
                 )
 
-                ~pi<20> & (| : n : N : ~_u[n]<20>) -> v+
-                _pp_<18> & (& : n : N : _co[n]<18>) -> v-
+                ~pe<20> & (| : n : N : ~_u[n]<20>) -> v+
+                _pp<18> & (& : n : N : _ce[n]<18>) -> v-
 
                 ~v<15> -> _v+
                 v<9> -> _v-
 
-                (& : n : 1..N-1 : _co[n]<18>) &
-                    v<18> & c_[0]<18> & pi<18> -> _co[0]-
+                (& : n : 1..N-1 : _ce[n]<18>) &
+                    v<18> & c_[0]<18> & pe<18> -> _ce[0]-
                 (: n : 1..N-2:
-                    (& : nn : 0..n-1 : _co[nn]<18>) & 
-                        (& : nn : n+1..N-1 : _co[nn]<18>) &
-                        v<18> & c_[n]<18> & pi<18> -> _co[n]-
+                    (& : nn : 0..n-1 : _ce[nn]<18>) & 
+                        (& : nn : n+1..N-1 : _ce[nn]<18>) &
+                        v<18> & c_[n]<18> & pe<18> -> _ce[n]-
                 )
-                (& : n : 0..N-2 : _co[n]<18>) &
-                    v<18> & c_[N-1]<18> & pi<18> -> _co[N-1]-
+                (& : n : 0..N-2 : _ce[n]<18>) &
+                    v<18> & c_[N-1]<18> & pe<18> -> _ce[N-1]-
                 (: n : N :
-                    ~pi<18> -> _co[n]+
+                    ~pe<18> -> _ce[n]+
 
-                    ~_co[n]<24> -> co[n]+
-                    _co[n]<18> -> co[n]-
+                    ~_ce[n]<24> -> ce[n]+
+                    _ce[n]<18> -> ce[n]-
                 )
 
                 (: n : N :
@@ -96,31 +87,22 @@ namespace transmitter {
                     (& : nc : N : _c[nc].d[n]<18>) & _u[n]<18> -> p.d[n]-
                 )
             }
-
-            [ ~root ->
-                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                    (: n : N :
-                        ~p.d[n]<12> -> _p.d[n]+
-                        p.d[n]<9> -> _p.d[n]-
-                    )
-                }
-                _pp_ = _pp;
-            [] root ->
-                p = _p;
-                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                    _pp_ => _pp- // switch to active high
-                }
-            ]
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+                (: n : N :
+                    ~p.d[n]<12> -> _p.d[n]+
+                    p.d[n]<9> -> _p.d[n]-
+                )
+            }
         ]
     }
 
     export
-    template <pint N; pbool root>
-    defproc LEAF (globals g; bool _cp[N], co[N], pi, _pp; c1of<N> p) {
+    template <pint N>
+    defproc LEAF (globals g; bool _cp[N], ca[N], pe, _pp; c1of<N> _p) {
         // AEXT tree LEAF
         bool c[N], _c[N], __c[N], _u[N], v, _v, __v, pp;
         ::aer::arbiter::N_ARB_S<N> arb(g, _cp, c);
-        c1of<N> p_;
+        c1of<N> p;
         [ ~LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                 v => _v-
@@ -131,39 +113,35 @@ namespace transmitter {
                 )
 
                 (| : n : N : ~_c[n]) & ~__v -> pp+
-                g.pReset | pi & __v -> pp-
+                g.pReset | pe & __v -> pp-
 
                 (: n : N :
                     _c[n] => __c[n]-
                 )
 
                 (: n : N :
-                    __c[n] & pi & _v -> _u[n]-
-                    ~__c[n] & ~pp & ~pi -> _u[n]+
+                    __c[n] & pe & _v -> _u[n]-
+                    ~__c[n] & ~pp & ~pe -> _u[n]+
                 )
 
-                (| : n : N : ~_u[n]) & ~pi -> v+
+                (| : n : N : ~_u[n]) & ~pe -> v+
                 (& : n : N : _u[n]) -> v-
 
                 (: n : N :
-                    ~_u[n] & ~_c[n] => p_.d[n]+
+                    ~_u[n] & ~_c[n] => p.d[n]+
                 )
 
                 (: n : N :
-                    ~_u[n] & ~_v => co[n]+
+                    ~_u[n] & ~_v => ca[n]+
                 )
             }
-            [ root ->
-                p_ = p; // preserve sense
-                pp = _pp; // preserve sense
-            [] ~root ->
-                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                    (: n : N :
-                        p_.d[n] => p.d[n]- // switch to active low
-                    )
-                    pp => _pp- // switch to active low
-                }
-            ]
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+                // switch to active low
+                (: n : N :
+                    p.d[n] => _p.d[n]-
+                )
+                pp => _pp-
+            }
         [] LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                 ~v<14> -> _v+
@@ -178,7 +156,7 @@ namespace transmitter {
                 )
 
                 (| : n : N : ~_c[n]<27>) & ~__v<27> -> pp+
-                g.pReset<6> | pi<12> & __v<12> -> pp-
+                g.pReset<6> | pe<12> & __v<12> -> pp-
 
                 (: n: N :
                     ~_c[n]<9> -> __c[n]+
@@ -186,189 +164,258 @@ namespace transmitter {
                 )
 
                 (: n : N :
-                    pi<18> & __c[n]<18> & _v<18> -> _u[n]-
-                    ~pi<27> & ~__c[n]<27> & ~pp<27> -> _u[n]+
+                    pe<18> & __c[n]<18> & _v<18> -> _u[n]-
+                    ~pe<27> & ~__c[n]<27> & ~pp<27> -> _u[n]+
                 )
 
-                ~pi<18> & (| : n : N : ~_u[n]<18>) -> v+
+                ~pe<18> & (| : n : N : ~_u[n]<18>) -> v+
                 (& : n : N : _u[n]<18>) -> v-
 
                 (: n : N :
-                    ~_u[n]<15> & ~_c[n]<15> -> p_.d[n]+
-                    _u[n]<6> | _c[n]<6> -> p_.d[n]-
+                    ~_u[n]<15> & ~_c[n]<15> -> p.d[n]+
+                    _u[n]<6> | _c[n]<6> -> p.d[n]-
                 )
 
                 (: n : N :
-                    ~_u[n]<16> & ~_v<16> -> co[n]+
-                    _u[n]<6> | _v<6> -> co[n]-
+                    ~_u[n]<16> & ~_v<16> -> ca[n]+
+                    _u[n]<6> | _v<6> -> ca[n]-
                 )
             }
-            [ root ->
-                p_ = p; // preserve sense
-                pp = _pp; // preserve sense
-            [] ~root ->
-                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                    (: n : N :
-                        // switch to active low
-                        ~p_.d[n]<9> -> p.d[n]+
-                        p_.d[n]<6> -> p.d[n]-
-                    )
-                    // switch to active low
-                    ~pp<9> -> _pp+
-                    pp<6> -> _pp-
-                }
-            ]
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+                // switch to active low
+                (: n : N :
+                    ~p.d[n]<9> -> _p.d[n]+
+                    p.d[n]<6> -> _p.d[n]-
+                )
+                ~pp<9> -> _pp+
+                pp<6> -> _pp-
+            }
         ]
     }
 
-    export
-    template <pint D, R; pint Se[R], CAPe[R], Spd[R], CAPpd[R]>
-    defproc AMP_WIRES (globals g; bool _cpp, cpi, _pcp, pco; c1of<D> cp, pc) {
-        // model the amplifier and wire capacitances internal to the aext tree
-        // D 1-of-D data
-        // R repeater inverters
+    template <pint M, N, L, BASE_IDX, IDXs, Rmax; pint R[M],
+              Se[M][Rmax], CAPe[M][Rmax], Spd[M][Rmax], CAPpd[M][Rmax]>
+    defproc AMP_WIRES_ (globals g; bool c_pp[L], c_pe[L], p_cp[L], p_ce[L];
+                       c1of<N> c_p[L], p_c[L]) {
+        // Utility for AMP_WIRES
+        // M AEXT tree current and below
+        // N radix of AEXT tree
+        // L links in AEXT tree = (N^M-1) / (N-1) = number of LEAFs and NODEs
+
+        // Rarray repeater inverters
         // Se[R] scales size of repeater inverters (for enable pco->cpi)
         // CAPe[R] capacitive load along repeaters (units of min size inverter cap) (for enable pco->cpi)
         // Spd[R] scales size of repeater inverters (for phi _cpp->_pcp and data cp->pc)
         // CAPpd[R] capacitive load along repeaters (units of min size inverter cap) (for phi _cpp->_pcp and data cp->pc)
-        // in production: D=4
-        // .-------------------------------------------------------------------------------------------------.
-        // |                 link  | R | Se             | CAPe            | Spd            | CAPpd           |
-        // |-----------------------|---|----------------|-----------------|----------------|-----------------|
-        // | root    -> array edge | 4 | {3, 10, 6, 36} | {4, 64, 4, 192} | {5, 1, 5, 25}  | {64, 4, 4, 192} |
-        // | node[0] -> root       | 4 | {3, 10, 6, 36} | {4, 64, 4, 192} | {5, 1, 5, 25}  | {64, 4, 4, 192} |
-        // | node[1] -> node[0]    | 4 | {3, 10, 6, 36} | {4, 64, 4, 64}  | {5, 1, 5, 25}  | {64, 4, 4, 64}  |
-        // | node[2] -> node[1]    | 2 | {3, 10}        | {4, 64}         | {5, 1}         | {64, 4}         |
-        // | node[3] -> node[2]    | 2 | {3, 10}        | {4, 32}         | {5, 1}         | {32, 4}         |
-        // | leaf    -> node[3]    | 2 | {3, 10}        | {4, 16}         | {5, 1}         | {16, 4}         |
-        // ---------------------------------------------------------------------------------------------------
-        // assume min_inv_cap=0.25
-        preal min_inv_cap = 0.25;
+        // .------------------------------------------------------------------------------------------------.
+        // |                link  | R | Se             | CAPe            | Spd            | CAPpd           |
+        // |----------------------|---|----------------|-----------------|----------------|-----------------|
+        // | root    - array edge | 4 | {3, 10, 6, 36} | {4, 64, 4, 192} | {5, 1, 5, 25}  | {64, 4, 4, 192} |
+        // | node[0] - root       | 4 | {3, 10, 6, 36} | {4, 64, 4, 192} | {5, 1, 5, 25}  | {64, 4, 4, 192} |
+        // | node[1] - node[0]    | 4 | {3, 10, 6, 36} | {4, 64, 4, 64}  | {5, 1, 5, 25}  | {64, 4, 4, 64}  |
+        // | node[2] - node[1]    | 2 | {3, 10}        | {4, 64}         | {5, 1}         | {64, 4}         |
+        // | node[3] - node[2]    | 2 | {3, 10}        | {4, 32}         | {5, 1}         | {32, 4}         |
+        // | leaf    - node[3]    | 2 | {3, 10}        | {4, 16}         | {5, 1}         | {16, 4}         |
+        // --------------------------------------------------------------------------------------------------
+        preal min_inv_cap = 0.25; // assume min_inv_cap=0.25
         
-        preal Ce[R];
-        preal Cpd[R];
-        (; r : R :
-            Ce[r] = min_inv_cap * CAPe[r];
-            Cpd[r] = min_inv_cap * CAPpd[r];
+        preal Ce[R[0]];
+        preal Cpd[R[0]];
+        (; r : R[0] :
+            Ce[r] = min_inv_cap * CAPe[0][r];
+            Cpd[r] = min_inv_cap * CAPpd[0][r];
         )
-        REPEATER_BOOL<R, Spd, Cpd, 1> _pcp_cpp(g, _cpp, _pcp);
-        REPEATER_BOOL<R, Se, Ce, 2> _cpo_pci(g, pco, cpi);
-        REPEATER_c1of<D, R, Spd, Cpd, 1> pc_cp(g, cp, pc);
+        REPEATER_BOOL<R[0], Spd[0][0..R[0]-1], Cpd, 1> c_pp__p_cp[IDXs];
+        REPEATER_BOOL<R[0], Se[0][0..R[0]-1], Ce, 2> p_ce__c_pe[IDXs];
+        REPEATER_c1of<N, R[0], Spd[0][0..R[0]-1], Cpd, 1> c_p__p_c[IDXs];
+        (; i : IDXs :
+            c_pp__p_cp[i].g = g;
+            c_pp__p_cp[i].i = c_pp[BASE_IDX+i];
+            c_pp__p_cp[i].o = p_cp[BASE_IDX+i];
+
+            p_ce__c_pe[i].g = g;
+            p_ce__c_pe[i].i = p_ce[BASE_IDX+i];
+            p_ce__c_pe[i].o = c_pe[BASE_IDX+i];
+
+            c_p__p_c[i].g = g;
+            c_p__p_c[i].i = c_p[BASE_IDX+i];
+            c_p__p_c[i].o = p_c[BASE_IDX+i];
+        )
+
+        [ M > 1 ->
+            AMP_WIRES_<M-1, N, L, BASE_IDX+IDXs, IDXs*N, Rmax, R[1..M-1],
+                       Se[1..M-1], CAPe[1..M-1], Spd[1..M-1], CAPpd[1..M-1]> 
+                _(g, c_pp, c_pe, p_cp, p_ce, c_p, p_c);
+        ]
     }
 
     export
-    template <pint M, N, NN; pbool root; pint M0, Rmax, m0;
-              pint R[M0], Se[M0][Rmax], CAPe[M0][Rmax], Spd[M0][Rmax], CAPpd[M0][Rmax]>
-    defproc AEXT_ (globals g; bool _xp[NN], xo[NN], pi, _pp; c1of<N> p) {
-        // utility for AEXT
-        bool w__cpp, w_cpi;
-        bool w__pcp = _pp;
-        bool w_pco = pi;
-        c1of<N> w_pc = p; 
-        c1of<N> w_cp;
-        AMP_WIRES<N, R[m0], Se[m0][0..R[m0]-1], CAPe[m0][0..R[m0]-1], Spd[m0][0..R[m0]-1], CAPpd[m0][0..R[m0]-1]>
-            w(g, w__cpp, w_cpi, w__pcp, w_pco, w_cp, w_pc);
-        [ M = 1 ->
-            NN = N;
-            LEAF<N, root> leaf(g, _xp, xo, w_cpi, w__cpp, w_cp);
-        [] M > 1 ->
-            NODE<N, root> node(g,,, w_cpi, w__cpp,, w_cp);
-            pint k = NN/N;
-            AEXT_<M-1, N, k, false, M0, Rmax, m0+1, R, Se, CAPe, Spd, CAPpd> _[N];
-            (; n : N :
-                _[n].g = g;
-                _[n]._xp = _xp[n*k..(n+1)*k-1];
-                _[n].xo = xo[n*k..(n+1)*k-1];
-                _[n].pi = node.co[n];
-                _[n]._pp = node._cp[n];
-                _[n].p = node._c[n];
-            )
-        ]
-    }
+    template <pint M, N, L>
+    defproc AMP_WIRES (globals g; bool c_pp[L], c_pe[L], p_cp[L], p_ce[L];
+                       c1of<N> c_p[L], p_c[L]) {
+        // model the amplifier and wire capacitances internal to the aext tree
+        // M depth of AEXT tree (max 6)
+        // N radix of AEXT tree (N=4 in production)
+        // L links in AEXT tree = (N^M-1) / (N-1) = number of LEAFs and NODEs
+
+        pint Mmax = 6; // max AEXT tree depth
+        [M > Mmax -> 0=1;] // assert false
+        pint Rmax = 4; // max repeaters between AEXT nodes
+        pint R_ref[Mmax];
+        pint Se_ref[Mmax][Rmax], Spd_ref[Mmax][Rmax];
+        pint CAPe_ref[Mmax][Rmax], CAPpd_ref[Mmax][Rmax];
+        // repeaters per stage
+        R_ref = {4, 4, 4, 2, 2, 2};
+        // sizing per repeater per stage
+        Se_ref = {{3, 10, 6, 36},
+                  {3, 10, 6, 36},
+                  {3, 10, 6, 36},
+                  {3, 10, 0, 0 },
+                  {3, 10, 0, 0 },
+                  {3, 10, 0, 0 }};
+        Spd_ref = {{5, 1, 5, 25},
+                   {5, 1, 5, 25},
+                   {5, 1, 5, 25},
+                   {5, 1, 0, 0 },
+                   {5, 1, 0, 0 },
+                   {5, 1, 0, 0 }};
+        // cap per repeater per stage
+        CAPe_ref = {{4, 64, 4, 192},
+                    {4, 64, 4, 192},
+                    {4, 64, 4, 64 },
+                    {4, 64, 0, 0  },
+                    {4, 32, 0, 0  },
+                    {4, 16, 0, 0  }};
+        CAPpd_ref = {{64, 4, 4, 192},
+                     {64, 4, 4, 192},
+                     {64, 4, 4, 64 },
+                     {64, 4, 0, 0  },
+                     {32, 4, 0, 0  },
+                     {16, 4, 0, 0  }};
+
+        pint R[M];
+        pint Se[M][Rmax], Spd[M][Rmax];
+        pint CAPe[M][Rmax], CAPpd[M][Rmax];
+        pint Mbase = Mmax-M;
+        R = R_ref[Mbase..Mmax-1];
+        Se = Se_ref[Mbase..Mmax-1];
+        Spd = Spd_ref[Mbase..Mmax-1];
+        CAPe = CAPe_ref[Mbase..Mmax-1];
+        CAPpd = CAPpd_ref[Mbase..Mmax-1];
+
+        AMP_WIRES_<M, N, L, 0, 1, Rmax, R, Se, CAPe, Spd, CAPpd> 
+            _(g, c_pp, c_pe, p_cp, p_ce, c_p, p_c);
+        }
 } // namespace transmitter
 
 export
 template <pint M, N, NN>
-defproc AEXT (globals g; bool _xp[NN], xo[NN], pi, pp; c1of<N> p) {
+defproc AEXT (globals g; bool _xp[NN], xa[NN], pe, pp; c1of<N> p) {
     // Transmitter transmits spikes from neurons to datapath
     // M depth of AEXT tree (max 6)
     // N radix of AEXT tree
     // NN neurons = N^M
-    pint Mmax = 6; // max AEXT tree depth
-    pint Rmax = 4; // max repeaters between AEXT nodes
-    pint R[Mmax];
-    pint Se[Mmax][Rmax], Spd[Mmax][Rmax];
-    pint CAPe[Mmax][Rmax], CAPpd[Mmax][Rmax];
-    // repeaters per stage
-    R = {4, 4, 4, 2, 2, 2};
-    // sizing per repeater per stage
-    Se = {{3, 10, 6, 36},
-          {3, 10, 6, 36},
-          {3, 10, 6, 36},
-          {3, 10, 0, 0 },
-          {3, 10, 0, 0 },
-          {3, 10, 0, 0 }};
-    Spd = {{5, 1, 5, 25},
-           {5, 1, 5, 25},
-           {5, 1, 5, 25},
-           {5, 1, 0, 0 },
-           {5, 1, 0, 0 },
-           {5, 1, 0, 0 }};
-    // cap per repeater per stage
-    CAPe = {{4, 64, 4, 192},
-            {4, 64, 4, 192},
-            {4, 64, 4, 64 },
-            {4, 64, 0, 0  },
-            {4, 32, 0, 0  },
-            {4, 16, 0, 0  }};
-    CAPpd = {{64, 4, 4, 192},
-             {64, 4, 4, 192},
-             {64, 4, 4, 64 },
-             {64, 4, 0, 0  },
-             {32, 4, 0, 0  },
-             {16, 4, 0, 0  }};
 
-    [M > Mmax -> 0=1;] // assert false
-    pint ms = Mmax-M; // start idx
+    pint N_LEAF = NN/N; // = N^(M-1)
+    pint N_NODE = (NN-N) / (N*(N-1)); // = (N^(M-1)-1) / (N-1)
+    pint N_LINK = N_LEAF + N_NODE; // = (N^M-1) / (N-1)
 
-    transmitter::AEXT_<M, N, NN, true, M, Rmax, 0, R[ms..Mmax-1],
-                       Se[ms..Mmax-1], CAPe[ms..Mmax-1],
-                       Spd[ms..Mmax-1], CAPpd[ms..Mmax-1]>
-        _(g, _xp, xo, pi, pp, p);
+    transmitter::LEAF<N> leaf[N_LEAF];
+    (; n : N_LEAF :
+        leaf[n].g = g;
+        leaf[n]._cp = _xp[n*N..(n+1)*N-1];
+        leaf[n].ca = xa[n*N..(n+1)*N-1];
+    )
+
+    transmitter::AMP_WIRES<M, N, N_LINK> repeater_wires(g,,,,,,);
+    repeater_wires.p_ce[0] = pe;
+    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+        // switch to active high outside of array
+        ~repeater_wires.p_cp[0]<9> -> pp+
+        repeater_wires.p_cp[0]<6> -> pp-
+        (: n : N :
+            ~repeater_wires.p_c[0].d[n]<9> -> p.d[n]+
+            repeater_wires.p_c[0].d[n]<6> -> p.d[n]-
+        )
+    }
+
+    [ M = 1 ->
+        NN = N; // assert
+        leaf[0].pe = repeater_wires.c_pe[0];
+        leaf[0]._pp = repeater_wires.c_pp[0];
+        leaf[0]._p = repeater_wires.c_p[0];
+    [] M > 1 ->
+        transmitter::NODE<N> node[N_NODE];
+        (; n : N_NODE :
+            node[n].g = g;
+        )
+        node[0].pe = repeater_wires.c_pe[0];
+        node[0]._pp = repeater_wires.c_pp[0];
+        node[0]._p = repeater_wires.c_p[0];
+
+        // connect NODEs to LEAFs
+        pint N_LOW_NODE = N_LEAF/N; // NODEs connecting to LEAFs
+        pint NODE_BASE_IDX = N_NODE-N_LOW_NODE;
+        (; node_idx : NODE_BASE_IDX..N_NODE-1 :
+            (; n : N :
+                node[node_idx].ce[n] = repeater_wires.p_ce[node_idx*N+n+1];
+                node[node_idx]._cp[n] = repeater_wires.p_cp[node_idx*N+n+1];
+                node[node_idx]._c[n] = repeater_wires.p_c[node_idx*N+n+1];
+
+                repeater_wires.c_pe[node_idx*N+n+1] = leaf[(node_idx-NODE_BASE_IDX)*N+n].pe;
+                repeater_wires.c_pp[node_idx*N+n+1] = leaf[(node_idx-NODE_BASE_IDX)*N+n]._pp;
+                repeater_wires.c_p[node_idx*N+n+1] = leaf[(node_idx-NODE_BASE_IDX)*N+n]._p;
+            )
+        )
+
+        [ M > 2 ->
+            (; np : NODE_BASE_IDX :
+                (; nc : N :
+                    node[np].ce[nc] = repeater_wires.p_ce[np*N+nc+1];
+                    node[np]._cp[nc] = repeater_wires.p_cp[np*N+nc+1];
+                    node[np]._c[nc] = repeater_wires.p_c[np*N+nc+1];
+
+                    repeater_wires.c_pe[np*N+nc+1] = node[np*N+nc+1].pe;
+                    repeater_wires.c_pp[np*N+nc+1] = node[np*N+nc+1]._pp;
+                    repeater_wires.c_p[np*N+nc+1] =  node[np*N+nc+1]._p;
+                )
+            )
+        ]
+    ]
 }
 
 namespace brain_transmitter {
     export
     template <pint NN>
-    defproc NRN_BUF (globals g; bool xp[NN], xo[NN], yi[NN], _yp[NN]) {
+    defproc NRN_BUF (globals g; bool xp[NN], xa[NN], ya[NN], _yp[NN]) {
         // buffer the neuron spikes so that the refractory period does not
         // hold up the transmitter
         // NN neurons
-        bool _xo[NN];
-        bool __xo[NN];
-        __xo = xo;
+        bool _xa[NN];
+        bool __xa[NN];
+        __xa = xa;
         [ ~LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                 (: nn : NN :
-                    xp[nn] & _xo[nn] => _yp[nn]-
+                    xp[nn] & _xa[nn] => _yp[nn]-
 
-                    yi[nn] -> _xo[nn]-
-                    ~yi[nn] & ~xp[nn] -> _xo[nn]+
+                    ya[nn] -> _xa[nn]-
+                    ~ya[nn] & ~xp[nn] -> _xa[nn]+
 
-                    _xo[nn] => __xo[nn]-
+                    _xa[nn] => __xa[nn]-
                 )
             }
         [] LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                 (: nn : NN :
-                    xp[nn]<12> & _xo[nn]<12> -> _yp[nn]-
-                    ~xp[nn]<9> | ~_xo[nn]<9> -> _yp[nn]+
+                    xp[nn]<12> & _xa[nn]<12> -> _yp[nn]-
+                    ~xp[nn]<9> | ~_xa[nn]<9> -> _yp[nn]+
 
-                    yi[nn]<6> -> _xo[nn]-
-                    ~yi[nn]<18> & ~xp[nn]<18> -> _xo[nn]+
+                    ya[nn]<6> -> _xa[nn]-
+                    ~ya[nn]<18> & ~xp[nn]<18> -> _xa[nn]+
 
-                    ~_xo[nn]<9> -> __xo[nn]+
-                    _xo[nn]<6> -> __xo[nn]-
+                    ~_xa[nn]<9> -> __xa[nn]+
+                    _xa[nn]<6> -> __xa[nn]-
                 )
             }
         ]
@@ -377,7 +424,7 @@ namespace brain_transmitter {
 
 export
 template <pint M, N, NN>
-defproc BRAIN_AEXT (globals g; bool xp[NN], xo[NN], pi, pp; c1of<N> p) {
+defproc BRAIN_AEXT (globals g; bool xp[NN], xa[NN], pe, pp; c1of<N> p) {
     // braindrop / brainstorm transmitter system
     // M tree depth
     //     M = 6 in production
@@ -386,8 +433,8 @@ defproc BRAIN_AEXT (globals g; bool xp[NN], xo[NN], pi, pp; c1of<N> p) {
     // NN neurons
     //     NN = 4^M
     //     NN = 4096 in production
-    AEXT<M, N, NN> _(g,,, pi, pp, p);
-    brain_transmitter::NRN_BUF<NN> buf(g, xp, xo, _.xo, _._xp);
+    AEXT<M, N, NN> _(g,,, pe, pp, p);
+    brain_transmitter::NRN_BUF<NN> buf(g, xp, xa, _.xa, _._xp);
 }
 
 } // namespace aer

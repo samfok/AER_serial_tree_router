@@ -1,23 +1,24 @@
 // measure latency and minimum throughput of transmitter
-import "aer/aer/";
+import "aer/aext/aext.act";
+import "aer/interface/interface.act";
 pint M=6;
 pint N=4;
 pint NN=4096; // NN=N^M
 
-globals g;
+aer::globals g;
 bool Reset = g.sReset;
 
-e1of<2> src;
+aer::e1of<2> src;
 
-AEXT<M, N, NN> aext(g,,,,,);
-interface::OUT_a1ofN<N> out(g, aext.po, aext.pi, aext.p,);
-interface::DESERIAL_RING<M, N, false, true> deserial(g, out.y,);
-SINK_eMx1ofN<M, N> snk_(g, deserial.y);
+aer::AEXT<M, N, NN> aext(g,,,,,);
+aer::interface::OUT_a1ofN<N> out(g, aext.pp, aext.pe, aext.p,);
+aer::interface::DESERIAL_RING<M, N, false, true> deserial(g, out.y,);
+aer::SINK_eMx1ofN<M, N> snk_(g, deserial.y);
 
-src.d[0] = aext.xi[0];
 (; nn : 1..NN-1 :
-    aext.xi[nn] = g.GND;
+    aext._xp[nn] = g.Vdd;
 )
 prs<g.Vdd, g.GND> {
-    (| : nn : NN : aext.xo[nn]) => src.e-
+    src.d[0] => aext._xp[0]-
+    (| : nn : NN : aext.xa[nn]) => src.e-
 }

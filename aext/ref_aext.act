@@ -7,7 +7,7 @@ namespace aer {
 namespace transmitter {
     export
     template <pint N>
-    defproc NODE (globals g; bool cp[N], co[N], pi, pp; c1of<N> c[N], p) {
+    defproc NODE (globals g; bool cp[N], ce[N], pe, pp; c1of<N> c[N], p) {
         // AEXT tree NODE
         bool _cp[N], c_[N], u[N], v;
         prs<g.Vdd, g.GND> {
@@ -19,25 +19,25 @@ namespace transmitter {
 
         prs<g.Vdd, g.GND> {
             ~v & (| : n : N : c_[n]) -> pp+
-            g.pReset | (| : n : N : co[n] & ~c_[n]) -> pp-
+            g.pReset | (| : n : N : ce[n] & ~c_[n]) -> pp-
         
             (: n : N :
-                c_[n] & pi & ~v -> u[n]+
+                c_[n] & pe & ~v -> u[n]+
                 g.pReset | v -> u[n]-
             )
 
-            (| : n : N : u[n]) & ~pi -> v+
-            (& : n : N : ~co[n]) & ~pp -> v-
+            (| : n : N : u[n]) & ~pe -> v+
+            (& : n : N : ~ce[n]) & ~pp -> v-
             
-            c_[0] & v & pi & (& : n : 1..N-1 : ~co[n]) -> co[0]+
+            c_[0] & v & pe & (& : n : 1..N-1 : ~ce[n]) -> ce[0]+
             (: n : 1..N-2:
-                c_[n] & v & pi & 
-                (& : nn : 0..n-1 : ~co[nn]) & 
-                (& : nn : n+1..N-1 : ~co[nn]) -> co[n]+
+                c_[n] & v & pe & 
+                (& : nn : 0..n-1 : ~ce[nn]) & 
+                (& : nn : n+1..N-1 : ~ce[nn]) -> ce[n]+
             )
-            c_[N-1] & v & pi & (& : n : 0..N-2 : ~co[n]) -> co[N-1]+
+            c_[N-1] & v & pe & (& : n : 0..N-2 : ~ce[n]) -> ce[N-1]+
             (: n : N :
-                ~pi -> co[n]-
+                ~pe -> ce[n]-
             )
 
             (: n : N :
@@ -48,7 +48,7 @@ namespace transmitter {
 
     export
     template <pint N>
-    defproc LEAF (globals g; bool cp[N], co[N], pi, pp; c1of<N> p) {
+    defproc LEAF (globals g; bool cp[N], ca[N], pe, pp; c1of<N> p) {
         // AEXT tree LEAF
         bool _cp[N], c[N], u[N], v;
         prs<g.Vdd, g.GND> {
@@ -60,14 +60,14 @@ namespace transmitter {
 
         prs<g.Vdd, g.GND> {
             (| : n : N : c[n]) & ~v -> pp+
-            g.pReset | pi & v -> pp-
+            g.pReset | pe & v -> pp-
 
             (: n : N :
-                c[n] & pi & ~v -> u[n]+
-                ~c[n] & ~pp & ~pi -> u[n]-
+                c[n] & pe & ~v -> u[n]+
+                ~c[n] & ~pp & ~pe -> u[n]-
             )
 
-            (| : n : N : u[n]) & ~pi -> v+
+            (| : n : N : u[n]) & ~pe -> v+
             (& : n : N : ~u[n]) -> v-
         
             (: n : N :
@@ -75,7 +75,7 @@ namespace transmitter {
             )
             
             (: n : N :
-                u[n] & v => co[n]+
+                u[n] & v => ca[n]+
             )
         }
     }
@@ -83,7 +83,7 @@ namespace transmitter {
 
 export
 template <pint M, N, NN>
-defproc AEXT (globals g; bool xp[NN], xo[NN], pi, pp; c1of<N> p) {
+defproc AEXT (globals g; bool xp[NN], xa[NN], pe, pp; c1of<N> p) {
     // M depth of AEXT tree
     // N radix of AEXT tree
     // NN neurons = N^M
@@ -95,12 +95,12 @@ defproc AEXT (globals g; bool xp[NN], xo[NN], pi, pp; c1of<N> p) {
     (; n : N_LEAF :
         leaf[n].g = g;
         leaf[n].cp = xp[n*N..(n+1)*N-1];
-        leaf[n].co = xo[n*N..(n+1)*N-1];
+        leaf[n].ca = xa[n*N..(n+1)*N-1];
     )
 
     [ M = 1 ->
         NN = N; // assert
-        leaf[0].pi = pi;
+        leaf[0].pe = pe;
         leaf[0].pp = pp;
         leaf[0].p = p;
     [] M > 1 ->
@@ -108,7 +108,7 @@ defproc AEXT (globals g; bool xp[NN], xo[NN], pi, pp; c1of<N> p) {
         (; n : N_NODE :
             node[n].g = g;
         )
-        node[0].pi = pi;
+        node[0].pe = pe;
         node[0].pp = pp;
         node[0].p = p;
 
@@ -117,7 +117,7 @@ defproc AEXT (globals g; bool xp[NN], xo[NN], pi, pp; c1of<N> p) {
         pint NODE_BASE_IDX = N_NODE-N_LOW_NODE;
         (; node_idx : NODE_BASE_IDX..N_NODE-1 :
             (; n : N :
-                node[node_idx].co[n] = leaf[(node_idx-NODE_BASE_IDX)*N+n].pi;
+                node[node_idx].ce[n] = leaf[(node_idx-NODE_BASE_IDX)*N+n].pe;
                 node[node_idx].cp[n] = leaf[(node_idx-NODE_BASE_IDX)*N+n].pp;
                 node[node_idx].c[n] = leaf[(node_idx-NODE_BASE_IDX)*N+n].p;
             )
@@ -127,7 +127,7 @@ defproc AEXT (globals g; bool xp[NN], xo[NN], pi, pp; c1of<N> p) {
             (; np : NODE_BASE_IDX :
                 (; nc : N :
                     node[np].cp[nc] = node[np*N+nc+1].pp;
-                    node[np].co[nc] = node[np*N+nc+1].pi;
+                    node[np].ce[nc] = node[np*N+nc+1].pe;
                     node[np].c[nc] =  node[np*N+nc+1].p;
                 )
             )
@@ -138,16 +138,16 @@ defproc AEXT (globals g; bool xp[NN], xo[NN], pi, pp; c1of<N> p) {
 namespace brain_transmitter {
     export
     template <pint NN>
-    defproc NRN_BUF (globals g; bool xp[NN], xo[NN], yi[NN], yp[NN]) {
+    defproc NRN_BUF (globals g; bool xp[NN], xa[NN], ya[NN], yp[NN]) {
         // buffer the neuron spikes so that the refractory period does not
         // hold up the transmitter
         // NN neurons
         prs<g.Vdd, g.GND> {
             (: nn : NN :
-                xp[nn] & ~xo[nn] => yp[nn]+
+                xp[nn] & ~xa[nn] => yp[nn]+
 
-                yi[nn] -> xo[nn]+
-                ~yi[nn] & ~xp[nn] -> xo[nn]-
+                ya[nn] -> xa[nn]+
+                ~ya[nn] & ~xp[nn] -> xa[nn]-
             )
         }
     }
@@ -155,7 +155,7 @@ namespace brain_transmitter {
 
 export
 template <pint M, N, NN>
-defproc BRAIN_AEXT (globals g; bool xp[NN], xo[NN], pi, pp; c1of<N> p) {
+defproc BRAIN_AEXT (globals g; bool xp[NN], xa[NN], pe, pp; c1of<N> p) {
     // braindrop / brainstorm transmitter system
     // M tree depth
     //     M = 6 in production
@@ -164,8 +164,8 @@ defproc BRAIN_AEXT (globals g; bool xp[NN], xo[NN], pi, pp; c1of<N> p) {
     // NN neurons
     //     NN = 4^M
     //     NN = 4096 in production
-    AEXT<M, N, NN> _(g,,, pi, pp, p);
-    brain_transmitter::NRN_BUF<NN> buf(g, xp, xo, _.xo, _.xp);
+    AEXT<M, N, NN> _(g,,, pe, pp, p);
+    brain_transmitter::NRN_BUF<NN> buf(g, xp, xa, _.xa, _.xp);
 }
 
 } // namespace aer
