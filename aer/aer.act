@@ -7,7 +7,7 @@ namespace aer {
 
 export
 template <pint M, N, NN>
-defproc AER_NODATA (globals g; bool _xp[NN], xo[NN], yi[NN], yp[NN]) {
+defproc AER_NODATA (globals g; bool _xp[NN], xa[NN], yi[NN], yp[NN]) {
     // address-event representation tranceiver
     // no data sent to receiving neuron
     // packets are serialized 
@@ -15,8 +15,8 @@ defproc AER_NODATA (globals g; bool _xp[NN], xo[NN], yi[NN], yp[NN]) {
     // M groups
     // N items per group
     // NN=N^M
-    AEXT<M, N, NN> aext(g, _xp, xo,,,);
-    interface::OUT_a1ofN<N> out(g, aext.pp, aext.pi, aext.p,);
+    AEXT<M, N, NN> aext(g, _xp, xa,,,);
+    interface::OUT_a1ofN<N> out(g, aext.pp, aext.pe, aext.p,);
     interface::DESERIAL_RING<M, N, false, true> deserial(g, out.y,);
     interface::SERIAL_RING<M, N> serial(g, deserial.y,,,);
     AERV_NODATA<M, N, NN> aerv(g, yi, yp, serial.yp, serial.yi, serial.y);

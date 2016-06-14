@@ -314,7 +314,6 @@ namespace arbiter {
 
     namespace n_arb_s {
         // standard, unpipelined n-way arbiter
-        export
         defproc MU_EX (globals g; bool _ci[2], co[2], qi[2], qo[2]) {
             // grants mutual exclusion between two requesting signals
             _MUTEX _arb(g, _ci,);
@@ -334,7 +333,6 @@ namespace arbiter {
             ]
         }
 
-        export
         defproc PREQ (globals g; bool qi[2], qo[2], pi, _po) {
             // merges mutually exclusive requests into a parent request
             bool _qo[2];
@@ -367,23 +365,10 @@ namespace arbiter {
         }
 
         export
-        template <pint N>
-        defproc N_ARB_ (globals g; bool _i[N], o[N], pi, _po) {
-            // utility for N_ARB_S
-            [ N = 1 ->
-                _i[0] = _po;
-                o[0] = pi;
-                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {} // HACK so netgen -B doesn't complain
-            [] N > 1 ->
-                N_ARB_<N/2> n_arb0(g, _i[0..N/2-1], o[0..N/2-1],,);
-                N_ARB_<N-N/2> n_arb1(g, _i[N/2..N-1], o[N/2..N-1],,);
-                MU_EX mu_ex(g,,,,);
-                PREQ preq(g, mu_ex.qo, mu_ex.qi, pi, _po);
-                mu_ex._ci[0] = n_arb0._po;
-                mu_ex.co[0] = n_arb0.pi;
-                mu_ex._ci[1] = n_arb1._po;
-                mu_ex.co[1] = n_arb1.pi;
-            ]
+        defproc NODE (globals g; bool _i[2], o[2], pi, _po) {
+            // NODE in the N_ARB_S tree
+            MU_EX mu_ex(g, _i, o,,);
+            PREQ preq(g, mu_ex.qo, mu_ex.qi, pi, _po);
         }
     } // namespace n_arb_s
 
@@ -396,23 +381,47 @@ namespace arbiter {
                 _i[0] => o[0]-
             }
         [] N > 1 ->
-            n_arb_s::N_ARB_<N/2> n_arb0(g, _i[0..N/2-1], o[0..N/2-1],,);
-            n_arb_s::N_ARB_<N-N/2> n_arb1(g, _i[N/2..N-1], o[N/2..N-1],,);
-            _MUTEX _arb(g,,);
-            _arb._i[0] = n_arb0._po;
-            _arb._i[1] = n_arb1._po;
-            [ ~LAYOUT ->
+            N = (N/2)*2; // assert N power of 2
+            pint N_NODE = N-1;
+
+            _MUTEX _mutex(g,,);
+
+            [ N_NODE = 1 ->
+                _mutex._i = _i;
                 prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                    _arb._o[0] => n_arb0.pi-
-                    _arb._o[1] => n_arb1.pi-
+                    (: n : 2 :
+                        ~_mutex._o[n]<9> -> o[n]+
+                        _mutex._o[n]<6> -> o[n]-
+                    )
                 }
-            [] LAYOUT ->
+            [] N_NODE > 1 ->
+                n_arb_s::NODE node[1..N_NODE-1]; // node[0] is bare mutex
+                (; n : 1..N_NODE-1 :
+                    node[n].g = g;
+                )
+                _mutex._i[0] = node[1]._po;
+                _mutex._i[1] = node[2]._po;
                 prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                    _arb._o[0]<6> -> n_arb0.pi-
-                    ~_arb._o[0]<9> -> n_arb0.pi+
-                    _arb._o[1]<6> -> n_arb1.pi-
-                    ~_arb._o[1]<9> -> n_arb1.pi+
+                    (: n : 2 :
+                        _mutex._o[n]<6> -> node[n+1].pi-
+                        ~_mutex._o[n]<9> -> node[n+1].pi+
+                    )
                 }
+
+                pint LEAF_BASE_IDX = N/2-1;
+                (; np : 1..LEAF_BASE_IDX-1 :
+                    (; nc : 2 :
+                        node[np]._i[nc] = node[2*np+nc+1]._po;
+                        node[np].o[nc] = node[2*np+nc+1].pi;
+                    )
+                )
+
+                (; np : LEAF_BASE_IDX..N_NODE-1 :
+                    (; nc : 2 :
+                        node[np]._i[nc] = _i[2*(np-LEAF_BASE_IDX)+nc];
+                        node[np].o[nc] = o[2*(np-LEAF_BASE_IDX)+nc];
+                    )
+                )
             ]
         ]
     }
@@ -421,23 +430,46 @@ namespace arbiter {
     template <pint N>
     defproc N_ARB_S_PREQ (globals g; bool i[N], o[N], pi, po) {
         // Standard N-way arbiter with exposed parent request port
-        n_arb_s::N_ARB_<N> n_arb(g,, o, pi,);
-        [ ~LAYOUT ->
+        [ N = 1 ->
+            i[0] = o[0];
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {} // HACK so netgen -B doesn't complain
+        [] N > 1 ->
+            N = (N/2)*2; // assert N power of 2
+            pint N_NODE = N-1;
+
+            n_arb_s::NODE node[N_NODE]; // node[0] is bare mutex
+            (; n : N_NODE :
+                node[n].g = g;
+            )
+
+            node[0].pi = pi;
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                (: n : N :
-                    i[n] => n_arb._i[n]-
-                )
-                n_arb._po => po-
+                node[0]._po<6> -> po-
+                ~node[0]._po<12> -> po+
             }
-        [] LAYOUT ->
+
+            pint LEAF_BASE_IDX = N/2-1;
+            (; np : LEAF_BASE_IDX :
+                (; nc : 2 :
+                    node[np]._i[nc] = node[2*np+nc+1]._po;
+                    node[np].o[nc] = node[2*np+nc+1].pi;
+                )
+            )
+
+            
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                (: n : N :
-                    ~i[n]<9> -> n_arb._i[n]+
-                    i[n]<6> -> n_arb._i[n]-
+                (: np : LEAF_BASE_IDX..N_NODE-1 :
+                    (: nc : 2 :
+                        i[2*(np-LEAF_BASE_IDX)+nc]<6> -> node[np]._i[nc]-
+                        ~i[2*(np-LEAF_BASE_IDX)+nc]<9> -> node[np]._i[nc]+
+                    )
                 )
-                n_arb._po<6> -> po-
-                ~n_arb._po<12> -> po+
             }
+            (; np : LEAF_BASE_IDX..N_NODE-1 :
+                (; nc : 2 :
+                    node[np].o[nc] = o[2*(np-LEAF_BASE_IDX)+nc];
+                )
+            )
         ]
     }
 

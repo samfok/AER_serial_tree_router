@@ -12,7 +12,7 @@ defproc AND (globals g; bool i[N], o) {
     // Implemented as an AND tree with 3 input NANDs and NORs
     [ N = 1 ->
         i[0] = o;
-        prs<g.Vdd, g.GND> {} // HACK so netgen -B doesn't complain
+        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {} // HACK so netgen -B doesn't complain
     [] N = 2 ->
         bool _x01;
         prs<g.Vdd, g.GND> {
@@ -136,7 +136,7 @@ defproc OR (globals g; bool i[N], o) {
     // Implemented as an OR tree with 3 input NANDs and NORs
     [ N = 1 ->
         i[0] = o;
-        prs<g.Vdd, g.GND> {} // HACK so netgen -B doesn't complain
+        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {} // HACK so netgen -B doesn't complain
     [] N = 2 ->
         bool _x01;
         [ ~LAYOUT ->
@@ -333,7 +333,7 @@ template <pint N>
 defproc C_TREE (globals g; bool i[N], o) {
     [ N = 1 ->
         i[0] = o;
-        prs<g.Vdd, g.GND> {} // HACK so netgen -B doesn't complain
+        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {} // HACK so netgen -B doesn't complain
     [] N = 2 -> 
         bool _o;
         prs<g.Vdd, g.GND> {

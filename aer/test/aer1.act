@@ -10,7 +10,7 @@ aer::SOURCE_random_a1of1 src(g,);
 aer::passive_handshaker<1> y(g,,);
 aer::AER_NODATA<M, N, NN> aer(g,,,,);
 
-src.d.a = aer.xo[0];
+src.d.a = aer.xa[0];
 prs<g.Vdd, g.GND> {
     src.d.d => aer._xp[0]-
 }
