@@ -11,9 +11,9 @@ aer::passive_handshaker<1> y(g,,);
 aer::AER_NODATA<M, N, NN> aer(g,,,,);
 aer.xp[0] = x.o[0];
 aer.xa[0] = x.i[0];
-aer.yi[0] = y.o[0];
+aer.ye[0] = y.o[0];
 aer.yp[0] = y.i[0];
 (; nn : 1..NN-1 :
     aer.xp[nn] = g.GND;
-    aer.yi[nn] = g.GND;
+    aer.ye[nn] = g.GND;
 )

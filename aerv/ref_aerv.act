@@ -137,23 +137,59 @@ defproc AERV (globals g; bool pp, pe, cp[Mp4], ce[Mp4]; c1of<4> p; e1of2 syn[N_S
 
 export
 template <pint M, N, NN>
-defproc AERV_NODATA (globals g; bool yi[NN], yp[NN], pp, pe; c1of<N> p) {
-    // receiver that does not send data to neurons
+defproc AERV_NODATA (globals g; bool ye[NN], yp[NN], pp, pe; c1of<N> p) {
+    // receiver that does not send data to targets
+    //     (targets could be synapses or neurons)
+    // M depth of AERV tree
+    // N radix of AERV tree
+    // NN targets = N^M
+
+    pint N_LEAF = NN/N; // = N^(M-1)
+    pint N_NODE = (NN-N) / (N*(N-1)); // = (N^(M-1)-1) / (N-1)
+    // N_LEAF + N_NODE = (N^M-1) / (N-1)
+
+    receiver::LEAF_NODATA<N> leaf[N_LEAF];
+
+    (; n : N_LEAF :
+        leaf[n].g = g;
+        leaf[n].cp = yp[n*N..(n+1)*N-1];
+        leaf[n].ce = ye[n*N..(n+1)*N-1];
+    )
+
     [ M = 1 ->
-        NN = N;
-        receiver::LEAF_NODATA<N> leaf(g, pp, pe, yi, yp, p);
+        NN = N; // assert
+        leaf[0].pp = pp;
+        leaf[0].pe = pe;
+        leaf[0].p = p;
     [] M > 1 ->
-        AERV_NODATA<M-1, N, NN/N> _[N];
-        receiver::NODE<N, N> node(g, pp, pe,,, p,);
-        pint k = NN/N;
-        (; n : N :
-            _[n].g = g;
-            _[n].p = node.c[n];
-            _[n].pp = node.cp[n];
-            _[n].pe = node.ce[n];
-            _[n].yi = yi[n*k..(n+1)*k-1];
-            _[n].yp = yp[n*k..(n+1)*k-1];
+        receiver::NODE<N, N> node[N_NODE];
+        (; n : N_NODE :
+            node[n].g = g;
         )
+        node[0].pe = pe;
+        node[0].pp = pp;
+        node[0].p = p;
+
+        // connect NODEs to LEAFs
+        pint N_LOW_NODE = N_LEAF/N; // NODEs connecting to LEAFs
+        pint NODE_BASE_IDX = N_NODE-N_LOW_NODE;
+        (; node_idx : NODE_BASE_IDX..N_NODE-1 :
+            (; n : N :
+                node[node_idx].ce[n] = leaf[(node_idx-NODE_BASE_IDX)*N+n].pe;
+                node[node_idx].cp[n] = leaf[(node_idx-NODE_BASE_IDX)*N+n].pp;
+                node[node_idx].c[n] = leaf[(node_idx-NODE_BASE_IDX)*N+n].p;
+            )
+        )
+
+        [ M > 2 ->
+            (; np : NODE_BASE_IDX :
+                (; nc : N :
+                    node[np].cp[nc] = node[np*N+nc+1].pp;
+                    node[np].ce[nc] = node[np*N+nc+1].pe;
+                    node[np].c[nc] =  node[np*N+nc+1].p;
+                )
+            )
+        ]
     ]
 }
 
@@ -173,7 +209,7 @@ namespace brain_receiver {
         // wrapper for the deserializer
         pint D = 4; // 1-of-D data
 
-        MERGE_ACK<1> merge_ack(g, xp, xo,);
+        MERGE_ACK<1> merge_ack(g, xp, xe,);
         ::aer::interface::DESERIAL_RING<M, D, true, true> deserial(g,,);
         deserial.x.d = x.d;
         deserial.x.a = merge_ack.ce[0];

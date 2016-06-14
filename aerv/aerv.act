@@ -463,7 +463,7 @@ namespace brain_receiver {
         pint D = 4; // 1-of-D data
         pbool invert_y = true;
 
-        MERGE_ACK<1> merge_ack(g, xp, xo,);
+        MERGE_ACK<1> merge_ack(g, xp, xe,);
         ::aer::interface::DESERIAL_RING<M, D, invert_y, flip> deserial(g,,);
         deserial.x.d = x.d;
         deserial.x.a = merge_ack.ce[0];
