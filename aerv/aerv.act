@@ -6,44 +6,43 @@ namespace aer {
 
 namespace receiver {
     export
-    template <pint F, D>
-    defproc NODE (globals g; bool _pp, _pe, _ce[F], _cp[F]; c1of<D> p, c[F]) {
-        // AERV tree NODE
-        // F fanout (radix)
-        // D 1-of-D data
-        bool u[F], _u[F], uu, _v, __v, pe;
-        c1of<D> _p;
-        [ (~LAYOUT | F < 3 | F > 4) ->
+    template <pint N>
+    defproc NODE (globals g; bool _pp, _pe, _ce[N], _cp[N]; c1of<N> p, c[N]) {
+        // node in AERV tree
+        // N fanout (radix)
+        bool u[N], _u[N], uu, _v, __v, pe;
+        c1of<N> _p;
+        [ ~LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                (: f : F :
-                    u[f] => _u[f]-
+                (: n : N :
+                    u[n] => _u[n]-
                 )
 
-                (| : f : F : ~_u[f]) => uu+
+                (| : n : N : ~_u[n]) => uu+
 
-                ~_pp & ~uu | (| : f : F : ~_ce[f]) => pe+
+                ~_pp & ~uu | (| : n : N : ~_ce[n]) => pe+
 
                 _v => __v-
 
-                (: d : D :
-                    p.d[d] => _p.d[d]-
+                (: n : N :
+                    p.n[n] => _p.n[n]-
                 )
 
-                (: f : F :
-                    ~_p.d[f] & ~__v -> u[f]+
-                    _pp -> u[f]-
+                (: n : N :
+                    ~_p.n[n] & ~__v -> u[n]+
+                    _pp -> u[n]-
                 )
 
-                uu & (& : f : F : _p.d[f]) -> _v-
+                uu & (& : n : N : _p.n[n]) -> _v-
                 ~uu -> _v+
 
-                (: f : F :
-                    __v & u[f] => _cp[f]-
+                (: n : N :
+                    __v & u[n] => _cp[n]-
                 )
 
-                (: f : F :
-                    (: d : D :
-                        ~_p.d[d] & ~_cp[f] => c[f].d[d]+
+                (: np : N :
+                    (: nc : N :
+                        ~_p.n[np] & ~_cp[nc] => c[nc].n[np]+
                     )
                 )
             }
@@ -52,42 +51,42 @@ namespace receiver {
             }
         [] LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                (: f : F :
-                    ~u[f]<9> -> _u[f]+
-                    u[f]<6> -> _u[f]-
+                (: n : N :
+                    ~u[n]<9> -> _u[n]+
+                    u[n]<6> -> _u[n]-
                 )
 
-                (| : f : F : ~_u[f]<12>) -> uu+
-                (& : f : F : _u[f]<15>) -> uu-
+                (| : n : N : ~_u[n]<12>) -> uu+
+                (& : n : N : _u[n]<15>) -> uu-
 
-                ~_pp<27> & ~uu<27> | (| : f : F : ~_ce[f]<27>) -> pe+
-                (_pp<18> | uu<18>) & (& : f : F : _ce[f]<18>) -> pe-
+                ~_pp<27> & ~uu<27> | (| : n : N : ~_ce[n]<27>) -> pe+
+                (_pp<18> | uu<18>) & (& : n : N : _ce[n]<18>) -> pe-
 
                 ~_v<15> -> __v+
                 _v<9> -> __v-
 
-                (: d : D :
-                    ~p.d[d]<12> -> _p.d[d]+
-                    p.d[d]<9> -> _p.d[d]-
+                (: n : N :
+                    ~p.n[n]<12> -> _p.n[n]+
+                    p.n[n]<9> -> _p.n[n]-
                 )
 
-                (: f : F :
-                    ~_p.d[f]<18> & ~__v<18> -> u[f]+
-                    _pp<6> -> u[f]-
+                (: n : N :
+                    ~_p.n[n]<18> & ~__v<18> -> u[n]+
+                    _pp<6> -> u[n]-
                 )
 
-                uu<18> & (& : f : F : _p.d[f]<18>) -> _v-
+                uu<18> & (& : n : N : _p.n[n]<18>) -> _v-
                 ~uu<18> -> _v+
 
-                (: f : F :
-                    ~__v<12> | ~u[f]<12> -> _cp[f]+
-                    __v<15> & u[f]<15> -> _cp[f]-
+                (: n : N :
+                    ~__v<12> | ~u[n]<12> -> _cp[n]+
+                    __v<15> & u[n]<15> -> _cp[n]-
                 )
 
-                (: f : F :
-                    (: d : D :
-                        ~_p.d[d]<18> & ~_cp[f]<18> -> c[f].d[d]+
-                        _p.d[d]<6> | _cp[f]<6> -> c[f].d[d]-
+                (: np : N :
+                    (: nc : N :
+                        ~_p.n[np]<18> & ~_cp[nc]<18> -> c[nc].n[np]+
+                        _p.n[np]<6> | _cp[nc]<6> -> c[nc].n[np]-
                     )
                 )
             }
@@ -99,108 +98,150 @@ namespace receiver {
     }
 
     export
-    defproc LEAF (globals g; bool _pp, _pe, cp[4], ce[4]; c1of<4> p; e1of2 syn[4]; c1of4 mem) {
-        // node in AERV tree
-        pint D = 4; // 1-of-D data
-        pint F = 3; // fanout ports
-        bool __pp, _u[F], uu, _uu, v, _v;
-        e1of2 syn_[2][2];
-        (; c : 2 : (; s : 2 : syn_[c][s] = syn[2*c+s];))
-        c1of2 _syn_d[2][2];
-        c1of4 _mem;
+    template <pint D, N_SYN, N_MEM>
+    defproc LEAF (globals g; bool _pp, _pe; c1of<D> p;
+                  bool cp_mem[N_MEM],
+                  ce_syn[N_SYN], ce_mem[N_MEM];
+                  c1of2 c_syn[N_SYN]; c1of<D> c_mem[N_MEM]) {
+        // AERV tree LEAF supports {synapse, memory} port types
+        // D 1-of-D data
+        // N_SYN synapses
+        // N_MEM memory ports
+        pint SYN_PPORT = D / 2; // synapses per port
+        // synapses receive 1-of-2 data, so multiple synapses can be packed on
+        // a single port
+        pint N_SYN_PORT = N_SYN / SYN_PPORT; // synapse ports
+        pint F = N_SYN_PORT + N_MEM; // fanout
+        [ F > D ->
+            1=0; // assert false
+        ]
+
+        bool __pp, _u_syn[N_SYN_PORT], _u_mem[N_MEM], uu, _uu, v, _v;
+        bool cp_syn[N_SYN_PORT];
+        c1of2 _c_syn[N_SYN];
+        c1of<D> _c_mem[N_MEM];
         [ ~LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                (| : f : F : ~_u[f]) => uu+
+                (|:n:N_SYN_PORT: ~_u_syn[n]) | (|:n:N_MEM: ~_u_mem[n]) => uu+
 
                 uu => _uu-
 
                 __pp & _uu |
-                (|:c:2: cp[c] & (&:s:2: (&:d:2: _syn_d[c][s].d[d]))) | ce[2] => _pe-
+                    (|:n:N_SYN_PORT: cp_syn[n] &
+                        (&:s:SYN_PPORT: (&:d:2: _c_syn[n*SYN_PPORT+s].d[d]))) |
+                    (|:n:N_MEM: ce_mem[n]) => _pe-
 
                 v => _v-
                 
-                (: f : F :
-                    p.d[f] & _v -> _u[f]-
-                    ~__pp -> _u[f]+
+                (: n : N_SYN_PORT :
+                    p.d[n] & _v -> _u_syn[n]-
+                    ~__pp -> _u_syn[n]+
+                    ~_v & ~_u_syn[n] => cp_syn[n]+
+                )
+                (: n : N_MEM :
+                    p.d[n+N_SYN_PORT] & _v -> _u_mem[n]-
+                    ~__pp -> _u_mem[n]+
+                    ~_v & ~_u_mem[n] => cp_mem[n]+
                 )
 
                 ~_uu & (& : f : F : ~p.d[f]) -> v+
                 _uu -> v-
 
-                (: f : F :
-                    ~_v & ~_u[f] => cp[f]+
-                )
-
-                (: c : 2 :
-                    (: s : 2 :
+                (: n : N_SYN_PORT :
+                    (: nn : SYN_PPORT :
                         (: d : 2 :
-                            p.d[2*s+d] & cp[c] & syn_[c][s].e -> _syn_d[c][s].d[d]-
-                            ~g._pReset | ~p.d[2*s+d] & ~syn_[c][s].e -> _syn_d[c][s].d[d]+
+                            p.d[nn*SYN_PPORT+d] & 
+                                cp_syn[n] &
+                                ce_syn[n*SYN_PPORT+nn] -> 
+                                _c_syn[n*SYN_PPORT+nn].d[d]-
+                            ~g._pReset | ~p.d[nn*SYN_PPORT+d] &
+                                ~ce_syn[n*SYN_PPORT+nn] -> 
+                                _c_syn[n*SYN_PPORT+nn].d[d]+
                         )
                     )
                 )
 
-                (: d : D :
-                    p.d[d] & cp[2] => _mem.d[d]-
+                (: n : N_MEM :
+                    (: d : D :
+                        p.d[d] & cp_mem[n] => _c_mem[n].d[d]-
+                    )
                 )
             }
             // inverters for interfaces
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                 _pp => __pp-
 
-                (: c : 2 :
-                    (: s : 2 :
-                        (: d : 2 :
-                            _syn_d[c][s].d[d] => syn_[c][s].d[d]-
-                        )
+                (: n : N_SYN :
+                    (: d : 2 :
+                        _c_syn[n].d[d] => c_syn[n].d[d]-
                     )
                 )
 
-                (: d : D :
-                    _mem.d[d] => mem.d[d]-
+                (: n : N_MEM :
+                    (: d : D :
+                        _c_mem[n].d[d] => c_mem[n].d[d]-
+                    )
                 )
             }
         [] LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                (| : f : F : ~_u[f]<9>) -> uu+
-                (& : f : F : _u[f]<18>) -> uu-
+                (|:n:N_SYN_PORT: ~_u_syn[n]<9>) | (|:n:N_MEM: ~_u_mem[n]<9>) ->
+                    uu+
+                (&:n:N_SYN_PORT: _u_syn[n]<18>) & (&:n:N_MEM: _u_mem[n]<18>) ->
+                    uu-
 
                 ~uu<9> -> _uu+
                 uu<6> -> _uu-
 
                 __pp<12> & _uu<12> |
-                (|:c:2: cp[c]<18> & (&:s:2: (&:d:2: _syn_d[c][s].d[d]<18>))) | ce[2]<6> -> _pe-
+                    (|:n:N_SYN_PORT: cp_syn[n]<18> & (&:s:SYN_PPORT:
+                        (&:d:2: _c_syn[n*SYN_PPORT+s].d[d]<18>))) |
+                    (|:n:N_MEM: ce_mem[n]<6>) -> _pe-
                 (~__pp<27> | ~_uu<27>) &
-                (&:c:2: ~cp[c]<27> | (|:s:2: (|:d:2: ~_syn_d[c][s].d[d]<27>))) & ~ce[2]<27> -> _pe+
+                    (&:n:N_SYN_PORT: ~cp_syn[n]<27> | (|:s:SYN_PPORT:
+                        (|:d:2: ~_c_syn[n*SYN_PPORT+s].d[d]<27>))) &
+                    (&:n:N_MEM: ~ce_mem[n]<27>) -> _pe+
 
                 ~v<9> -> _v+
                 v<6> -> _v-
                 
-                (: f : F :
-                    p.d[f]<12> & _v<12> -> _u[f]-
-                    ~__pp<9> -> _u[f]+
+                (: n : N_SYN_PORT :
+                    p.d[n]<12> & _v<12> -> _u_syn[n]-
+                    ~__pp<9> -> _u_syn[n]+
+
+                    ~_v<18> & ~_u_syn[n]<18> -> cp_syn[n]+
+                    _v<6> | _u_syn[n]<6> -> cp_syn[n]-
+                )
+                (: n : N_MEM :
+                    p.d[n+N_SYN_PORT]<12> & _v<12> -> _u_mem[n]-
+                    ~__pp<9> -> _u_mem[n]+
+
+                    ~_v<18> & ~_u_mem[n]<18> -> cp_mem[n]+
+                    _v<6> | _u_mem[n]<6> -> cp_mem[n]-
                 )
 
                 ~_uu<18> & (& : f : F : ~p.d[f]<18>) -> v+
                 _uu<6> -> v-
 
-                (: f : F :
-                    ~_v<18> & ~_u[f]<18> -> cp[f]+
-                    _v<6> | _u[f]<6> -> cp[f]-
-                )
-
-                (: c : 2 :
-                    (: s : 2 :
+                (: n : N_SYN_PORT :
+                    (: nn : SYN_PPORT :
                         (: d : 2 :
-                            p.d[2*s+d]<18> & cp[c]<18> & syn_[c][s].e<18> -> _syn_d[c][s].d[d]-
-                            ~g._pReset<9> | ~p.d[2*s+d]<18> & ~syn_[c][s].e<18> -> _syn_d[c][s].d[d]+
+                            p.d[nn*SYN_PPORT+d]<18> &
+                                cp_syn[n]<18> &
+                                ce_syn[n*SYN_PPORT+nn]<18> ->
+                                _c_syn[n*SYN_PPORT+nn].d[d]-
+                            ~g._pReset<9> | ~p.d[nn*SYN_PPORT+d]<18> &
+                                ~ce_syn[n*SYN_PPORT+nn]<18> ->
+                                _c_syn[n*SYN_PPORT+nn].d[d]+
                         )
                     )
                 )
 
-                (: d : D :
-                    p.d[d]<6> & cp[2]<6> -> _mem.d[d]-
-                    ~p.d[d]<9> | ~cp[2]<9> -> _mem.d[d]+
+                (: n : N_MEM :
+                    (: d : D :
+                        p.d[d]<6> & cp_mem[n]<6> -> _c_mem[n].d[d]-
+                        ~p.d[d]<9> | ~cp_mem[n]<9> -> _c_mem[n].d[d]+
+                    )
                 )
             }
             // inverters for interfaces
@@ -208,27 +249,21 @@ namespace receiver {
                 _pp<6> -> __pp-
                 ~_pp<9> -> __pp+
 
-                (: c : 2 :
-                    (: s : 2 :
-                        (: d : 2 :
-                            _syn_d[c][s].d[d]<6> -> syn_[c][s].d[d]-
-                            ~_syn_d[c][s].d[d]<9> -> syn_[c][s].d[d]+
-                        )
+                (: n : N_SYN :
+                    (: d : 2 :
+                        _c_syn[n].d[d]<6> -> c_syn[n].d[d]-
+                        ~_c_syn[n].d[d]<9> -> c_syn[n].d[d]+
                     )
                 )
 
-                (: d : D :
-                    _mem.d[d]<6> -> mem.d[d]-
-                    ~_mem.d[d]<9> -> mem.d[d]+
+                (: n : N_MEM :
+                    (: d : D :
+                        _c_mem[n].d[d]<6> -> c_mem[n].d[d]-
+                        ~_c_mem[n].d[d]<9> -> c_mem[n].d[d]+
+                    )
                 )
             }
         ]
-
-        // ground dummy nodes
-        ce[0] = g.GND;
-        ce[1] = g.GND;
-        ce[3] = g.GND;
-        cp[3] = g.GND;
     }
 
     export
@@ -260,9 +295,10 @@ namespace receiver {
         }
     }
 
-    export
-    template <pint D, R; pint S[R], CAP[R]>
-    defproc AMP_WIRES (globals g; bool _pcp, _pce, _cpp, _cpe; c1of<D> pc, cp) {
+    template <pint M, N, L, BASE_IDX, IDXs, Rmax;
+              pint R[M], S[M][Rmax], CAP[M][Rmax]>
+    defproc AMP_WIRES_ (globals g; bool p__cp[L], p__ce[L], c__pp[L], c__pe[L];
+                       c1of<N> p_c[L], c_p[L]) {
         // model the amplifier and wire capacitances internal to the aerv tree
         // D 1-of-D data
         // R repeater inverters
@@ -278,157 +314,234 @@ namespace receiver {
         // | node[1]    -> node[2] | 2 | {3, 10}        | {4, 64}         |
         // | node[2]    -> leaf    | 2 | {3, 10}        | {4, 32}         |
         // ----------------------------------------------------------------
-        // assume min_inv_cap=0.25
-        preal min_inv_cap = 0.25;
+        preal min_inv_cap = 0.25; // assume min_inv_cap=0.25
         
-        preal C[R];
-        (; r : R :
-            C[r] = min_inv_cap * CAP[r];
+        preal C[R[0]];
+        (; r : R[0] :
+            C[r] = min_inv_cap * CAP[0][r];
         )
-        REPEATER_BOOL<R, S, C, 2> _pcp_cpp(g, _pcp, _cpp);
-        REPEATER_BOOL<R, S, C, 2> _cpo_pce(g, _cpe, _pce);
-        REPEATER_c1of<D, R, S, C, 2> pc_cp(g, pc, cp);
-    }
+        REPEATER_BOOL<R[0], S[0][0..R[0]-1], C, 2> p__cp__c__pp[IDXs];
+        REPEATER_BOOL<R[0], S[0][0..R[0]-1], C, 2> c__pe__p__ce[IDXs];
+        REPEATER_c1of<N, R[0], S[0][0..R[0]-1], C, 2> p_c__c_p[IDXs];
+        (; i : IDXs :
+            p__cp__c__pp[i].g = g;
+            p__cp__c__pp[i].i = p__cp[BASE_IDX+i];
+            p__cp__c__pp[i].o = c__pp[BASE_IDX+i];
 
-    export
-    template <pint M, Mp4, N_SYN, N_MEM; pint M0, Rmax, m0; pint R[M0], S[M0][Rmax], CAP[M0][Rmax]>
-    defproc AERV_ (globals g; bool _pp, _pe, cp[Mp4], ce[Mp4]; c1of<4> p; e1of2 syn[N_SYN]; c1of4 mem[N_MEM]) {
-        // utility for AERV
-        // M tree levels
-        // Mp4 = M^4 potential output ports
-        // N_SYN synapses
-        // N_MEM memories
-        // M0 total depth of tree
-        // Rmax max repeaters between levels of the AERV tree
-        // m0 indexes into R, S, CAP
-        // R[M] repeaters between each AERV tree level
-        // S[M][Rmax] repeater sizing between each AERV tree level
-        // CAP[M][Rmax] wire cap driven by repeaters between AERV tree levels
-        pint D = 4; // 1-of-D data
-        pint F = 4; // fanout for intermediate nodes
+            c__pe__p__ce[i].g = g;
+            c__pe__p__ce[i].i = c__pe[BASE_IDX+i];
+            c__pe__p__ce[i].o = p__ce[BASE_IDX+i];
 
-        // connect parent ports to repeaters and wires
-        bool w__pcp = _pp;
-        bool w__pce = _pe;
-        bool w__cpp, w__cpe;
-        c1of<D> w_pc = p; 
-        c1of<D> w_cp;
-        AMP_WIRES<D, R[m0], S[m0][0..R[m0]-1], CAP[m0][0..R[m0]-1]>
-            w(g, w__pcp, w__pce, w__cpp, w__cpe, w_pc, w_cp);
-        [ M = 1 ->
-            N_SYN = 4; // assert
-            N_MEM = 1; // assert
-            Mp4 = 4; // assert
-            m0 = M0-1; //assert
-            LEAF leaf(g, w__cpp, w__cpe, cp, ce, w_cp, syn, mem[0]);
-        [] M > 1 ->
-            N_MEM*4 = N_SYN; // assert
-            pint k = Mp4/4;
-            pint k_syn = N_SYN/4;
-            pint k_mem = N_MEM/4;
-            AERV_<M-1, k, k_syn, k_mem, M0, Rmax, m0+1, R, S, CAP> _[F];
-            (; f : F :
-                _[f].g = g;
-                _[f].cp = cp[f*k..(f+1)*k-1];
-                _[f].ce = ce[f*k..(f+1)*k-1];
-                _[f].syn = syn[f*k_syn..(f+1)*k_syn-1];
-                _[f].mem = mem[f*k_mem..(f+1)*k_mem-1];
-            )
+            p_c__c_p[i].g = g;
+            p_c__c_p[i].i = p_c[BASE_IDX+i];
+            p_c__c_p[i].o = c_p[BASE_IDX+i];
+        )
 
-            NODE<F, D> node(g, w__cpp, w__cpe,,, w_cp,);
-            (; f : F :
-                node._cp[f] = _[f]._pp;
-                _[f]._pe = node._ce[f];
-                node.c[f] = _[f].p;
-            )
+        [ M > 1 ->
+            AMP_WIRES_<M-1, N, L, BASE_IDX+IDXs, IDXs*N, Rmax, R[1..M-1],
+                       S[1..M-1], CAP[1..M-1]> 
+                _(g, p__cp, p__ce, c__pp, c__pe, p_c, c_p);
         ]
     }
 
     export
-    template <pint M, N, NN>
-    defproc AERV_NODATA_ (globals g; bool yi[NN], yp[NN], _pp, _pe; c1of<N> p) {
-        // utility for AERV_NODATA
-        [ M = 1 ->
-            NN = N;
-            LEAF_NODATA<N> leaf(g,,, yi, yp, p);
-            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                _pp => leaf.pp-
-                leaf.pe => _pe-
-            }
-        [] M > 1 ->
-            AERV_NODATA_<M-1, N, NN/N> _[N];
-            NODE<N, N> node(g, _pp, _pe,,, p,);
-            pint k = NN/N;
-            (; n : N :
-                _[n].g = g;
-                _[n].p = node.c[n];
-                _[n]._pp = node._cp[n];
-                _[n]._pe = node._ce[n];
-                _[n].yi = yi[n*k..(n+1)*k-1];
-                _[n].yp = yp[n*k..(n+1)*k-1];
-            )
-        ]
+    template <pint M, N, L>
+    defproc AMP_WIRES (globals g; bool p__cp[L], p__ce[L], c__pp[L], c__pe[L];
+                       c1of<N> p_c[L], c_p[L]) {
+        // model the amplifier and wire capacitances internal to the aerv tree
+        // M depth of AERV tree (max 5)
+        // N radix of AERV tree (N=4 in production)
+        // L links in AERV tree = (N^M-1) / (N-1) = number of LEAFs and NODEs
+        pint Mmax = 5; // max AERV tree depth
+        [M > Mmax -> 0=1;] // assert false
+        pint Rmax = 4; // max repeaters between AERV nodes
+        pint R_ref[Mmax];
+        pint S_ref[Mmax][Rmax], CAP_ref[Mmax][Rmax];
+        // repeaters per stage
+        R_ref = {4, 4, 4, 2, 2};
+        // sizing per repeater per stage
+        S_ref = {{3, 10, 6, 36},
+                 {3, 10, 6, 36},
+                 {3, 10, 6, 36},
+                 {3, 10, 0, 0 },
+                 {3, 10, 0, 0 }};
+        // cap per repeater per stage
+        CAP_ref = {{4, 64, 4, 192},
+                   {4, 64, 4, 192},
+                   {4, 64, 4, 64 },
+                   {4, 64, 0, 0  },
+                   {4, 32, 0, 0  }};
+
+        pint R[M];
+        pint S[M][Rmax], CAP[M][Rmax];
+        pint Mbase = Mmax-M;
+        R = R_ref[Mbase..Mmax-1];
+        S = S_ref[Mbase..Mmax-1];
+        CAP = CAP_ref[Mbase..Mmax-1];
+
+        AMP_WIRES_<M, N, L, 0, 1, Rmax, R, S, CAP> 
+            _(g, p__cp, p__ce, c__pp, c__pe, p_c, c_p);
     }
 } // namespace receiver
 
 export
-template <pint M, Mp4, N_SYN, N_MEM>
-defproc AERV (globals g; bool pp, pe, cp[Mp4], ce[Mp4]; c1of<4> p; e1of2 syn[N_SYN]; c1of4 mem[N_MEM]) {
-    // Receiver receives data from datapath and sends spikes to neuron and data to memory
-    // M tree levels (max 5)
-    // Mp4 = M^4 potential output ports
+template <pint M, N, pNM, N_SYN, N_MEM>
+defproc AERV (globals g; bool pp, pe; c1of<N> p;
+              e1of2 syn[N_SYN]; 
+              bool yp_mem[N_MEM], ye_mem[N_MEM]; c1of<N> mem[N_MEM]) {
+    // receiver capable of sending data to neuron
+    // M tree levels
+    // N 1-of-N data and fanout for intermediate nodes
+    // pNM = N^M potential LEAF output ports
     // N_SYN synapses
     // N_MEM memories
-    pint Mmax = 5; // max AERV tree depth
-    pint Rmax = 4; // max repeaters between AERV nodes
-    pint R[Mmax];
-    pint S[Mmax][Rmax];
-    pint CAP[Mmax][Rmax];
-    // repeaters per stage
-    R = {4, 4, 4, 2, 2};
-    // sizing per repeater per stage
-    S = {{3, 10, 6, 36},
-         {3, 10, 6, 36},
-         {3, 10, 6, 36},
-         {3, 10, 0, 0 },
-         {3, 10, 0, 0 }};
-    // cap per repeater per stage
-    CAP = {{4, 64, 4, 192},
-           {4, 64, 4, 192},
-           {4, 64, 4, 64 },
-           {4, 64, 0, 0  },
-           {4, 32, 0, 0  }};
+    pint SYN_PPORT = N/2;
+    pint N_SYN_PORT = N_SYN/SYN_PPORT;
+    [ (N_SYN_PORT + N_MEM) > pNM ->
+        0=1; // assert false
+    ]
 
-    [M > Mmax -> 0=1;] // assert false
-    pint ms = Mmax-M; // start idx
+    pint N_LEAF = pNM/N; // = N^(M-1)
+    pint N_NODE = (pNM-N) / (N*(N-1)); // = (N^(M-1)-1) / (N-1)
+    pint N_LINK = N_LEAF + N_NODE; // = (N^M-1) / (N-1)
 
-    bool aerv__pp;
-    bool aerv__pe;
-    receiver::AERV_<M, Mp4, N_SYN, N_MEM, M, Rmax, 0,
-                    R[ms..Mmax-1], S[ms..Mmax-1], CAP[ms..Mmax-1]>
-        _(g, aerv__pp, aerv__pe, cp, ce, p, syn, mem);
+    pint SYN_PER_LEAF = N_SYN/N_LEAF;
+    pint MEM_PER_LEAF = N_MEM/N_LEAF;
+    receiver::LEAF<N, N_SYN/N_LEAF, N_MEM/N_LEAF> leaf[N_LEAF];
+    (; n : N_LEAF :
+        leaf[n].g = g;
+        (; ns : SYN_PER_LEAF :
+            leaf[n].ce_syn[ns] = syn[n*SYN_PER_LEAF+ns].e;
+            leaf[n].c_syn[ns] = syn[n*SYN_PER_LEAF+ns].m;
+        )
+        (; nm : MEM_PER_LEAF :
+            leaf[n].cp_mem[nm] = yp_mem[n*MEM_PER_LEAF+nm];
+            leaf[n].ce_mem[nm] = ye_mem[n*MEM_PER_LEAF+nm];
+            leaf[n].c_mem[nm] = mem[n*MEM_PER_LEAF+nm];
+        )
+    )
+
+    receiver::AMP_WIRES<M, N, N_LINK> repeater_wires(g,,,,,,);
+    repeater_wires.p_c[0] = p;
     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-        ~pp<9> -> aerv__pp+
-        pp<6> -> aerv__pp-
-        ~aerv__pe<9> -> pe+
-        aerv__pe<6> -> pe-
+        // convert between active low/high inside/outside of array
+        ~pp<9> -> repeater_wires.p__cp[0]+
+        pp<6> -> repeater_wires.p__cp[0]-
+
+        ~repeater_wires.p__ce[0]<9> -> pe+
+        repeater_wires.p__ce[0]<6> -> pe-
     }
+
+    [ M = 1 ->
+        pNM = N; // assert
+        leaf[0]._pp = repeater_wires.c__pp[0];
+        leaf[0]._pe = repeater_wires.c__pe[0];
+        leaf[0].p = repeater_wires.c_p[0];
+    [] M > 1 ->
+        receiver::NODE<N> node[N_NODE];
+        (; n : N_NODE :
+            node[n].g = g;
+        )
+        node[0]._pp = repeater_wires.c__pp[0];
+        node[0]._pe = repeater_wires.c__pe[0];
+        node[0].p = repeater_wires.c_p[0];
+
+        // connect NODEs to LEAFs
+        pint N_LOW_NODE = N_LEAF/N; // NODEs connecting to LEAFs
+        pint NODE_BASE_IDX = N_NODE-N_LOW_NODE;
+        (; node_idx : NODE_BASE_IDX..N_NODE-1 :
+            (; n : N :
+                node[node_idx]._ce[n] = repeater_wires.p__ce[node_idx*N+n+1];
+                node[node_idx]._cp[n] = repeater_wires.p__cp[node_idx*N+n+1];
+                node[node_idx].c[n] = repeater_wires.p_c[node_idx*N+n+1];
+
+                repeater_wires.c__pe[node_idx*N+n+1] =
+                    leaf[(node_idx-NODE_BASE_IDX)*N+n]._pe;
+                repeater_wires.c__pp[node_idx*N+n+1] =
+                    leaf[(node_idx-NODE_BASE_IDX)*N+n]._pp;
+                repeater_wires.c_p[node_idx*N+n+1] =
+                    leaf[(node_idx-NODE_BASE_IDX)*N+n].p;
+            )
+        )
+
+        // connect NODEs to NODEs
+        [ M > 2 ->
+            (; np : NODE_BASE_IDX :
+                (; nc : N :
+                    node[np]._ce[nc] = repeater_wires.p__ce[np*N+nc+1];
+                    node[np]._cp[nc] = repeater_wires.p__cp[np*N+nc+1];
+                    node[np].c[nc] =  repeater_wires.p_c[np*N+nc+1];
+
+                    repeater_wires.c__pe[np*N+nc+1] =
+                        node[np*N+nc+1]._pe;
+                    repeater_wires.c__pp[np*N+nc+1] =
+                        node[np*N+nc+1]._pp;
+                    repeater_wires.c_p[np*N+nc+1] =
+                        node[np*N+nc+1].p;
+                )
+            )
+        ]
+    ]
 }
 
 export
 template <pint M, N, NN>
-defproc AERV_NODATA (globals g; bool yi[NN], yp[NN], pp, pe; c1of<N> p) {
-    // basic receiver that only sends sppkes to neurons
-    // single sppke type, no excitatory/inhibitory sppke types 
+defproc AERV_NODATA (globals g; bool ye[NN], yp[NN], pp, pe; c1of<N> p) {
+    // receiver that does not send data to targets
+    //     (targets could be synapses or neurons)
+    // M depth of AERV tree
+    // N radix of AERV tree
+    // NN targets = N^M
+    pint N_LEAF = NN/N; // = N^(M-1)
+    pint N_NODE = (NN-N) / (N*(N-1)); // = (N^(M-1)-1) / (N-1)
+    // N_LEAF + N_NODE = (N^M-1) / (N-1)
+
+    receiver::LEAF_NODATA<N> leaf[N_LEAF];
+
+    (; n : N_LEAF :
+        leaf[n].g = g;
+        leaf[n].cp = yp[n*N..(n+1)*N-1];
+        leaf[n].ce = ye[n*N..(n+1)*N-1];
+    )
+
     [ M = 1 ->
-        NN = N;
-        receiver::LEAF_NODATA<N> leaf(g, pp, pe, yi, yp, p);
+        NN = N; // assert
+        leaf[0].pe = pe;
+        leaf[0].pp = pp;
+        leaf[0].p = p;
     [] M > 1 ->
-        receiver::AERV_NODATA_<M, N, NN> _(g, yi, yp,,, p);
+        receiver::NODE<N> node[N_NODE];
+        (; n : N_NODE :
+            node[n].g = g;
+        )
         prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-            pp => _._pp-
-            _._pe => pe-
+            pp => node[0]._pp-
+            node[0]._pe => pe-
         }
+        node[0].p = p;
+
+        // connect NODEs to LEAFs
+        pint N_LOW_NODE = N_LEAF/N; // NODEs connecting to LEAFs
+        pint NODE_BASE_IDX = N_NODE-N_LOW_NODE;
+        (; node_idx : NODE_BASE_IDX..N_NODE-1 :
+            (; n : N :
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+                    leaf[(node_idx-NODE_BASE_IDX)*N+n].pe => node[node_idx]._ce[n]-
+                    node[node_idx]._cp[n] => leaf[(node_idx-NODE_BASE_IDX)*N+n].pp-
+                }
+                node[node_idx].c[n] = leaf[(node_idx-NODE_BASE_IDX)*N+n].p;
+            )
+        )
+
+        [ M > 2 ->
+            (; np : NODE_BASE_IDX :
+                (; nc : N :
+                    node[np]._cp[nc] = node[np*N+nc+1]._pp;
+                    node[np]._ce[nc] = node[np*N+nc+1]._pe;
+                    node[np].c[nc] =  node[np*N+nc+1].p;
+                )
+            )
+        ]
     ]
 }
 
@@ -457,11 +570,11 @@ namespace brain_receiver {
     }
 
     export
-    template <pint M; pbool flip>
-    defproc DESERIALIZER (globals g; bool xp, xe; c1of4 x; eMx1of4<M> _y) {
+    template <pint M, D>
+    defproc DESERIALIZER (globals g; bool xp, xe; c1of<D> x; eMx1ofN<M, D> _y) {
         // wrapper for the deserializer
-        pint D = 4; // 1-of-D data
         pbool invert_y = true;
+        pbool flip = true;
 
         MERGE_ACK<1> merge_ack(g, xp, xe,);
         ::aer::interface::DESERIAL_RING<M, D, invert_y, flip> deserial(g,,);
@@ -519,15 +632,15 @@ namespace brain_receiver {
 } // namespace brain_receiver
 
 export
-template <pint M, Mp4, M_SPK, M_MEM, N_SYN, N_MEM; pbool flip_mem_out>
+template <pint M, p4M, M_SPK, M_MEM, N_SYN, N_MEM>
 defproc BRAIN_AERV (globals g; eMx1of4<M_SPK> x_spk; 
                     eMx1of4<M_MEM> x_mem;
                     a1of2 y_syn[N_SYN]; eMx1of4<M_MEM-M> _y_mem[N_MEM]) {
     // braindrop / brainstorm receiver system
     // M tree depth
     //     M = 5 (in production)
-    // Mp4 potential ports
-    //     Mp4 = M^4
+    // p4M potential ports
+    //     p4M = 4^M
     // M_SPK packet length of spike to deliver to synapse.
     //     M_SPK = M + 1
     //     M_SPK = 6 (in production)
@@ -540,8 +653,7 @@ defproc BRAIN_AERV (globals g; eMx1of4<M_SPK> x_spk;
     // N_MEM configuration memories
     //     N_MEM = 4^(M-1)
     //     N_MEM = 256 (in production)
-    // flip_mem_out flip memory output word order
-    pint D = 4;
+    pint D = 4; // 1-of-D data
     N_MEM*4 = N_SYN; // assert
 
     interface::SERIAL_RING<M_SPK, D> serial_spk(g,,,,);
@@ -570,16 +682,21 @@ defproc BRAIN_AERV (globals g; eMx1of4<M_SPK> x_spk;
     bool aerv_pe = merge.yi;
     c1of<D> aerv_p = merge.y;
 
-    brain_receiver::DESERIALIZER<M_MEM-M, flip_mem_out> mem_deserial[N_MEM];
-    bool aerv_cp[Mp4];
-    bool aerv_ce[Mp4];
-    c1of4 aerv_mem[N_MEM];
+    brain_receiver::DESERIALIZER<M_MEM-M, D> mem_deserial[N_MEM];
+    bool aerv_yp_mem[N_MEM];
+    bool aerv_ye_mem[N_MEM];
+    c1of<D> aerv_mem[N_MEM];
     (; n : N_MEM :
         mem_deserial[n].g = g;
-        mem_deserial[n].xp = aerv_cp[n*4+2]; // connect deserial to aerv
-        mem_deserial[n].xe = aerv_ce[n*4+2];
+        // connect deserial to aerv
+        mem_deserial[n].xp = aerv_yp_mem[n];
+        mem_deserial[n].xe = aerv_ye_mem[n];
         mem_deserial[n].x = aerv_mem[n];
-        mem_deserial[n]._y = _y_mem[n]; // connect deserial to memory
+        // connect deserial to memory
+        (; m : M_MEM-M :
+            mem_deserial[n]._y.m[m].d = _y_mem[n].m[m].d;
+        )
+        mem_deserial[n]._y.e = _y_mem[n].e;
     )
     
     brain_receiver::HALF_BUFFER buf_syn[N_SYN]; // buffer synapse spikes
@@ -590,8 +707,8 @@ defproc BRAIN_AERV (globals g; eMx1of4<M_SPK> x_spk;
         buf_syn[n].y = y_syn[n]; // connect buf_syn to synapse
     )
 
-    AERV<M, Mp4, N_SYN, N_MEM> 
-        aerv(g, aerv_pp, aerv_pe, aerv_cp, aerv_ce, aerv_p, aerv_syn, aerv_mem);
+    AERV<M, D, p4M, N_SYN, N_MEM> aerv(
+        g, aerv_pp, aerv_pe, aerv_p, aerv_syn, aerv_yp_mem, aerv_ye_mem, aerv_mem);
 }
 
 } // namespace aer

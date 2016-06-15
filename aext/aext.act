@@ -257,7 +257,6 @@ namespace transmitter {
         // M depth of AEXT tree (max 6)
         // N radix of AEXT tree (N=4 in production)
         // L links in AEXT tree = (N^M-1) / (N-1) = number of LEAFs and NODEs
-
         pint Mmax = 6; // max AEXT tree depth
         [M > Mmax -> 0=1;] // assert false
         pint Rmax = 4; // max repeaters between AEXT nodes
@@ -362,12 +361,16 @@ defproc AEXT (globals g; bool _xp[NN], xa[NN], pe, pp; c1of<N> p) {
                 node[node_idx]._cp[n] = repeater_wires.p_cp[node_idx*N+n+1];
                 node[node_idx]._c[n] = repeater_wires.p_c[node_idx*N+n+1];
 
-                repeater_wires.c_pe[node_idx*N+n+1] = leaf[(node_idx-NODE_BASE_IDX)*N+n].pe;
-                repeater_wires.c_pp[node_idx*N+n+1] = leaf[(node_idx-NODE_BASE_IDX)*N+n]._pp;
-                repeater_wires.c_p[node_idx*N+n+1] = leaf[(node_idx-NODE_BASE_IDX)*N+n]._p;
+                repeater_wires.c_pe[node_idx*N+n+1] =
+                    leaf[(node_idx-NODE_BASE_IDX)*N+n].pe;
+                repeater_wires.c_pp[node_idx*N+n+1] =
+                    leaf[(node_idx-NODE_BASE_IDX)*N+n]._pp;
+                repeater_wires.c_p[node_idx*N+n+1] =
+                    leaf[(node_idx-NODE_BASE_IDX)*N+n]._p;
             )
         )
 
+        // connect NODEs to NODEs
         [ M > 2 ->
             (; np : NODE_BASE_IDX :
                 (; nc : N :
