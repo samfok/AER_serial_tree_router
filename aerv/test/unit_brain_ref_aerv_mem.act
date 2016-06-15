@@ -2,10 +2,10 @@
 import "aer/aerv/ref_aerv.act";
 
 pint M     = 3;
-pint Mp4   = 64; // 4**M
+pint p4M   = 64; // 4**M
 pint M_SPK = M+1;
 pint M_MEM = M+4;
-pint N_SYN = Mp4;
+pint N_SYN = p4M;
 pint N_MEM = N_SYN/4;
 pint D     = 4;
 
@@ -41,5 +41,5 @@ aer::eMx1of2<2*M_MEM> mem_src;
 )
 aer::eMx1of2_to_eMx1of4<2*M_MEM, M_MEM> mem_src_(g, mem_src,);
 
-aer::BRAIN_AERV<M, Mp4, M_SPK, M_MEM, N_SYN, N_MEM> aerv(
+aer::BRAIN_AERV<M, p4M, M_SPK, M_MEM, N_SYN, N_MEM> aerv(
     g, spk_src, mem_src_.y, y_syn, y_mem);
