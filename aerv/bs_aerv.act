@@ -8,31 +8,26 @@ import "core/serializer/AERSerializer.act";
 import "aer/lib/compat_bs.act";
 
 export
-template <pint M_1of2, M_1of4, Mp4, M_SPK_1of2, M_SPK_1of4, M_MEM_1of2, M_MEM_1of4, N_SYN, N_MEM; pbool flip_mem_out>
+template <pint M_1of2, M_1of4, p4M, M_SPK_1of2, M_SPK_1of4, M_MEM_1of2, M_MEM_1of4, N_SYN, N_MEM>
 defproc BS_AERV (aer::globals g; aer::eMx1of2<M_SPK_1of2> x_spk; 
                     aer::eMx1of2<M_MEM_1of2> x_mem;
                     aer::a1of2 y_syn[N_SYN]; aer::eMx1of4<M_MEM_1of4-M_1of4> _y_mem[N_MEM]) {
     // modified braindrop / brainstorm receiver system that uses
     // the serializer defined in the brainstorm repository
     // M tree depth
-    //     M_1of4 = 5 (in production)
-    // Mp4 potential ports
-    //     Mp4 = M^4
+    //     M_1of4 = 5 in production
+    // p4M potential ports
+    //     p4M = 4^M
     // M_SPK packet length of spike to deliver to synapse.
-    //     M_SPK_1of4 = M_1of4+1
-    //     M_SPK_1of2 = 2*M_1of4 + 2
-    //     M_SPK_1of2 = 12 (in production)
+    //     M_SPK_1of4 = M_1of4+1 = 6 in production
+    //     M_SPK_1of2 = 12 in production
     // M_MEM packet length to write config memory
-    //     M_MEM_1of4 = M_1of4 + memory_pacekt_1of4_length
-    //     M_MEM_1of2 = 2*M_1of4 + 2 * memory_packet_1of4_length
-    //     M_MEM_1of2 = 18 (in production)
+    //     M_MEM_1of4 = M_1of4 + memory_pacekt_1of4_length = 9 in production
+    //     M_MEM_1of2 = 18 in production
     // N_SYN synapses
-    //     N_SYN = 4^M_1of4
-    //     N_SYN = 1024 (in production)
+    //     N_SYN = 4^M_1of4 = 1024 in production
     // N_MEM configuration memories
-    //     N_MEM = 4^(M_1of4-1)
-    //     N_MEM = 256 (in production)
-    // flip_mem_out flip memory output word order
+    //     N_MEM = 4^(M_1of4-1) = 256 in production
     M_1of4*2 = M_1of2; // assert
     M_SPK_1of4*2 = M_SPK_1of2; //assert
     M_MEM_1of4*2 = M_MEM_1of2; // assert
@@ -62,19 +57,24 @@ defproc BS_AERV (aer::globals g; aer::eMx1of2<M_SPK_1of2> x_spk;
 
     aer::interface::SERIAL_MERGE<2, D> merge(g, merge_xp, merge_xo,,, merge_x,);
     bool aerv_pp = merge.yp;
-    bool aerv_po = merge.yi;
+    bool aerv_pe = merge.yi;
     aer::c1of<D> aerv_p = merge.y;
     
-    aer::brain_receiver::DESERIALIZER<M_MEM_1of4-M_1of4, flip_mem_out> mem_deserial[N_MEM];
-    bool aerv_cp[Mp4];
-    bool aerv_ci[Mp4];
-    aer::c1of4 aerv_mem[N_MEM];
+    aer::brain_receiver::DESERIALIZER<M_MEM_1of4-M_1of4, D> mem_deserial[N_MEM];
+    bool aerv_yp_mem[N_MEM];
+    bool aerv_ye_mem[N_MEM];
+    aer::c1of<D> aerv_mem[N_MEM];
     (; n : N_MEM :
         mem_deserial[n].g = g;
-        mem_deserial[n].xp = aerv_cp[n*4+2]; // connect deserial to aerv
-        mem_deserial[n].xo = aerv_ci[n*4+2];
+        // connect deserial to aerv
+        mem_deserial[n].xp = aerv_yp_mem[n];
+        mem_deserial[n].xe = aerv_ye_mem[n];
         mem_deserial[n].x = aerv_mem[n];
-        mem_deserial[n]._y = _y_mem[n]; // connect deserial to memory
+        // connect deserial to memory
+        (; m : M_MEM_1of4-M_1of4 :
+            mem_deserial[n]._y.m[m].d = _y_mem[n].m[m].d;
+        )
+        mem_deserial[n]._y.e = _y_mem[n].e;
     )
 
     aer::brain_receiver::HALF_BUFFER buf_syn[N_SYN]; // buffer synapse spikes
@@ -85,6 +85,6 @@ defproc BS_AERV (aer::globals g; aer::eMx1of2<M_SPK_1of2> x_spk;
         buf_syn[n].y = y_syn[n]; // connect buf_syn to synapse
     )
 
-    aer::AERV<M_1of4, Mp4, N_SYN, N_MEM> aerv(
-        g, aerv_pp, aerv_po, aerv_cp, aerv_ci, aerv_p, aerv_syn, aerv_mem);
+    aer::AERV<M_1of4, D, p4M, N_SYN, N_MEM> aerv(
+        g, aerv_pp, aerv_pe, aerv_p, aerv_syn, aerv_yp_mem, aerv_ye_mem, aerv_mem);
 }

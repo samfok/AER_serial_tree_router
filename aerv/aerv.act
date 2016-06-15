@@ -638,21 +638,17 @@ defproc BRAIN_AERV (globals g; eMx1of4<M_SPK> x_spk;
                     a1of2 y_syn[N_SYN]; eMx1of4<M_MEM-M> _y_mem[N_MEM]) {
     // braindrop / brainstorm receiver system
     // M tree depth
-    //     M = 5 (in production)
+    //     M = 5 in production
     // p4M potential ports
     //     p4M = 4^M
     // M_SPK packet length of spike to deliver to synapse.
-    //     M_SPK = M + 1
-    //     M_SPK = 6 (in production)
+    //     M_SPK = M + 1 = 6 in production
     // M_MEM packet length to write config memory
-    //     M_MEM = M + memory packet length
-    //     M_MEM = 9 (in production)
+    //     M_MEM = M + memory packet length = 9 in production
     // N_SYN synapses
-    //     N_SYN = 4^M
-    //     N_SYN = 1024 (in production)
+    //     N_SYN = 4^M = 1024 in production
     // N_MEM configuration memories
-    //     N_MEM = 4^(M-1)
-    //     N_MEM = 256 (in production)
+    //     N_MEM = 4^(M-1) = 256 in production
     pint D = 4; // 1-of-D data
     N_MEM*4 = N_SYN; // assert
 
