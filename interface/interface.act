@@ -10,22 +10,22 @@ namespace aer {
 namespace interface {
     export
     template <pint N>
-    defproc OUT_a1ofN (globals g; bool xp, xo; c1of<N> x; a1of<N> y) {
+    defproc OUT_a1ofN (globals g; bool xp, xe; c1of<N> x; a1of<N> y) {
         // convert AEXT/AERV serial protocol to standard a1ofN channel
         bool _xp;
         x.d = y.d;
         [ ~LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                 xp => _xp-
-                ~_xp & ~y.a => xo+
+                ~_xp & ~y.a => xe+
             }
         [] LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
                 ~xp<12> -> _xp+
                 xp<9> -> _xp-
 
-                ~_xp<27> & ~y.a<27> -> xo+
-                _xp<16> | y.a<16> -> xo-
+                ~_xp<27> & ~y.a<27> -> xe+
+                _xp<16> | y.a<16> -> xe-
             }
         ]
     }
@@ -377,12 +377,12 @@ namespace interface {
 
     export
     template <pint M, N>
-    defproc SERIAL_RING (globals g; eMx1ofN<M, N> x; bool yi, yp; c1of<N> y) {
+    defproc SERIAL_RING (globals g; eMx1ofN<M, N> x; bool ye, yp; c1of<N> y) {
         // convert eMx1ofN protocol to AEXT/AERV serial with ring
         // highest order in word in input is first word in output
         bool _s = x.e;
         serial_ring::RING<M, N> ring(g,, _s,,);
-        serial_ring::SEQ<N, M> seq(g,, ring._si, yi, yp, ring._y, y);
+        serial_ring::SEQ<N, M> seq(g,, ring._si, ye, yp, ring._y, y);
         (; m : M :
             ring.x[m] = x.m[M-1-m];
         )
@@ -400,11 +400,11 @@ namespace interface {
 
     export
     template <pint M, N>
-    defproc SERIAL_MERGE (globals g; bool xp[M], xo[M], yi, yp; c1of<N> x[M], y) {
+    defproc SERIAL_MERGE (globals g; bool xp[M], xe[M], ye, yp; c1of<N> x[M], y) {
         // merges aext/aerv protocol serial streams
         // M client streams to merge
         // N 1-of-N data
-        ::aer::arbiter::N_ARB_S_PREQ<M> arb_req(g, xp, xo, yi, yp);
+        ::aer::arbiter::N_ARB_S_PREQ<M> arb_req(g, xp, xe, ye, yp);
         c1of<N> b;
         [ ~LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {

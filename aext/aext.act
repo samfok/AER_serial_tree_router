@@ -387,6 +387,67 @@ defproc AEXT (globals g; bool _xp[NN], xa[NN], pe, pp; c1of<N> p) {
     ]
 }
 
+export
+template <pint M, p4M>
+defproc AEXT_TO_TILE (globals g;
+                      bool _cp[p4M/16], ce[p4M/16]; c1of<4> _c[p4M/16];
+                      bool pe, pp; c1of<4> p) {
+    // AEXT tree above the TILE (in logic space)
+    // contains all but the lowest level intermediate NODEs
+    // M tree levels (require M>=2)
+    // p4M = 4^M neurons
+    [ M < 2 ->
+        0=1; // assert false
+    ]
+    pint N = 4; // required for TILE
+    pint N_NODE = (p4M/N/N-1) / (N-1); // = (N^(M-2)-1) / (N-1)
+
+    [ M = 2 ->
+        p4M = 4*N; // assert
+        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+            _cp[0] => pp-
+            (: n : N :
+                _c[0].d[n] => p.d[n]-
+            )
+        }
+        ce[0] = pe;
+    [] M > 2 ->
+        transmitter::NODE<N> node[N_NODE];
+        (; n : N_NODE :
+            node[n].g = g;
+        )
+        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+            node[0]._pp => pp-
+            (: n : N :
+                node[0]._p.d[n] => p.d[n]-
+            )
+        }
+        node[0].pe = pe;
+
+        // connect NODEs to child ports
+        pint N_LOW_NODE = p4M/N/N/N; // NODEs connecting to LEAFs
+        pint NODE_BASE_IDX = N_NODE-N_LOW_NODE;
+        (; node_idx : NODE_BASE_IDX..N_NODE-1 :
+            (; n : N :
+                node[node_idx].ce[n] = ce[(node_idx-NODE_BASE_IDX)*N+n];
+                node[node_idx]._cp[n] = _cp[(node_idx-NODE_BASE_IDX)*N+n];
+                node[node_idx]._c[n] = _c[(node_idx-NODE_BASE_IDX)*N+n];
+            )
+        )
+
+        // connect NODEs to NODEs
+        [ M > 2 ->
+            (; np : NODE_BASE_IDX :
+                (; nc : N :
+                    node[np]._cp[nc] = node[np*N+nc+1]._pp;
+                    node[np].ce[nc] = node[np*N+nc+1].pe;
+                    node[np]._c[nc] =  node[np*N+nc+1]._p;
+                )
+            )
+        ]
+    ]
+}
+
 namespace brain_transmitter {
     export
     template <pint NN>

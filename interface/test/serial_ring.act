@@ -7,4 +7,4 @@ pint N=2;
 aer::globals g;
 aer::SOURCE_random_eMx1ofN<M, N> src(g,);
 aer::interface::SERIAL_RING<M, N> serial(g, src.d,,,);
-aer::SINK_SERIAL<N> snk(g, serial.yp, serial.yi, serial.y);
+aer::SINK_SERIAL<N> snk(g, serial.yp, serial.ye, serial.y);

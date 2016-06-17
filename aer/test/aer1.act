@@ -14,9 +14,9 @@ src.d.a = aer.xa[0];
 prs<g.Vdd, g.GND> {
     src.d.d => aer._xp[0]-
 }
-aer.yi[0] = y.o[0];
+aer.ye[0] = y.o[0];
 aer.yp[0] = y.i[0];
 (; nn : 1..NN-1 :
     aer._xp[nn] = g.Vdd;
-    aer.yi[nn] = g.GND;
+    aer.ye[nn] = g.GND;
 )

@@ -130,12 +130,12 @@ namespace interface {
 
     export
     template <pint M, N>
-    defproc SERIAL_RING (globals g; eMx1ofN<M, N> x; bool yi, yp; c1of<N> y) {
+    defproc SERIAL_RING (globals g; eMx1ofN<M, N> x; bool ye, yp; c1of<N> y) {
         // convert eMx1ofN protocol to AEXT/AERV serial with ring
         // highest order in word in input is first word in output
         bool s = x.e;
         serial_ring::RING<M, N> ring(g,,,,);
-        serial_ring::SEQ<N> seq(g, s, ring.si, yi, yp, ring.y, y);
+        serial_ring::SEQ<N> seq(g, s, ring.si, ye, yp, ring.y, y);
         (; m : M :
             ring.x[m] = x.m[M-1-m];
         )
@@ -146,11 +146,11 @@ namespace interface {
 
     export
     template <pint M, N>
-    defproc SERIAL_MERGE (globals g; bool xp[M], xo[M], yi, yp; c1of<N> x[M], y) {
+    defproc SERIAL_MERGE (globals g; bool xp[M], xe[M], ye, yp; c1of<N> x[M], y) {
         // merges aext/aerv protocol serial streams
         // M client streams to merge
         // N 1-of-N data
-        ::aer::arbiter::N_ARB_S_PREQ<M> arb_req(g, xp, xo, yi, yp);
+        ::aer::arbiter::N_ARB_S_PREQ<M> arb_req(g, xp, xe, ye, yp);
         prs<g.Vdd, g.GND> {
             (: n : N :
                 (| : m : M : x[m].d[n]) => y.d[n]+
