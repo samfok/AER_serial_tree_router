@@ -9,18 +9,11 @@ aer::globals g;
 bool Reset = g.sReset;
 
 aer::e1of<NN> src;
-aer::eMx1of4<M> snk;
+aer::eMx1ofN<M, N> snk;
 
-aer::AEXT<M, N, NN> aext(g, src.d,,,,);
-aer::interface::OUT_a1ofN<N> out(g, aext.pp, aext.pe, aext.p,);
-aer::interface::DESERIAL_RING<M, N, false, true> deserial(g, out.y,);
-aer::SINK_eMx1ofN<M, N> snk_(g, deserial.y);
+aer::BRAIN_AEXT<M, N, NN> aext(g, src.d,, snk);
+aer::SINK_eMx1ofN<M, N> snk_(g, snk);
 
 prs<g.Vdd, g.GND> {
     (| : nn : NN : aext.xa[nn]) => src.e-
 }
-
-deserial.y.e = snk.e;
-(; m : M :
-    deserial.y.m[m].d = snk.m[m].d;
-)

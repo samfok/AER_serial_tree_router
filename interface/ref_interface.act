@@ -10,11 +10,11 @@ namespace aer {
 namespace interface {
     export
     template <pint N | pint M>
-    defproc OUT_a1ofN (globals g; bool xp, xo; c1of<N> x; a1of<N> y) {
+    defproc OUT_a1ofN (globals g; bool xp, xe; c1of<N> x; a1of<N> y) {
         // convert AEXT/AERV serial protocol to standard a1ofN channel
         x.d = y.d;
         prs {
-            xp & ~y.a => xo+
+            xp & ~y.a => xe+
         }
     }
 

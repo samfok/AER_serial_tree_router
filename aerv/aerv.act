@@ -587,44 +587,53 @@ namespace brain_receiver {
     }
 
     export
-    defproc HALF_BUFFER (globals g; e1of2 x; a1of2 y) {
+    template <pint N>
+    defproc HALF_BUFFER (globals g; e1of2 x[N]; a1of2 y[N]) {
         // prevents the synapse from holding up the receiver tree
         // wchb providing a half cycle of buffering
         pint D = 2; // for 1of2
-        bool ye;
-        c1of2 _y;
-        c1of2 __y = y.m;
+        bool ye[N];
+        c1of2 _y[N];
+        c1of2 __y[N];
+        (; n : N :
+            __y[n] = y[n].m;
+        )
         [ ~LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                y.a => ye-
+                (: n : N :
+                    y[n].a => ye[n]-
 
-                (& : d : D : ~y.d[d]) => x.e+
+                    (& : d : D : ~y[n].d[d]) => x[n].e+
 
-                (: d : D :
-                    x.d[d] & ye -> _y.d[d]-
-                    ~g._pReset | ~x.d[d] & ~ye -> _y.d[d]+
-                )
+                    (: d : D :
+                        x[n].d[d] & ye[n] -> _y[n].d[d]-
+                        ~g._pReset | ~x[n].d[d] & ~ye[n] -> _y[n].d[d]+
+                    )
 
-                (: d : D :
-                    _y.d[d] => __y.d[d]-
+                    (: d : D :
+                        _y[n].d[d] => __y[n].d[d]-
+                    )
                 )
             }
         [] LAYOUT ->
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                ~y.a<9> -> ye+
-                y.a<6> -> ye-
+                (: n : N :
+                    ~y[n].a<9> -> ye[n]+
+                    y[n].a<6> -> ye[n]-
 
-                (& : d : D : ~y.d[d]<18>) -> x.e+
-                (| : d : D : y.d[d]<6>) -> x.e-
+                    (& : d : D : ~y[n].d[d]<18>) -> x[n].e+
+                    (| : d : D : y[n].d[d]<6>) -> x[n].e-
 
-                (: d : D :
-                    x.d[d]<18> & ye<18> -> _y.d[d]-
-                    ~g._pReset<9> | ~x.d[d]<12> & ~ye<12> -> _y.d[d]+
-                )
+                    (: d : D :
+                        x[n].d[d]<18> & ye[n]<18> -> _y[n].d[d]-
+                        ~g._pReset<9> |
+                            ~x[n].d[d]<12> & ~ye[n]<12> -> _y[n].d[d]+
+                    )
 
-                (: d : D :
-                    ~_y.d[d]<9> -> __y.d[d]+
-                    _y.d[d]<6> -> __y.d[d]-
+                    (: d : D :
+                        ~_y[n].d[d]<9> -> __y[n].d[d]+
+                        _y[n].d[d]<6> -> __y[n].d[d]-
+                    )
                 )
             }
         ]
@@ -695,13 +704,9 @@ defproc BRAIN_AERV (globals g; eMx1of4<M_SPK> x_spk;
         mem_deserial[n]._y.e = _y_mem[n].e;
     )
     
-    brain_receiver::HALF_BUFFER buf_syn[N_SYN]; // buffer synapse spikes
+    // buffer synapse spikes
     e1of2 aerv_syn[N_SYN];
-    (; n : N_SYN :
-        buf_syn[n].g = g;
-        buf_syn[n].x = aerv_syn[n]; // connect buf_syn to aerv
-        buf_syn[n].y = y_syn[n]; // connect buf_syn to synapse
-    )
+    brain_receiver::HALF_BUFFER<N_SYN> buf_syn(g, aerv_syn, y_syn);
 
     AERV<M, D, p4M, N_SYN, N_MEM> aerv(
         g, aerv_pp, aerv_pe, aerv_p, aerv_syn, aerv_yp_mem, aerv_ye_mem, aerv_mem);

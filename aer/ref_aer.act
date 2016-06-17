@@ -2,6 +2,7 @@
 import "aer/aext/ref_aext.act";
 import "aer/aerv/ref_aerv.act";
 import "aer/interface/ref_interface.act";
+import "aer/lib/test.act";
 
 namespace aer {
 
@@ -20,6 +21,157 @@ defproc AER_NODATA (globals g; bool xp[NN], xa[NN], ye[NN], yp[NN]) {
     interface::OUT_a1ofN<N> out(g, aext.pp, aext.pe, aext.p,);
     interface::DESERIAL_RING<M, N, false, true> deserial(g, out.y,);
     interface::SERIAL_RING<M, N> serial(g, deserial.y, aerv.pe, aerv.pp, aerv.p);
+}
+
+namespace brain_aer {
+    template <pint N>
+    defproc NRN (globals g; bool req[N], ack[N]) {
+        // models N neurons producing spikes
+        prs<g.Vdd, g.GND> {
+            (: n : N :
+                ~g.sReset & ~ack[n] -> req[n]+
+                g.sReset | ack[n] -> req[n]-
+            )
+        }
+    }
+
+    template <pint N>
+    defproc SYN (globals g; a1of2 spk[N]) {
+        // models N synapses consuming excitatory/inhibitory spikes
+        SYNAPSE syn[N];
+        (; n : N :
+            syn[n].g = g;
+            syn[n].spk = spk[n];
+        )
+    }
+
+    template <pint M>
+    defproc MEM (globals g; eMx1ofN<M, 4> _x) {
+        // models a neuron/synapse configuration memory
+        SINK_eMx1ofN<M, 4> snk(g, _x);
+    }
+
+    export
+    defproc TILE (globals g;
+                  bool aext_pe, aext_pp; c1of<4> aext_p;
+                  bool aerv_pp, aerv_pe; c1of<4> aerv_p) {
+        // braindrop / brainstorm neuron array tile
+        // transmitter services 16 neurons
+        // recevier services 4 synapses, 1 memory
+        pint N = 4; // aer tree radix, 1-in-N data
+        pint NN = 16;
+        pint N_SYN = 4;
+        pint N_MEM = 1;
+        pint N_AEXT_LEAF = 4;
+        pint M_MEM = 4;
+
+        // neuron, synapse, memory
+        NRN<NN> nrn(g,,);
+        SYN<N_SYN> syn(g,);
+        MEM<M_MEM> mem(g,);
+
+        // transmitter components
+        ::aer::brain_transmitter::NRN_BUF<NN> buf_nrn(g, nrn.req, nrn.ack,,);
+        ::aer::transmitter::LEAF<N> aext_leaf[N_AEXT_LEAF];
+        ::aer::transmitter::NODE<N> aext_node(g,,, aext_pe, aext_pp,, aext_p);
+
+        // receiver components
+        ::aer::receiver::LEAF<N, N_SYN, N_MEM> aerv_leaf(
+            g, aerv_pp, aerv_pe, aerv_p,,,,,);
+        ::aer::brain_receiver::HALF_BUFFER<N_SYN> buf_syn(g,, syn.spk);
+        ::aer::brain_receiver::DESERIALIZER<M_MEM, N> mem_deserial(
+            g,,,, mem._x);
+
+        (; nn : NN :
+            buf_nrn.yp[nn] = aext_leaf[nn/N].cp[nn%N];
+            buf_nrn.ya[nn] = aext_leaf[nn/N].ca[nn%N];
+        )
+        (; n : N_SYN :
+            buf_syn.x[n].m = aerv_leaf.c_syn[n];
+            buf_syn.x[n].e = aerv_leaf.ce_syn[n];
+        )
+        mem_deserial.xp = aerv_leaf.cp_mem[0];
+        mem_deserial.xe = aerv_leaf.ce_mem[0];
+        mem_deserial.x = aerv_leaf.c_mem[0];
+        (; n : N_AEXT_LEAF :
+            aext_leaf[n].g = g;
+            aext_leaf[n].pp = aext_node.cp[n];
+            aext_leaf[n].pe = aext_node.ce[n];
+            aext_leaf[n].p = aext_node.c[n];
+        )
+    }
+}
+
+export
+template <pint M, p4M>
+defproc BRAIN_AER (globals g; eMx1of4<M> aext_out,
+                   aerv_spk_in; eMx1of4<M+3> aerv_mem_in) {
+    // aer system for braindrop / brainstorm
+    // M depth of AEXT tree (require M > 2)
+    //     M-1 depth of AERV tree
+    // p4M = 4^M neurons
+    //     4^(M-1) synapses
+    //     4^(M-2) neuron/synapse configuration memories
+    pint N = 4; // radix of AEXT/AERV tree
+    pint NRN_PTILE = 16; // neurons per tile
+    pint N_TILE = p4M / NRN_PTILE;
+    [ N_TILE = 0 ->
+        1=0; // assert false
+    ]
+    N_TILE * NRN_PTILE = p4M; // assert neurons evenly divide into tiles
+    pint M_SPK = M;
+    pint M_MEM = M+3;
+
+    // transmitter interface
+    interface::OUT_a1ofN<N> out(g,,,,);
+    interface::DESERIAL_RING<M, N, false, true> deserial(g, out.y,);
+    (; m : M_SPK :
+        deserial.y.m[m].d = aext_out.m[m].d;
+    )
+    deserial.y.e = aext_out.e;
+
+    // receiver interface
+    interface::SERIAL_RING<M_SPK, N> serial_spk(g,,,,);
+    interface::SERIAL_RING<M_MEM, N> serial_mem(g,,,,);
+    (; m : M_SPK :
+        serial_spk.x.m[m].d = aerv_spk_in.m[m].d;
+    )
+    (; m : M_MEM :
+        serial_mem.x.m[m].d = aerv_mem_in.m[m].d;
+    )
+    serial_spk.x.e = aerv_spk_in.e;
+    serial_mem.x.e = aerv_mem_in.e;
+
+    bool merge_xp[2];
+    bool merge_xo[2];
+    c1of<N> merge_x[2];
+    merge_xp[0] = serial_spk.yp;
+    merge_xp[1] = serial_mem.yp;
+    merge_xo[0] = serial_spk.yi;
+    merge_xo[1] = serial_mem.yi;
+    merge_x[0] = serial_spk.y;
+    merge_x[1] = serial_mem.y;
+
+    interface::SERIAL_MERGE<2, N> merge(g, merge_xp, merge_xo,,, merge_x,);
+    bool aerv_pp = merge.yp;
+    bool aerv_pe = merge.yi;
+    c1of<N> aerv_p = merge.y;
+
+    AEXT_TO_TILE<M, p4M> aext(g,,,, out.xe, out.xp, out.x);
+    AERV_TO_TILE<M-1, p4M/N> aerv(g, aerv_pp, aerv_pe, aerv_p,,,);
+
+    brain_aer::TILE tile[N_TILE];
+    (; n : N_TILE :
+        tile[n].g = g;
+
+        tile[n].aext_pe = aext.ce[n];
+        tile[n].aext_pp = aext.cp[n];
+        tile[n].aext_p = aext.c[n];
+
+        tile[n].aerv_pe = aerv.ce[n];
+        tile[n].aerv_pp = aerv.cp[n];
+        tile[n].aerv_p = aerv.c[n];
+    )
 }
 
 } //namespace aer
