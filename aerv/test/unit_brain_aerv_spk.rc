@@ -64,7 +64,6 @@ channel e1ofN 2 spk_snk[61].d
 channel e1ofN 2 spk_snk[62].d
 channel e1ofN 2 spk_snk[63].d
 
-
 loop-injectfile spk_src unit_brain_aerv_spk.in
 loop-expectfile spk_snk[0].d unit_brain_aerv_spk.out
 loop-expectfile spk_snk[1].d unit_brain_aerv_spk.out
