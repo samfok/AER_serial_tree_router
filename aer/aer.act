@@ -2,7 +2,6 @@
 import "aer/aext/aext.act";
 import "aer/aerv/aerv.act";
 import "aer/interface/interface.act";
-import "aer/lib/test.act";
 
 namespace aer {
 
@@ -24,45 +23,12 @@ defproc AER_NODATA (globals g; bool _xp[NN], xa[NN], ye[NN], yp[NN]) {
 }
 
 namespace brain_aer {
-    template <pint N>
-    defproc NRN (globals g; bool req[N], ack[N]) {
-        // models N neurons producing spikes
-        prs<g.Vdd, g.GND> {
-            (: n : N :
-                ~g.sReset & ~ack[n] => req[n]+
-            )
-        }
-    }
-
-    template <pint N>
-    defproc SYN (globals g; a1of2 spk[N]) {
-        // models N synapses consuming excitatory/inhibitory spikes
-        SYNAPSE syn[N];
-        (; n : N :
-            syn[n].g = g;
-            syn[n].spk = spk[n];
-        )
-    }
-
-    template <pint M>
-    defproc MEM (globals g; eMx1ofN<M, 4> _x) {
-        // models a neuron/synapse configuration memory
-        pint D = 4; // 1-of-D data
-        SINK_eMx1ofN<M, 4> snk(g,);
-        _x.e = snk.d.e;
-        prs<g.Vdd, g.GND> {
-            (: m : M :
-                (: d : D :
-                    _x.m[m].d[d] => snk.d.m[m].d[d]-
-                )
-            )
-        }
-    }
-
     export
     defproc TILE (globals g;
                   bool aext_pe, aext__pp; c1of<4> aext__p;
-                  bool aerv__pp, aerv__pe; c1of<4> aerv_p) {
+                  bool aerv__pp, aerv__pe; c1of<4> aerv_p;
+                  bool nrn_req[16], nrn_ack[16];
+                  a1of2 syn_spk[4]; eMx1of4<4> _mem) {
         // braindrop / brainstorm neuron array tile
         // transmitter services 16 neurons
         // recevier services 4 synapses, 1 memory
@@ -73,15 +39,10 @@ namespace brain_aer {
         pint N_AEXT_LEAF = 4;
         pint M_MEM = 4;
 
-        // neuron, synapse, memory
-        NRN<NN> nrn(g,,);
-        SYN<N_SYN> syn(g,);
-        MEM<M_MEM> mem(g,);
-
         // transmitter components
         ::aer::transmitter::NODE<N> aext_node(g,,, aext_pe, aext__pp,, aext__p);
         ::aer::transmitter::LEAF<N> aext_leaf[N_AEXT_LEAF];
-        ::aer::brain_transmitter::NRN_BUF<NN> buf_nrn(g, nrn.req, nrn.ack,,);
+        ::aer::brain_transmitter::NRN_BUF<NN> buf_nrn(g, nrn_req, nrn_ack,,);
         pint M = 1; // repeaters from lowest level of tree
         pint N_LINK = 4;
         pint Mmax_idx = 5; // use last of hardcoded repeater parameters
@@ -89,10 +50,6 @@ namespace brain_aer {
             repeater_wires(g,,,,,,);
         (; n : N_AEXT_LEAF :
             aext_leaf[n].g = g;
-
-            // aext_leaf[n]._pp = aext_node._cp[n];
-            // aext_leaf[n].pe = aext_node.ce[n];
-            // aext_leaf[n]._p = aext_node._c[n];
 
             aext_node.ce[n] = repeater_wires.p_ce[n];
             aext_node._cp[n] = repeater_wires.p_cp[n];
@@ -110,9 +67,8 @@ namespace brain_aer {
         // receiver components
         ::aer::receiver::LEAF<N, N_SYN, N_MEM> aerv_leaf(
             g, aerv__pp, aerv__pe, aerv_p,,,,,);
-        ::aer::brain_receiver::HALF_BUFFER<N_SYN> buf_syn(g,, syn.spk);
-        ::aer::brain_receiver::DESERIALIZER<M_MEM, N> mem_deserial(
-            g,,,, mem._x);
+        ::aer::brain_receiver::HALF_BUFFER<N_SYN> buf_syn(g,, syn_spk);
+        ::aer::brain_receiver::DESERIALIZER<M_MEM, N> mem_deserial(g,,,,);
 
         (; n : N_SYN :
             buf_syn.x[n].m = aerv_leaf.c_syn[n];
@@ -121,25 +77,32 @@ namespace brain_aer {
         mem_deserial.xp = aerv_leaf.cp_mem[0];
         mem_deserial.xe = aerv_leaf.ce_mem[0];
         mem_deserial.x = aerv_leaf.c_mem[0];
+        mem_deserial._y.e = _mem.e;
+        (; m : M_MEM :
+            mem_deserial._y.m[m].d = _mem.m[m].d;
+        )
     }
 }
 
 export
 template <pint M, p4M>
-defproc BRAIN_AER (globals g; eMx1of4<M> aext_out,
-                   aerv_spk_in; eMx1of4<M+3> aerv_mem_in) {
+defproc BRAIN_AER (globals g;
+                   bool aext_nrn_req[p4M], aext_nrn_ack[p4M];
+                   eMx1of4<M> aext_out;
+                   eMx1of4<M> aerv_spk_in; eMx1of4<M+3> aerv_mem_in;
+                   a1of2 aerv_syn[p4M/4]; eMx1of4<4> aerv__mem[p4M/4/4]) {
     // aer system for braindrop / brainstorm
     // M depth of AEXT tree (require M > 2)
     //     M-1 depth of AERV tree
     // p4M = 4^M neurons
     //     4^(M-1) synapses
     //     4^(M-2) neuron/synapse configuration memories
+    [M<2 -> 0=1;] // assert false
     pint N = 4; // radix of AEXT/AERV tree
     pint NRN_PTILE = 16; // neurons per tile
+    pint SYN_PTILE = 4; // synapses per tile
     pint N_TILE = p4M / NRN_PTILE;
-    [ N_TILE = 0 ->
-        1=0; // assert false
-    ]
+    [N_TILE=0 -> 1=0;] // assert false
     N_TILE * NRN_PTILE = p4M; // assert neurons evenly divide into tiles
     pint M_SPK = M;
     pint M_MEM = M+3;
@@ -162,6 +125,9 @@ defproc BRAIN_AER (globals g; eMx1of4<M> aext_out,
         tile[n].aext_pe = aext.ce[n];
         tile[n].aext__pp = aext._cp[n];
         tile[n].aext__p = aext._c[n];
+
+        tile[n].nrn_req = aext_nrn_req[NRN_PTILE*n..NRN_PTILE*(n+1)-1];
+        tile[n].nrn_ack = aext_nrn_ack[NRN_PTILE*n..NRN_PTILE*(n+1)-1];
     )
 
     // receiver components
@@ -174,6 +140,9 @@ defproc BRAIN_AER (globals g; eMx1of4<M> aext_out,
         tile[n].aerv__pe = aerv._ce[n];
         tile[n].aerv__pp = aerv._cp[n];
         tile[n].aerv_p = aerv.c[n];
+
+        tile[n].syn_spk = aerv_syn[SYN_PTILE*n..SYN_PTILE*(n+1)-1];
+        tile[n]._mem = aerv__mem[n];
     )
 }
 

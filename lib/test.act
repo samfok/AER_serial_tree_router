@@ -3,6 +3,8 @@ import "aer/lib/environment.act";
 
 namespace aer {
 
+namespace test {
+
 export
 template <pint M, T_PIDX, T_WIDX, T_N>
 defproc SOURCE_BRAIN_AERV (globals g; eMx1of4<M> d) {
@@ -70,6 +72,26 @@ defproc SINK_SERIAL (globals g; bool p, o; c1of<N> d) {
 }
 
 export
+defproc NRN (globals g; bool req, ack) {
+    // models N neurons producing spikes
+    prs<g.Vdd, g.GND> {
+        ~g.sReset & ~ack => req+
+    }
+}
+
+export
+template <pint NN>
+defproc NRN_ARR (globals g; bool req[NN], ack[NN]) {
+    // array of NRN
+    NRN _[NN];
+    (; nn : NN :
+        _[nn].g = g;
+        _[nn].req = req[nn];
+        _[nn].ack = ack[nn];
+    )
+}
+
+export
 defproc SYNAPSE (globals g; a1of2 spk) {
     // mimics the interface provided by Ben
     bool _ENPU, PULSE, s, Vm;
@@ -91,4 +113,67 @@ defproc SYNAPSE (globals g; a1of2 spk) {
         s | PULSE -> spk.a-
     }
 }
+
+export
+template <pint N>
+defproc SYNAPSE_ARR (globals g; a1of2 spk[N]) {
+    // array of SYNAPSE
+    SYNAPSE _[N];
+    (; n : N :
+        _[n].g = g;
+        _[n].spk = spk[n];
+    )
+}
+
+export
+template <pint M>
+defproc MEM (globals g; eMx1of4<M> _x) {
+    // models a neuron/synapse configuration memory
+    pint D = 4; // 1-of-D data
+    SINK_eMx1ofN<M, D> snk(g,);
+    _x.e = snk.d.e;
+    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+        (: m : M :
+            (: d : D :
+                _x.m[m].d[d] => snk.d.m[m].d[d]-
+            )
+        )
+    }
+}
+
+export
+template <pint M>
+defproc REF_MEM (globals g; eMx1of4<M> _x) {
+    // reference version of MEM
+    pint D = 4; // 1-of-D data
+    SINK_eMx1ofN<M, D> snk(g,);
+    _x.e = snk.d.e;
+    (; m : M :
+        _x.m[m].d = snk.d.m[m].d;
+    )
+}
+
+export
+template <pint M, N>
+defproc MEM_ARR (globals g; eMx1of4<M> _x[N]) {
+    // array of MEM
+    MEM<M> _[N];
+    (; n : N :
+        _[n].g = g;
+        _[n]._x = _x[n];
+    )
+}
+
+export
+template <pint M, N>
+defproc REF_MEM_ARR (globals g; eMx1of4<M> _x[N]) {
+    // array of REF_MEM
+    REF_MEM<M> _[N];
+    (; n : N :
+        _[n].g = g;
+        _[n]._x = _x[n];
+    )
+}
+
+} // namespace test
 } // namespace aer
