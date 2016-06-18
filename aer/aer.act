@@ -79,18 +79,32 @@ namespace brain_aer {
         MEM<M_MEM> mem(g,);
 
         // transmitter components
-        ::aer::brain_transmitter::NRN_BUF<NN> buf_nrn(g, nrn.req, nrn.ack,,);
-        ::aer::transmitter::LEAF<N> aext_leaf[N_AEXT_LEAF];
         ::aer::transmitter::NODE<N> aext_node(g,,, aext_pe, aext__pp,, aext__p);
+        ::aer::transmitter::LEAF<N> aext_leaf[N_AEXT_LEAF];
+        ::aer::brain_transmitter::NRN_BUF<NN> buf_nrn(g, nrn.req, nrn.ack,,);
+        pint M = 1; // repeaters from lowest level of tree
+        pint N_LINK = 4;
+        pint Mmax_idx = 5; // use last of hardcoded repeater parameters
+        ::aer::transmitter::AMP_WIRES<M, N, N_LINK, Mmax_idx, N_LINK>
+            repeater_wires(g,,,,,,);
+        (; n : N_AEXT_LEAF :
+            aext_leaf[n].g = g;
+
+            // aext_leaf[n]._pp = aext_node._cp[n];
+            // aext_leaf[n].pe = aext_node.ce[n];
+            // aext_leaf[n]._p = aext_node._c[n];
+
+            aext_node.ce[n] = repeater_wires.p_ce[n];
+            aext_node._cp[n] = repeater_wires.p_cp[n];
+            aext_node._c[n] = repeater_wires.p_c[n];
+
+            repeater_wires.c_pe[n] = aext_leaf[n].pe;
+            repeater_wires.c_pp[n] = aext_leaf[n]._pp;
+            repeater_wires.c_p[n] = aext_leaf[n]._p;
+        )
         (; nn : NN :
             buf_nrn._yp[nn] = aext_leaf[nn/N]._cp[nn%N];
             buf_nrn.ya[nn] = aext_leaf[nn/N].ca[nn%N];
-        )
-        (; n : N_AEXT_LEAF :
-            aext_leaf[n].g = g;
-            aext_leaf[n]._pp = aext_node._cp[n];
-            aext_leaf[n].pe = aext_node.ce[n];
-            aext_leaf[n]._p = aext_node._c[n];
         )
 
         // receiver components

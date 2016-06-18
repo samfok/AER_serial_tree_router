@@ -1,8 +1,8 @@
 // Tests the braindrop / brainstorm AER system
 import "aer/aer/aer.act";
-pint M=2;
+pint M=4;
 pint N=4;
-pint NN=16; // NN=N^M
+pint NN=256; // NN=N^M
 pint M_AERV_MEM=M+3;
 aer::globals g;
 

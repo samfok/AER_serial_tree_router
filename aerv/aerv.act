@@ -345,15 +345,18 @@ namespace receiver {
     }
 
     export
-    template <pint M, N, L>
+    template <pint M, N, L, Mmax_idx>
     defproc AMP_WIRES (globals g; bool p__cp[L], p__ce[L], c__pp[L], c__pe[L];
                        c1of<N> p_c[L], c_p[L]) {
         // model the amplifier and wire capacitances internal to the aerv tree
         // M depth of AERV tree (max 5)
         // N radix of AERV tree (N=4 in production)
         // L links in AERV tree = (N^M-1) / (N-1) = number of LEAFs and NODEs
+        // Mmax_idx index the end of the hardcoded repeater parameter array
+        //     (max 4)
         pint Mmax = 5; // max AERV tree depth
-        [M > Mmax -> 0=1;] // assert false
+        [Mmax_idx>=Mmax -> 0=1;] // assert false
+        [M>Mmax -> 0=1;] // assert false
         pint Rmax = 4; // max repeaters between AERV nodes
         pint R_ref[Mmax];
         pint S_ref[Mmax][Rmax], CAP_ref[Mmax][Rmax];
@@ -374,10 +377,10 @@ namespace receiver {
 
         pint R[M];
         pint S[M][Rmax], CAP[M][Rmax];
-        pint Mbase = Mmax-M;
-        R = R_ref[Mbase..Mmax-1];
-        S = S_ref[Mbase..Mmax-1];
-        CAP = CAP_ref[Mbase..Mmax-1];
+        pint Mbase = Mmax_idx-M+1;
+        R = R_ref[Mbase..Mmax_idx];
+        S = S_ref[Mbase..Mmax_idx];
+        CAP = CAP_ref[Mbase..Mmax_idx];
 
         AMP_WIRES_<M, N, L, 0, 1, Rmax, R, S, CAP> 
             _(g, p__cp, p__ce, c__pp, c__pe, p_c, c_p);
@@ -387,7 +390,7 @@ namespace receiver {
 export
 template <pint M, N, pNM, N_SYN, N_MEM>
 defproc AERV (globals g; bool pp, pe; c1of<N> p;
-              e1of2 syn[N_SYN]; 
+              e1of2 syn[N_SYN];
               bool yp_mem[N_MEM], ye_mem[N_MEM]; c1of<N> mem[N_MEM]) {
     // receiver capable of sending data to neuron
     // M tree levels
@@ -397,10 +400,7 @@ defproc AERV (globals g; bool pp, pe; c1of<N> p;
     // N_MEM memories
     pint SYN_PPORT = N/2;
     pint N_SYN_PORT = N_SYN/SYN_PPORT;
-    [ (N_SYN_PORT + N_MEM) > pNM ->
-        0=1; // assert false
-    ]
-
+    [(N_SYN_PORT+N_MEM) > pNM -> 0=1;] // assert false
     pint N_LEAF = pNM/N; // = N^(M-1)
     pint N_NODE = (pNM-N) / (N*(N-1)); // = (N^(M-1)-1) / (N-1)
     pint N_LINK = N_LEAF + N_NODE; // = (N^M-1) / (N-1)
@@ -421,7 +421,8 @@ defproc AERV (globals g; bool pp, pe; c1of<N> p;
         )
     )
 
-    receiver::AMP_WIRES<M, N, N_LINK> repeater_wires(g,,,,,,);
+    pint Mmax_idx = 4; // work from end of hardcoded repeater parameters
+    receiver::AMP_WIRES<M, N, N_LINK, Mmax_idx> repeater_wires(g,,,,,,);
     repeater_wires.p_c[0] = p;
     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
         // convert between active low/high inside/outside of array
@@ -556,33 +557,49 @@ defproc AERV_TO_TILE (globals g; bool pp, pe; c1of<4> p;
     pint N = 4; // required for TILE
     pint N_NODE = (p4M-N) / (N*(N-1)); // = (N^(M-1)-1) / (N-1)
     pint N_LEAF = p4M/N; // = N^(M-1)
+    pint N_LINK = N_LEAF + N_NODE; // = (N^M-1) / (N-1)
+
+    pint Mmax_idx = 4; // work from end of hardcoded repeater parameters
+    receiver::AMP_WIRES<M, N, N_LINK, Mmax_idx> repeater_wires(g,,,,,,);
+    repeater_wires.p_c[0] = p;
+    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+        // convert between active low/high inside/outside of array
+        ~pp<9> -> repeater_wires.p__cp[0]+
+        pp<6> -> repeater_wires.p__cp[0]-
+
+        ~repeater_wires.p__ce[0]<9> -> pe+
+        repeater_wires.p__ce[0]<6> -> pe-
+    }
 
     [ M = 1 ->
         p4M = 4; // assert
-        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-            pp => _cp[0]-
-            _ce[0] => pe-
-        }
-        c[0] = p;
+        _cp[0] = repeater_wires.c__pp[0];
+        _ce[0] = repeater_wires.c__pe[0];
+        c[0] = repeater_wires.c_p[0];
     [] M > 1 ->
         receiver::NODE<N> node[N_NODE];
         (; n : N_NODE :
             node[n].g = g;
         )
-        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-            pp => node[0]._pp-
-            node[0]._pe => pe-
-        }
-        node[0].p = p;
+        node[0]._pp = repeater_wires.c__pp[0];
+        node[0]._pe = repeater_wires.c__pe[0];
+        node[0].p = repeater_wires.c_p[0];
 
         // connect NODEs to LEAF ports 
         pint N_LOW_NODE = N_LEAF/N; // NODEs connecting to LEAF ports
         pint NODE_BASE_IDX = N_NODE-N_LOW_NODE;
         (; node_idx : NODE_BASE_IDX..N_NODE-1 :
             (; n : N :
-                node[node_idx]._ce[n] = _ce[(node_idx-NODE_BASE_IDX)*N+n];
-                node[node_idx]._cp[n] = _cp[(node_idx-NODE_BASE_IDX)*N+n];
-                node[node_idx].c[n] = c[(node_idx-NODE_BASE_IDX)*N+n];
+                node[node_idx]._ce[n] = repeater_wires.p__ce[node_idx*N+n+1];
+                node[node_idx]._cp[n] = repeater_wires.p__cp[node_idx*N+n+1];
+                node[node_idx].c[n] = repeater_wires.p_c[node_idx*N+n+1];
+
+                repeater_wires.c__pe[node_idx*N+n+1] =
+                    _ce[(node_idx-NODE_BASE_IDX)*N+n];
+                repeater_wires.c__pp[node_idx*N+n+1] =
+                    _cp[(node_idx-NODE_BASE_IDX)*N+n];
+                repeater_wires.c_p[node_idx*N+n+1] =
+                    c[(node_idx-NODE_BASE_IDX)*N+n];
             )
         )
 
@@ -590,9 +607,16 @@ defproc AERV_TO_TILE (globals g; bool pp, pe; c1of<4> p;
         [ M > 2 ->
             (; np : NODE_BASE_IDX :
                 (; nc : N :
-                    node[np]._cp[nc] = node[np*N+nc+1]._pp;
-                    node[np]._ce[nc] = node[np*N+nc+1]._pe;
-                    node[np].c[nc] =  node[np*N+nc+1].p;
+                    node[np]._ce[nc] = repeater_wires.p__ce[np*N+nc+1];
+                    node[np]._cp[nc] = repeater_wires.p__cp[np*N+nc+1];
+                    node[np].c[nc] =  repeater_wires.p_c[np*N+nc+1];
+
+                    repeater_wires.c__pe[np*N+nc+1] =
+                        node[np*N+nc+1]._pe;
+                    repeater_wires.c__pp[np*N+nc+1] =
+                        node[np*N+nc+1]._pp;
+                    repeater_wires.c_p[np*N+nc+1] =
+                        node[np*N+nc+1].p;
                 )
             )
         ]
