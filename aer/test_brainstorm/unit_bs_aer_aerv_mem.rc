@@ -16,23 +16,23 @@ channel eMx1of4 4 mem_dat[13]
 channel eMx1of4 4 mem_dat[14]
 channel eMx1of4 4 mem_dat[15]
 
-loop-injectfile aerv_mem_src unit_brain_aer_aerv_mem.in
-loop-expectfile mem_dat[0] unit_brain_aer_aerv_mem.out
-loop-expectfile mem_dat[1] unit_brain_aer_aerv_mem.out
-loop-expectfile mem_dat[2] unit_brain_aer_aerv_mem.out
-loop-expectfile mem_dat[3] unit_brain_aer_aerv_mem.out
-loop-expectfile mem_dat[4] unit_brain_aer_aerv_mem.out
-loop-expectfile mem_dat[5] unit_brain_aer_aerv_mem.out
-loop-expectfile mem_dat[6] unit_brain_aer_aerv_mem.out
-loop-expectfile mem_dat[7] unit_brain_aer_aerv_mem.out
-loop-expectfile mem_dat[8] unit_brain_aer_aerv_mem.out
-loop-expectfile mem_dat[9] unit_brain_aer_aerv_mem.out
-loop-expectfile mem_dat[10] unit_brain_aer_aerv_mem.out
-loop-expectfile mem_dat[11] unit_brain_aer_aerv_mem.out
-loop-expectfile mem_dat[12] unit_brain_aer_aerv_mem.out
-loop-expectfile mem_dat[13] unit_brain_aer_aerv_mem.out
-loop-expectfile mem_dat[14] unit_brain_aer_aerv_mem.out
-loop-expectfile mem_dat[15] unit_brain_aer_aerv_mem.out
+loop-injectfile aerv_mem_src unit_bs_aer_aerv_mem.in
+loop-expectfile mem_dat[0] unit_bs_aer_aerv_mem.out
+loop-expectfile mem_dat[1] unit_bs_aer_aerv_mem.out
+loop-expectfile mem_dat[2] unit_bs_aer_aerv_mem.out
+loop-expectfile mem_dat[3] unit_bs_aer_aerv_mem.out
+loop-expectfile mem_dat[4] unit_bs_aer_aerv_mem.out
+loop-expectfile mem_dat[5] unit_bs_aer_aerv_mem.out
+loop-expectfile mem_dat[6] unit_bs_aer_aerv_mem.out
+loop-expectfile mem_dat[7] unit_bs_aer_aerv_mem.out
+loop-expectfile mem_dat[8] unit_bs_aer_aerv_mem.out
+loop-expectfile mem_dat[9] unit_bs_aer_aerv_mem.out
+loop-expectfile mem_dat[10] unit_bs_aer_aerv_mem.out
+loop-expectfile mem_dat[11] unit_bs_aer_aerv_mem.out
+loop-expectfile mem_dat[12] unit_bs_aer_aerv_mem.out
+loop-expectfile mem_dat[13] unit_bs_aer_aerv_mem.out
+loop-expectfile mem_dat[14] unit_bs_aer_aerv_mem.out
+loop-expectfile mem_dat[15] unit_bs_aer_aerv_mem.out
 
 vector m0_0 :1ofN 4 mem_dat[0].m[0].n[0] mem_dat[0].m[0].n[1] mem_dat[0].m[0].n[2] mem_dat[0].m[0].n[3]
 vector m0_1 :1ofN 4 mem_dat[0].m[1].n[0] mem_dat[0].m[1].n[1] mem_dat[0].m[1].n[2] mem_dat[0].m[1].n[3]
