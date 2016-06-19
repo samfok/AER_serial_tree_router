@@ -8,6 +8,41 @@ import "core/serializer/AERSerializer.act";
 import "aer/lib/compat_bs.act";
 
 export
+template <pint M_SPK_1of2, M_MEM_1of2>
+defproc BS_AERV_INT (aer::globals g;
+                     aer::eMx1of2<M_SPK_1of2> x_spk;
+                     aer::eMx1of2<M_MEM_1of2> x_mem;
+                     bool aerv_pp, aerv_pe; aer::c1of<4> aerv_p) {
+    // modified interface between datapath and receiver that uses the
+    // serializer defined in the brainstorm repository
+    // merges input spike and input memory packet streams
+    pint D = 4; // 1-of-D data
+    globals g_bs;
+    compat_bs::globals g_compat(g, g_bs);
+
+    serializer::AERSERN<M_SPK_1of2> serial_spk(g_bs,,,,);
+    serializer::AERSERN<M_MEM_1of2> serial_mem(g_bs,,,,);
+
+    compat_bs::eMx1of2<M_SPK_1of2> serial_spk_I(x_spk, serial_spk.I);
+    compat_bs::eMx1of2<M_MEM_1of2> serial_mem_I(x_mem, serial_mem.I);
+
+    bool merge_xp[2];
+    bool merge_xe[2];
+    aer::c1of<D> merge_x[2];
+    merge_xp[0] = serial_spk.Op;
+    merge_xp[1] = serial_mem.Op;
+    merge_xe[0] = serial_spk.Oe;
+    merge_xe[1] = serial_mem.Oe;
+    compat_bs::d1of<D> serial_spk_Od(, serial_spk.Od);
+    compat_bs::d1of<D> serial_mem_Od(, serial_mem.Od);
+    merge_x[0].d = serial_spk_Od.aer.d;
+    merge_x[1].d = serial_mem_Od.aer.d;
+
+    aer::interface::SERIAL_MERGE<2, D> merge(
+        g, merge_xp, merge_xe, aerv_pe, aerv_pp, merge_x, aerv_p);
+}
+
+export
 template <pint M_1of2, M_1of4, p4M, M_SPK_1of2, M_SPK_1of4, M_MEM_1of2, M_MEM_1of4, N_SYN, N_MEM>
 defproc BS_AERV (aer::globals g; aer::eMx1of2<M_SPK_1of2> x_spk; 
                     aer::eMx1of2<M_MEM_1of2> x_mem;
@@ -37,29 +72,7 @@ defproc BS_AERV (aer::globals g; aer::eMx1of2<M_SPK_1of2> x_spk;
     globals g_bs;
     compat_bs::globals g_compat(g, g_bs);
 
-    serializer::AERSERN<M_SPK_1of2> serial_spk(g_bs,,,,);
-    serializer::AERSERN<M_MEM_1of2> serial_mem(g_bs,,,,);
-
-    compat_bs::eMx1of2<M_SPK_1of2> serial_spk_I(x_spk, serial_spk.I);
-    compat_bs::eMx1of2<M_MEM_1of2> serial_mem_I(x_mem, serial_mem.I);
-
-    bool merge_xp[2];
-    bool merge_xo[2];
-    aer::c1of<D> merge_x[2];
-    merge_xp[0] = serial_spk.Op;
-    merge_xp[1] = serial_mem.Op;
-    merge_xo[0] = serial_spk.Oe;
-    merge_xo[1] = serial_mem.Oe;
-    compat_bs::d1of<D> serial_spk_Od(, serial_spk.Od);
-    compat_bs::d1of<D> serial_mem_Od(, serial_mem.Od);
-    merge_x[0].d = serial_spk_Od.aer.d;
-    merge_x[1].d = serial_mem_Od.aer.d;
-
-    aer::interface::SERIAL_MERGE<2, D> merge(g, merge_xp, merge_xo,,, merge_x,);
-    bool aerv_pp = merge.yp;
-    bool aerv_pe = merge.yi;
-    aer::c1of<D> aerv_p = merge.y;
-    
+    BS_AERV_INT<M_SPK_1of2, M_MEM_1of2> aerv_int(g, x_spk, x_mem,,,);
     aer::brain_receiver::DESERIALIZER<M_MEM_1of4-M_1of4, D> mem_deserial[N_MEM];
     bool aerv_yp_mem[N_MEM];
     bool aerv_ye_mem[N_MEM];
@@ -82,5 +95,6 @@ defproc BS_AERV (aer::globals g; aer::eMx1of2<M_SPK_1of2> x_spk;
     aer::brain_receiver::HALF_BUFFER<N_SYN> buf_syn(g, aerv_syn, y_syn);
 
     aer::AERV<M_1of4, D, p4M, N_SYN, N_MEM> aerv(
-        g, aerv_pp, aerv_pe, aerv_p, aerv_syn, aerv_yp_mem, aerv_ye_mem, aerv_mem);
+        g, aerv_int.aerv_pp, aerv_int.aerv_pe, aerv_int.aerv_p,
+        aerv_syn, aerv_yp_mem, aerv_ye_mem, aerv_mem);
 }

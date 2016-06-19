@@ -15,11 +15,11 @@ pint N_MEM = N_SYN/4;
 pint D     = 4;
 
 aer::globals g;
-aer::SOURCE_BRAIN_AERV<M_SPK_1of4, M_SPK_1of4-M_1of4, 0, 2> spk_src(g,);
-aer::SOURCE_BRAIN_AERV<M_MEM_1of4, M_MEM_1of4-M_1of4, 2, 1> mem_src(g,);
+aer::test::SOURCE_BRAIN_AERV<M_SPK_1of4, M_SPK_1of4-M_1of4, 0, 2> spk_src(g,);
+aer::test::SOURCE_BRAIN_AERV<M_MEM_1of4, M_MEM_1of4-M_1of4, 2, 1> mem_src(g,);
 aer::eMx1of4_to_eMx1of2<M_SPK_1of4, M_SPK_1of2> spk_src_4to2(g, spk_src.d,);
 aer::eMx1of4_to_eMx1of2<M_MEM_1of4, M_MEM_1of2> mem_src_4to2(g, mem_src.d,);
-aer::SYNAPSE spk_snk[N_SYN];
+aer::test::SYNAPSE spk_snk[N_SYN];
 aer::SINK_eMx1ofN<M_MEM_1of4 - M_1of4, D> mem_snk[N_MEM];
 
 aer::a1of2 y_syn[N_SYN];
