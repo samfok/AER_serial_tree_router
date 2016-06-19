@@ -1,0 +1,34 @@
+// unit test that the braindrop/brainstorm aer system can send spikes to synapses
+import "aer/aer/ref_aer.act";
+import "aer/lib/test.act";
+pint M=4;
+pint M_AERV_SPK=M;
+pint M_AERV_MEM=M+3;
+pint N=4;
+pint NN=256; // NN=N^M
+pint N_SYN=NN/N;
+pint N_MEM=NN/N/N;
+aer::globals g;
+bool Reset = g.sReset;
+
+aer::test::NRN_ARR<NN> nrn(g,,);
+aer::SINK_eMx1of4<M> aext_snk(g,);
+aer::eMx1of2<2*M_AERV_SPK> aerv_spk_src;
+aer::eMx1of2_to_eMx1of4<2*M_AERV_SPK, M_AERV_SPK> aerv_spk_src_(g, aerv_spk_src,);
+aer::test::SOURCE_BRAIN_AERV<M_AERV_MEM, M_AERV_MEM-M+1, 2, 1>
+    aerv_mem_src(g,);
+aer::test::SYNAPSE_ARR<N_SYN> syn(g,);
+aer::test::REF_MEM_ARR<4, N_MEM> mem(g,);
+
+aer::e1of2 syn_dat[N_SYN];
+(; m : N_SYN :
+    syn_dat[m].m = syn.spk[m].m;
+)
+prs {
+    (: m : N_SYN :
+        [after=0] syn.spk[m].a => syn_dat[m].e-
+    )
+}
+
+aer::BRAIN_AER<M, NN> aer(g, nrn.req, nrn.ack, aext_snk.d, 
+                          aerv_spk_src_.y, aerv_mem_src.d, syn.spk, mem._x);

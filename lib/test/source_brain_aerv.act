@@ -5,5 +5,5 @@ pint T_PIDX = 2;
 pint T_WIDX = 1;
 pint T_N = 2;
 ::aer::globals g;
-::aer::SOURCE_BRAIN_AERV<M, T_PIDX, T_WIDX, T_N> src(g,);
+::aer::test::SOURCE_BRAIN_AERV<M, T_PIDX, T_WIDX, T_N> src(g,);
 ::aer::SINK_eMx1of4<M> snk(g, src.d);

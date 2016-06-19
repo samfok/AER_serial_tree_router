@@ -1,0 +1,166 @@
+channel eMx1of2 8 aerv_spk_src
+channel e1ofN 2 syn_dat[0]
+channel e1ofN 2 syn_dat[1]
+channel e1ofN 2 syn_dat[2]
+channel e1ofN 2 syn_dat[3]
+channel e1ofN 2 syn_dat[4]
+channel e1ofN 2 syn_dat[5]
+channel e1ofN 2 syn_dat[6]
+channel e1ofN 2 syn_dat[7]
+channel e1ofN 2 syn_dat[8]
+channel e1ofN 2 syn_dat[9]
+channel e1ofN 2 syn_dat[10]
+channel e1ofN 2 syn_dat[11]
+channel e1ofN 2 syn_dat[12]
+channel e1ofN 2 syn_dat[13]
+channel e1ofN 2 syn_dat[14]
+channel e1ofN 2 syn_dat[15]
+channel e1ofN 2 syn_dat[16]
+channel e1ofN 2 syn_dat[17]
+channel e1ofN 2 syn_dat[18]
+channel e1ofN 2 syn_dat[19]
+channel e1ofN 2 syn_dat[20]
+channel e1ofN 2 syn_dat[21]
+channel e1ofN 2 syn_dat[22]
+channel e1ofN 2 syn_dat[23]
+channel e1ofN 2 syn_dat[24]
+channel e1ofN 2 syn_dat[25]
+channel e1ofN 2 syn_dat[26]
+channel e1ofN 2 syn_dat[27]
+channel e1ofN 2 syn_dat[28]
+channel e1ofN 2 syn_dat[29]
+channel e1ofN 2 syn_dat[30]
+channel e1ofN 2 syn_dat[31]
+channel e1ofN 2 syn_dat[32]
+channel e1ofN 2 syn_dat[33]
+channel e1ofN 2 syn_dat[34]
+channel e1ofN 2 syn_dat[35]
+channel e1ofN 2 syn_dat[36]
+channel e1ofN 2 syn_dat[37]
+channel e1ofN 2 syn_dat[38]
+channel e1ofN 2 syn_dat[39]
+channel e1ofN 2 syn_dat[40]
+channel e1ofN 2 syn_dat[41]
+channel e1ofN 2 syn_dat[42]
+channel e1ofN 2 syn_dat[43]
+channel e1ofN 2 syn_dat[44]
+channel e1ofN 2 syn_dat[45]
+channel e1ofN 2 syn_dat[46]
+channel e1ofN 2 syn_dat[47]
+channel e1ofN 2 syn_dat[48]
+channel e1ofN 2 syn_dat[49]
+channel e1ofN 2 syn_dat[50]
+channel e1ofN 2 syn_dat[51]
+channel e1ofN 2 syn_dat[52]
+channel e1ofN 2 syn_dat[53]
+channel e1ofN 2 syn_dat[54]
+channel e1ofN 2 syn_dat[55]
+channel e1ofN 2 syn_dat[56]
+channel e1ofN 2 syn_dat[57]
+channel e1ofN 2 syn_dat[58]
+channel e1ofN 2 syn_dat[59]
+channel e1ofN 2 syn_dat[60]
+channel e1ofN 2 syn_dat[61]
+channel e1ofN 2 syn_dat[62]
+channel e1ofN 2 syn_dat[63]
+
+loop-injectfile aerv_spk_src unit_ref_brain_aer_aerv_spk.in
+loop-expectfile syn_dat[0] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[1] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[2] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[3] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[4] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[5] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[6] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[7] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[8] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[9] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[10] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[11] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[12] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[13] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[14] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[15] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[16] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[17] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[18] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[19] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[20] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[21] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[22] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[23] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[24] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[25] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[26] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[27] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[28] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[29] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[30] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[31] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[32] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[33] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[34] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[35] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[36] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[37] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[38] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[39] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[40] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[41] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[42] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[43] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[44] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[45] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[46] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[47] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[48] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[49] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[50] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[51] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[52] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[53] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[54] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[55] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[56] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[57] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[58] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[59] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[60] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[61] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[62] unit_ref_brain_aer_aerv_spk.out
+loop-expectfile syn_dat[63] unit_ref_brain_aer_aerv_spk.out
+
+random
+break-on-warn
+
+mode reset
+set g.Vdd 1
+set g.GND 0
+set g.vpsub 1
+set g.vnsub 0
+set g._sReset 0
+set g.sReset 1
+set g._pReset 1
+set g.pReset 0
+
+cycle
+
+set g._pReset 0
+set g.pReset 1
+
+cycle
+
+watchall
+
+mode run
+set g._pReset 1
+set g.pReset 0
+
+cycle
+
+set g._sReset 1
+set g.sReset 0
+
+status X
+
+advance 1000100000

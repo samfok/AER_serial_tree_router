@@ -7,7 +7,7 @@ pint NN=8; // NN=N^M
 ::aer::globals g;
 ::aer::active_handshaker<NN> a(g,,);
 ::aer::AEXT<M, N, NN> aext(g,, a.i,,,);
-::aer::SINK_SERIAL<N> snk(g, aext.pp, aext.pe, aext.p);
+::aer::test::SINK_SERIAL<N> snk(g, aext.pp, aext.pe, aext.p);
 prs<g.Vdd, g.GND> {
     (: nn : NN :
         a.o[nn] => aext._xp[nn]-

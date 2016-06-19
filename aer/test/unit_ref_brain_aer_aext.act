@@ -1,0 +1,25 @@
+// tests the serial aer transmitter
+import "aer/aer/ref_aer.act";
+import "aer/lib/test.act";
+pint M=6;
+pint N=4;
+pint NN=4096; // NN=N^M
+pint M_AERV_MEM=M+3;
+aer::globals g;
+bool Reset = g.sReset;
+
+aer::e1of<NN> spk_src;
+aer::eMx1of4<M> snk;
+
+aer::SINK_eMx1of4<M> aext_snk(g, snk);
+aer::test::SOURCE_BRAIN_AERV<M, 1, 0, 2> aerv_spk_src(g,);
+aer::test::SOURCE_BRAIN_AERV<M_AERV_MEM, M_AERV_MEM-M+1, 2, 1> aerv_mem_src(g,);
+aer::test::SYNAPSE_ARR<NN/N> syn(g,);
+aer::test::REF_MEM_ARR<4, NN/N/N> mem(g,);
+
+aer::BRAIN_AER<M, NN> aer(g, spk_src.d,, snk, 
+                          aerv_spk_src.d, aerv_mem_src.d, syn.spk, mem._x);
+
+prs<g.Vdd, g.GND> {
+    (| : nn : NN : aer.aext_nrn_ack[nn]) => spk_src.e-
+}
