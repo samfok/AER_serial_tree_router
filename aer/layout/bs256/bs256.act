@@ -1,0 +1,28 @@
+// defines a transmitter/receiver for 256 neurons and 64 synapses
+import "aer/aer/bs_aer.act";
+
+export defproc Wrapper(aer::globals_np g_np)
+{
+    bool Vdd;
+    bool GND;
+    bool vpsub;
+    bool vnsub;
+    aer::globals g;
+
+    // rails and reset
+    g.Vdd = Vdd;
+    g.GND = GND;
+    g.vpsub = vpsub;
+    g.vnsub = vnsub;
+    g_np.sReset = g.sReset;
+    g_np.pReset = g.pReset;
+    g._pReset = g_np._pReset;
+    g._sReset = g_np._sReset;
+
+    pint M_1of4 = 4;
+    pint M_1of2 = M_1of4*2;
+    pint NN = 256;
+    BS_AER<M_1of2, M_1of4, NN> aer(g,,,,,,,);
+}
+
+Wrapper dut;
