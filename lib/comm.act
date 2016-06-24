@@ -137,7 +137,7 @@ defproc Mx1of4_to_Mx1of2 (globals g; c1of4 x[M_1of4]; c1of2 y[M_1of2]) {
     // converts an Mx1of4 channel to an Mx1of2 channel
     M_1of2 = (M_1of4*2); // assert
     c1of2 _y[M_1of2];
-    prs<g.Vdd, g.GND | g.vpsub, g.vpsub> {
+    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
         (: m4 : M_1of4 :
             x[m4].d[0]<6> | x[m4].d[2]<6> -> _y[m4*2].d[0]-
             ~x[m4].d[0]<18> & ~x[m4].d[2]<18> -> _y[m4*2].d[0]+
