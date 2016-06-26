@@ -10,9 +10,7 @@ aer::globals g;
 aer::SINK_eMx1of4<M> aext_snk(g,);
 aer::test::SOURCE_BRAIN_AERV<M, 1, 0, 2> aerv_spk_src(g,);
 aer::test::SOURCE_BRAIN_AERV<M_AERV_MEM, M_AERV_MEM-M+1, 2, 1> aerv_mem_src(g,);
-aer::test::NRN_ARR<NN> nrn(g,,);
-aer::test::SYNAPSE_ARR<NN/N> syn(g,);
 aer::test::REF_MEM_ARR<4, NN/N/N> mem(g,);
 
-aer::BRAIN_AER<M, NN> aer(g, nrn.req, nrn.ack, aext_snk.d, 
-                          aerv_spk_src.d, aerv_mem_src.d, syn.spk, mem._x);
+aer::BRAIN_AER<M, NN, false> aer(g,,, aext_snk.d, 
+                          aerv_spk_src.d, aerv_mem_src.d,, mem._x);
