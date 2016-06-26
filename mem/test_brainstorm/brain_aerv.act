@@ -12,16 +12,15 @@ pint M_MEM = M+4;
 pint N_SYN = Mp4;
 pint N_MEM = N_SYN/4;
 pint D     = 4;
-pbool flip_mem_out = true;
 
 aer::globals g_aer;
 aer::globals g = g_aer;
 globals g_bs;
 compat_bs::globals g_compat(g_aer, g_bs);
 
-aer::SOURCE_BRAIN_AERV<M_SPK, M_SPK-M, 0, 2> spk_src(g,);
-aer::SOURCE_BRAIN_AERV<M_MEM, M_MEM-M, 2, 1> mem_src(g,);
-aer::SYNAPSE spk_snk[N_SYN];
+aer::test::SOURCE_BRAIN_AERV<M_SPK, M_SPK-M, 0, 2> spk_src(g,);
+aer::test::SOURCE_BRAIN_AERV<M_MEM, M_MEM-M, 2, 1> mem_src(g,);
+aer::test::SYNAPSE spk_snk[N_SYN];
 
 pint rows = 8;
 pint cols = 8;
@@ -47,5 +46,5 @@ aer::a1of2 aerv_y_syn[N_SYN];
     spk_snk[n].spk = aerv_y_syn[n];
 )
 
-aer::BRAIN_AERV<M, Mp4, M_SPK, M_MEM, N_SYN, N_MEM, flip_mem_out> aerv(
+aer::BRAIN_AERV<M, Mp4, M_SPK, M_MEM, N_SYN, N_MEM> aerv(
     g, spk_src.d, mem_src.d, aerv_y_syn, aerv__y_mem);
