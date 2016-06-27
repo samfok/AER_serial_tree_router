@@ -22,27 +22,27 @@
 \node (r1) [right=of r0, xshift=7.3cm] {};
 
 % request branch
-\node [transition] (xo+) [above=of l, label=above:$x_o\!\uparrow$] {}
+\node [transition] (xe+) [above=of l, label=above:$x_e\!\uparrow$] {}
     edge [post, bend right=30] (ready);
-\node [place] (yi+xo+) [left=of xo+] {}
-    edge [post] (xo+);
+\node [place] (ye+xe+) [left=of xe+] {}
+    edge [post] (xe+);
 
-\node [transition] (yi+) [left=of yi+xo+, label=above:$y_i$] {}
-    edge [post] (yi+xo+);
-\node [place] (yphi+yi+) [left=of yi+] {}
-    edge [post] (yi+);
+\node [transition] (ye+) [left=of ye+xe+, label=above:$y_e$] {}
+    edge [post] (ye+xe+);
+\node [place] (yphi+ye+) [left=of ye+] {}
+    edge [post] (ye+);
 
-\node [transition] (yphi+) [left=of yphi+yi+, label=above:$y\phi\!\uparrow$] {}
-    edge [post] (yphi+yi+);
+\node [transition] (yphi+) [left=of yphi+ye+, label=above:$y\phi\!\uparrow$] {}
+    edge [post] (yphi+ye+);
 \node [place] (xphi+yphi+) [left=of yphi+] {}
     edge [post] (yphi+);
 
 \node [transition] (xphi+) [left=of xphi+yphi+, label=above:$x\phi$] {}
     edge [post] (xphi+yphi+);
 \node (x0) [below=of xphi+] {};
-\node [place] (xo-xphi+) [left= of x0] {}
+\node [place] (xe-xphi+) [left= of x0] {}
     edge [post, bend right=30] (xphi+);
-\node [token] at (xo-xphi+) {};
+\node [place, tokens=1] (init) [left= of x0] {};
 
 % reset branch
 \node [transition] (xphi-) [below=of l, label=above:$\neg x\phi$] {}
@@ -52,17 +52,17 @@
 
 \node [transition] (yphi-) [left=of xphi-yphi-, label=above:$y\phi\!\downarrow$] {}
     edge [pre] (xphi-yphi-);
-\node [place] (yphi-yi-) [left=of yphi-] {}
+\node [place] (yphi-ye-) [left=of yphi-] {}
     edge [pre] (yphi-);
 
-\node [transition] (yi-) [left=of yphi-yi-, label=above:$\neg y_i$] {}
-    edge [pre] (yphi-yi-);
-\node [place] (yi-xo-) [left=of yi-] {}
-    edge [pre] (yi-);
+\node [transition] (ye-) [left=of yphi-ye-, label=above:$\neg y_e$] {}
+    edge [pre] (yphi-ye-);
+\node [place] (ye-xe-) [left=of ye-] {}
+    edge [pre] (ye-);
 
-\node [transition] (xo-) [left=of yi-xo-, label=above:$x_o\!\downarrow$] {}
-    edge [pre] (yi-xo-)
-    edge [post, bend right=30] (xo-xphi+);
+\node [transition] (xe-) [left=of ye-xe-, label=above:$x_e\!\downarrow$] {}
+    edge [pre] (ye-xe-)
+    edge [post, bend right=30] (xe-xphi+);
 
 
 % data branch
@@ -78,53 +78,53 @@
 
 \node [transition] (y0+) [right=of x0+y0+, label=above:$y0\!\uparrow$] {}
     edge [pre] (x0+y0+);
-\node [place] (y0+yi-) [right=of y0+] {}
+\node [place] (y0+ye-) [right=of y0+] {}
     edge [pre] (y0+);
 \node [transition] (y1+) [right=of x1+y1+, label=above:$y1\!\uparrow$] {}
     edge [pre] (x1+y1+);
-\node [place] (y1+yi-) [right=of y1+] {}
+\node [place] (y1+ye-) [right=of y1+] {}
     edge [pre] (y1+);
 
-\node [transition] (yi-0) [right=of y0+yi-, label=above:$\neg y_i$] {}
-    edge [pre] (y0+yi-);
-\node [place] (yi-0xo-) [right=of yi-0] {}
-    edge [pre] (yi-0);
-\node [transition] (yi-1) [right=of y1+yi-, label=above:$\neg y_i$] {}
-    edge [pre] (y1+yi-);
-\node [place] (yi-1xo-) [right=of yi-1] {}
-    edge [pre] (yi-1);
+\node [transition] (ye-0) [right=of y0+ye-, label=above:$\neg y_e$] {}
+    edge [pre] (y0+ye-);
+\node [place] (ye-0xo-) [right=of ye-0] {}
+    edge [pre] (ye-0);
+\node [transition] (ye-1) [right=of y1+ye-, label=above:$\neg y_e$] {}
+    edge [pre] (y1+ye-);
+\node [place] (ye-1xo-) [right=of ye-1] {}
+    edge [pre] (ye-1);
 
-\node [transition] (xo-0) [right=of yi-0xo-, label=above:$x_o\!\downarrow$] {}
-    edge [pre] (yi-0xo-);
-\node [place] (xo-x0-) [right=of xo-0] {}
-    edge [pre] (xo-0);
-\node [transition] (xo-1) [right=of yi-1xo-, label=above:$x_o\!\downarrow$] {}
-    edge [pre] (yi-1xo-);
-\node [place] (xo-x1-) [right=of xo-1] {}
-    edge [pre] (xo-1);
+\node [transition] (xe-0) [right=of ye-0xo-, label=above:$x_e\!\downarrow$] {}
+    edge [pre] (ye-0xo-);
+\node [place] (xe-x0-) [right=of xe-0] {}
+    edge [pre] (xe-0);
+\node [transition] (xe-1) [right=of ye-1xo-, label=above:$x_e\!\downarrow$] {}
+    edge [pre] (ye-1xo-);
+\node [place] (xe-x1-) [right=of xe-1] {}
+    edge [pre] (xe-1);
 
-\node [transition] (x0-) [right=of xo-x0-, label=above:$\neg x0$] {}
-    edge [pre] (xo-x0-);
+\node [transition] (x0-) [right=of xe-x0-, label=above:$\neg x0$] {}
+    edge [pre] (xe-x0-);
 \node [place] (x0-y0-) [right=of x0-] {}
     edge [pre] (x0-);
-\node [transition] (x1-) [right=of xo-x1-, label=above:$\neg x1$] {}
-    edge [pre] (xo-x1-);
+\node [transition] (x1-) [right=of xe-x1-, label=above:$\neg x1$] {}
+    edge [pre] (xe-x1-);
 \node [place] (x1-y1-) [right=of x1-] {}
     edge [pre] (x1-);
 
 \node [transition] (y0-) [right=of x0-y0-, label=above:$y0\!\downarrow$] {}
     edge [pre] (x0-y0-);
-\node [place] (y0-yi+) [right=of y0-] {}
+\node [place] (y0-ye+) [right=of y0-] {}
     edge [pre] (y0-);
 \node [transition] (y1-) [right=of x1-y1-, label=above:$y1\!\downarrow$] {}
     edge [pre] (x1-y1-);
-\node [place] (y1-yi+) [right=of y1-] {}
+\node [place] (y1-ye+) [right=of y1-] {}
     edge [pre] (y1-);
 
-\node[transition] (yi+1) [right=of r1,label=$y_i$] {}
-    edge [pre, bend left=30] (y0-yi+.south) 
-    edge [pre, bend right=30] (y1-yi+.north)
-    edge [post] (ready) (yi+1.west);
+\node[transition] (ye+1) [right=of r1,label=$y_e$] {}
+    edge [pre, bend left=30] (y0-ye+.south) 
+    edge [pre, bend right=30] (y1-ye+.north)
+    edge [post] (ready) (ye+1.west);
 
 \end{tikzpicture}
 \end{document}
