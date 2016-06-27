@@ -19,7 +19,6 @@ pint M_MEM_1of2 = 2*M_MEM_1of4;
 pint N_SYN      = Mp4;
 pint N_MEM      = N_SYN/4;
 pint D          = 4;
-pbool flip_mem_out = true;
 
 aer::globals g_aer;
 aer::globals g = g_aer;
@@ -27,29 +26,23 @@ globals g_bs;
 compat_bs::globals g_compat(g_aer, g_bs);
 bool Reset = g.sReset;
 
-aer::SOURCE_BRAIN_AERV<M_SPK_1of4, M_SPK_1of4-M_1of4, 0, 2> spk_src(g,);
+aer::test::SOURCE_BRAIN_AERV<M_SPK_1of4, M_SPK_1of4-M_1of4, 0, 2> spk_src(g,);
+
 aer::eMx1of4<M_MEM_1of4> mem_src;
 aer::eMx1of4_to_eMx1of2<M_SPK_1of4, M_SPK_1of2> spk_src_4to2(g, spk_src.d,);
 aer::eMx1of4_to_eMx1of2<M_MEM_1of4, M_MEM_1of2> mem_src_4to2(g, mem_src,);
-aer::SYNAPSE spk_snk[N_SYN];
+aer::test::SYNAPSE spk_snk[N_SYN];
 
 pint rows = 8;
 pint cols = 8;
-pint addr_1of4 = 3;
 pint word_size = 2;
-aer::config_sram_interface<M_MEM_1of4-M_1of4, word_size, cols, rows, addr_1of4> sram_interface[N_MEM];
-mem::config_sramNxM_addr_decoded<rows, cols, word_size> sram[N_MEM];
-compat_bs::dualrail_arr<word_size> write[N_MEM];
-aer::eMx1of4<M_MEM_1of4-M_1of4> aerv__y_mem[N_MEM];
-(; n : N_MEM :
-    sram_interface[n].g = g;
-    sram[n].g = g_bs;
-    sram_interface[n]._aerv_data = aerv__y_mem[n];
-    write[n].aer = sram_interface[n]._write;
-    write[n].bs = sram[n]._write;
-    sram_interface[n]._col_select = sram[n]._col_select;
-    sram_interface[n].row_select = sram[n].row_select;
-)
+aer::e1of<cols*word_size> mem_bl_;
+aer::e1of<cols*word_size> mem_bl;
+aer::e1of<cols> mem_col_select;
+aer::e1of<rows> mem_row_select;
+aer::eMx1of4<M_MEM_1of4-M_1of4> aerv__y_mem;
+
+mem::config_sram sram(g_bs, aerv__y_mem,,,,,);
 
 aer::a1of2 aerv_y_syn[N_SYN];
 (; n : N_SYN :
@@ -57,27 +50,19 @@ aer::a1of2 aerv_y_syn[N_SYN];
     spk_snk[n].spk = aerv_y_syn[n];
 )
 
-BS_AERV<M_1of2, M_1of4, Mp4, M_SPK_1of2, M_SPK_1of4, M_MEM_1of2, M_MEM_1of4, N_SYN, N_MEM, flip_mem_out> aerv(
-    g, spk_src_4to2.y, mem_src_4to2.y, aerv_y_syn, aerv__y_mem);
+BS_AERV<M_1of2, M_1of4, Mp4, M_SPK_1of2, M_SPK_1of4, M_MEM_1of2, M_MEM_1of4, N_SYN, N_MEM> aerv(
+    g, spk_src_4to2.y, mem_src_4to2.y, aerv_y_syn, {aerv__y_mem});
 
-aer::eMx1of2<word_size> mem_write;
-aer::e1of<cols> mem_col_select;
-aer::e1of<rows> mem_row_select;
-prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-    // for expectfile
-    (: m : word_size :
-        (: d : 2 :
-            [after=0] sram_interface[0]._write[m].d[d] => mem_write.m[m].d[d]-
-        )
-    )
-}
-mem_write.e = sram_interface[0]._aerv_data.e;
+// for expectfile
 prs<g.Vdd, g.GND> {
-    // for expectfile
-    (: c : cols :
-        [after=0] sram_interface[0]._col_select[c] => mem_col_select.d[c]-
+    (: n : cols*word_size :
+        [after=0] sram.bl_[n] => mem_bl_.d[n]-
+        [after=0] sram.bl[n] => mem_bl.d[n]-
     )
+    [after=0] (| : n : cols*word_size : mem_bl_.d[n]) => mem_bl_.e-
+    [after=0] (| : n : cols*word_size : mem_bl.d[n]) => mem_bl.e-
 }
-mem_col_select.e = mem_write.e;
-mem_row_select.d = sram_interface[0].row_select;
-mem_row_select.e = mem_write.e;
+mem_col_select.d = sram.col_select;
+mem_row_select.d = sram.row_select;
+mem_col_select.e = sram._aerv_data.e;
+mem_row_select.e = sram._aerv_data.e;

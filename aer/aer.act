@@ -2,6 +2,7 @@
 import "aer/aext/aext.act";
 import "aer/aerv/aerv.act";
 import "aer/interface/interface.act";
+import "aer/lib/test.act";
 
 namespace aer {
 
@@ -23,7 +24,33 @@ defproc AER_NODATA (globals g; bool _xp[NN], xa[NN], ye[NN], yp[NN]) {
 }
 
 namespace brain_aer {
+    // blackbox for neurons and memory in tile
+    defproc TILE_NRN_MEM (
+        bool? RST;
+        bool! SPK_So[16]; bool? ACK_So[16];
+        bool? INH_Syn[4], EXC_Syn[4]; bool! ACK_Syn[4];
+        bool! ADC_OUT[2];
+        bool ? V_REF, V_R, V_G, V_PE_PD, V_PE_PU, V_WINH, V_WDC, V_WEXC, V_IK_B, V_LK_A, V_IOFFSET,
+        DIFF_CM_0_R, DIFF_SYN_0_R,
+        DIFF_CM_0_D, DIFF_SYN_0_D,
+        DIFF_CM_1_R, DIFF_SYN_1_R,
+        DIFF_CM_2_R, DIFF_SYN_2_R,
+        DIFF_CM_3_R, DIFF_SYN_3_R,
+        DIFF_CM_3_U, DIFF_SYN_3_U,
+        DIFF_CM_4_D, DIFF_SYN_4_D,
+        DIFF_CM_7_U, DIFF_SYN_7_U,
+        DIFF_CM_8_D, DIFF_SYN_8_D,
+        DIFF_CM_11_U, DIFF_SYN_11_U,
+        DIFF_CM_12_D, DIFF_SYN_12_D,
+        DIFF_CM_12_L, DIFF_SYN_12_L,
+        DIFF_CM_13_L, DIFF_SYN_13_L,
+        DIFF_CM_14_L, DIFF_SYN_14_L,
+        DIFF_CM_15_L, DIFF_SYN_15_L,
+        DIFF_CM_15_U, DIFF_SYN_15_U
+        ) {}
+
     export
+    template <pbool unit_aext>
     defproc TILE (globals g;
                   bool aext_pe, aext__pp; c1of<4> aext__p;
                   bool aerv__pp, aerv__pe; c1of<4> aerv_p;
@@ -81,11 +108,29 @@ namespace brain_aer {
         (; m : M_MEM :
             mem_deserial._y.m[m].d = _mem.m[m].d;
         )
+
+        // neuron, synapse, memory
+        [ ~LAYOUT ->
+            [ ~unit_aext ->
+                ::aer::test::NRN_ARR<NN> nrn(g, nrn_req, nrn_ack);
+            ]
+            ::aer::test::SYNAPSE_ARR<NN/N> syn(g, syn_spk);
+        [] LAYOUT ->
+            TILE_NRN_MEM tile_nrn_mem;
+            tile_nrn_mem.RST = g.sReset;
+            tile_nrn_mem.SPK_So = nrn_req;
+            tile_nrn_mem.ACK_So = nrn_ack;
+            (; n : N :
+                tile_nrn_mem.INH_Syn[n] = syn_spk[n].d[0];
+                tile_nrn_mem.EXC_Syn[n] = syn_spk[n].d[1];
+                tile_nrn_mem.ACK_Syn[n] = syn_spk[n].a;
+            )
+        ]
     }
 }
 
 export
-template <pint M, p4M>
+template <pint M, p4M; pbool unit_aext>
 defproc BRAIN_AER (globals g;
                    bool aext_nrn_req[p4M], aext_nrn_ack[p4M];
                    eMx1of4<M> aext_out;
@@ -108,7 +153,7 @@ defproc BRAIN_AER (globals g;
     pint M_MEM = M+3;
 
     // TILEs
-    brain_aer::TILE tile[N_TILE];
+    brain_aer::TILE<unit_aext> tile[N_TILE];
     (; n : N_TILE :
         tile[n].g = g;
     )

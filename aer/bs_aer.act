@@ -8,7 +8,7 @@ import "aer/aerv/bs_aerv.act";
 import "core/serializer/AERSerializer.act";
 
 export
-template <pint M_1of2, M_1of4, p4M>
+template <pint M_1of2, M_1of4, p4M; pbool unit_aext>
 defproc BS_AER (aer::globals g;
                 bool aext_nrn_req[p4M], aext_nrn_ack[p4M];
                 aer::eMx1of2<M_1of2> aext_out;
@@ -40,7 +40,7 @@ defproc BS_AER (aer::globals g;
     pint M_MEM_1of2 = M_MEM_1of4*2;
 
     // TILEs
-    aer::brain_aer::TILE tile[N_TILE];
+    aer::brain_aer::TILE<unit_aext> tile[N_TILE];
     (; n : N_TILE :
         tile[n].g = g;
     )

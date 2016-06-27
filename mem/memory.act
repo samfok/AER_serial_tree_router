@@ -4,10 +4,6 @@
 import "aer/lib/channel.act";
 import "aer/lib/comm.act";
 import "lib/channel.act";
-import "mem/interface.act";
-import "mem/decoder.act";
-import "mem/bank.act";
-import "mem/config_bank.act";
 
 namespace aer {
 
@@ -21,24 +17,20 @@ defproc flip_word_order (globals g; eMx1of4<M> x, y) {
     )
 }
 
-template <pint M_1of4, M_1of2>
-defproc word_1of4_to_1of2 (globals g; c1of4 _x[M_1of4]; c1of2 y[M_1of2]) {
+defproc word_1of4_to_1of2 (globals g; c1of4 _x; c1of2 y[2]) {
     // converts word from Mx1of4 to Mx1of2
-    M_1of2 = (M_1of4*2); // assert
-    prs<g.Vdd, g.GND> {
-        (: m4 : M_1of4 :
-            ~_x[m4].d[0]<9> | ~_x[m4].d[2]<9> -> y[m4*2].d[0]+
-            _x[m4].d[0]<12> & _x[m4].d[2]<12> -> y[m4*2].d[0]-
+    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+        ~_x.d[0]<9> | ~_x.d[2]<9> -> y[0].d[0]+
+        _x.d[0]<12> & _x.d[2]<12> -> y[0].d[0]-
 
-            ~_x[m4].d[1]<9> | ~_x[m4].d[3]<9> -> y[m4*2].d[1]+
-            _x[m4].d[1]<12> & _x[m4].d[3]<12> -> y[m4*2].d[1]-
+        ~_x.d[1]<9> | ~_x.d[3]<9> -> y[0].d[1]+
+        _x.d[1]<12> & _x.d[3]<12> -> y[0].d[1]-
 
-            ~_x[m4].d[0]<9> | ~_x[m4].d[1]<9> -> y[m4*2+1].d[0]+
-            _x[m4].d[0]<12> & _x[m4].d[1]<12> -> y[m4*2+1].d[0]-
+        ~_x.d[0]<9> | ~_x.d[1]<9> -> y[1].d[0]+
+        _x.d[0]<12> & _x.d[1]<12> -> y[1].d[0]-
 
-            ~_x[m4].d[2]<9> | ~_x[m4].d[3]<9> -> y[m4*2+1].d[1]+
-            _x[m4].d[2]<12> & _x[m4].d[3]<12> -> y[m4*2+1].d[1]-
-        )
+        ~_x.d[2]<9> | ~_x.d[3]<9> -> y[1].d[1]+
+        _x.d[2]<12> & _x.d[3]<12> -> y[1].d[1]-
     }
 }
 
@@ -51,112 +43,221 @@ defproc addr_vn (globals g; c1of4 _addr; bool vn) {
     }
 }
 
+defproc config_sram_row_decoder (
+    globals g; c1of4 row_low; c1of2 row_high; bool row_select[8]) {
+    // Decode the row address
+    pint rows = 8;
 
-template <pint addr_1of4, rows, cols>
-defproc config_sram_addr_decoder (globals g; c1of4 _addr[addr_1of4]; bool row_select[rows], col_select[cols], data_e) {
-    // Converts addr_1of4 address into arrays of row and column select lines
-    // high order word _addr[0] low order word _addr[3]
-    // Only supports hardcoded addr_1of4, rows, cols 
-    // Can be made to support variable parameter values if necessary
-    addr_1of4 = 3; // assert
-    rows = 8; // assert
-    cols = 8; // assert
-    pint D2 = 2;
-    pint D4 = 4;
-
-    // convert middle word to 1of2 representation
-    c1of2 addr_mid[2];
-    c1of2 _addr_mid[2];
-    word_1of4_to_1of2<1, 2> decode_mid(g, {_addr[1]}, addr_mid);
-
+    bool _row_select[8];
     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-        (: m : 2 :
-            (: d : 2 :
-                ~addr_mid[m].d[d] -> _addr_mid[m].d[d]+
-                addr_mid[m].d[d] -> _addr_mid[m].d[d]-
+        // we assume sufficient latency in the receiver for the bitcell to be written
+        (: d : 4 :
+            (: dd : 2 :
+                [after=0] row_low.d[d]<12> & row_high.d[dd]<12> -> _row_select[4*dd+d]-
+                [after=0] ~row_low.d[d]<9> | ~row_high.d[dd]<9> -> _row_select[4*dd+d]+
             )
         )
-
-        // we assume sufficient latency in the receiver for the bitcell to be written
-        (: d : D4 :
-            (: dd : D2 :
-                [after=0] ~_addr[2].d[d] & ~_addr_mid[1].d[dd] -> col_select[2*d+dd]+
-                [after=0] _addr[2].d[d] | _addr_mid[1].d[dd] -> col_select[2*d+dd]-
-            )
-        )
-
-        // we assume sufficient latency in the receiver for the bitcell to be written
-        (: d : D4 :
-            (: dd : D2 :
-                [after=0] ~_addr[0].d[d] & ~_addr_mid[0].d[dd] -> row_select[4*dd+d]+
-                [after=0] _addr[0].d[d] | _addr_mid[0].d[dd] -> row_select[4*dd+d]-
-            )
+        (: r : rows :
+            [after=0] ~_row_select[r]<9> -> row_select[r]+
+            [after=0] _row_select[r]<6> -> row_select[r]-
         )
     }
+}
 
-    addr_vn vn(g, _addr[0],); 
+defproc config_sram_col_decoder (
+    globals g; c1of2 col_low; c1of4 col_high; c1of2 data[2];
+    bool bl[16], bl_[16]; bool col_select[8]) {
+    // Decode the row address
+    pint cols = 8;
+    pint word_size = 2;
+    pint cols_cells = 16;
 
+    bool _col_select[8];
     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-        ~vn.vn -> data_e+
-        vn.vn -> data_e-
+        // we assume sufficient latency in the receiver for the bitcell to be written
+        (: d : 4 :
+            (: dd : 2 :
+                [after=0] col_high.d[d]<12> & col_low.d[dd]<12> -> _col_select[2*d+dd]-
+                [after=0] ~col_high.d[d]<9> | ~col_low.d[dd]<9> -> _col_select[2*d+dd]+
+            )
+        )
+
+        (: c : 8 :
+            [after=0] ~_col_select[c]<9> -> col_select[c]+
+            [after=0] _col_select[c]<6> -> col_select[c]-
+        )
+
+        (: c : cols :
+            (: w : word_size :
+                [after=0] col_select[c]<12> & data[w].d[0]<12> -> bl_[c*word_size+w]-
+                [after=0] ~col_select[c]<9> | ~data[w].d[0]<9> -> bl_[c*word_size+w]+
+
+                [after=0] col_select[c]<12> & data[w].d[1]<12> -> bl[c*word_size+w]-
+                [after=0] ~col_select[c]<9> | ~data[w].d[1]<9> -> bl[c*word_size+w]+
+            )
+        )
     }
 }
 
 export
-template <pint aerv_words, word_size, cols, rows, addr_1of4>
-defproc config_sram_interface (globals g; eMx1of4<aerv_words> _aerv_data; dualrail _write[word_size]; bool _col_select[cols], row_select[rows]) {
-    // ------------------------------
-    //           aerv_data
-    //  write      row/col addr
-    // ------------------------------
-    //   [0]  |  [     1,2,3    ]    
-    // ------------------------------ 
-    //    |              |       
-    //    v              v      
-    // 1in4to2     .--decode--.
-    //    |        |          |     
-    //    v        v          v
-    // ------------------------------
-    // write   col_select row_select
-    //            sram
-    // ------------------------------
-    aerv_words = 4; // assert
-    word_size = 2; // assert
-    cols = 8; // assert
-    rows = 8; //assert
-    addr_1of4 = 3; // assert
-    word_1of4_to_1of2<1, 2> word_4to2(g,,); // convert the write data to dual rail
-    config_sram_addr_decoder<addr_1of4, rows, cols> addr_decoder(g,,,,);
+template <pbool split_data>
+defproc config_sram_interface (globals g; eMx1of4<4> _aerv_data;
+    bool row_select[8], col_select[8], bl_[16], bl[16]) {
+    // data arrives 3 2 1 0 word order
+    pint aerv_words = 4;
+    pint word_size = 2;
+    pint cols = 8;
+    pint rows = 8;
+    pint addr_1of4 = 3;
 
-    _aerv_data.e = addr_decoder.data_e;
-    word_4to2._x = {_aerv_data.m[3]}; // want to raise write lines high first
-    _aerv_data.m[0..2] = addr_decoder._addr;
-    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-        // we assume sufficient latency in the receiver for the bitcell to be written
-        (: w : word_size :
-            (: d : 2 :
-                [after=0] ~word_4to2.y[w].d[d]<9> -> _write[w].d[d]+
-                [after=0] word_4to2.y[w].d[d]<6> -> _write[w].d[d]-
+    // split_data: 
+    //     true -> convert data from 1of4 to 1of2 and write 2 bits at a time
+    //     false -> use data as 1of2 words and write 1 bit at time
+    c1of2 data[2];
+    [ split_data ->
+        // convert the data data to dual rail
+        word_1of4_to_1of2 data_4to2(g, _aerv_data.m[3], data);
+    [] ~split_data ->
+        // treat data data as dual rail
+        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+            (: w : word_size :
+                (: d : 2 :
+                    [after=0] ~_aerv_data.m[3].d[w*word_size+d]<9> -> data[w].d[d]+
+                    [after=0] _aerv_data.m[3].d[w*word_size+d]<6> -> data[w].d[d]-
+                )
             )
+        }
+    ]
+
+    // middle word split into high row bit and low col bit
+    word_1of4_to_1of2 rowcol_mid_4to2(g, _aerv_data.m[1], );
+    c1of2 row_high, col_low;
+    rowcol_mid_4to2.y[0] = row_high;
+    rowcol_mid_4to2.y[1] = col_low;
+
+    c1of4 row_low;
+    c1of4 col_high;
+    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+        (: d : 4 :
+            [after=0] ~_aerv_data.m[0].n[d]<9> -> row_low.d[d]+
+            [after=0] _aerv_data.m[0].n[d]<6> -> row_low.d[d]-
+
+            [after=0] ~_aerv_data.m[2].n[d]<9> -> col_high.d[d]+
+            [after=0] _aerv_data.m[2].n[d]<6> -> col_high.d[d]-
         )
     }
+    config_sram_row_decoder row_decoder(g, row_low, row_high, row_select);
+    config_sram_col_decoder col_decoder(g, col_low, col_high, data, bl, bl_,
+                                        col_select);
 
-    bool col_select[cols];
-    col_select = addr_decoder.col_select;
-    row_select = addr_decoder.row_select;
+    // check validity on last word to appear
+    addr_vn vn(g, _aerv_data.m[0],); 
 
     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-        // we assume sufficient latency in the receiver for the bitcell to be written
-        (: n : cols :
-            [after=0] ~col_select[n]<9> -> _col_select[n]+
-            [after=0] col_select[n]<6> -> _col_select[n]-
-        )
+        ~vn.vn<9> -> _aerv_data.e+
+        vn.vn<6> -> _aerv_data.e-
     }
 }
 
 } // namespace aer
 
 namespace mem {
+/*
+
+Instantaneous 6T SRAM cell.
+
+_bl is an inverted dualrail representing the bit lines of
+the cell. It should be precharged to the neutral state (11)
+before a read and driven to a valid value (01 or 10) for a 
+write.
+
+wl is the word line for the cell. For a read or write operation
+the wl must be 1. Otherwise no action will be taken.
+
+   bl.f        bl.t
+wl__|___________|__
+    |  ___|___  |
+    | |       | |
+    |_|6T SRAM|_|
+    | |_______| |
+    |           |
+
+
+The [after=0] attribute means that the production rule fires
+immediately (no delay) after it is enabled, effectively
+making the production rule an atomic action. This is necessary
+in order to implement the timing assumption for the completion
+of a memory write.
+
+The [weak=1] attribute means that the production rule is driven
+by smaller transistors and will be easily overtaken by transistors
+of normal size. This is necessary to prevent X values caused by
+interference during the write operation.
+
+Prsim does not directly support pass transistors so they have to
+be represented as a set of 4 production rules for prsim. However,
+these production rules do not have to be bubble reshuffled or sized.
+
+*/
+defproc sram_cell(globals g; bool wl; dualrail _bl, _q) {
+	[ LAYOUT ->
+		prs<g.Vdd, g.GND | g.vpsub, g.vnsub>
+		{
+			//Cross coupled inverters
+			 _q.f -> _q.t-
+			~_q.f -> _q.t+
+	
+			 _q.t -> _q.f-
+			~_q.t -> _q.f+
+			
+			// Access Transistors
+			passn(wl, _q.t, _bl.t)
+			passn(wl, _q.f, _bl.f)
+		}
+	[] ~LAYOUT ->
+		prs<g.Vdd, g.GND>
+		{
+			//Cross coupled inverters
+			// Assume that the value on the sram settles before the next action
+			// Assume that these reset to an 'unknown' value which will be false.
+			[weak=1; after=0] g._sReset & _q.f -> _q.t-
+			[weak=1; after=0] 			 ~_q.f -> _q.t+
+	
+			[weak=1; after=0] 			   _q.t -> _q.f-
+			[weak=1; after=0] ~g.sReset & ~_q.t -> _q.f+
+			
+			g.pReset -> _q.f-
+			~g._pReset -> _q.t+
+
+			// Assume that the bitlines have changed in the time after wl+,pchg- and before sen+
+			[weak=1; after=0]  g._sReset & wl & ~_q.f  -> _bl.f-
+			[weak=1; after=0]  g._sReset & wl & ~_q.t  -> _bl.t-
+
+			// Assume that the value on the bit lines has been written during the time alotted for a write
+			[after=0] g._sReset & wl & ~_bl.f -> _q.f-
+			[after=0] g._sReset & wl & ~_bl.t -> _q.t-
+		}
+	]
+}
+
+template <pint rows, words_per_row, word_size>
+defproc arrayNxM(globals g; bool _bl[words_per_row][word_size][2]; 
+    bool! _q[rows][words_per_row][word_size][2]; bool? wl[rows]) {
+	[PRSIM ->
+		sram_cell bits[rows][words_per_row][word_size];
+		(;i:rows:
+			(;j:words_per_row:
+				(;k:word_size:
+					bits[i][j][k].g = g;
+					bits[i][j][k]._bl.d = _bl[j][k];
+					bits[i][j][k]._q.d = _q[i][j][k];
+					bits[i][j][k].wl = wl[i];
+				)
+			)
+		)
+	]
+}
+
 
 /*
                                   col_select
@@ -182,39 +283,31 @@ namespace mem {
 Notes:
 
 */
-export template <pint rows, cols, word_size>
-defproc config_sramNxM_addr_decoded(globals g; dualrail _write[word_size]; bool _col_select[cols], row_select[rows]; dualrail _q[rows][cols][word_size])
-{
-    config_arrayNxM<rows, cols, word_size> array(g.Vdd, g.GND, g.sReset, g.pReset, g._sReset, g._pReset,,,);
+export
+defproc config_sram(globals g; ::aer::eMx1of4<4> _aerv_data; dualrail _q[8][8][2];
+                    bool row_select[8], col_select[8], bl_[16], bl[16]) {
+    pint rows = 8;
+    pint cols = 8;
+    pint word_size = 2;
 
-	/****************** write, col_select => array._bl **********************/
-	dualrail __write[cols][word_size];
-    // we assume sufficient latency in the receiver for the bitcell to be written
-	(;i:cols:
-		(;j:word_size:
-			prs <g.Vdd, g.GND | g.vpsub, g.vnsub>
-			{
-				[after=0] ~_write[j].f<12> & ~_col_select[i]<12> -> __write[i][j].f+
-				[after=0] _write[j].f<6> | _col_select[i]<6> -> __write[i][j].f-
-				[after=0] ~_write[j].t<12> & ~_col_select[i]<12> -> __write[i][j].t+
-				[after=0] _write[j].t<6> | _col_select[i]<6> -> __write[i][j].t-
+    ::aer::globals g_aer;
+    ::compat_bs::globals g_compat(g_aer, g);
+    ::aer::config_sram_interface<false>
+        interface(g_aer, _aerv_data, row_select, col_select, bl_, bl);
+    arrayNxM<rows, cols, word_size> array(g,,, row_select);
 
-				[after=0] __write[i][j].f<12> -> array._bl[i][j][0]-
-				[after=0] ~__write[i][j].f<18> -> array._bl[i][j][0]+
-				[after=0] __write[i][j].t<12> -> array._bl[i][j][1]-
-				[after=0] ~__write[i][j].t<18> -> array._bl[i][j][1]+
-			}
-		)
-	)
+    // assume sufficient latency in the receiver for the bitcell to be written
+    (;c:cols:
+        (;w:word_size:
+            bl_[c*word_size+w] = array._bl[c][w][0];
+            bl[c*word_size+w] = array._bl[c][w][1];
+        )
+    )
 
-	/************************ row_select => array.wl *************************/
-    row_select = array.wl;
-
-	/**************************** _q => array._q *****************************/
-	(;i:rows:
-		(;j:cols:
+	(;c:rows:
+		(;w:cols:
 			(;k:word_size:
-				_q[i][j][k].d = array._q[i][j][k];
+				_q[c][w][k].d = array._q[c][w][k];
 			)
 		)
 	)

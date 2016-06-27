@@ -1,10 +1,12 @@
 channel eMx1of4 5 mem_src
-channel eMx1of2 2 mem_write
+channel e1ofN 16 mem_bl
+channel e1ofN 16 mem_bl_
 channel e1ofN 8 mem_col_select
 channel e1ofN 8 mem_row_select
 
 loop-injectfile mem_src unit_bs_aerv_mem.in
-loop-expectfile mem_write unit_bs_aerv_mem_write.out
+loop-expectfile mem_bl_ unit_bs_aerv_mem_bl.out
+loop-expectfile mem_bl unit_bs_aerv_mem_bl.out
 loop-expectfile mem_col_select unit_bs_aerv_mem_col_select.out
 loop-expectfile mem_row_select unit_bs_aerv_mem_row_select.out
 
@@ -40,12 +42,5 @@ set g._sReset 1
 set g.sReset 0
 
 status X
-
-vector mem_write :dualrail sram[0].write[0].d[0] sram[0].write[0].d[1] sram[0].write[1].d[0] sram[0].write[1].d[1]
-vector mem_col :1ofN 8 sram[0].col_select[0] sram[0].col_select[1] sram[0].col_select[2] sram[0].col_select[3] sram[0].col_select[4] sram[0].col_select[5] sram[0].col_select[6] sram[0].col_select[7]
-vector mem_row :1ofN 8 sram[0].row_select[0] sram[0].row_select[1] sram[0].row_select[2] sram[0].row_select[3] sram[0].row_select[4] sram[0].row_select[5] sram[0].row_select[6] sram[0].row_select[7]
-vwatch mem_write
-vwatch mem_col
-vwatch mem_row
 
 advance 1000100000

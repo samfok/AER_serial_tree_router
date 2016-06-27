@@ -31,4 +31,4 @@ set g.sReset 0
 
 status X
 
-advance 1000100000
+advance 1000100

@@ -15,35 +15,23 @@ pint M_MEM_1of2 = 2*M_MEM_1of4;
 pint N_SYN      = Mp4;
 pint N_MEM      = N_SYN/4;
 pint D          = 4;
-pbool flip_mem_out = true;
 
 aer::globals g_aer;
 aer::globals g = g_aer;
 globals g_bs;
 compat_bs::globals g_compat(g_aer, g_bs);
 
-aer::SOURCE_BRAIN_AERV<M_SPK_1of4, M_SPK_1of4-M_1of4, 0, 2> spk_src(g,);
-aer::SOURCE_BRAIN_AERV<M_MEM_1of4, M_MEM_1of4-M_1of4, 2, 1> mem_src(g,);
+aer::test::SOURCE_BRAIN_AERV<M_SPK_1of4, M_SPK_1of4-M_1of4, 0, 2> spk_src(g,);
+aer::test::SOURCE_BRAIN_AERV<M_MEM_1of4, M_MEM_1of4-M_1of4, 2, 1> mem_src(g,);
 aer::eMx1of4_to_eMx1of2<M_SPK_1of4, M_SPK_1of2> spk_src_4to2(g, spk_src.d,);
 aer::eMx1of4_to_eMx1of2<M_MEM_1of4, M_MEM_1of2> mem_src_4to2(g, mem_src.d,);
-aer::SYNAPSE spk_snk[N_SYN];
+aer::test::SYNAPSE spk_snk[N_SYN];
 
-pint rows = 8;
-pint cols = 8;
-pint addr_1of4 = 3;
-pint word_size = 2;
-aer::config_sram_interface<M_MEM_1of4-M_1of4, word_size, cols, rows, addr_1of4> sram_interface[N_MEM];
-mem::config_sramNxM_addr_decoded<rows, cols, word_size> sram[N_MEM];
-compat_bs::dualrail_arr<word_size> write[N_MEM];
+mem::config_sram sram[N_MEM];
 aer::eMx1of4<M_MEM_1of4-M_1of4> aerv__y_mem[N_MEM];
 (; n : N_MEM :
-    sram_interface[n].g = g;
     sram[n].g = g_bs;
-    sram_interface[n]._aerv_data = aerv__y_mem[n];
-    write[n].aer = sram_interface[n]._write;
-    write[n].bs = sram[n]._write;
-    sram_interface[n]._col_select = sram[n]._col_select;
-    sram_interface[n].row_select = sram[n].row_select;
+    sram[n]._aerv_data = aerv__y_mem[n];
 )
 
 aer::a1of2 aerv_y_syn[N_SYN];
@@ -52,5 +40,5 @@ aer::a1of2 aerv_y_syn[N_SYN];
     spk_snk[n].spk = aerv_y_syn[n];
 )
 
-BS_AERV<M_1of2, M_1of4, Mp4, M_SPK_1of2, M_SPK_1of4, M_MEM_1of2, M_MEM_1of4, N_SYN, N_MEM, flip_mem_out> aerv(
+BS_AERV<M_1of2, M_1of4, Mp4, M_SPK_1of2, M_SPK_1of4, M_MEM_1of2, M_MEM_1of4, N_SYN, N_MEM> aerv(
     g, spk_src_4to2.y, mem_src_4to2.y, aerv_y_syn, aerv__y_mem);
