@@ -27,10 +27,12 @@ aer::a1of2 y_syn[N_SYN];
     }
 )
 
+aer::aMx1of4<M_MEM_1of4-M_1of4> _y_mem_[N_MEM];
 aer::eMx1of4<M_MEM_1of4-M_1of4> _y_mem[N_MEM];
 (; n : N_MEM :
     mem_snk[n].g = g;
     mem_snk[n].d.e = _y_mem[n].e;
+    _y_mem[n].m = _y_mem_[n].m;
 )
 
 prs<g.Vdd, g.GND> {
@@ -40,6 +42,7 @@ prs<g.Vdd, g.GND> {
                 _y_mem[n].m[m].d[d] => mem_snk[n].d.m[m].d[d]-
             )
         )
+        [after=0] _y_mem[n].e => _y_mem_[n].a-
     )
 }
 
@@ -52,4 +55,4 @@ aer::eMx1of2<M_MEM_1of2> mem_src;
 )
 
 BS_AERV<M_1of2, M_1of4, p4M, M_SPK_1of2, M_SPK_1of4, M_MEM_1of2, M_MEM_1of4, N_SYN, N_MEM>
-    aerv(g, spk_src, mem_src, y_syn, _y_mem);
+    aerv(g, spk_src, mem_src, y_syn, _y_mem_);

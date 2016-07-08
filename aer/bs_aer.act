@@ -15,7 +15,7 @@ defproc BS_AER (aer::globals g;
                 aer::eMx1of2<M_1of2> aerv_spk_in;
                 aer::eMx1of2<M_1of2+6> aerv_mem_in;
                 aer::a1of2 aerv_syn[p4M/4];
-                aer::eMx1of4<4> aerv__mem[p4M/4/4]) {
+                aer::aMx1of4<4> aerv__mem[p4M/4/4]) {
     // modified braindrop / brainstorm aer system that uses the 
     // the serializer defined in the brainstorm repository at the top of the
     // receiver tree

@@ -21,7 +21,7 @@ serializer::AERSERN<MM[0]> serial0(g_bs,,,,);
 serializer::AERSERN<MM[1]> serial1(g_bs,,,,);
 
 aer::interface::SERIAL_MERGE<M, N> merge(g,,,,,,);
-aer::interface::OUT_e1ofN<N> out(g, merge.yp, merge.yi, merge.y, snk.d);
+aer::interface::OUT_e1ofN<N> out(g, merge.yp, merge.ye, merge.y, snk.d);
 
 compat_bs::eMx1of2<MM[0]> serial0_I(src0.d, serial0.I);
 compat_bs::eMx1of2<MM[1]> serial1_I(src1.d, serial1.I);
@@ -31,6 +31,6 @@ merge.x[0].d = serial0_Od.aer.d;
 merge.x[1].d = serial1_Od.aer.d;
 
 merge.xp[0] = serial0.Op;
-merge.xo[0] = serial0.Oe;
+merge.xe[0] = serial0.Oe;
 merge.xp[1] = serial1.Op;
-merge.xo[1] = serial1.Oe;
+merge.xe[1] = serial1.Oe;

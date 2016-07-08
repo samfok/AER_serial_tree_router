@@ -12,7 +12,7 @@ compat_bs::globals g_compat(g_aer, g_bs);
 
 aer::SOURCE_random_eMx1of2<M> src(g_aer,);
 serializer::AERSERN<M> serial(g_bs,,,,);
-aer::SINK_SERIAL<4> snk(g_aer, serial.Op, serial.Oe,);
+aer::test::SINK_SERIAL<4> snk(g_aer, serial.Op, serial.Oe,);
 compat_bs::eMx1of2<M> serial_I(src.d, serial.I);
 compat_bs::d1of<4> serial_Od(, serial.Od);
 snk.d.d = serial_Od.aer.d;

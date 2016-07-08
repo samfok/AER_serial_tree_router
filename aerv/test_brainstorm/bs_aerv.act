@@ -20,7 +20,7 @@ aer::test::SOURCE_BRAIN_AERV<M_MEM_1of4, M_MEM_1of4-M_1of4, 2, 1> mem_src(g,);
 aer::eMx1of4_to_eMx1of2<M_SPK_1of4, M_SPK_1of2> spk_src_4to2(g, spk_src.d,);
 aer::eMx1of4_to_eMx1of2<M_MEM_1of4, M_MEM_1of2> mem_src_4to2(g, mem_src.d,);
 aer::test::SYNAPSE spk_snk[N_SYN];
-aer::SINK_eMx1ofN<M_MEM_1of4 - M_1of4, D> mem_snk[N_MEM];
+aer::SINK_aMx1ofN<M_MEM_1of4 - M_1of4, D> mem_snk[N_MEM];
 
 aer::a1of2 y_syn[N_SYN];
 (; n : N_SYN :
@@ -28,10 +28,10 @@ aer::a1of2 y_syn[N_SYN];
     spk_snk[n].spk.d = y_syn[n].d;
     spk_snk[n].spk.a = y_syn[n].a;
 )
-aer::eMx1of4<M_MEM_1of4-M_1of4> _y_mem[N_MEM];
+aer::aMx1of4<M_MEM_1of4-M_1of4> _y_mem[N_MEM];
 (; n : N_MEM :
     mem_snk[n].g = g;
-    mem_snk[n].d.e = _y_mem[n].e;
+    mem_snk[n].d.a = _y_mem[n].a;
 )
 
 prs<g.Vdd, g.GND> {

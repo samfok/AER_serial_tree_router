@@ -217,4 +217,13 @@ export defchan a1of2 <: chan(int<1>) (c1of2 m, b; bool d[2], t, f, a) {
     recv { }
 }
 
+//Channel: aMx1of4<M>
+export template<pint M>
+defchan aMx1of4 <: chan(int<M*2>) (c1of4 m[M], b[M]; bool a)
+{
+    m = b;
+    send { }
+    recv { }
+}
+
 } // namespace aer

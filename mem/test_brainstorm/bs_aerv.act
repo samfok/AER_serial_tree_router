@@ -28,7 +28,7 @@ aer::eMx1of4_to_eMx1of2<M_MEM_1of4, M_MEM_1of2> mem_src_4to2(g, mem_src.d,);
 aer::test::SYNAPSE spk_snk[N_SYN];
 
 mem::config_sram sram[N_MEM];
-aer::eMx1of4<M_MEM_1of4-M_1of4> aerv__y_mem[N_MEM];
+aer::aMx1of4<M_MEM_1of4-M_1of4> aerv__y_mem[N_MEM];
 (; n : N_MEM :
     sram[n].g = g_bs;
     sram[n]._aerv_data = aerv__y_mem[n];

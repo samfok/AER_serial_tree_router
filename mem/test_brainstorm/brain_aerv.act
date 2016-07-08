@@ -23,7 +23,7 @@ aer::test::SOURCE_BRAIN_AERV<M_MEM, M_MEM-M, 2, 1> mem_src(g,);
 aer::test::SYNAPSE spk_snk[N_SYN];
 
 mem::config_sram sram[N_MEM];
-aer::eMx1of4<M_MEM-M> aerv__y_mem[N_MEM];
+aer::aMx1of4<M_MEM-M> aerv__y_mem[N_MEM];
 (; n : N_MEM :
     sram[n].g = g_bs;
     sram[n]._aerv_data = aerv__y_mem[n];

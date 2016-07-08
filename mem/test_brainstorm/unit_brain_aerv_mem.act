@@ -35,7 +35,7 @@ aer::e1of<cols*word_size> mem_bl_;
 aer::e1of<cols*word_size> mem_bl;
 aer::e1of<cols> mem_col_select;
 aer::e1of<rows> mem_row_select;
-aer::eMx1of4<M_MEM-M> aerv__y_mem;
+aer::aMx1of4<M_MEM-M> aerv__y_mem;
 
 mem::config_sram sram(g_bs, aerv__y_mem,,,,,);
 
@@ -59,5 +59,7 @@ prs<g.Vdd, g.GND> {
 }
 mem_col_select.d = sram.col_select;
 mem_row_select.d = sram.row_select;
-mem_col_select.e = sram._aerv_data.e;
-mem_row_select.e = sram._aerv_data.e;
+prs {
+    [after=0] sram._aerv_data.a => mem_col_select.e-
+    [after=0] sram._aerv_data.a => mem_row_select.e-
+}
