@@ -1,8 +1,8 @@
 channel e1ofN 4096 spk_src
-channel eMx1of4 6 snk
+channel eMx1of2 12 snk
 
-loop-injectfile spk_src unit_brain_aer_aext.in
-loop-expectfile snk unit_brain_aer_aext.out
+loop-injectfile spk_src unit_bs_aer_aext.in
+loop-expectfile snk unit_bs_aer_aext.out
 
 random
 break-on-warn
