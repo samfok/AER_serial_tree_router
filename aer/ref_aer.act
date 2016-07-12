@@ -82,6 +82,7 @@ namespace brain_aer {
             ::aer::test::NRN_ARR<NN> nrn(g, nrn_req, nrn_ack);
         ]
         ::aer::test::SYNAPSE_ARR<NN/N> syn(g, syn_spk);
+        ::aer::test::REF_MEM<M_MEM> mem(g, _mem);
     }
 }
 

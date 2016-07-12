@@ -24,19 +24,18 @@ aer::eMx1of2<M_AERV_MEM_1of2> aerv_mem_src;
 aer::eMx1of4_to_eMx1of2<M_AERV_SPK_1of4, M_AERV_SPK_1of2> aerv_spk_src_4to2(
     g, aerv_spk_src.d,);
 
-aer::test::MEM_ARR<4, N_MEM> mem(g,);
-
+aer::aMx1of4<M_AERV_MEM_1of4-M_1of4+1> _mem[N_MEM];
 aer::eMx1of4<M_AERV_MEM_1of4-M_1of4+1> mem_dat[N_MEM];
 (; nm : N_MEM :
     prs {
         (: m : M :
             (: n : N :
-                [after=0] mem._x[nm].m[m].n[n] => mem_dat[nm].m[m].n[n]-
+                [after=0] _mem[nm].m[m].n[n] => mem_dat[nm].m[m].n[n]-
             )
         )
-        [after=0] mem._x[nm].a => mem_dat[nm].e-
+        [after=0] _mem[nm].a => mem_dat[nm].e-
     }
 )
 
 BS_AER<M*2, M, NN, false> aer(g,,, aext_snk.d,
-                              aerv_spk_src_4to2.y, aerv_mem_src,, mem._x);
+                              aerv_spk_src_4to2.y, aerv_mem_src,, _mem);

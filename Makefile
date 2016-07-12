@@ -1,6 +1,14 @@
 .PHONY: default all clean
 
-SUBDIRS=$(shell find * -mindepth 1 -type d -name test)
+# get parent directory
+PARENT_DIR := $(lastword $(subst /, ,$(shell dirname `pwd`)))
+
+# check if we're embedded in the brainstorm repo or not
+ifeq ($(PARENT_DIR), act)
+	SUBDIRS=$(shell find * -mindepth 1 -type d -name test*)
+else
+	SUBDIRS=$(shell find * -mindepth 1 -type d -name test)
+endif
 
 default: all
 

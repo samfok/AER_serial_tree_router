@@ -17,7 +17,6 @@ aer::eMx1of2_to_eMx1of4<2*M_AERV_SPK, M_AERV_SPK> aerv_spk_src_(g, aerv_spk_src,
 aer::test::SOURCE_BRAIN_AERV<M_AERV_MEM, M_AERV_MEM-M+1, 2, 1>
     aerv_mem_src(g,);
 aer::test::SYNAPSE_ARR<N_SYN> syn(g,);
-aer::test::REF_MEM_ARR<4, N_MEM> mem(g,);
 
 aer::a1of2 syn_spk[N_SYN];
 aer::e1of2 syn_dat[N_SYN];
@@ -31,4 +30,4 @@ prs {
 }
 
 aer::BRAIN_AER<M, NN, false> aer(g,,, aext_snk.d, 
-                          aerv_spk_src_.y, aerv_mem_src.d, syn_spk, mem._x);
+                          aerv_spk_src_.y, aerv_mem_src.d, syn_spk,);

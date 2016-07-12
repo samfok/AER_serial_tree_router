@@ -19,15 +19,14 @@ aer::test::SOURCE_BRAIN_AERV<M, 1, 0, 2> aerv_spk_src(g,);
 aer::eMx1of2<2*M_AERV_MEM> aerv_mem_src;
 aer::eMx1of2_to_eMx1of4<2*M_AERV_MEM, M_AERV_MEM> aerv_mem_src_(g, aerv_mem_src,);
 
-aer::test::REF_MEM_ARR<4, N_MEM> mem(g,);
-
+aer::aMx1of4<M_AERV_MEM-M+1> _mem[N_MEM];
 aer::eMx1of4<M_AERV_MEM-M+1> mem_dat[N_MEM];
 (; nm : N_MEM :
-    mem_dat[nm].m = mem._x[nm].m;
+    mem_dat[nm].m = _mem[nm].m;
     prs {
-        [after=0] mem._x[nm].a => mem_dat[nm].e-
+        [after=0] _mem[nm].a => mem_dat[nm].e-
     }
 )
 
 aer::BRAIN_AER<M, NN, false> aer(g,,, aext_snk.d, 
-                          aerv_spk_src.d, aerv_mem_src_.y,, mem._x);
+                          aerv_spk_src.d, aerv_mem_src_.y,, _mem);

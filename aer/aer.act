@@ -30,23 +30,12 @@ namespace brain_aer {
         bool! SPK_So[16]; bool? ACK_So[16];
         bool? INH_Syn[4], EXC_Syn[4]; bool! ACK_Syn[4];
         bool! ADC_OUT[2];
-        bool ? V_REF, V_R, V_G, V_PE_PD, V_PE_PU, V_WINH, V_WDC, V_WEXC, V_IK_B, V_LK_A, V_IOFFSET,
-        DIFF_CM_0_R, DIFF_SYN_0_R,
-        DIFF_CM_0_D, DIFF_SYN_0_D,
-        DIFF_CM_1_R, DIFF_SYN_1_R,
-        DIFF_CM_2_R, DIFF_SYN_2_R,
-        DIFF_CM_3_R, DIFF_SYN_3_R,
-        DIFF_CM_3_U, DIFF_SYN_3_U,
-        DIFF_CM_4_D, DIFF_SYN_4_D,
-        DIFF_CM_7_U, DIFF_SYN_7_U,
-        DIFF_CM_8_D, DIFF_SYN_8_D,
-        DIFF_CM_11_U, DIFF_SYN_11_U,
-        DIFF_CM_12_D, DIFF_SYN_12_D,
-        DIFF_CM_12_L, DIFF_SYN_12_L,
-        DIFF_CM_13_L, DIFF_SYN_13_L,
-        DIFF_CM_14_L, DIFF_SYN_14_L,
-        DIFF_CM_15_L, DIFF_SYN_15_L,
-        DIFF_CM_15_U, DIFF_SYN_15_U
+        bool ? V_REF, V_R, V_G, V_PE_PD, V_PE_PU, V_WINH, V_WDC, 
+        V_WEXC, V_IK_B, V_LK_A, V_IOFFSET,
+        DIFF_CM_U[4], DIFF_SYN_U[4],
+        DIFF_CM_L[4], DIFF_SYN_L[4],
+        DIFF_CM_R[4], DIFF_SYN_R[4],
+        DIFF_CM_D[4], DIFF_SYN_D[4]
         ) {}
 
     export
@@ -55,7 +44,16 @@ namespace brain_aer {
                   bool aext_pe, aext__pp; c1of<4> aext__p;
                   bool aerv__pp, aerv__pe; c1of<4> aerv_p;
                   bool nrn_req[16], nrn_ack[16];
-                  a1of2 syn_spk[4]; aMx1of4<4> _mem) {
+                  a1of2 syn_spk[4]; aMx1of4<4> _mem;
+                  // layout-specific ports
+                  bool! ADC_OUT[2];
+                  bool ? V_REF, V_R, V_G, V_PE_PD, V_PE_PU, V_WINH, V_WDC, 
+                  V_WEXC, V_IK_B, V_LK_A, V_IOFFSET,
+                  DIFF_CM_U[4], DIFF_SYN_U[4],
+                  DIFF_CM_L[4], DIFF_SYN_L[4],
+                  DIFF_CM_R[4], DIFF_SYN_R[4],
+                  DIFF_CM_D[4], DIFF_SYN_D[4]
+                  ) {
         // braindrop / brainstorm neuron array tile
         // transmitter services 16 neurons
         // recevier services 4 synapses, 1 memory
@@ -118,6 +116,7 @@ namespace brain_aer {
                 ::aer::test::NRN_ARR<NN> nrn(g, nrn_req, nrn_ack);
             ]
             ::aer::test::SYNAPSE_ARR<NN/N> syn(g, syn_spk);
+            ::aer::test::MEM<M_MEM> mem(g, _mem);
         [] LAYOUT ->
             TILE_NRN_MEM tile_nrn_mem;
             tile_nrn_mem.RST = g.sReset;
