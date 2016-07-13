@@ -45,15 +45,13 @@ namespace brain_aer {
 
     export
     template <pbool unit_aext>
-    defproc TILE (globals g;
+    defproc TILE (globals_w_analog ga;
                   bool aext_pe, aext__pp; c1of<4> aext__p;
                   bool aerv__pp, aerv__pe; c1of<4> aerv_p;
                   bool nrn_req[16], nrn_ack[16];
                   a1of2 syn_spk[4]; aMx1of4<4> _mem;
                   // layout-specific ports
-                  bool! ADC_OUT[2];
-                  bool ? V_REF, V_R, V_G, V_PE_PD, V_PE_PU, V_WINH, V_WDC, 
-                  V_WEXC, V_IK_B, V_LK_A, V_IOFFSET,
+                  bool?
                   DIFF_CM_U[4], DIFF_SYN_U[4],
                   DIFF_CM_L[4], DIFF_SYN_L[4],
                   DIFF_CM_R[4], DIFF_SYN_R[4],
@@ -68,6 +66,9 @@ namespace brain_aer {
         pint N_MEM = 1;
         pint N_AEXT_LEAF = 4;
         pint M_MEM = 4;
+
+        globals g;
+        globals_to_globals_w_analog g_to_ga(g, ga);
 
         // transmitter components
         ::aer::transmitter::NODE<N> aext_node(g,,, aext_pe, aext__pp,, aext__p);
@@ -124,7 +125,7 @@ namespace brain_aer {
             ::aer::test::MEM<M_MEM> mem(g, _mem);
         [] LAYOUT ->
             TILE_NRN_MEM tile_nrn_mem;
-            tile_nrn_mem.RST = g.sReset;
+            tile_nrn_mem.RST = ga.sReset;
             tile_nrn_mem.SPK_So = nrn_req;
             tile_nrn_mem.ACK_So = nrn_ack;
             (; n : N_SYN :
@@ -132,18 +133,18 @@ namespace brain_aer {
                 tile_nrn_mem.EXC_Syn[n] = syn_spk[n].d[1];
                 tile_nrn_mem.ACK_Syn[n] = syn_spk[n].a;
             )
-            tile_nrn_mem.ADC_OUT = ADC_OUT;
-            tile_nrn_mem.V_REF = V_REF;
-            tile_nrn_mem.V_R = V_R;
-            tile_nrn_mem.V_G = V_G;
-            tile_nrn_mem.V_PE_PD = V_PE_PD;
-            tile_nrn_mem.V_PE_PU = V_PE_PU;
-            tile_nrn_mem.V_WINH = V_WINH;
-            tile_nrn_mem.V_WDC = V_WDC;
-            tile_nrn_mem.V_WEXC = V_WEXC;
-            tile_nrn_mem.V_IK_B = V_IK_B;
-            tile_nrn_mem.V_LK_A = V_LK_A;
-            tile_nrn_mem.V_IOFFSET = V_IOFFSET;
+            tile_nrn_mem.ADC_OUT = ga.ADC_OUT;
+            tile_nrn_mem.V_REF = ga.V_REF;
+            tile_nrn_mem.V_R = ga.V_R;
+            tile_nrn_mem.V_G = ga.V_G;
+            tile_nrn_mem.V_PE_PD = ga.V_PE_PD;
+            tile_nrn_mem.V_PE_PU = ga.V_PE_PU;
+            tile_nrn_mem.V_WINH = ga.V_WINH;
+            tile_nrn_mem.V_WDC = ga.V_WDC;
+            tile_nrn_mem.V_WEXC = ga.V_WEXC;
+            tile_nrn_mem.V_IK_B = ga.V_IK_B;
+            tile_nrn_mem.V_LK_A = ga.V_LK_A;
+            tile_nrn_mem.V_IOFFSET = ga.V_IOFFSET;
 
             tile_nrn_mem.GND = g.GND;
             tile_nrn_mem.Vdd = g.Vdd;
@@ -162,7 +163,7 @@ namespace brain_aer {
 
 export
 template <pint M, p4M; pbool unit_aext>
-defproc BRAIN_AER (globals g;
+defproc BRAIN_AER (globals_w_analog ga;
                    bool aext_nrn_req[p4M], aext_nrn_ack[p4M];
                    eMx1of4<M> aext_out;
                    eMx1of4<M> aerv_spk_in; eMx1of4<M+3> aerv_mem_in;
@@ -182,11 +183,14 @@ defproc BRAIN_AER (globals g;
     N_TILE * NRN_PTILE = p4M; // assert neurons evenly divide into tiles
     pint M_SPK = M;
     pint M_MEM = M+3;
+    
+    globals g;
+    globals_to_globals_w_analog g_to_ga(g, ga);
 
     // TILEs
     brain_aer::TILE<unit_aext> tile[N_TILE];
     (; n : N_TILE :
-        tile[n].g = g;
+        tile[n].ga = ga;
     )
 
     // transmitter components

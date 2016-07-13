@@ -1,6 +1,7 @@
 namespace aer {
 
-export deftype globals <: int<8> (bool Vdd, GND, pReset, _pReset, sReset, _sReset, vpsub, vnsub)
+export deftype globals <: int<8> (
+    bool Vdd, GND, pReset, _pReset, sReset, _sReset, vpsub, vnsub)
 {
   set { }
   get { }
@@ -12,13 +13,38 @@ export deftype globals_np <: int<4> (bool pReset, sReset, _pReset, _sReset)
     get { }
 }
 
+export deftype globals_w_analog <: int<8> (
+    // digital signals
+    bool Vdd, GND, pReset, _pReset, sReset, _sReset, vpsub, vnsub;
+    // analog signals
+    bool RST, ADC_OUT[2], V_REF, V_R, V_G, V_PE_PD, V_PE_PU, V_WINH, V_WDC, 
+    V_WEXC, V_IK_B, V_LK_A, V_IOFFSET
+    )
+{
+  set { }
+  get { }
+}
+
 export defproc ResetSetup (globals g; bool Reset)
 {
-  Reset = g.sReset;
-  prs {
-    g.pReset => g._pReset-
-    g.sReset => g._sReset-
-  }
+    Reset = g.sReset;
+    prs {
+        g.pReset => g._pReset-
+        g.sReset => g._sReset-
+    }
+}
+
+export defproc globals_to_globals_w_analog (globals g; globals_w_analog ga)
+{
+    g.Vdd = ga.Vdd;
+    g.GND = ga.GND;
+    g.vpsub = ga.vpsub;
+    g.vnsub = ga.vnsub;
+    g.pReset = ga.pReset;
+    g.sReset = ga.sReset;
+    g._pReset = ga._pReset;
+    g._sReset = ga._sReset;
+    prs {} // HACK: to appease netgen -B
 }
 
 } // namespace aer

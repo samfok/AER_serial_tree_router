@@ -5,7 +5,10 @@ pint M=6;
 pint N=4;
 pint NN=4096; // NN=N^M
 pint M_AERV_MEM=M+3;
+
+aer::globals_w_analog ga;
 aer::globals g;
+aer::globals_to_globals_w_analog g_to_ga(g, ga);
 bool Reset = g.sReset;
 
 aer::e1of<NN> spk_src;
@@ -15,7 +18,7 @@ aer::SINK_eMx1of4<M> aext_snk(g, snk);
 aer::test::SOURCE_BRAIN_AERV<M, 1, 0, 2> aerv_spk_src(g,);
 aer::test::SOURCE_BRAIN_AERV<M_AERV_MEM, M_AERV_MEM-M+1, 2, 1> aerv_mem_src(g,);
 
-aer::BRAIN_AER<M, NN, true> aer(g, spk_src.d,, snk, 
+aer::BRAIN_AER<M, NN, true> aer(ga, spk_src.d,, snk, 
                           aerv_spk_src.d, aerv_mem_src.d,,);
 
 prs<g.Vdd, g.GND> {

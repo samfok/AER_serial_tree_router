@@ -8,7 +8,10 @@ pint N=4;
 pint NN=256; // NN=N^M
 pint N_SYN=NN/N;
 pint N_MEM=NN/N/N;
+
+aer::globals_w_analog ga;
 aer::globals g;
+aer::globals_to_globals_w_analog g_to_ga(g, ga);
 bool Reset = g.sReset;
 
 aer::SINK_eMx1of4<M> aext_snk(g,);
@@ -28,5 +31,5 @@ prs {
     )
 }
 
-aer::BRAIN_AER<M, NN, false> aer(g,,, aext_snk.d, 
+aer::BRAIN_AER<M, NN, false> aer(ga,,, aext_snk.d, 
                           aerv_spk_src_.y, aerv_mem_src.d, syn_spk,);
