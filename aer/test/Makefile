@@ -2,10 +2,14 @@ include ${ACT_PATH}/aer/standard_defs.mk
 
 CFLAT := cflat -DLAYOUT=false -DPRSIM=true
 PRSIM := prsim
+PYTHON := python
 
-TESTS := $(sort $(shell find * -name '*.act'))
-PRS_OBJS := $(TESTS:%.act=prs/%.prs)
-SIM_OBJS := $(TESTS:%.act=sim/%.sim)
+ACT_REF_FILES := $(sort $(shell find * -name '*.act.ref'))
+GEN_ACT_OBJS := $(ACT_REF_FILES:%.ref=gen_%)
+
+ACT_FILES := $(sort $(shell find * -name '*.act')) $(GEN_ACT_OBJS)
+PRS_OBJS := $(ACT_FILES:%.act=prs/%.prs)
+SIM_OBJS := $(ACT_FILES:%.act=sim/%.sim)
 
 all: prs test
 
@@ -26,6 +30,11 @@ prs/%.prs: %.act ${ACT_PATH}/aer/aer/aer.act ${ACT_PATH}/aer/aer/ref_aer.act ${A
 	@printf 'compiling %s...\n' $(subst .act,,$(<F))
 	@$(CFLAT) $< > $@ || rm -f $@	
 
+$(GEN_ACT_OBJS): gen_%: %.ref
+	@printf 'generating act for %s...\n' $(subst .act.ref,,$(<F))
+	@$(PYTHON) ${ACT_PATH}/aer/aer/index_tile_ij.py $< > $@
+
 clean:
+	@rm -rf $(GEN_ACT_OBJS)
 	@rm -rf prs
 	@rm -rf sim

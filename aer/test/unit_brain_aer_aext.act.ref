@@ -2,9 +2,12 @@
 import "aer/aer/aer.act";
 import "aer/lib/test.act";
 pint M=6;
-pint N=4;
-pint NN=4096; // NN=N^M
+pint p4M=4096; // = 4^M
+pint p2M=64; // = 2^M
+pint NN=p4M;
 pint M_AERV_MEM=M+3;
+#SCRIPT pint tile_i[p4M/16];
+#SCRIPT pint tile_j[p4M/16];
 
 aer::globals_w_analog ga;
 aer::globals g;
@@ -18,8 +21,8 @@ aer::SINK_eMx1of4<M> aext_snk(g, snk);
 aer::test::SOURCE_BRAIN_AERV<M, 1, 0, 2> aerv_spk_src(g,);
 aer::test::SOURCE_BRAIN_AERV<M_AERV_MEM, M_AERV_MEM-M+1, 2, 1> aerv_mem_src(g,);
 
-aer::BRAIN_AER<M, NN, true> aer(ga, spk_src.d,, snk, 
-                          aerv_spk_src.d, aerv_mem_src.d,,);
+aer::BRAIN_AER<M, p4M, p2M, tile_i, tile_j, true> aer(
+    ga, spk_src.d,, snk, aerv_spk_src.d, aerv_mem_src.d,,);
 
 prs<g.Vdd, g.GND> {
     (| : nn : NN : aer.aext_nrn_ack[nn]) => spk_src.e-

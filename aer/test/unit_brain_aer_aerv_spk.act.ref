@@ -4,10 +4,13 @@ import "aer/lib/test.act";
 pint M=4;
 pint M_AERV_SPK=M;
 pint M_AERV_MEM=M+3;
+pint p4M=256; // = 4^M
+pint p2M=16; // = 2^M
 pint N=4;
-pint NN=256; // NN=N^M
+pint NN=p4M;
 pint N_SYN=NN/N;
-pint N_MEM=NN/N/N;
+#SCRIPT pint tile_i[p4M/16];
+#SCRIPT pint tile_j[p4M/16];
 
 aer::globals_w_analog ga;
 aer::globals g;
@@ -31,5 +34,5 @@ prs {
     )
 }
 
-aer::BRAIN_AER<M, NN, false> aer(ga,,, aext_snk.d, 
-                          aerv_spk_src_.y, aerv_mem_src.d, syn_spk,);
+aer::BRAIN_AER<M, p4M, p2M, tile_i, tile_j, false> aer(
+    ga,,, aext_snk.d, aerv_spk_src_.y, aerv_mem_src.d, syn_spk,);

@@ -44,6 +44,17 @@ namespace brain_aer {
         ) {}
 
     export
+    defproc TILE_DIFF (bool
+        DIFF_CM_U[4], DIFF_SYN_U[4],
+        DIFF_CM_L[4], DIFF_SYN_L[4],
+        DIFF_CM_R[4], DIFF_SYN_R[4],
+        DIFF_CM_D[4], DIFF_SYN_D[4]
+        ) {
+        // Dummy process to wire the tile diffusor connections
+        prs {} // HACK: To appease netgen -B
+    }
+
+    export
     template <pbool unit_aext>
     defproc TILE (globals_w_analog ga;
                   bool aext_pe, aext__pp; c1of<4> aext__p;
@@ -162,7 +173,8 @@ namespace brain_aer {
 }
 
 export
-template <pint M, p4M; pbool unit_aext>
+template <pint M, p4M, p2M; pint tile_i[p4M/16], tile_j[p4M/16];
+          pbool unit_aext>
 defproc BRAIN_AER (globals_w_analog ga;
                    bool aext_nrn_req[p4M], aext_nrn_ack[p4M];
                    eMx1of4<M> aext_out;
@@ -174,6 +186,10 @@ defproc BRAIN_AER (globals_w_analog ga;
     // p4M = 4^M neurons
     //     4^(M-1) synapses
     //     4^(M-2) neuron/synapse configuration memories
+    // p2M = 2^M = sqrt(p4M) 
+    //     L = p2M / 4 tiles per side of the array
+    // tile_i maps flat tile indexing to i of 2d ij tile indexing
+    // tile_j maps flat tile indexing to j of 2d ij tile indexing
     [M<2 -> 0=1;] // assert false
     pint N = 4; // radix of AEXT/AERV tree
     pint NRN_PTILE = 16; // neurons per tile
@@ -181,6 +197,8 @@ defproc BRAIN_AER (globals_w_analog ga;
     pint N_TILE = p4M / NRN_PTILE;
     [N_TILE=0 -> 1=0;] // assert false
     N_TILE * NRN_PTILE = p4M; // assert neurons evenly divide into tiles
+    pint L = p2M / 4;
+    L * L = N_TILE; // assert tiles form a square
     pint M_SPK = M;
     pint M_MEM = M+3;
     
@@ -189,9 +207,29 @@ defproc BRAIN_AER (globals_w_analog ga;
 
     // TILEs
     brain_aer::TILE<unit_aext> tile[N_TILE];
+    brain_aer::TILE_DIFF tile_diff[p2M][p2M];
     (; n : N_TILE :
         tile[n].ga = ga;
+        tile[n].DIFF_CM_U = tile_diff[tile_i[n]][tile_j[n]].DIFF_CM_U;
+        tile[n].DIFF_CM_L = tile_diff[tile_i[n]][tile_j[n]].DIFF_CM_L;
+        tile[n].DIFF_CM_R = tile_diff[tile_i[n]][tile_j[n]].DIFF_CM_R;
+        tile[n].DIFF_CM_D = tile_diff[tile_i[n]][tile_j[n]].DIFF_CM_D;
+        tile[n].DIFF_SYN_U = tile_diff[tile_i[n]][tile_j[n]].DIFF_SYN_U;
+        tile[n].DIFF_SYN_L = tile_diff[tile_i[n]][tile_j[n]].DIFF_SYN_L;
+        tile[n].DIFF_SYN_R = tile_diff[tile_i[n]][tile_j[n]].DIFF_SYN_R;
+        tile[n].DIFF_SYN_D = tile_diff[tile_i[n]][tile_j[n]].DIFF_SYN_D;
     )
+    [ L > 1 ->
+        (; l0: L-2 :
+            (; l1 : L :
+                tile_diff[l0][l1].DIFF_CM_D = tile_diff[l0+1][l1].DIFF_CM_U;
+                tile_diff[l0][l1].DIFF_SYN_D = tile_diff[l0+1][l1].DIFF_SYN_U;
+
+                tile_diff[l1][l0].DIFF_CM_R = tile_diff[l1][l0+1].DIFF_CM_L;
+                tile_diff[l1][l0].DIFF_SYN_R = tile_diff[l1][l0+1].DIFF_SYN_L;
+            )
+        )
+    ]
 
     // transmitter components
     interface::OUT_a1ofN<N> out(g,,,,);

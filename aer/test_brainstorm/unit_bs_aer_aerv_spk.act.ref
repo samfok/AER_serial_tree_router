@@ -2,8 +2,9 @@
 import "aer/aer/bs_aer.act";
 import "aer/lib/test.act";
 pint M=4;
+pint p4M=256; // = 4^M
+pint p2M=16; // = 2^M
 pint N=4;
-pint NN=256; // NN=N^M
 pint M_1of4 = M;
 pint M_AEXT_SPK_1of4=M;
 pint M_AEXT_SPK_1of2=M_AEXT_SPK_1of4*2;
@@ -11,8 +12,9 @@ pint M_AERV_SPK_1of4=M;
 pint M_AERV_MEM_1of4=M+3;
 pint M_AERV_SPK_1of2=M_AERV_SPK_1of4*2;
 pint M_AERV_MEM_1of2=M_AERV_MEM_1of4*2;
-pint N_SYN=NN/N;
-pint N_MEM=NN/N/N;
+pint N_SYN=p4M/N;
+#SCRIPT pint tile_i[p4M/16];
+#SCRIPT pint tile_j[p4M/16];
 
 aer::globals_w_analog ga;
 aer::globals g;
@@ -40,5 +42,5 @@ prs {
     )
 }
 
-BS_AER<M*2, M, NN, false> aer(ga,,, aext_snk.d, aerv_spk_src, 
-                              aerv_mem_src_4to2.y, syn_spk,);
+BS_AER<M*2, M, p4M, p2M, tile_i, tile_j, false> aer(
+    ga,,, aext_snk.d, aerv_spk_src, aerv_mem_src_4to2.y, syn_spk,);
