@@ -6,6 +6,7 @@
 import "aer/aer/aer.act";
 import "aer/aerv/bs_aerv.act";
 import "core/serializer/AERSerializer.act";
+import "lib/channel.act";
 
 export
 template <pint M_1of2, M_1of4, p4M, p2M; pint tile_i[p4M/16], tile_j[p4M/16];
@@ -107,4 +108,70 @@ defproc BS_AER (aer::globals_w_analog ga;
         tile[n].syn_spk = aerv_syn[SYN_PTILE*n..SYN_PTILE*(n+1)-1];
         tile[n]._mem = aerv__mem[n];
     )
+}
+
+export
+template <pint M_1of2, M_1of4, p4M, p2M; pint tile_i[p4M/16], tile_j[p4M/16];
+          pbool unit_aext>
+defproc BS_AER_wrapper (globals g;
+                        eMx1of2<M_1of2> SPK_TX;
+                        eMx1of2<M_1of2> SPK_RX;
+                        eMx1of2<M_1of2+6> MEM_RX;
+                        e1of1 AERSOMA[p4M]; // exposed for testing
+                        e1of2 AERSYN[p4M/4];
+                        eMx1of4<4> AERMEM[p4M/4/4])
+// converts to the data types used by the rest of the BS repo
+{
+  aer::globals_w_analog ga;
+
+  ga.Vdd = g.Vdd;
+  ga.GND = g.GND;
+  ga.pReset = g.pReset;
+  ga._pReset = g._pReset;
+  ga.sReset = g.sReset;
+  ga._sReset = g._sReset;
+  ga.vpsub = g.vpsub;
+  ga.vnsub = g.vnsub;
+  ga.RST = g.RST;
+  ga.ADC_OUT = g.ADC_OUT;
+  ga.V_REF = g.V_REF;
+  ga.V_R = g.V_R;
+  ga.V_G = g.V_G;
+  ga.V_PE_PD = g.V_PE_PD;
+  ga.V_PE_PU = g.V_PE_PU;
+  ga.V_WINH = g.V_WINH;
+  ga.V_WDC = g.V_WDC;
+  ga.V_WEXC = g.V_WEXC;
+  ga.V_IK_B = g.V_IK_B;
+  ga.V_LK_A = g.V_LK_A;
+  ga.V_IOFFSET = g.V_IOFFSET;
+
+  aer::eMx1of2<M_1of2> aext_out;
+  (;m:M_1of2: aext_out.b[m].t = SPK_TX.b[m].t; )
+  (;m:M_1of2: aext_out.b[m].f = SPK_TX.b[m].f; )
+  aext_out.e = SPK_TX.e;
+
+  aer::eMx1of2<M_1of2> aerv_spk_in;
+  (;m:M_1of2: aerv_spk_in.b[m].t = SPK_RX.b[m].t; )
+  (;m:M_1of2: aerv_spk_in.b[m].f = SPK_RX.b[m].f; )
+
+  aer::eMx1of2<M_1of2+6> aerv_mem_in;
+  (;m:M_1of2: aerv_mem_in.b[m].t = MEM_RX.b[m].t; )
+  (;m:M_1of2: aerv_mem_in.b[m].f = MEM_RX.b[m].f; )
+  aerv_mem_in.e = MEM_RX.e;
+
+  bool aext_nrn_req[p4M], aext_nrn_ack[p4M];
+  (;m:p4M: aext_nrn_req[m] = AERSOMA[m].d; )
+  (;m:p4M: aext_nrn_ack[m] = AERSOMA[m].e; )
+
+  aer::a1of2 aerv_syn[p4M/4];
+  (;m:p4M/4: aerv_syn[m].a = AERSYN[m].e; )
+  (;m:p4M/4: aerv_syn[m].d = AERSYN[m].d; )
+
+  aer::aMx1of4<4> aerv__mem[p4M/4/4];
+  (;m:p4M/4/4:        aerv__mem[m].a = AERMEM[m].e; )
+  (;m:p4M/4/4: (;i:4: aerv__mem[m].b[i].d = AERMEM[m].b[i].d; ) )
+
+  BS_AER<M_1of2, M_1of4, p4M, p2M, tile_i, tile_j, unit_aext>
+    base(ga, aext_nrn_req, aext_nrn_ack, aext_out, aerv_spk_in, aerv_mem_in, aerv_syn, aerv__mem);
 }
