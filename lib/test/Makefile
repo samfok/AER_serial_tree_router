@@ -20,14 +20,14 @@ sim/%.sim: prs/%.prs %.rc
 	@cat $(word 2,$^) | ($(PRSIM) $< > $@ && \
 	((grep -e ERROR -e WARNING $@ > $(subst .sim,.err,$@) && (echo -e "${redfont}FAIL${resetterm}") && touch $<) || \
 	(grep -q -E "$(shell grep advance $(word 2,$^) | cut -b 9)[0-9]{$(shell expr $(shell grep advance $(word 2,$^) | cut -d \  -f 2 | wc -c) - 2)} " $@ && echo -e "${greenfont}PASS${resetterm}" || (echo -e "${redfont}DEADLOCK${resetterm}" && touch $<))) || \
-	(echo -e "${redfont}FAIL${resetterm}"))
+	(echo -e "${redfont}FAIL${resetterm}"; touch $<))
 
 prs: $(PRS_OBJS)
 
 prs/%.prs: %.act ${LIB_PATH}/arbiter.act ${LIB_PATH}/logic.act ${LIB_PATH}/comm.act ${LIB_PATH}/environment.act ${LIB_PATH}/channel.act
 	@mkdir -p prs
 	@printf 'compiling %s...\n' $(subst .act,,$(<F))
-	@$(CFLAT) $< > $@ || rm -f $@	
+	@$(CFLAT) $< > $@ || (rm -f $@; exit 1)
 
 clean:
 	@rm -rf prs
