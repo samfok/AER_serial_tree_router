@@ -25,9 +25,10 @@ defproc AER_NODATA (globals g; bool _xp[NN], xa[NN], ye[NN], yp[NN]) {
 
 namespace brain_aer {
     // blackbox for neurons and memory in tile
+    export
     defproc TILE_NRN_MEM (
         // neuron/synapse ports
-        bool? RST;
+        bool? _RST;
         bool! SPK_So[16]; bool? ACK_So[16];
         bool? INH_Syn[4], EXC_Syn[4]; bool! ACK_Syn[4];
         bool! ADC_OUT[2];
@@ -56,19 +57,13 @@ namespace brain_aer {
 
     export
     template <pbool unit_aext>
-    defproc TILE (globals_w_analog ga;
+    defproc TILE_AER (globals g;
                   bool aext_pe, aext__pp; c1of<4> aext__p;
                   bool aerv__pp, aerv__pe; c1of<4> aerv_p;
                   bool nrn_req[16], nrn_ack[16];
-                  a1of2 syn_spk[4]; aMx1of4<4> _mem;
-                  // layout-specific ports
-                  bool?
-                  DIFF_CM_U[4], DIFF_SYN_U[4],
-                  DIFF_CM_L[4], DIFF_SYN_L[4],
-                  DIFF_CM_R[4], DIFF_SYN_R[4],
-                  DIFF_CM_D[4], DIFF_SYN_D[4]
+                  a1of2 syn_spk[4]; aMx1of4<4> _mem
                   ) {
-        // braindrop / brainstorm neuron array tile
+        // braindrop / brainstorm neuron array tile AER components
         // transmitter services 16 neurons
         // recevier services 4 synapses, 1 memory
         pint N = 4; // aer tree radix, 1-in-N data
@@ -77,9 +72,6 @@ namespace brain_aer {
         pint N_MEM = 1;
         pint N_AEXT_LEAF = 4;
         pint M_MEM = 4;
-
-        globals g;
-        globals_to_globals_w_analog g_to_ga(g, ga);
 
         // transmitter components
         ::aer::transmitter::NODE<N> aext_node(g,,, aext_pe, aext__pp,, aext__p);
@@ -127,48 +119,6 @@ namespace brain_aer {
             _mem.a<6> -> mem_deserial._y.e-
         }
 
-        // neuron, synapse, memory
-        [ ~LAYOUT ->
-            [ ~unit_aext ->
-                ::aer::test::NRN_ARR<NN> nrn(g, nrn_req, nrn_ack);
-            ]
-            ::aer::test::SYNAPSE_ARR<NN/N> syn(g, syn_spk);
-            ::aer::test::MEM<M_MEM> mem(g, _mem);
-        [] LAYOUT ->
-            TILE_NRN_MEM tile_nrn_mem;
-            tile_nrn_mem.RST = ga.sReset;
-            tile_nrn_mem.SPK_So = nrn_req;
-            tile_nrn_mem.ACK_So = nrn_ack;
-            (; n : N_SYN :
-                tile_nrn_mem.INH_Syn[n] = syn_spk[n].d[0];
-                tile_nrn_mem.EXC_Syn[n] = syn_spk[n].d[1];
-                tile_nrn_mem.ACK_Syn[n] = syn_spk[n].a;
-            )
-            tile_nrn_mem.ADC_OUT = ga.ADC_OUT;
-            tile_nrn_mem.V_REF = ga.V_REF;
-            tile_nrn_mem.V_R = ga.V_R;
-            tile_nrn_mem.V_G = ga.V_G;
-            tile_nrn_mem.V_PE_PD = ga.V_PE_PD;
-            tile_nrn_mem.V_PE_PU = ga.V_PE_PU;
-            tile_nrn_mem.V_WINH = ga.V_WINH;
-            tile_nrn_mem.V_WDC = ga.V_WDC;
-            tile_nrn_mem.V_WEXC = ga.V_WEXC;
-            tile_nrn_mem.V_IK_B = ga.V_IK_B;
-            tile_nrn_mem.V_LK_A = ga.V_LK_A;
-            tile_nrn_mem.V_IOFFSET = ga.V_IOFFSET;
-
-            tile_nrn_mem.GND = g.GND;
-            tile_nrn_mem.Vdd = g.Vdd;
-            tile_nrn_mem.vpsub = g.vpsub;
-            tile_nrn_mem.vnsub = g.vnsub;
-            tile_nrn_mem._d = {_mem.m[3].d[0], _mem.m[3].d[2]};
-            tile_nrn_mem._d_ = {_mem.m[3].d[1], _mem.m[3].d[3]};
-            tile_nrn_mem._x2 = _mem.m[2].d;
-            tile_nrn_mem._x1 = _mem.m[1].d;
-            tile_nrn_mem._x0 = _mem.m[0].d;
-            tile_nrn_mem.xa = _mem.a;
-
-        ]
     }
 }
 
@@ -206,29 +156,99 @@ defproc BRAIN_AER (globals_w_analog ga;
     globals_to_globals_w_analog g_to_ga(g, ga);
 
     // TILEs
-    brain_aer::TILE<unit_aext> tile[N_TILE];
-    brain_aer::TILE_DIFF tile_diff[p2M][p2M];
-    (; n : N_TILE :
-        tile[n].ga = ga;
-        tile[n].DIFF_CM_U = tile_diff[tile_i[n]][tile_j[n]].DIFF_CM_U;
-        tile[n].DIFF_CM_L = tile_diff[tile_i[n]][tile_j[n]].DIFF_CM_L;
-        tile[n].DIFF_CM_R = tile_diff[tile_i[n]][tile_j[n]].DIFF_CM_R;
-        tile[n].DIFF_CM_D = tile_diff[tile_i[n]][tile_j[n]].DIFF_CM_D;
-        tile[n].DIFF_SYN_U = tile_diff[tile_i[n]][tile_j[n]].DIFF_SYN_U;
-        tile[n].DIFF_SYN_L = tile_diff[tile_i[n]][tile_j[n]].DIFF_SYN_L;
-        tile[n].DIFF_SYN_R = tile_diff[tile_i[n]][tile_j[n]].DIFF_SYN_R;
-        tile[n].DIFF_SYN_D = tile_diff[tile_i[n]][tile_j[n]].DIFF_SYN_D;
-    )
-    [ L > 1 ->
-        (; l0: L-2 :
-            (; l1 : L :
-                tile_diff[l0][l1].DIFF_CM_D = tile_diff[l0+1][l1].DIFF_CM_U;
-                tile_diff[l0][l1].DIFF_SYN_D = tile_diff[l0+1][l1].DIFF_SYN_U;
-
-                tile_diff[l1][l0].DIFF_CM_R = tile_diff[l1][l0+1].DIFF_CM_L;
-                tile_diff[l1][l0].DIFF_SYN_R = tile_diff[l1][l0+1].DIFF_SYN_L;
+    brain_aer::TILE_AER<unit_aext> tile_aer[N_TILE];
+    (; n : N_TILE : tile_aer[n].g = g;)
+    // neuron, synapse, memory
+    [ ~LAYOUT ->
+        [ ~unit_aext ->
+            test::NRN_ARR<NRN_PTILE> nrn[N_TILE];
+            (; n : N_TILE :
+                nrn[n].g = g;
+                nrn[n].req = tile_aer[n].nrn_req;
+                nrn[n].ack = tile_aer[n].nrn_ack;
             )
+        ]
+        test::SYNAPSE_ARR<NRN_PTILE/N> syn[N_TILE];
+        test::MEM<4> mem[N_TILE];
+        (; n : N_TILE :
+            syn[n].g = g;
+            syn[n].spk = tile_aer[n].syn_spk;
+
+            mem[n].g = g;
+            mem[n]._x = tile_aer[n]._mem;
         )
+    [] LAYOUT ->
+        brain_aer::TILE_NRN_MEM tile_nrn_mem[N_TILE];
+        (; n : N_TILE :
+            tile_nrn_mem[n]._RST = ga._sReset;
+            tile_nrn_mem[n].SPK_So = tile_aer[n].nrn_req;
+            tile_nrn_mem[n].ACK_So = tile_aer[n].nrn_ack;
+            (; ns : SYN_PTILE :
+                tile_nrn_mem[n].INH_Syn[ns] = tile_aer[n].syn_spk[ns].d[0];
+                tile_nrn_mem[n].EXC_Syn[ns] = tile_aer[n].syn_spk[ns].d[1];
+                tile_nrn_mem[n].ACK_Syn[ns] = tile_aer[n].syn_spk[ns].a;
+            )
+            tile_nrn_mem[n].ADC_OUT = ga.ADC_OUT;
+            tile_nrn_mem[n].V_REF = ga.V_REF;
+            tile_nrn_mem[n].V_R = ga.V_R;
+            tile_nrn_mem[n].V_G = ga.V_G;
+            tile_nrn_mem[n].V_PE_PD = ga.V_PE_PD;
+            tile_nrn_mem[n].V_PE_PU = ga.V_PE_PU;
+            tile_nrn_mem[n].V_WINH = ga.V_WINH;
+            tile_nrn_mem[n].V_WDC = ga.V_WDC;
+            tile_nrn_mem[n].V_WEXC = ga.V_WEXC;
+            tile_nrn_mem[n].V_IK_B = ga.V_IK_B;
+            tile_nrn_mem[n].V_LK_A = ga.V_LK_A;
+            tile_nrn_mem[n].V_IOFFSET = ga.V_IOFFSET;
+
+            tile_nrn_mem[n].GND = ga.GND;
+            tile_nrn_mem[n].Vdd = ga.Vdd;
+            tile_nrn_mem[n].vpsub = ga.vpsub;
+            tile_nrn_mem[n].vnsub = ga.vnsub;
+            tile_nrn_mem[n]._d =
+                {tile_aer[n]._mem.m[3].d[0], tile_aer[n]._mem.m[3].d[2]};
+            tile_nrn_mem[n]._d_ =
+                {tile_aer[n]._mem.m[3].d[1], tile_aer[n]._mem.m[3].d[3]};
+            tile_nrn_mem[n]._x2 = tile_aer[n]._mem.m[2].d;
+            tile_nrn_mem[n]._x1 = tile_aer[n]._mem.m[1].d;
+            tile_nrn_mem[n]._x0 = tile_aer[n]._mem.m[0].d;
+            tile_nrn_mem[n].xa = tile_aer[n]._mem.a;
+        )
+
+        brain_aer::TILE_DIFF tile_diff[p2M][p2M];
+        (; n : N_TILE :
+            tile_nrn_mem[n].DIFF_CM_U = 
+                tile_diff[tile_i[n]][tile_j[n]].DIFF_CM_U;
+            tile_nrn_mem[n].DIFF_CM_L =
+                tile_diff[tile_i[n]][tile_j[n]].DIFF_CM_L;
+            tile_nrn_mem[n].DIFF_CM_R =
+                tile_diff[tile_i[n]][tile_j[n]].DIFF_CM_R;
+            tile_nrn_mem[n].DIFF_CM_D =
+                tile_diff[tile_i[n]][tile_j[n]].DIFF_CM_D;
+            tile_nrn_mem[n].DIFF_SYN_U =
+                tile_diff[tile_i[n]][tile_j[n]].DIFF_SYN_U;
+            tile_nrn_mem[n].DIFF_SYN_L =
+                tile_diff[tile_i[n]][tile_j[n]].DIFF_SYN_L;
+            tile_nrn_mem[n].DIFF_SYN_R =
+                tile_diff[tile_i[n]][tile_j[n]].DIFF_SYN_R;
+            tile_nrn_mem[n].DIFF_SYN_D =
+                tile_diff[tile_i[n]][tile_j[n]].DIFF_SYN_D;
+        )
+        [ L > 1 ->
+            (; l0: L-2 :
+                (; l1 : L :
+                    tile_diff[l0][l1].DIFF_CM_D =
+                        tile_diff[l0+1][l1].DIFF_CM_U;
+                    tile_diff[l0][l1].DIFF_SYN_D =
+                        tile_diff[l0+1][l1].DIFF_SYN_U;
+
+                    tile_diff[l1][l0].DIFF_CM_R =
+                        tile_diff[l1][l0+1].DIFF_CM_L;
+                    tile_diff[l1][l0].DIFF_SYN_R =
+                        tile_diff[l1][l0+1].DIFF_SYN_L;
+                )
+            )
+        ]
     ]
 
     // transmitter components
@@ -240,12 +260,12 @@ defproc BRAIN_AER (globals_w_analog ga;
     deserial.y.e = aext_out.e;
     AEXT_TO_TILE<M, p4M> aext(g,,,, out.xe, out.xp, out.x);
     (; n : N_TILE :
-        tile[n].aext_pe = aext.ce[n];
-        tile[n].aext__pp = aext._cp[n];
-        tile[n].aext__p = aext._c[n];
+        tile_aer[n].aext_pe = aext.ce[n];
+        tile_aer[n].aext__pp = aext._cp[n];
+        tile_aer[n].aext__p = aext._c[n];
 
-        tile[n].nrn_req = aext_nrn_req[NRN_PTILE*n..NRN_PTILE*(n+1)-1];
-        tile[n].nrn_ack = aext_nrn_ack[NRN_PTILE*n..NRN_PTILE*(n+1)-1];
+        tile_aer[n].nrn_req = aext_nrn_req[NRN_PTILE*n..NRN_PTILE*(n+1)-1];
+        tile_aer[n].nrn_ack = aext_nrn_ack[NRN_PTILE*n..NRN_PTILE*(n+1)-1];
     )
 
     // receiver components
@@ -255,12 +275,12 @@ defproc BRAIN_AER (globals_w_analog ga;
         g, aerv_int.aerv_pp, aerv_int.aerv_pe, aerv_int.aerv_p,,,);
 
     (; n : N_TILE :
-        tile[n].aerv__pe = aerv._ce[n];
-        tile[n].aerv__pp = aerv._cp[n];
-        tile[n].aerv_p = aerv.c[n];
+        tile_aer[n].aerv__pe = aerv._ce[n];
+        tile_aer[n].aerv__pp = aerv._cp[n];
+        tile_aer[n].aerv_p = aerv.c[n];
 
-        tile[n].syn_spk = aerv_syn[SYN_PTILE*n..SYN_PTILE*(n+1)-1];
-        tile[n]._mem = aerv__mem[n];
+        tile_aer[n].syn_spk = aerv_syn[SYN_PTILE*n..SYN_PTILE*(n+1)-1];
+        tile_aer[n]._mem = aerv__mem[n];
     )
 }
 

@@ -11,6 +11,20 @@ set g.sReset 1
 set g._pReset 1
 set g.pReset 0
 
+set ga.ADC_OUT[0] 0
+set ga.ADC_OUT[1] 0
+set ga.V_REF 0
+set ga.V_R 0
+set ga.V_G 0
+set ga.V_PE_PD 0
+set ga.V_PE_PU 0
+set ga.V_WINH 0
+set ga.V_WDC 0
+set ga.V_WEXC 0
+set ga.V_IK_B 0
+set ga.V_LK_A 0
+set ga.V_IOFFSET 0
+
 cycle
 
 set g._pReset 0
