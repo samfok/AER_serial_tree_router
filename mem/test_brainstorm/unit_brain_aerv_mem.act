@@ -17,10 +17,9 @@ pint N_SYN = Mp4;
 pint N_MEM = N_SYN/4;
 pint D     = 4;
 
-aer::globals g_aer;
-aer::globals g = g_aer;
+aer::globals g;
 globals g_bs;
-compat_bs::globals g_compat(g_aer, g_bs);
+compat_bs::globals g_compat(g, g_bs);
 bool Reset = g.sReset;
 
 aer::test::SOURCE_BRAIN_AERV<M_SPK, M_SPK-M, 0, 2> spk_src(g,);

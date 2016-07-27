@@ -11,7 +11,7 @@ import "lib/channel.act";
 export
 template <pint M_1of2, M_1of4, p4M, p2M; pint tile_i[p4M/16], tile_j[p4M/16];
           pbool unit_aext>
-defproc BS_AER (aer::globals_w_analog ga;
+defproc BS_AER (globals g_bs;
                 bool aext_nrn_req[p4M], aext_nrn_ack[p4M];
                 aer::eMx1of2<M_1of2> aext_out;
                 aer::eMx1of2<M_1of2> aerv_spk_in;
@@ -48,7 +48,7 @@ defproc BS_AER (aer::globals_w_analog ga;
     pint M_MEM_1of2 = M_MEM_1of4*2;
 
     aer::globals g;
-    aer::globals_to_globals_w_analog g_to_ga(g, ga);
+    compat_bs::globals g_to_gbs(g, g_bs);
 
     // TILEs
     aer::brain_aer::TILE_AER<unit_aext> tile_aer[N_TILE];
@@ -75,7 +75,7 @@ defproc BS_AER (aer::globals_w_analog ga;
     [] LAYOUT ->
         aer::brain_aer::TILE_NRN_MEM tile_nrn_mem[N_TILE];
         (; n : N_TILE :
-            tile_nrn_mem[n]._RST = ga._sReset;
+            tile_nrn_mem[n]._RST = g_bs._sReset;
             tile_nrn_mem[n].SPK_So = tile_aer[n].nrn_req;
             tile_nrn_mem[n].ACK_So = tile_aer[n].nrn_ack;
             (; ns : SYN_PTILE :
@@ -83,23 +83,23 @@ defproc BS_AER (aer::globals_w_analog ga;
                 tile_nrn_mem[n].EXC_Syn[ns] = tile_aer[n].syn_spk[ns].d[1];
                 tile_nrn_mem[n].ACK_Syn[ns] = tile_aer[n].syn_spk[ns].a;
             )
-            tile_nrn_mem[n].ADC_OUT = ga.ADC_OUT;
-            tile_nrn_mem[n].V_REF = ga.V_REF;
-            tile_nrn_mem[n].V_R = ga.V_R;
-            tile_nrn_mem[n].V_G = ga.V_G;
-            tile_nrn_mem[n].V_PE_PD = ga.V_PE_PD;
-            tile_nrn_mem[n].V_PE_PU = ga.V_PE_PU;
-            tile_nrn_mem[n].V_WINH = ga.V_WINH;
-            tile_nrn_mem[n].V_WDC = ga.V_WDC;
-            tile_nrn_mem[n].V_WEXC = ga.V_WEXC;
-            tile_nrn_mem[n].V_IK_B = ga.V_IK_B;
-            tile_nrn_mem[n].V_LK_A = ga.V_LK_A;
-            tile_nrn_mem[n].V_IOFFSET = ga.V_IOFFSET;
+            tile_nrn_mem[n].ADC_OUT = g_bs.ADC_OUT;
+            tile_nrn_mem[n].V_REF = g_bs.V_REF;
+            tile_nrn_mem[n].V_R = g_bs.V_R;
+            tile_nrn_mem[n].V_G = g_bs.V_G;
+            tile_nrn_mem[n].V_PE_PD = g_bs.V_PE_PD;
+            tile_nrn_mem[n].V_PE_PU = g_bs.V_PE_PU;
+            tile_nrn_mem[n].V_WINH = g_bs.V_WINH;
+            tile_nrn_mem[n].V_WDC = g_bs.V_WDC;
+            tile_nrn_mem[n].V_WEXC = g_bs.V_WEXC;
+            tile_nrn_mem[n].V_IK_B = g_bs.V_IK_B;
+            tile_nrn_mem[n].V_LK_A = g_bs.V_LK_A;
+            tile_nrn_mem[n].V_IOFFSET = g_bs.V_IOFFSET;
 
-            tile_nrn_mem[n].GND = ga.GND;
-            tile_nrn_mem[n].Vdd = ga.Vdd;
-            tile_nrn_mem[n].vpsub = ga.vpsub;
-            tile_nrn_mem[n].vnsub = ga.vnsub;
+            tile_nrn_mem[n].GND = g_bs.GND;
+            tile_nrn_mem[n].Vdd = g_bs.Vdd;
+            tile_nrn_mem[n].vpsub = g_bs.vpsub;
+            tile_nrn_mem[n].vnsub = g_bs.vnsub;
             tile_nrn_mem[n]._d =
                 {tile_aer[n]._mem.m[3].d[0], tile_aer[n]._mem.m[3].d[2]};
             tile_nrn_mem[n]._d_ =
@@ -166,7 +166,7 @@ defproc BS_AER (aer::globals_w_analog ga;
 
     // receiver components
     BS_AERV_INT<M_SPK_1of2, M_MEM_1of2> aerv_int(
-        g, aerv_spk_in, aerv_mem_in,,,);
+        g_bs, aerv_spk_in, aerv_mem_in,,,);
     aer::AERV_TO_TILE<M_1of4-1, p4M/N> aerv(
         g, aerv_int.aerv_pp, aerv_int.aerv_pe, aerv_int.aerv_p,,,);
 
@@ -192,30 +192,6 @@ defproc BS_AER_wrapper (globals g;
                         eMx1of4<4> AERMEM[p4M/4/4])
 // converts to the data types used by the rest of the BS repo
 {
-  aer::globals_w_analog ga;
-
-  ga.Vdd = g.Vdd;
-  ga.GND = g.GND;
-  ga.pReset = g.pReset;
-  ga._pReset = g._pReset;
-  ga.sReset = g.sReset;
-  ga._sReset = g._sReset;
-  ga.vpsub = g.vpsub;
-  ga.vnsub = g.vnsub;
-  ga._RST = g._RST;
-  ga.ADC_OUT = g.ADC_OUT;
-  ga.V_REF = g.V_REF;
-  ga.V_R = g.V_R;
-  ga.V_G = g.V_G;
-  ga.V_PE_PD = g.V_PE_PD;
-  ga.V_PE_PU = g.V_PE_PU;
-  ga.V_WINH = g.V_WINH;
-  ga.V_WDC = g.V_WDC;
-  ga.V_WEXC = g.V_WEXC;
-  ga.V_IK_B = g.V_IK_B;
-  ga.V_LK_A = g.V_LK_A;
-  ga.V_IOFFSET = g.V_IOFFSET;
-
   aer::eMx1of2<M_1of2> aext_out;
   (;m:M_1of2: aext_out.b[m].t = SPK_TX.b[m].t; )
   (;m:M_1of2: aext_out.b[m].f = SPK_TX.b[m].f; )
@@ -243,5 +219,5 @@ defproc BS_AER_wrapper (globals g;
   (;m:p4M/4/4: (;i:4: aerv__mem[m].b[i].d = AERMEM[m].b[i].d; ) )
 
   BS_AER<M_1of2, M_1of4, p4M, p2M, tile_i, tile_j, unit_aext>
-    base(ga, aext_nrn_req, aext_nrn_ack, aext_out, aerv_spk_in, aerv_mem_in, aerv_syn, aerv__mem);
+    base(g, aext_nrn_req, aext_nrn_ack, aext_out, aerv_spk_in, aerv_mem_in, aerv_syn, aerv__mem);
 }

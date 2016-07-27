@@ -2,6 +2,7 @@
 // while both spikes and memory packets are being delivered randomly
 import "aer/aerv/bs_aerv.act";
 import "aer/lib/test.act";
+import "aer/lib/compat_bs.act";
 
 pint M_1of4     = 3;
 pint M_1of2     = 2*M_1of4;
@@ -14,7 +15,10 @@ pint N_SYN = p4M;
 pint N_MEM = N_SYN/4;
 pint D     = 4;
 
+globals g_bs;
 aer::globals g;
+compat_bs::globals g_to_gbs(g, g_bs);
+
 aer::test::SOURCE_BRAIN_AERV<M_SPK_1of4, M_SPK_1of4-M_1of4, 0, 2> spk_src(g,);
 aer::test::SOURCE_BRAIN_AERV<M_MEM_1of4, M_MEM_1of4-M_1of4, 2, 1> mem_src(g,);
 aer::eMx1of4_to_eMx1of2<M_SPK_1of4, M_SPK_1of2> spk_src_4to2(g, spk_src.d,);
@@ -45,4 +49,4 @@ prs<g.Vdd, g.GND> {
 }
 
 BS_AERV<M_1of2, M_1of4, p4M, M_SPK_1of2, M_SPK_1of4, M_MEM_1of2, M_MEM_1of4, N_SYN, N_MEM> aerv(
-    g, spk_src_4to2.y, mem_src_4to2.y, y_syn, _y_mem);
+    g_bs, spk_src_4to2.y, mem_src_4to2.y, y_syn, _y_mem);

@@ -20,10 +20,9 @@ pint N_SYN      = Mp4;
 pint N_MEM      = N_SYN/4;
 pint D          = 4;
 
-aer::globals g_aer;
-aer::globals g = g_aer;
+aer::globals g;
 globals g_bs;
-compat_bs::globals g_compat(g_aer, g_bs);
+compat_bs::globals g_compat(g, g_bs);
 bool Reset = g.sReset;
 
 aer::test::SOURCE_BRAIN_AERV<M_SPK_1of4, M_SPK_1of4-M_1of4, 0, 2> spk_src(g,);
@@ -51,7 +50,7 @@ aer::a1of2 aerv_y_syn[N_SYN];
 )
 
 BS_AERV<M_1of2, M_1of4, Mp4, M_SPK_1of2, M_SPK_1of4, M_MEM_1of2, M_MEM_1of4, N_SYN, N_MEM> aerv(
-    g, spk_src_4to2.y, mem_src_4to2.y, aerv_y_syn, {aerv__y_mem});
+    g_bs, spk_src_4to2.y, mem_src_4to2.y, aerv_y_syn, {aerv__y_mem});
 
 // for expectfile
 prs<g.Vdd, g.GND> {
