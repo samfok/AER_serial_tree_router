@@ -226,8 +226,8 @@ defproc BS_AER_wrapper (globals g;
   (;m:M_1of2: aerv_spk_in.b[m].f = SPK_RX.b[m].f; )
 
   aer::eMx1of2<M_1of2+6> aerv_mem_in;
-  (;m:M_1of2: aerv_mem_in.b[m].t = MEM_RX.b[m].t; )
-  (;m:M_1of2: aerv_mem_in.b[m].f = MEM_RX.b[m].f; )
+  (;m:M_1of2+6: aerv_mem_in.b[m].t = MEM_RX.b[m].t; )
+  (;m:M_1of2+6: aerv_mem_in.b[m].f = MEM_RX.b[m].f; )
   aerv_mem_in.e = MEM_RX.e;
 
   bool aext_nrn_req[p4M], aext_nrn_ack[p4M];
