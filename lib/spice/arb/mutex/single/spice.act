@@ -2,6 +2,8 @@ import "aer/lib/globals.act";
 import "aer/lib/channel.act";
 import "aer/lib/arbiter.act";
 
+namespace aer {
+
 export defproc Wrapper(globals_np g_np; a1of<1> A[1])
 {
     bool Vdd;
@@ -27,5 +29,6 @@ export defproc Wrapper(globals_np g_np; a1of<1> A[1])
     GND = p.i[1];
     A[0].a = p.o[0];
 }
+}
 
-Wrapper dut;
+aer::Wrapper dut;

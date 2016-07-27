@@ -1,6 +1,6 @@
 <cosimulation>
 
-  <circuit sim_type="spice" file="spice.act" instance="Wrapper" file_type="act" name="dut" uses_blackbox="1"> 
+  <circuit sim_type="spice" file="spice.act" instance="aer::Wrapper" file_type="act" name="dut" uses_blackbox="1"> 
     <source type="globals_np" channel="g_np" />
     <source type="random" channel="A[0]" delay="0" />
   </circuit>

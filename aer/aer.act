@@ -58,11 +58,11 @@ namespace brain_aer {
     export
     template <pbool unit_aext>
     defproc TILE_AER (globals g;
-                  bool aext_pe, aext__pp; c1of<4> aext__p;
-                  bool aerv__pp, aerv__pe; c1of<4> aerv_p;
-                  bool nrn_req[16], nrn_ack[16];
-                  a1of2 syn_spk[4]; aMx1of4<4> _mem
-                  ) {
+                      bool aext_pe, aext__pp; c1of<4> aext__p;
+                      bool aerv__pp, aerv__pe; c1of<4> aerv_p;
+                      bool nrn_req[16], nrn_ack[16];
+                      a1of2 syn_spk[4]; aMx1of4<4> _mem
+                      ) {
         // braindrop / brainstorm neuron array tile AER components
         // transmitter services 16 neurons
         // recevier services 4 synapses, 1 memory
@@ -140,6 +140,8 @@ defproc BRAIN_AER (globals_w_analog ga;
     //     L = p2M / 4 tiles per side of the array
     // tile_i maps flat tile indexing to i of 2d ij tile indexing
     // tile_j maps flat tile indexing to j of 2d ij tile indexing
+    // unit_aext whether to disconnect the transmitter neuron random sources or not
+    //     as during unit testing
     [M<2 -> 0=1;] // assert false
     pint N = 4; // radix of AEXT/AERV tree
     pint NRN_PTILE = 16; // neurons per tile

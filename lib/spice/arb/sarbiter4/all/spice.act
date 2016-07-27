@@ -2,7 +2,9 @@ import "aer/lib/globals.act";
 import "aer/lib/channel.act";
 import "aer/lib/arbiter.act";
 
-export defproc Wrapper(globals_np g_np; a1of<1> A[4])
+namespace aer {
+
+export defproc Wrapper(::aer::globals_np g_np; a1of<1> A[4])
 {
     pint N=4;
 
@@ -36,5 +38,6 @@ export defproc Wrapper(globals_np g_np; a1of<1> A[4])
         arb.o[n] = A[n].a;
     )
 }
+}
 
-Wrapper dut;
+aer::Wrapper dut;
