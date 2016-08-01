@@ -1,0 +1,46 @@
+// Tests the braindrop / brainstorm AER system
+import "aer/aer/aer.act";
+import "aer/lib/test.act";
+
+pint M=2;
+pint NN=16;
+pint NSYN=4;
+pint M_MEM=4;
+pint M_SPK=2;
+pint D=4;
+
+aer::globals g;
+
+aer::SINK_eMx1of4<M> aext_snk(g,);
+aer::test::SOURCE_BRAIN_AERV<M, 1, 0, 2> aerv_spk_src(g,);
+aer::test::SOURCE_BRAIN_AERV<M_MEM, M_MEM-M+1, 2, 1> aerv_mem_src(g,);
+
+aer::test::NRN_ARR<NN> nrn(g,,);
+aer::test::SYNAPSE_ARR<NSYN> syn(g,);
+aer::test::MEM<M_MEM> mem(g,);
+
+// transmitter components
+aer::interface::OUT_a1ofN<D> out(g,,,,);
+aer::interface::DESERIAL_RING<M, D, false, true> deserial(g, out.y,);
+deserial.y.e = aext_snk.d.e;
+(; m : M_SPK :
+    deserial.y.m[m].d = aext_snk.d.m[m].d;
+)
+
+// receiver components
+aer::brain_receiver::AERV_INT<M_SPK, M_MEM> aerv_int(
+    g, aerv_spk_src.d, aerv_mem_src.d,,,);
+
+// tile
+aer::brain_aer::TILE_AER<false> tile(
+    g, out.xe,,,,, aerv_int.aerv_p, nrn.req, nrn.ack, syn.spk, mem._x);
+
+prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+    tile.aext__pp => out.xp-
+    (: d : D :
+        tile.aext__p.d[d] => out.x.d[d]-
+    )
+
+    aerv_int.aerv_pp => tile.aerv__pp-
+    tile.aerv__pe => aerv_int.aerv_pe-
+}
