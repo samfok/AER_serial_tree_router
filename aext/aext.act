@@ -196,15 +196,15 @@ namespace transmitter {
     template <pint M, N, L, BASE_IDX, IDXs, Rmax; pint R[M],
               Se[M][Rmax], CAPe[M][Rmax], Spd[M][Rmax], CAPpd[M][Rmax]>
     defproc AMP_WIRES_ (globals g; bool c_pp[L], c_pe[L], p_cp[L], p_ce[L];
-                       c1of<N> c_p[L], p_c[L]) {
+                        c1of<N> c_p[L], p_c[L]) {
         // Utility for AMP_WIRES
         // M AEXT tree current and below
         // N radix of AEXT tree
         // L links in AEXT tree = (N^M-1) / (N-1) = number of LEAFs and NODEs
 
         // Rarray repeater inverters
-        // Se[R] scales size of repeater inverters for enable pco->cpi
-        // CAPe[R] capacitive load along repeaters for enable pco->cpi
+        // Se[R] scales size of repeater inverters for enable pce->cpe
+        // CAPe[R] capacitive load along repeaters for enable pce->cpe
         //     (units of min size inverter cap) 
         // Spd[R] scales size of repeater inverters
         //     for phi _cpp->_pcp and data cp->pc

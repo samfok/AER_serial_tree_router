@@ -1,0 +1,114 @@
+### Custom WaveView session file (version K-2015.06 build 05/23/15) ###
+### saved at 17:02:21 on Wed Aug  3 2016 ###
+wdf 0 "/ufs/vlsi/brainstorm/aer/aer/spice/tile/aext/hsim.fsdb" load=used 
+scalar list
+waveview_begin 1  stack  offset=0 name_b=391 mntr_b=391 name_width=376 dm=slew:1104:853:1:0:0:9e+01:1e+01:0e+00:0e+00:6:5.5716508394275e-09:9.05635063536465e-02:5.54588731884324e-09:9.14476152975112e-01:0:0e+00:0e+00 "name=waveview 1" 
+  panel_begin linear pidx=0 nvpos=0 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__node_2__c_00_1_2d_00_1)" attr=0:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__node_2__c_00_1_2d_01_1)" attr=1:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__node_2__c_00_1_2d_02_1)" attr=2:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__node_2__c_00_1_2d_03_1)" attr=3:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=4 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__node_2__c_01_1_2d_00_1)" attr=4:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=5 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__node_2__c_01_1_2d_01_1)" attr=5:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=6 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__node_2__c_01_1_2d_02_1)" attr=6:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=7 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__node_2__c_01_1_2d_03_1)" attr=7:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=8 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__node_2__c_02_1_2d_00_1)" attr=0:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=9 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__node_2__c_02_1_2d_01_1)" attr=1:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=10 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__node_2__c_02_1_2d_02_1)" attr=2:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=11 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__node_2__c_02_1_2d_03_1)" attr=3:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=12 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__node_2__c_03_1_2d_00_1)" attr=4:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=13 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__node_2__c_03_1_2d_01_1)" attr=5:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=14 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__node_2__c_03_1_2d_02_1)" attr=6:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=15 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__node_2__c_03_1_2d_03_1)" attr=7:7:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=1 nvpos=0 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xrepeater__wires.x__.xc__p____p__c_00_1.x___00_1.v(w)" attr=6:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xrepeater__wires.x__.xc__p____p__c_00_1.x___01_1.v(w)" attr=7:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xrepeater__wires.x__.xc__p____p__c_00_1.x___02_1.v(w)" attr=0:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xrepeater__wires.x__.xc__p____p__c_00_1.x___03_1.v(w)" attr=1:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=4 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xrepeater__wires.x__.xc__p____p__c_01_1.x___00_1.v(w)" attr=2:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=5 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xrepeater__wires.x__.xc__p____p__c_01_1.x___01_1.v(w)" attr=3:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=6 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xrepeater__wires.x__.xc__p____p__c_01_1.x___02_1.v(w)" attr=4:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=7 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xrepeater__wires.x__.xc__p____p__c_01_1.x___03_1.v(w)" attr=5:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=8 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xrepeater__wires.x__.xc__p____p__c_02_1.x___00_1.v(w)" attr=6:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=9 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xrepeater__wires.x__.xc__p____p__c_02_1.x___01_1.v(w)" attr=7:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=10 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xrepeater__wires.x__.xc__p____p__c_02_1.x___02_1.v(w)" attr=0:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=11 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xrepeater__wires.x__.xc__p____p__c_02_1.x___03_1.v(w)" attr=1:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=12 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xrepeater__wires.x__.xc__p____p__c_03_1.x___00_1.v(w)" attr=2:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=13 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xrepeater__wires.x__.xc__p____p__c_03_1.x___01_1.v(w)" attr=3:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=14 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xrepeater__wires.x__.xc__p____p__c_03_1.x___02_1.v(w)" attr=4:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=15 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xrepeater__wires.x__.xc__p____p__c_03_1.x___03_1.v(w)" attr=5:3:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=2 nvpos=0 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xaext__leaf_00_1.v(p_2d_00_1)" attr=6:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xaext__leaf_00_1.v(p_2d_01_1)" attr=7:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xaext__leaf_00_1.v(p_2d_02_1)" attr=0:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xaext__leaf_00_1.v(p_2d_03_1)" attr=1:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=4 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xaext__leaf_01_1.v(p_2d_00_1)" attr=2:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=5 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xaext__leaf_01_1.v(p_2d_01_1)" attr=3:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=6 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xaext__leaf_01_1.v(p_2d_02_1)" attr=4:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=7 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xaext__leaf_01_1.v(p_2d_03_1)" attr=5:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=8 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xaext__leaf_02_1.v(p_2d_00_1)" attr=6:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=9 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xaext__leaf_02_1.v(p_2d_01_1)" attr=7:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=10 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xaext__leaf_02_1.v(p_2d_02_1)" attr=0:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=11 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xaext__leaf_02_1.v(p_2d_03_1)" attr=1:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=12 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xaext__leaf_03_1.v(p_2d_00_1)" attr=2:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=13 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xaext__leaf_03_1.v(p_2d_01_1)" attr=3:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=14 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xaext__leaf_03_1.v(p_2d_02_1)" attr=4:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=15 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xaext__leaf_03_1.v(p_2d_03_1)" attr=5:0:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=3 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__leaf_00_1_2pe)" attr=6:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__leaf_01_1_2pe)" attr=7:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__leaf_02_1_2pe)" attr=0:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__leaf_03_1_2pe)" attr=1:1:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=4 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xrepeater__wires.x__.xp__ce____c__pe_00_1.xrepeater__0.v(x_01_1)" attr=2:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xrepeater__wires.x__.xp__ce____c__pe_01_1.xrepeater__0.v(x_01_1)" attr=3:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xrepeater__wires.x__.xp__ce____c__pe_02_1.xrepeater__0.v(x_01_1)" attr=4:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xrepeater__wires.x__.xp__ce____c__pe_03_1.xrepeater__0.v(x_01_1)" attr=5:3:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=5 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__node_2ce_00_1)" attr=6:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__node_2ce_01_1)" attr=7:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__node_2ce_02_1)" attr=0:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__node_2ce_03_1)" attr=1:0:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=6 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__node_2__cp_00_1)" attr=2:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__node_2__cp_01_1)" attr=3:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__node_2__cp_02_1)" attr=4:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__node_2__cp_03_1)" attr=5:4:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=7 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xrepeater__wires.x__.xc__pp____p__cp_00_1.v(w)" attr=6:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xrepeater__wires.x__.xc__pp____p__cp_01_1.v(w)" attr=7:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xrepeater__wires.x__.xc__pp____p__cp_02_1.v(w)" attr=0:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xrepeater__wires.x__.xc__pp____p__cp_03_1.v(w)" attr=1:2:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=8 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__leaf_00_1_2__pp)" attr=2:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__leaf_01_1_2__pp)" attr=3:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__leaf_02_1_2__pp)" attr=4:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aext__leaf_03_1_2__pp)" attr=5:5:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=9 nvpos=0 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=v(nrn__req_00_1_dut)" attr=0:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=v(nrn__req_010_1_dut)" attr=1:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=v(nrn__req_011_1_dut)" attr=2:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=v(nrn__req_012_1_dut)" attr=3:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=4 fidx=0 "delim=." sigtype=1 "name=v(nrn__req_013_1_dut)" attr=4:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=5 fidx=0 "delim=." sigtype=1 "name=v(nrn__req_014_1_dut)" attr=5:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=6 fidx=0 "delim=." sigtype=1 "name=v(nrn__req_015_1_dut)" attr=6:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=7 fidx=0 "delim=." sigtype=1 "name=v(nrn__req_01_1_dut)" attr=7:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=8 fidx=0 "delim=." sigtype=1 "name=v(nrn__req_02_1_dut)" attr=0:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=9 fidx=0 "delim=." sigtype=1 "name=v(nrn__req_03_1_dut)" attr=1:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=10 fidx=0 "delim=." sigtype=1 "name=v(nrn__req_04_1_dut)" attr=2:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=11 fidx=0 "delim=." sigtype=1 "name=v(nrn__req_05_1_dut)" attr=3:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=12 fidx=0 "delim=." sigtype=1 "name=v(nrn__req_06_1_dut)" attr=4:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=13 fidx=0 "delim=." sigtype=1 "name=v(nrn__req_07_1_dut)" attr=5:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=14 fidx=0 "delim=." sigtype=1 "name=v(nrn__req_08_1_dut)" attr=6:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=15 fidx=0 "delim=." sigtype=1 "name=v(nrn__req_09_1_dut)" attr=7:6:1:0 autoset=true disp=show 
+  panel_end
+waveview_end

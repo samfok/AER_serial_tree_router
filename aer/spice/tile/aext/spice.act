@@ -1,0 +1,71 @@
+// Spice the AEXT portion of the braindrop / brainstorm AER system
+import "aer/aer/aer.act";
+import "aer/lib/test.act";
+
+namespace aer {
+
+export defproc Wrapper(globals_np g_np; a1of<1> nrn_src[16]; eMx1of4<2> aext_snk)
+{
+    bool Vdd;
+    bool GND;
+    bool vpsub;
+    bool vnsub;
+    globals g;
+
+    // rails and reset
+    g.Vdd = Vdd;
+    g.GND = GND;
+    g.vpsub = vpsub;
+    g.vnsub = vnsub;
+    prs <Vdd, GND> {
+        g_np._sReset<20> => g.sReset-
+        g_np._pReset<20> => g.pReset-
+    }
+    g._pReset = g_np._pReset;
+    g._sReset = g_np._sReset;
+
+    pint M=2;
+    pint NN=16;
+    pint NSYN=4;
+    pint M_SPK=2;
+    pint M_MEM=4;
+    pint D=4;
+    
+    // transmitter components
+    interface::OUT_a1ofN<D> out(g,,,,);
+    interface::DESERIAL_RING<M, D, false, true> deserial(g, out.y,);
+    deserial.y.e = aext_snk.e;
+    (; m : M_SPK :
+        deserial.y.m[m].d = aext_snk.m[m].d;
+    )
+    
+    // tile
+    bool nrn_req[NN];
+    bool nrn_ack[NN];
+    (; nn : NN :
+      nrn_req[nn] = nrn_src[nn].d[0];
+      nrn_ack[nn] = nrn_src[nn].a;
+    )
+    brain_aer::TILE_AER<false> tile(
+        g, out.xe,,,,,, nrn_req, nrn_ack,,);
+
+    tile.aerv__pp = g.Vdd;
+    (; d : D :
+        tile.aerv_p.d[d] = g.GND;
+    )
+    (; n : NSYN :
+        tile.syn_spk[n].a = g.GND;
+    )
+    tile._mem.a = g.GND;
+    
+    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+        tile.aext__pp => out.xp-
+        (: d : D :
+            tile.aext__p.d[d] => out.x.d[d]-
+        )
+    }
+
+}
+}
+
+aer::Wrapper dut;
