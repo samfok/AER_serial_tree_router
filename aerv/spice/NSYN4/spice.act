@@ -3,7 +3,7 @@ import "aer/aerv/aerv.act";
 namespace aer {
 
 export defproc Wrapper(globals_np g_np; eMx1of4<2> spk_src; eMx1of4<2> mem_src;
- a1of2 syn_snk[4]; eMx1of4<1> mem_snk[1])
+    a1of2 syn_snk[4]; eMx1of4<1> mem_snk[1])
 {
     bool Vdd;
     bool GND;

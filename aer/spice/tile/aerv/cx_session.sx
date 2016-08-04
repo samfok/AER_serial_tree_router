@@ -1,0 +1,166 @@
+### Custom WaveView session file (version K-2015.06 build 05/23/15) ###
+### saved at 20:47:04 on Wed Aug  3 2016 ###
+wdf 0 "/ufs/vlsi/brainstorm/aer/aer/spice/tile/aerv/hsim.fsdb" load=used 
+scalar list
+waveview_begin 1  stack  offset=0 name_b=338 mntr_b=338 name_width=323 "name=wrapper_io" 
+  panel_begin linear pidx=0 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2a_dut)" attr=6:7:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=1 nvpos=0 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_00_1_2d_00_1_dut)" attr=6:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_00_1_2d_01_1_dut)" attr=7:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_00_1_2d_02_1_dut)" attr=0:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_00_1_2d_03_1_dut)" attr=1:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=4 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_01_1_2d_00_1_dut)" attr=2:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=5 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_01_1_2d_01_1_dut)" attr=3:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=6 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_01_1_2d_02_1_dut)" attr=4:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=7 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_01_1_2d_03_1_dut)" attr=5:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=8 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_02_1_2d_00_1_dut)" attr=6:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=9 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_02_1_2d_01_1_dut)" attr=7:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=10 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_02_1_2d_02_1_dut)" attr=0:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=11 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_02_1_2d_03_1_dut)" attr=1:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=12 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_03_1_2d_00_1_dut)" attr=2:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=13 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_03_1_2d_01_1_dut)" attr=3:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=14 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_03_1_2d_02_1_dut)" attr=4:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=15 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_03_1_2d_03_1_dut)" attr=5:7:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=2 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=v(syn__snk_00_1_2a_dut)" attr=4:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=v(syn__snk_01_1_2a_dut)" attr=5:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=v(syn__snk_02_1_2a_dut)" attr=6:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=v(syn__snk_03_1_2a_dut)" attr=7:5:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=3 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=v(syn__snk_00_1_2f_dut)" attr=0:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=v(syn__snk_00_1_2t_dut)" attr=1:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=v(syn__snk_01_1_2f_dut)" attr=2:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=v(syn__snk_01_1_2t_dut)" attr=3:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=4 fidx=0 "delim=." sigtype=1 "name=v(syn__snk_02_1_2f_dut)" attr=4:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=5 fidx=0 "delim=." sigtype=1 "name=v(syn__snk_02_1_2t_dut)" attr=5:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=6 fidx=0 "delim=." sigtype=1 "name=v(syn__snk_03_1_2f_dut)" attr=6:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=7 fidx=0 "delim=." sigtype=1 "name=v(syn__snk_03_1_2t_dut)" attr=7:5:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=4 nvpos=0 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=v(mem__src_2b_00_1_2d_00_1_dut)" attr=2:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=v(mem__src_2b_00_1_2d_01_1_dut)" attr=3:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=v(mem__src_2b_00_1_2d_02_1_dut)" attr=4:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=v(mem__src_2b_00_1_2d_03_1_dut)" attr=5:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=4 fidx=0 "delim=." sigtype=1 "name=v(mem__src_2b_01_1_2d_00_1_dut)" attr=6:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=5 fidx=0 "delim=." sigtype=1 "name=v(mem__src_2b_01_1_2d_01_1_dut)" attr=7:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=6 fidx=0 "delim=." sigtype=1 "name=v(mem__src_2b_01_1_2d_02_1_dut)" attr=0:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=7 fidx=0 "delim=." sigtype=1 "name=v(mem__src_2b_01_1_2d_03_1_dut)" attr=1:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=8 fidx=0 "delim=." sigtype=1 "name=v(mem__src_2b_02_1_2d_00_1_dut)" attr=2:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=9 fidx=0 "delim=." sigtype=1 "name=v(mem__src_2b_02_1_2d_01_1_dut)" attr=3:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=10 fidx=0 "delim=." sigtype=1 "name=v(mem__src_2b_02_1_2d_02_1_dut)" attr=4:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=11 fidx=0 "delim=." sigtype=1 "name=v(mem__src_2b_02_1_2d_03_1_dut)" attr=5:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=12 fidx=0 "delim=." sigtype=1 "name=v(mem__src_2b_03_1_2d_00_1_dut)" attr=6:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=13 fidx=0 "delim=." sigtype=1 "name=v(mem__src_2b_03_1_2d_01_1_dut)" attr=7:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=14 fidx=0 "delim=." sigtype=1 "name=v(mem__src_2b_03_1_2d_02_1_dut)" attr=0:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=15 fidx=0 "delim=." sigtype=1 "name=v(mem__src_2b_03_1_2d_03_1_dut)" attr=1:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=16 fidx=0 "delim=." sigtype=1 "name=v(mem__src_2b_04_1_2d_00_1_dut)" attr=2:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=17 fidx=0 "delim=." sigtype=1 "name=v(mem__src_2b_04_1_2d_01_1_dut)" attr=3:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=18 fidx=0 "delim=." sigtype=1 "name=v(mem__src_2b_04_1_2d_02_1_dut)" attr=4:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=19 fidx=0 "delim=." sigtype=1 "name=v(mem__src_2b_04_1_2d_03_1_dut)" attr=5:2:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=5 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=v(mem__src_2e_dut)" attr=1:6:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=6 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=v(spk__src_2b_00_1_2d_00_1_dut)" attr=0:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=v(spk__src_2b_00_1_2d_01_1_dut)" attr=1:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=v(spk__src_2b_00_1_2d_02_1_dut)" attr=2:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=v(spk__src_2b_00_1_2d_03_1_dut)" attr=3:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=4 fidx=0 "delim=." sigtype=1 "name=v(spk__src_2b_01_1_2d_00_1_dut)" attr=4:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=5 fidx=0 "delim=." sigtype=1 "name=v(spk__src_2b_01_1_2d_01_1_dut)" attr=5:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=6 fidx=0 "delim=." sigtype=1 "name=v(spk__src_2b_01_1_2d_02_1_dut)" attr=6:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=7 fidx=0 "delim=." sigtype=1 "name=v(spk__src_2b_01_1_2d_03_1_dut)" attr=7:7:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=7 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=v(spk__src_2e_dut)" attr=0:5:1:0 autoset=true disp=show 
+  panel_end
+waveview_end
+waveview_begin 2  stack  offset=0 name_b=401 mntr_b=401 name_width=386 "name=aerv_leaf" 
+  panel_begin linear pidx=0 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aerv__leaf_2c__mem_00_1_2d_00_1)" attr=0:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aerv__leaf_2c__mem_00_1_2d_01_1)" attr=1:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aerv__leaf_2c__mem_00_1_2d_02_1)" attr=2:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aerv__leaf_2c__mem_00_1_2d_03_1)" attr=3:3:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=1 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aerv__leaf_2cp__mem_00_1)" attr=1:0:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=2 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aerv__leaf_2ce__mem_00_1)" attr=4:4:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=3 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aerv__leaf_2ce__syn_00_1)" attr=5:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aerv__leaf_2ce__syn_01_1)" attr=6:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aerv__leaf_2ce__syn_02_1)" attr=7:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(aerv__leaf_2ce__syn_03_1)" attr=0:0:1:0 autoset=true disp=show 
+  panel_end
+waveview_end
+waveview_begin 3  stack  offset=0 name_b=418 mntr_b=418 name_width=403 "name=mem_deserial" 
+  panel_begin linear pidx=0 nvpos=0 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_00_1_2d_00_1_dut)" attr=3:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_00_1_2d_01_1_dut)" attr=4:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_00_1_2d_02_1_dut)" attr=5:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_00_1_2d_03_1_dut)" attr=6:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=4 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_01_1_2d_00_1_dut)" attr=7:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=5 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_01_1_2d_01_1_dut)" attr=0:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=6 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_01_1_2d_02_1_dut)" attr=1:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=7 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_01_1_2d_03_1_dut)" attr=2:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=8 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_02_1_2d_00_1_dut)" attr=3:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=9 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_02_1_2d_01_1_dut)" attr=4:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=10 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_02_1_2d_02_1_dut)" attr=5:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=11 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_02_1_2d_03_1_dut)" attr=6:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=12 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_03_1_2d_00_1_dut)" attr=7:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=13 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_03_1_2d_01_1_dut)" attr=0:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=14 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_03_1_2d_02_1_dut)" attr=1:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=15 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2b_03_1_2d_03_1_dut)" attr=2:7:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=1 nvpos=0 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.v(__mem__snk_2b_00_1_2d_00_1)" attr=3:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.v(__mem__snk_2b_00_1_2d_01_1)" attr=4:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.v(__mem__snk_2b_00_1_2d_02_1)" attr=5:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.v(__mem__snk_2b_00_1_2d_03_1)" attr=6:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=4 fidx=0 "delim=." sigtype=1 "name=xdut.v(__mem__snk_2b_01_1_2d_00_1)" attr=7:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=5 fidx=0 "delim=." sigtype=1 "name=xdut.v(__mem__snk_2b_01_1_2d_01_1)" attr=0:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=6 fidx=0 "delim=." sigtype=1 "name=xdut.v(__mem__snk_2b_01_1_2d_02_1)" attr=1:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=7 fidx=0 "delim=." sigtype=1 "name=xdut.v(__mem__snk_2b_01_1_2d_03_1)" attr=2:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=8 fidx=0 "delim=." sigtype=1 "name=xdut.v(__mem__snk_2b_02_1_2d_00_1)" attr=3:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=9 fidx=0 "delim=." sigtype=1 "name=xdut.v(__mem__snk_2b_02_1_2d_01_1)" attr=4:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=10 fidx=0 "delim=." sigtype=1 "name=xdut.v(__mem__snk_2b_02_1_2d_02_1)" attr=5:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=11 fidx=0 "delim=." sigtype=1 "name=xdut.v(__mem__snk_2b_02_1_2d_03_1)" attr=6:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=12 fidx=0 "delim=." sigtype=1 "name=xdut.v(__mem__snk_2b_03_1_2d_00_1)" attr=7:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=13 fidx=0 "delim=." sigtype=1 "name=xdut.v(__mem__snk_2b_03_1_2d_01_1)" attr=0:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=14 fidx=0 "delim=." sigtype=1 "name=xdut.v(__mem__snk_2b_03_1_2d_02_1)" attr=1:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=15 fidx=0 "delim=." sigtype=1 "name=xdut.v(__mem__snk_2b_03_1_2d_03_1)" attr=2:6:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=2 nvpos=0 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xmem__deserial.xdeserial.xnode_00_1.v(y___2d_00_1)" attr=2:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xmem__deserial.xdeserial.xnode_00_1.v(y___2d_01_1)" attr=3:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xmem__deserial.xdeserial.xnode_00_1.v(y___2d_02_1)" attr=4:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xmem__deserial.xdeserial.xnode_00_1.v(y___2d_03_1)" attr=5:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=4 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xmem__deserial.xdeserial.xnode_01_1.v(y___2d_00_1)" attr=6:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=5 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xmem__deserial.xdeserial.xnode_01_1.v(y___2d_01_1)" attr=7:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=6 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xmem__deserial.xdeserial.xnode_01_1.v(y___2d_02_1)" attr=0:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=7 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xmem__deserial.xdeserial.xnode_01_1.v(y___2d_03_1)" attr=1:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=8 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xmem__deserial.xdeserial.xnode_02_1.v(y___2d_00_1)" attr=2:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=9 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xmem__deserial.xdeserial.xnode_02_1.v(y___2d_01_1)" attr=3:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=10 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xmem__deserial.xdeserial.xnode_02_1.v(y___2d_02_1)" attr=4:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=11 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xmem__deserial.xdeserial.xnode_02_1.v(y___2d_03_1)" attr=5:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=12 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xmem__deserial.xdeserial.xnode_03_1.v(y___2d_00_1)" attr=6:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=13 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xmem__deserial.xdeserial.xnode_03_1.v(y___2d_01_1)" attr=7:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=14 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xmem__deserial.xdeserial.xnode_03_1.v(y___2d_02_1)" attr=0:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=15 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xmem__deserial.xdeserial.xnode_03_1.v(y___2d_03_1)" attr=1:7:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=3 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.xmem__deserial.xdeserial.v(node_00_1_2__si)" attr=1:1:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=4 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xtile.v(mem__deserial_2__y_2e)" attr=0:0:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=5 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=v(mem__snk_2a_dut)" attr=2:0:1:0 autoset=true disp=show 
+  panel_end
+waveview_end
