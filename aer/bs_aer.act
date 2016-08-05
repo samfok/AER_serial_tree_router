@@ -187,7 +187,7 @@ defproc BS_AER_wrapper (globals g;
                         eMx1of2<M_1of2> SPK_TX;
                         eMx1of2<M_1of2> SPK_RX;
                         eMx1of2<M_1of2+6> MEM_RX;
-                        e1of1 AERSOMA[p4M]; // exposed for testing
+                        a1of1 AERSOMA[p4M]; // exposed for testing
                         e1of2 AERSYN[p4M/4];
                         eMx1of4<4> AERMEM[p4M/4/4])
 // converts to the data types used by the rest of the BS repo
@@ -200,6 +200,7 @@ defproc BS_AER_wrapper (globals g;
   aer::eMx1of2<M_1of2> aerv_spk_in;
   (;m:M_1of2: aerv_spk_in.b[m].t = SPK_RX.b[m].t; )
   (;m:M_1of2: aerv_spk_in.b[m].f = SPK_RX.b[m].f; )
+  SPK_RX.e = aerv_spk_in.e;
 
   aer::eMx1of2<M_1of2+6> aerv_mem_in;
   (;m:M_1of2+6: aerv_mem_in.b[m].t = MEM_RX.b[m].t; )
@@ -207,8 +208,8 @@ defproc BS_AER_wrapper (globals g;
   aerv_mem_in.e = MEM_RX.e;
 
   bool aext_nrn_req[p4M], aext_nrn_ack[p4M];
-  (;m:p4M: aext_nrn_req[m] = AERSOMA[m].d; )
-  (;m:p4M: aext_nrn_ack[m] = AERSOMA[m].e; )
+  (;m:p4M: aext_nrn_req[m] = AERSOMA[m].d; ) // neuron controls req
+  (;m:p4M: aext_nrn_ack[m] = AERSOMA[m].a; ) // aer controls ack
 
   aer::a1of2 aerv_syn[p4M/4];
   (;m:p4M/4: aerv_syn[m].a = AERSYN[m].e; )
