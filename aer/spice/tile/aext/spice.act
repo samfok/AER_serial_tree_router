@@ -59,9 +59,11 @@ export defproc Wrapper(globals_np g_np; a1of<1> nrn_src[16]; eMx1of4<2> aext_snk
     tile._mem.a = g.GND;
     
     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-        tile.aext__pp => out.xp-
+        tile.aext__pp<6> -> out.xp-
+        ~tile.aext__pp<9> -> out.xp+
         (: d : D :
-            tile.aext__p.d[d] => out.x.d[d]-
+            tile.aext__p.d[d]<6> -> out.x.d[d]-
+            ~tile.aext__p.d[d]<9> -> out.x.d[d]+
         )
     }
 

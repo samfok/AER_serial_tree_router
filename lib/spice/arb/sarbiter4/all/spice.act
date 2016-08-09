@@ -4,7 +4,7 @@ import "aer/lib/arbiter.act";
 
 namespace aer {
 
-export defproc Wrapper(::aer::globals_np g_np; a1of<1> A[4])
+export defproc Wrapper(globals_np g_np; a1of<1> A[4])
 {
     pint N=4;
 
