@@ -109,7 +109,6 @@ namespace brain_aer {
             ~_mem.a<9> -> mem_deserial._y.e+
             _mem.a<6> -> mem_deserial._y.e-
         }
-
     }
 }
 
