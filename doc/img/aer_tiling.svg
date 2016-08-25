@@ -9,7 +9,7 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="971.11176"
+   width="1281.0077"
    height="971.112"
    id="svg2"
    version="1.1"
@@ -24,11 +24,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.1017149"
-     inkscape:cx="16.821954"
-     inkscape:cy="717.9574"
+     inkscape:zoom="1.0508575"
+     inkscape:cx="568.5728"
+     inkscape:cy="608.40013"
      inkscape:document-units="px"
-     inkscape:current-layer="g3803"
+     inkscape:current-layer="layer1"
      showgrid="false"
      fit-margin-top="5"
      fit-margin-left="5"
@@ -47,7 +47,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -55,11 +55,146 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-15.713203,-21.978294)">
+     transform="translate(294.18277,-21.978294)">
+    <rect
+       style="fill:#ff0000;fill-opacity:1;stroke:#000000;stroke-width:1.16068256;stroke-opacity:1"
+       id="rect4593"
+       width="59.951054"
+       height="59.951317"
+       x="-98.706451"
+       y="87.55864" />
+    <rect
+       y="167.55864"
+       x="-98.706451"
+       height="59.951317"
+       width="59.951054"
+       id="rect4606"
+       style="fill:#007aff;fill-opacity:1;stroke:#000000;stroke-width:1.16068256;stroke-opacity:1" />
+    <rect
+       style="fill:#ff7a00;fill-opacity:1;stroke:#000000;stroke-width:1.16068256;stroke-opacity:1"
+       id="rect4608"
+       width="59.951054"
+       height="59.951317"
+       x="-98.706451"
+       y="247.55865" />
+    <rect
+       y="327.55865"
+       x="-98.706451"
+       height="59.951317"
+       width="59.951054"
+       id="rect4610"
+       style="fill:#00ffff;fill-opacity:1;stroke:#000000;stroke-width:1.16068256;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-size:28px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="-315.92075"
+       y="137.1226"
+       id="text4612"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4614"
+         x="-315.92075"
+         y="137.1226" /></text>
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="-197.75797"
+       y="122.63049"
+       id="text4616"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4618"
+         x="-197.75797"
+         y="122.63049"
+         style="font-size:14px">AEXT NODE</tspan></text>
+    <text
+       sodipodi:linespacing="125%"
+       id="text4620"
+       y="202.63049"
+       x="-198.38687"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       xml:space="preserve"><tspan
+         style="font-size:14px"
+         y="202.63049"
+         x="-198.38687"
+         id="tspan4622"
+         sodipodi:role="line">AERV NODE</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="-228.66324"
+       y="282.63733"
+       id="text4624"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4626"
+         x="-228.66324"
+         y="282.63733"
+         style="font-size:14px">AEXT REPEATER</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="-229.29214"
+       y="362.63733"
+       id="text4628"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4630"
+         x="-229.29214"
+         y="362.63733"
+         style="font-size:14px">AERV REPEATER</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="-69.5755"
+       y="144.25964"
+       id="text4651"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4653"
+         x="-69.5755"
+         y="144.25964"
+         style="font-size:12px">level</tspan></text>
+    <text
+       sodipodi:linespacing="125%"
+       id="text4655"
+       y="224.25964"
+       x="-69.5755"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       xml:space="preserve"><tspan
+         style="font-size:12px"
+         y="224.25964"
+         x="-69.5755"
+         id="tspan4657"
+         sodipodi:role="line">level</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="-69.5755"
+       y="304.25964"
+       id="text4659"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4661"
+         x="-69.5755"
+         y="304.25964"
+         style="font-size:12px">level</tspan></text>
+    <text
+       sodipodi:linespacing="125%"
+       id="text4663"
+       y="384.25964"
+       x="-69.5755"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       xml:space="preserve"><tspan
+         style="font-size:12px"
+         y="384.25964"
+         x="-69.5755"
+         id="tspan4665"
+         sodipodi:role="line">level</tspan></text>
     <g
-       id="g3993">
+       id="g4316">
       <g
-         id="g3803">
+         id="g4294">
         <g
            id="g4600">
           <rect
@@ -91,13 +226,6 @@
              x="21.293549"
              y="87.55864" />
         </g>
-        <rect
-           style="fill:#ff0000;stroke:#000000;stroke-width:1.16068255999999992;stroke-opacity:1;fill-opacity:1"
-           id="rect4593"
-           width="59.951054"
-           height="59.951317"
-           x="-158.70645"
-           y="87.55864" />
         <g
            id="g3773"
            transform="translate(120,0)">
@@ -194,135 +322,6 @@
              id="rect3801"
              style="fill:none;stroke:#000000;stroke-width:1.16068256;stroke-opacity:1" />
         </g>
-        <rect
-           y="167.55864"
-           x="-158.70645"
-           height="59.951317"
-           width="59.951054"
-           id="rect4606"
-           style="fill:#007aff;stroke:#000000;stroke-width:1.16068255999999992;stroke-opacity:1;fill-opacity:1" />
-        <rect
-           style="fill:#ff7a00;stroke:#000000;stroke-width:1.16068255999999992;stroke-opacity:1;fill-opacity:1"
-           id="rect4608"
-           width="59.951054"
-           height="59.951317"
-           x="-158.70645"
-           y="247.55865" />
-        <rect
-           y="327.55865"
-           x="-158.70645"
-           height="59.951317"
-           width="59.951054"
-           id="rect4610"
-           style="fill:#00ffff;stroke:#000000;stroke-width:1.16068255999999992;stroke-opacity:1;fill-opacity:1" />
-        <text
-           xml:space="preserve"
-           style="font-size:28px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-           x="-331.63394"
-           y="115.14431"
-           id="text4612"
-           sodipodi:linespacing="125%"
-           transform="translate(15.713203,21.978294)"><tspan
-             sodipodi:role="line"
-             id="tspan4614"
-             x="-331.63394"
-             y="115.14431" /></text>
-        <text
-           xml:space="preserve"
-           style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-           x="-257.75797"
-           y="122.63049"
-           id="text4616"
-           sodipodi:linespacing="125%"><tspan
-             sodipodi:role="line"
-             id="tspan4618"
-             x="-257.75797"
-             y="122.63049"
-             style="font-size:14px">AEXT NODE</tspan></text>
-        <text
-           sodipodi:linespacing="125%"
-           id="text4620"
-           y="202.63049"
-           x="-258.38687"
-           style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-           xml:space="preserve"><tspan
-             style="font-size:14px"
-             y="202.63049"
-             x="-258.38687"
-             id="tspan4622"
-             sodipodi:role="line">AERV NODE</tspan></text>
-        <text
-           xml:space="preserve"
-           style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-           x="-288.66324"
-           y="282.63733"
-           id="text4624"
-           sodipodi:linespacing="125%"><tspan
-             sodipodi:role="line"
-             id="tspan4626"
-             x="-288.66324"
-             y="282.63733"
-             style="font-size:14px">AEXT REPEATER</tspan></text>
-        <text
-           xml:space="preserve"
-           style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-           x="-289.29214"
-           y="362.63733"
-           id="text4628"
-           sodipodi:linespacing="125%"><tspan
-             sodipodi:role="line"
-             id="tspan4630"
-             x="-289.29214"
-             y="362.63733"
-             style="font-size:14px">AERV REPEATER</tspan></text>
-        <text
-           xml:space="preserve"
-           style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-           x="-129.5755"
-           y="144.25964"
-           id="text4651"
-           sodipodi:linespacing="125%"><tspan
-             sodipodi:role="line"
-             id="tspan4653"
-             x="-129.5755"
-             y="144.25964"
-             style="font-size:12px">level</tspan></text>
-        <text
-           sodipodi:linespacing="125%"
-           id="text4655"
-           y="224.25964"
-           x="-129.5755"
-           style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-           xml:space="preserve"><tspan
-             style="font-size:12px"
-             y="224.25964"
-             x="-129.5755"
-             id="tspan4657"
-             sodipodi:role="line">level</tspan></text>
-        <text
-           xml:space="preserve"
-           style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-           x="-129.5755"
-           y="304.25964"
-           id="text4659"
-           sodipodi:linespacing="125%"><tspan
-             sodipodi:role="line"
-             id="tspan4661"
-             x="-129.5755"
-             y="304.25964"
-             style="font-size:12px">level</tspan></text>
-        <text
-           sodipodi:linespacing="125%"
-           id="text4663"
-           y="384.25964"
-           x="-129.5755"
-           style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-           xml:space="preserve"><tspan
-             style="font-size:12px"
-             y="384.25964"
-             x="-129.5755"
-             id="tspan4665"
-             sodipodi:role="line">level</tspan></text>
       </g>
       <g
          transform="translate(240,0)"
@@ -2300,4 +2299,8 @@
       </g>
     </g>
   </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="AEXT4" />
 </svg>
