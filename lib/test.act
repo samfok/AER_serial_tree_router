@@ -127,7 +127,7 @@ defproc SYNAPSE_ARR (globals g; a1of2 spk[N]) {
 
 export
 template <pint M>
-defproc MEM (globals g; aMx1of4<M> _x) {
+defproc MEM (globals g; aMx1of4<M> _x; bool _pchg) {
     // models a neuron/synapse configuration memory
     pint D = 4; // 1-of-D data
     SINK_aMx1ofN<M, D> snk(g,);

@@ -8,7 +8,7 @@ aer::globals g;
 aer::SOURCE_random_a1of1 src[NN];
 aer::AEXT<M, N, NN> aext(g,,,,,);
 aer::interface::OUT_a1ofN<N> out(g, aext.pp, aext.pe, aext.p,);
-aer::interface::DESERIAL_RING<M, N, false, true> deserial(g, out.y,);
+aer::interface::DESERIAL_RING<M, N, false, true> deserial(g, out.y,,);
 aer::SINK_eMx1ofN<M, N> snk(g, deserial.y);
 (; nn : NN :
     src[nn].g = g;

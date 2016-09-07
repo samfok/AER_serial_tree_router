@@ -158,7 +158,7 @@ namespace interface {
 
     export
     template <pint M, N; pbool invert_y, flip_words>
-    defproc DESERIAL_RING (globals g; a1of<N> x; eMx1ofN<M, N> y) {
+    defproc DESERIAL_RING (globals g; a1of<N> x; eMx1ofN<M, N> y; bool _pchg) {
         // convert AEXT/AERV serial protocol to eMx1ofN with ring
         // M 1-in-N words
         // invert_y invert the sense of y to active-low
@@ -176,6 +176,7 @@ namespace interface {
                 node[m].y = y.m[M-1-m];
             ]
         )
+        node[0]._x.a = _pchg; // memory uses _pchg
 
         (; m : M-1 :
             node[m]._so = node[m+1]._si;

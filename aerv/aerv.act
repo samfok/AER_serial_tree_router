@@ -681,13 +681,15 @@ namespace brain_receiver {
 
     export
     template <pint M, D>
-    defproc DESERIALIZER (globals g; bool xp, xe; c1of<D> x; eMx1ofN<M, D> _y) {
+    defproc DESERIALIZER (globals g; bool xp, xe; c1of<D> x; eMx1ofN<M, D> _y;
+                          bool _pchg) {
         // wrapper for the deserializer
         pbool invert_y = true;
         pbool flip = true;
 
         MERGE_ACK<1> merge_ack(g, xp, xe,);
-        ::aer::interface::DESERIAL_RING<M, D, invert_y, flip> deserial(g,,);
+        ::aer::interface::DESERIAL_RING<M, D, invert_y, flip> deserial(
+            g,,, _pchg);
         deserial.x.d = x.d;
         deserial.x.a = merge_ack.ce[0];
         (; m : M :

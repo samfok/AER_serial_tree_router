@@ -18,7 +18,7 @@ defproc AER_NODATA (globals g; bool _xp[NN], xa[NN], ye[NN], yp[NN]) {
     // NN=N^M
     AEXT<M, N, NN> aext(g, _xp, xa,,,);
     interface::OUT_a1ofN<N> out(g, aext.pp, aext.pe, aext.p,);
-    interface::DESERIAL_RING<M, N, false, true> deserial(g, out.y,);
+    interface::DESERIAL_RING<M, N, false, true> deserial(g, out.y,,);
     interface::SERIAL_RING<M, N> serial(g, deserial.y,,,);
     AERV_NODATA<M, N, NN> aerv(g, ye, yp, serial.yp, serial.ye, serial.y);
 }
@@ -41,7 +41,7 @@ namespace brain_aer {
         // config memory ports
         bool? GND, Vdd, vnsub, vpsub;
         bool? _d[2], _d_[2], _x0[4], _x1[4], _x2[4];
-        bool! xa
+        bool! xa; bool? _pchg
         ) {}
 
     export
@@ -61,7 +61,7 @@ namespace brain_aer {
                       bool aext_pe, aext__pp; c1of<4> aext__p;
                       bool aerv__pp, aerv__pe; c1of<4> aerv_p;
                       bool nrn_req[16], nrn_ack[16];
-                      a1of2 syn_spk[4]; aMx1of4<4> _mem
+                      a1of2 syn_spk[4]; aMx1of4<4> _mem; bool _pchg
                       ) {
         // braindrop / brainstorm neuron array tile AER components
         // transmitter services 16 neurons
@@ -93,7 +93,8 @@ namespace brain_aer {
         ::aer::receiver::LEAF<N, N_SYN, N_MEM> aerv_leaf(
             g, aerv__pp, aerv__pe, aerv_p,,,,,);
         ::aer::brain_receiver::HALF_BUFFER<N_SYN> buf_syn(g,, syn_spk);
-        ::aer::brain_receiver::DESERIALIZER<M_MEM, N> mem_deserial(g,,,,);
+        ::aer::brain_receiver::DESERIALIZER<M_MEM, N> mem_deserial(
+            g,,,,, _pchg);
 
         (; n : N_SYN :
             buf_syn.x[n].m = aerv_leaf.c_syn[n];
@@ -168,6 +169,7 @@ defproc BRAIN_AER (globals_w_analog ga;
 
             mem[n].g = g;
             mem[n]._x = tile_aer[n]._mem;
+            mem[n]._pchg = tile_aer[n]._pchg;
         )
     [] LAYOUT ->
         brain_aer::TILE_NRN_MEM tile_nrn_mem[N_TILE];
@@ -205,6 +207,7 @@ defproc BRAIN_AER (globals_w_analog ga;
             tile_nrn_mem[n]._x1 = tile_aer[n]._mem.m[1].d;
             tile_nrn_mem[n]._x0 = tile_aer[n]._mem.m[0].d;
             tile_nrn_mem[n].xa = tile_aer[n]._mem.a;
+            tile_nrn_mem[n]._pchg = tile_aer[n]._pchg;
         )
 
         brain_aer::TILE_DIFF tile_diff[p2M][p2M];
@@ -245,7 +248,7 @@ defproc BRAIN_AER (globals_w_analog ga;
 
     // transmitter components
     interface::OUT_a1ofN<N> out(g,,,,);
-    interface::DESERIAL_RING<M, N, false, true> deserial(g, out.y,);
+    interface::DESERIAL_RING<M, N, false, true> deserial(g, out.y,,);
     (; m : M_SPK :
         deserial.y.m[m].d = aext_out.m[m].d;
     )
