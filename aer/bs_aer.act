@@ -148,7 +148,7 @@ defproc BS_AER (globals g_bs;
 
     // transmitter components
     aer::interface::OUT_a1ofN<N> out(g,,,,);
-    aer::interface::DESERIAL_RING<M_1of4, N, false, true> deserial(g, out.y,);
+    aer::interface::DESERIAL_RING<M_1of4, N, false, true> deserial(g, out.y,,);
     aer::eMx1of4_to_eMx1of2<M_SPK_1of4, M_SPK_1of2> aext_converter(g,, aext_out);
     (; m : M_SPK_1of4 :
         deserial.y.m[m].d = aext_converter.x.m[m].d;
