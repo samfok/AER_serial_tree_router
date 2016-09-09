@@ -211,25 +211,23 @@ namespace transmitter {
         // CAPpd[R] capacitive load along repeaters
         //     for phi _cpp->_pcp and data cp->pc
         //     (units of min size inverter cap)
-        // .-------------------------------------------------------------.
-        // |                link  | R | Se             | CAPe            |
-        // |----------------------|---|----------------|-----------------|
-        // | root    - array edge | 4 | {3, 10, 6, 36} | {4, 64, 4, 192} |
-        // | node[0] - root       | 4 | {3, 10, 6, 36} | {4, 64, 4, 192} |
-        // | node[1] - node[0]    | 4 | {3, 10, 6, 36} | {4, 64, 4, 64}  |
-        // | node[2] - node[1]    | 2 | {3, 10}        | {4, 64}         |
-        // | node[3] - node[2]    | 2 | {3, 10}        | {4, 32}         |
-        // | leaf    - node[3]    | 2 | {3, 10}        | {4, 16}         |
-        // |-------------------------------------------------------------|
-        // |                link  | R | Spd            | CAPpd           |
-        // |----------------------|---|----------------|-----------------|
-        // | root    - array edge | 4 | {5, 1, 5, 25}  | {64, 4, 4, 192} |
-        // | node[0] - root       | 4 | {5, 1, 5, 25}  | {64, 4, 4, 192} |
-        // | node[1] - node[0]    | 4 | {5, 1, 5, 25}  | {64, 4, 4, 64}  |
-        // | node[2] - node[1]    | 2 | {5, 1}         | {64, 4}         |
-        // | node[3] - node[2]    | 2 | {5, 1}         | {32, 4}         |
-        // | leaf    - node[3]    | 2 | {5, 1}         | {16, 4}         |
-        // ---------------------------------------------------------------
+        // .--------------------------------------------------------------.
+        // |                 link  | R | Se             | CAPe            |
+        // |---------- ------------|---|----------------|-----------------|
+        // | root    -- array edge | 4 | {3, 10, 6, 36} | {4, 64, 4, 192} |
+        // | node[0] -- root       | 4 | {3, 10, 6, 36} | {4, 64, 4, 192} |
+        // | node[1] -- node[0]    | 4 | {3, 10, 6, 36} | {4, 64, 4, 64}  |
+        // | node[2] -- node[1]    | 2 | {3, 10}        | {4, 64}         |
+        // | node[3] -- node[2]    | 2 | {3, 10}        | {4, 32}         |
+        // |---------- ---------------------------------------------------|
+        // |                 link  | R | Spd            | CAPpd           |
+        // |-----------------------|---|----------------|-----------------|
+        // | root    -- array edge | 4 | {5, 1, 5, 25}  | {64, 4, 4, 192} |
+        // | node[0] -- root       | 4 | {5, 1, 5, 25}  | {64, 4, 4, 192} |
+        // | node[1] -- node[0]    | 4 | {5, 1, 5, 25}  | {64, 4, 4, 64}  |
+        // | node[2] -- node[1]    | 2 | {5, 1}         | {64, 4}         |
+        // | node[3] -- node[2]    | 2 | {5, 1}         | {32, 4}         |
+        // ----------------------------------------------------------------
         preal min_inv_cap = 0.25; // assume min_inv_cap=0.25
         
         preal Ce[R[0]];
@@ -267,15 +265,15 @@ namespace transmitter {
     defproc AMP_WIRES (globals g; bool c_pp[L], c_pe[L], p_cp[L], p_ce[L];
                        c1of<N> c_p[L], p_c[L]) {
         // model the amplifier and wire capacitances internal to the aext tree
-        // M depth of AEXT tree (max 6)
+        // M depth of AEXT repeater tree (max 5)
         // N radix of AEXT tree (N=4 in production)
         // L links in AEXT tree = (N^M-1) / (N-1) = number of LEAFs and NODEs
         // Mmax_idx index the end of the hardcoded repeater parameter array
-        //     (max 5)
+        //     (max 4)
         // BASE_LINKS links at base of repeater tree
         //     1 if starting from edge of array
-        //     4 if going from lowest NODE to LEAFs
-        pint Mmax = 6; // max AEXT tree depth
+        //     3 if going between the lowest level NODEs
+        pint Mmax = 5; // max AEXT repeater tree depth
         [Mmax_idx>=Mmax -> 0=1;] // assert false
         [M>Mmax -> 0=1;] // assert false
         pint Rmax = 4; // max repeaters between AEXT nodes
@@ -283,18 +281,16 @@ namespace transmitter {
         pint Se_ref[Mmax][Rmax], Spd_ref[Mmax][Rmax];
         pint CAPe_ref[Mmax][Rmax], CAPpd_ref[Mmax][Rmax];
         // repeaters per stage
-        R_ref = {4, 4, 4, 2, 2, 2};
+        R_ref = {4, 4, 4, 2, 2};
         // sizing per repeater per stage
         Se_ref = {{3, 10, 6, 36},
                   {3, 10, 6, 36},
                   {3, 10, 6, 36},
                   {3, 10, 0, 0 },
-                  {3, 10, 0, 0 },
                   {3, 10, 0, 0 }};
         Spd_ref = {{5, 1, 5, 25},
                    {5, 1, 5, 25},
                    {5, 1, 5, 25},
-                   {5, 1, 0, 0 },
                    {5, 1, 0, 0 },
                    {5, 1, 0, 0 }};
         // cap per repeater per stage
@@ -302,14 +298,12 @@ namespace transmitter {
                     {4, 64, 4, 192},
                     {4, 64, 4, 64 },
                     {4, 64, 0, 0  },
-                    {4, 32, 0, 0  },
-                    {4, 16, 0, 0  }};
+                    {4, 32, 0, 0  }};
         CAPpd_ref = {{64, 4, 4, 192},
                      {64, 4, 4, 192},
                      {64, 4, 4, 64 },
                      {64, 4, 0, 0  },
-                     {32, 4, 0, 0  },
-                     {16, 4, 0, 0  }};
+                     {32, 4, 0, 0  }};
 
         pint R[M];
         pint Se[M][Rmax], Spd[M][Rmax];
@@ -345,8 +339,9 @@ defproc AEXT (globals g; bool _xp[NN], xa[NN], pe, pp; c1of<N> p) {
         leaf[n].ca = xa[n*N..(n+1)*N-1];
     )
 
-    pint Mmax_idx = 5; // work from end of hardcoded repeater parameters
-    transmitter::AMP_WIRES<M, N, N_LINK, Mmax_idx, 1> repeater_wires(g,,,,,,);
+    pint Mmax_idx = 4; // work from end of hardcoded repeater parameters
+    transmitter::AMP_WIRES<M-1, N, N_LINK, Mmax_idx, 1> repeater_wires(
+        g,,,,,,);
     repeater_wires.p_ce[0] = pe;
     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
         // switch to active high outside of array
@@ -377,16 +372,9 @@ defproc AEXT (globals g; bool _xp[NN], xa[NN], pe, pp; c1of<N> p) {
         pint NODE_BASE_IDX = N_NODE-N_LOW_NODE;
         (; node_idx : NODE_BASE_IDX..N_NODE-1 :
             (; n : N :
-                node[node_idx].ce[n] = repeater_wires.p_ce[node_idx*N+n+1];
-                node[node_idx]._cp[n] = repeater_wires.p_cp[node_idx*N+n+1];
-                node[node_idx]._c[n] = repeater_wires.p_c[node_idx*N+n+1];
-
-                repeater_wires.c_pe[node_idx*N+n+1] =
-                    leaf[(node_idx-NODE_BASE_IDX)*N+n].pe;
-                repeater_wires.c_pp[node_idx*N+n+1] =
-                    leaf[(node_idx-NODE_BASE_IDX)*N+n]._pp;
-                repeater_wires.c_p[node_idx*N+n+1] =
-                    leaf[(node_idx-NODE_BASE_IDX)*N+n]._p;
+                node[node_idx].ce[n] = leaf[(node_idx-NODE_BASE_IDX)*N+n].pe;
+                node[node_idx]._cp[n] = leaf[(node_idx-NODE_BASE_IDX)*N+n]._pp;
+                node[node_idx]._c[n] = leaf[(node_idx-NODE_BASE_IDX)*N+n]._p;
             )
         )
 
@@ -456,20 +444,9 @@ defproc AEXT_TO_TILE (globals g;
         pint NODE_BASE_IDX = N_NODE-N_LOW_NODE;
         (; node_idx : NODE_BASE_IDX..N_NODE-1 :
             (; n : N :
-                // node[node_idx].ce[n] = ce[(node_idx-NODE_BASE_IDX)*N+n];
-                // node[node_idx]._cp[n] = _cp[(node_idx-NODE_BASE_IDX)*N+n];
-                // node[node_idx]._c[n] = _c[(node_idx-NODE_BASE_IDX)*N+n];
-
-                node[node_idx].ce[n] = repeater_wires.p_ce[node_idx*N+n+1];
-                node[node_idx]._cp[n] = repeater_wires.p_cp[node_idx*N+n+1];
-                node[node_idx]._c[n] = repeater_wires.p_c[node_idx*N+n+1];
-
-                repeater_wires.c_pe[node_idx*N+n+1] =
-                    ce[(node_idx-NODE_BASE_IDX)*N+n];
-                repeater_wires.c_pp[node_idx*N+n+1] =
-                    _cp[(node_idx-NODE_BASE_IDX)*N+n];
-                repeater_wires.c_p[node_idx*N+n+1] =
-                    _c[(node_idx-NODE_BASE_IDX)*N+n];
+                node[node_idx].ce[n] = ce[(node_idx-NODE_BASE_IDX)*N+n];
+                node[node_idx]._cp[n] = _cp[(node_idx-NODE_BASE_IDX)*N+n];
+                node[node_idx]._c[n] = _c[(node_idx-NODE_BASE_IDX)*N+n];
             )
         )
 
