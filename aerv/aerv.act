@@ -295,6 +295,95 @@ namespace receiver {
         }
     }
 
+    namespace repeaters {
+        export
+        template <pint S[2]; preal C[2]>
+        defproc REPEATERS_PHI_b(globals g; bool i, o) {
+            // Repeaters between parent and child NODE phi ports
+            //     bank of 2 inverters
+            // S[2] inverter sizes
+            // C[2] inverter cap load
+            REPEATER_BOOL<2, S, C> _(g, i, o);
+        }
+
+        export
+        template <pint M; pint S[M]; preal C[M]>
+        defproc REPEATERS_PHI(globals g; bool p__cp, c__pp) {
+            // Repeaters between parent and child NODE phi and enable ports
+            // M inverters
+            // S[M] inverter sizes
+            // C[M] inverter cap load
+            [ (M != 2) & (M != 4) ->
+                0=1; // assert false
+            ]
+            bool x;
+            REPEATERS_PHI_b<S[0..1], C[0..1]> bank0(g, p__cp, x);
+            [ M = 2 ->
+                x = c__pp;
+            [] M = 4 ->
+                REPEATERS_PHI_b<S[2..3], C[2..3]> bank1(g, x, c__pp);
+            ]
+        }
+
+        export
+        template <pint S[2]; preal C[2]>
+        defproc REPEATERS_ENABLE_b(globals g; bool i, o) {
+            // Repeaters between parent and child NODE phi and enable ports
+            //     bank of 2 inverters
+            // S[2] inverter sizes
+            // C[2] inverter cap load
+            REPEATER_BOOL<2, S, C> _(g, i, o);
+        }
+
+        export
+        template <pint M; pint S[M]; preal C[M]>
+        defproc REPEATERS_ENABLE(globals g; bool c__pe, p__ce) {
+            // Repeaters between parent and child NODE phi and enable ports
+            // M inverters
+            // S[M] inverter sizes
+            // C[M] inverter cap load
+            [ (M != 2) & (M != 4) ->
+                0=1; // assert false
+            ]
+            bool x;
+            REPEATERS_ENABLE_b<S[0..1], C[0..1]> bank0(g, c__pe, x);
+            [ M = 2 ->
+                x = p__ce;
+            [] M = 4 ->
+                REPEATERS_ENABLE_b<S[2..3], C[2..3]> bank1(g, x, p__ce);
+            ]
+        }
+
+        export
+        template <pint N, S[2]; preal C[2]>
+        defproc REPEATERS_DATA_b(globals g; c1of<N> i, o) {
+            // Repeaters between parent and child NODE ports
+            //     bank of 2 inverters
+            // S[2] inverter sizes
+            // C[2] inverter cap load
+            REPEATER_c1of<N, 2, S, C> _(g, i, o);
+        }
+
+        export
+        template <pint N, M; pint S[M]; preal C[M]>
+        defproc REPEATERS_DATA(globals g; c1of<N> p_c, c_p) {
+            // Repeaters between parent and child NODE ports
+            // M inverters
+            // S[M] inverter sizes
+            // C[M] inverter cap load
+            [ (M != 2) & (M != 4) ->
+                0=1; // assert false
+            ]
+            c1of<N> x;
+            REPEATERS_DATA_b<N, S[0..1], C[0..1]> bank0(g, p_c, x);
+            [ M = 2 ->
+                x = c_p;
+            [] M = 4 ->
+                REPEATERS_DATA_b<N, S[2..3], C[2..3]> bank1(g, x, c_p);
+            ]
+        }
+    } // namespace repeaters
+
     template <pint M, N, L, BASE_IDX, IDXs, Rmax;
               pint R[M], S[M][Rmax], CAP[M][Rmax]>
     defproc AMP_WIRES_ (globals g; bool p__cp[L], p__ce[L], c__pp[L], c__pe[L];
@@ -320,21 +409,25 @@ namespace receiver {
         (; r : R[0] :
             C[r] = min_inv_cap * CAP[0][r];
         )
-        REPEATER_BOOL<R[0], S[0][0..R[0]-1], C, 2> p__cp__c__pp[IDXs];
-        REPEATER_BOOL<R[0], S[0][0..R[0]-1], C, 2> c__pe__p__ce[IDXs];
-        REPEATER_c1of<N, R[0], S[0][0..R[0]-1], C, 2> p_c__c_p[IDXs];
+
+        repeaters::REPEATERS_PHI<R[0], S[0][0..R[0]-1], C>
+            p__cp__c__pp[IDXs];
+        repeaters::REPEATERS_ENABLE<R[0], S[0][0..R[0]-1], C>
+            c__pe__p__ce[IDXs];
+        repeaters::REPEATERS_DATA<N, R[0], S[0][0..R[0]-1], C>
+            p_c__c_p[IDXs];
         (; i : IDXs :
             p__cp__c__pp[i].g = g;
-            p__cp__c__pp[i].i = p__cp[BASE_IDX+i];
-            p__cp__c__pp[i].o = c__pp[BASE_IDX+i];
+            p__cp__c__pp[i].p__cp = p__cp[BASE_IDX+i];
+            p__cp__c__pp[i].c__pp = c__pp[BASE_IDX+i];
 
             c__pe__p__ce[i].g = g;
-            c__pe__p__ce[i].i = c__pe[BASE_IDX+i];
-            c__pe__p__ce[i].o = p__ce[BASE_IDX+i];
+            c__pe__p__ce[i].c__pe = c__pe[BASE_IDX+i];
+            c__pe__p__ce[i].p__ce = p__ce[BASE_IDX+i];
 
             p_c__c_p[i].g = g;
-            p_c__c_p[i].i = p_c[BASE_IDX+i];
-            p_c__c_p[i].o = c_p[BASE_IDX+i];
+            p_c__c_p[i].p_c = p_c[BASE_IDX+i];
+            p_c__c_p[i].c_p = c_p[BASE_IDX+i];
         )
 
         [ M > 1 ->
