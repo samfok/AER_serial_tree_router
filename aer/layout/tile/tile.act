@@ -1,4 +1,4 @@
-// defines a transmitter/receiver for 256 neurons and 64 synapses
+// defines a transmitter/receiver for 16 neurons and 4 synapses
 import "aer/aer/aer.act";
 
 export defproc Wrapper(aer::globals g)
