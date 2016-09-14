@@ -478,6 +478,71 @@ namespace receiver {
         AMP_WIRES_<M, N, L, 0, 1, Rmax, R, S, CAP> 
             _(g, p__cp, p__ce, c__pp, c__pe, p_c, c_p);
     }
+
+    namespace node_w_repeaters {
+        export
+        template <pint D, N_SYN, N_MEM>
+        defproc LEAF_w_REP (globals g; bool _pp, ___pe; c1of<D> p;
+                            bool cp_mem[N_MEM],
+                            ce_syn[N_SYN], ce_mem[N_MEM];
+                            c1of2 c_syn[N_SYN]; c1of<D> c_mem[N_MEM]) {
+            // AERV tree LEAF (in TILE) with repeaters
+            // N radix of AERV tree
+            LEAF<D, N_SYN, N_MEM> _(g, _pp,, p, cp_mem, ce_syn, ce_mem, c_syn, c_mem);
+            // repeaters facing up the tree
+            pint S_up[2];
+            preal C_up[2];
+            S_up = {3, 10};
+            C_up = {(4*0.25), (32*0.25)};
+            ::aer::receiver::repeaters::REPEATERS_ENABLE_b<S_up, C_up>
+                aerv_rep_up_e(g, _._pe, ___pe);
+        }
+
+        export
+        template <pint N, M>
+        defproc NODE_w_REP (globals g; bool _pp, ___pe, _ce[N], ___cp[N]; c1of<N> p, __c[N]) {
+            // AERV tree NODE with repeaters
+            // N radix of AERV tree
+            // M level (must be 1-4 inclusive)
+            [ (M < 1) | (M > 4) ->
+                0=1; // assert false
+            ]
+            NODE<N> _(g, _pp,, _ce,, p,);
+
+            // repeaters facing down the tree
+            preal CAP_down_ref[4][2];
+            CAP_down_ref = {{(4*0.25), (32*0.25)},
+                            {(4*0.25), (64*0.25)},
+                            {(4*0.25), (64*0.25)},
+                            {(4*0.25), (64*0.25)}};
+            pint S_down[2];
+            preal C_down[2];
+            S_down = {3, 10};
+            C_down = CAP_down_ref[M-1][0..1];
+            ::aer::receiver::repeaters::REPEATERS_PHI_b<S_down, C_down>
+                aext_rep_down_phi[N];
+            (; n : N :
+                aext_rep_down_phi[n].g = g;
+                aext_rep_down_phi[n].i = _._cp[n];
+                aext_rep_down_phi[n].o = ___cp[n];
+            )
+            ::aer::receiver::repeaters::REPEATERS_DATA_b<N, S_down, C_down>
+                aext_rep_down_data[N];
+            (; n : N :
+                aext_rep_down_data[n].g = g;
+                aext_rep_down_data[n].i = _.c[n];
+                aext_rep_down_data[n].o = __c[n];
+            )
+
+            // repeaters facing up the tree
+            pint S_up[2];
+            preal C_up[2];
+            S_up = {3, 10};
+            C_up = {(4*0.25), (64*0.25)};
+            ::aer::receiver::repeaters::REPEATERS_ENABLE_b<S_up, C_up>
+                aext_rep_up_e(g, _._pe, ___pe);
+        }
+    }
 } // namespace receiver
 
 export

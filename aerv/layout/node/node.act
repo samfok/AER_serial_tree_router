@@ -1,0 +1,8 @@
+import "aer/aerv/aerv.act";
+
+export defproc Wrapper(aer::globals g)
+{
+    aer::receiver::node_w_repeaters::NODE_w_REP<4, 1>  node_w_rep(g,,,,,,);
+}
+
+Wrapper dut;
