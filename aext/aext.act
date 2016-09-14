@@ -206,24 +206,24 @@ namespace transmitter {
 
         export
         template <pint S[1]; preal C[1]>
-        defproc REPEATERS_PHI_1a(globals g; bool x, p__pp) {
+        defproc REPEATERS_PHI_1a(globals g; bool x, p__cp) {
             // Repeaters from child NODE _pp port to parent NODE _cp port
             //     Bank 1a - used at lower levels of tree
             //     laid out in parent NODE cutout
             // S[1] inverter sizes
             // C[1] inverter cap load
-            REPEATER_BOOL<1, S, C> _(g, x, p__pp);
+            REPEATER_BOOL<1, S, C> _(g, x, p__cp);
         }
 
         export
         template <pint S[3]; preal C[3]>
-        defproc REPEATERS_PHI_1b(globals g; bool x, p__pp) {
+        defproc REPEATERS_PHI_1b(globals g; bool x, p__cp) {
             // Repeaters from child NODE _pp port to parent NODE _cp port
             //     Bank 1b - used at higher levels of tree
             //     laid out in repeater cutout
             // S[3] inverter sizes
             // C[3] inverter cap load
-            REPEATER_BOOL<3, S, C> _(g, x, p__pp);
+            REPEATER_BOOL<3, S, C> _(g, x, p__cp);
         }
 
         export
@@ -424,7 +424,7 @@ namespace transmitter {
         //     (max 4)
         // BASE_LINKS links at base of repeater tree
         //     1 if starting from edge of array
-        //     3 if going between the lowest level NODEs
+        //     3 if facing between the lowest level NODEs
         pint Mmax = 5; // max AEXT repeater tree depth
         [Mmax_idx>=Mmax -> 0=1;] // assert false
         [M>Mmax -> 0=1;] // assert false
@@ -469,7 +469,117 @@ namespace transmitter {
 
         AMP_WIRES_<M, N, L, 0, BASE_LINKS, Rmax, R, Se, CAPe, Spd, CAPpd> 
             _(g, c__pp, c_pe, p__cp, p_ce, c__p, p__c);
+    }
+
+    namespace node_w_repeaters {
+        export
+        template <pint N>
+        defproc NODE_LVL_1 (globals g; bool _cp[N], ce[N], pe, __pp; c1of<N> _c[N], __p) {
+            // AEXT tree level 1 (in TILE) NODE with repeaters
+            // N radix of AEXT tree
+            NODE<N> _(g, _cp, ce, pe,, _c,);
+            // repeaters facing up the tree
+            pint Spd_up[1];
+            preal Cpd_up[1];
+            Spd_up = {5};
+            Cpd_up = {(32*0.25)};
+            ::aer::transmitter::repeaters::REPEATERS_PHI_0<Spd_up, Cpd_up>
+                aext_rep_up_phi(g, _._pp, __pp);
+            ::aer::transmitter::repeaters::REPEATERS_DATA_0<N, Spd_up, Cpd_up>
+                aext_rep_up_data(g, _._p, __p);
         }
+
+        export
+        template <pint N, M>
+        defproc NODE_LVL_2_3 (globals g; bool __cp[N], __ce[N], pe, __pp; c1of<N> __c[N], __p) {
+            // AEXT tree level 2 or 3 NODE with repeaters
+            // N radix of AEXT tree
+            // M level (must be 2 or 3)
+            [ (M != 2) & (M != 3) ->
+                0=1; // assert false
+            ]
+            NODE<N> _(g,,, pe,,,);
+
+            // repeaters facing down the tree
+            pint Se_down[2], Spd_down[1];
+            preal Ce_down[2], Cpd_down[1];
+            Se_down = {3, 10};
+            Spd_down = {1};
+            [ M = 2 ->
+                Ce_down = {(4*0.25), (32*0.25)};
+                Cpd_down = {(4*0.25)};
+            [] M = 3 ->
+                Ce_down = {(4*0.25), (64*0.25)};
+                Cpd_down = {(4*0.25)};
+            ]
+            ::aer::transmitter::repeaters::REPEATERS_PHI_1a<Spd_down, Cpd_down>
+                aext_rep_down_phi[N];
+            (; n : N :
+                aext_rep_down_phi[n].g = g;
+                aext_rep_down_phi[n].x = __cp[n];
+                aext_rep_down_phi[n].p__cp = _._cp[n];
+            )
+            ::aer::transmitter::repeaters::REPEATERS_ENABLE_0<Se_down, Ce_down>
+                aext_rep_down_e[N];
+            (; n : N :
+                aext_rep_down_e[n].g = g;
+                aext_rep_down_e[n].p_ce = _.ce[n];
+                aext_rep_down_e[n].x = __ce[n];
+            )
+            ::aer::transmitter::repeaters::REPEATERS_DATA_1a<N, Spd_down, Cpd_down>
+                aext_rep_down_data[N];
+            (; n : N :
+                aext_rep_down_data[n].g = g;
+                aext_rep_down_data[n].x = __c[n];
+                aext_rep_down_data[n].p__c = _._c[n];
+            )
+
+            // repeaters facing up the tree
+            pint Spd_up[1];
+            preal Cpd_up[1];
+            Spd_up = {5};
+            Cpd_up = {(64*0.25)};
+            ::aer::transmitter::repeaters::REPEATERS_PHI_0<Spd_up, Cpd_up>
+                aext_rep_up_phi(g, _._pp, __pp);
+            ::aer::transmitter::repeaters::REPEATERS_DATA_0<N, Spd_up, Cpd_up>
+                aext_rep_up_data(g, _._p, __p);
+        }
+
+        export
+        template <pint N, M>
+        defproc NODE_LVL_4_5 (globals g; bool _cp[N], __ce[N], pe, __pp; c1of<N> _c[N], __p) {
+            // AEXT tree level 4 and 5 NODE with repeaters
+            // N radix of AEXT tree
+            // M level (must be 2 or 3)
+            [ (M != 4) & (M != 5) ->
+                0=1; // assert false
+            ]
+            NODE<N> _(g, _cp,, pe,, _c,);
+
+            // repeaters facing down the tree
+            pint Se_down[2];
+            preal Ce_down[2];
+            Se_down = {3, 10};
+            Ce_down = {(4*0.25), (64*0.25)};
+            ::aer::transmitter::repeaters::REPEATERS_ENABLE_0<Se_down, Ce_down>
+                aext_rep_down_e[N];
+            (; n : N :
+                aext_rep_down_e[n].g = g;
+                aext_rep_down_e[n].p_ce = _.ce[n];
+                aext_rep_down_e[n].x = __ce[n];
+            )
+
+            // repeaters facing up the tree
+            pint Spd_up[1];
+            preal Cpd_up[1];
+            Spd_up = {5};
+            Cpd_up = {(64*0.25)};
+            ::aer::transmitter::repeaters::REPEATERS_PHI_0<Spd_up, Cpd_up>
+                aext_rep_up_phi(g, _._pp, __pp);
+            ::aer::transmitter::repeaters::REPEATERS_DATA_0<N, Spd_up, Cpd_up>
+                aext_rep_up_data(g, _._p, __p);
+        }
+    } // namespace nodes_w_repeaters
 } // namespace transmitter
 
 export

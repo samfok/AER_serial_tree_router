@@ -1,0 +1,9 @@
+import "aer/aext/aext.act";
+
+export defproc Wrapper(aer::globals g)
+{
+    aer::transmitter::node_w_repeaters::NODE_LVL_2_3<4, 2> node_2_3(g,,,,,,);
+    aer::transmitter::node_w_repeaters::NODE_LVL_4_5<4, 4>  node_4_5(g,,,,,,);
+}
+
+Wrapper dut;
