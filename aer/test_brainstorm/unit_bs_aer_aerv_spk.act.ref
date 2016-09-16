@@ -43,5 +43,8 @@ prs {
     )
 }
 
-BS_AER<M*2, M, p4M, p2M, tile_i, tile_j, false> aer(
-    g_bs,,, aext_snk.d, aerv_spk_src, aerv_mem_src_4to2.y, syn_spk,);
+BS_AER<M*2, M, p4M, p2M, tile_i, tile_j, false> aer(g_bs,,,,,,,,, syn_spk,);
+
+BS_AER_INT<M*2, M> aer_int(g_bs,
+    aer.aext_pp, aer.aext_pe, aer.aext_p, aext_snk.d,
+    aer.aerv_pp, aer.aerv_pe, aer.aerv_p, aerv_spk_src, aerv_mem_src_4to2.y);
