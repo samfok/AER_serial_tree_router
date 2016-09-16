@@ -246,14 +246,13 @@ defproc BRAIN_AER (globals_w_analog ga;
         ]
     ]
 
-    // transmitter components
-    interface::OUT_a1ofN<N> out(g,,,,);
-    interface::DESERIAL_RING<M, N, false, true> deserial(g, out.y,,);
+    brain_transmitter::AEXT_INT<M_SPK, N> aext_int(g,,,,);
     (; m : M_SPK :
-        deserial.y.m[m].d = aext_out.m[m].d;
+        aext_int.y_spk.m[m].d = aext_out.m[m].d;
     )
-    deserial.y.e = aext_out.e;
-    AEXT_TO_TILE<M, p4M> aext(g,,,, out.xe, out.xp, out.x);
+    aext_int.y_spk.e = aext_out.e;
+
+    AEXT_TO_TILE<M, p4M> aext(g,,,, aext_int.aext_pe, aext_int.aext_pp, aext_int.aext_p);
     (; n : N_TILE :
         tile_aer[n].aext_pe = aext.ce[n];
         tile_aer[n].aext__pp = aext._cp[n];

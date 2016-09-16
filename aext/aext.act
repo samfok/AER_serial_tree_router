@@ -1,6 +1,7 @@
 // This file defines a tree transmitter and receiver.
 // The data traverses the tree with a serialized packet format.
 import "aer/lib/arbiter.act";
+import "aer/interface/interface.act";
 
 namespace aer {
 
@@ -736,6 +737,18 @@ defproc AEXT_TO_TILE (globals g;
 }
 
 namespace brain_transmitter {
+    export
+    template <pint M, N>
+    defproc AEXT_INT (globals g;
+                      bool aext_pp, aext_pe; c1of<N> aext_p;
+                      eMx1ofN<M, N> y_spk) {
+        // interface between transmitter and the datapath
+        // M tree levels 
+        // N radix of tree (N^M neurons)
+        ::aer::interface::OUT_a1ofN<N> out(g, aext_pp, aext_pe, aext_p,);
+        ::aer::interface::DESERIAL_RING<M, N, false, true> deserial(g, out.y, y_spk,);
+    }
+
     export
     template <pint NN>
     defproc NRN_BUF (globals g; bool xp[NN], xa[NN], ya[NN], _yp[NN]) {

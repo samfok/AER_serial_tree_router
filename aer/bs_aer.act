@@ -5,6 +5,7 @@
 // brainstorm/act
 import "aer/aer/aer.act";
 import "aer/aerv/bs_aerv.act";
+import "aer/aext/bs_aext.act";
 import "core/serializer/AERSerializer.act";
 import "lib/channel.act";
 
@@ -146,15 +147,9 @@ defproc BS_AER (globals g_bs;
         ]
     ]
 
-    // transmitter components
-    aer::interface::OUT_a1ofN<N> out(g,,,,);
-    aer::interface::DESERIAL_RING<M_1of4, N, false, true> deserial(g, out.y,,);
-    aer::eMx1of4_to_eMx1of2<M_SPK_1of4, M_SPK_1of2> aext_converter(g,, aext_out);
-    (; m : M_SPK_1of4 :
-        deserial.y.m[m].d = aext_converter.x.m[m].d;
-    )
-    deserial.y.e = aext_converter.x.e;
-    aer::AEXT_TO_TILE<M_1of4, p4M> aext(g,,,, out.xe, out.xp, out.x);
+    BS_AEXT_INT<M_SPK_1of2> aext_int(g_bs,,,, aext_out);
+    aer::AEXT_TO_TILE<M_1of4, p4M> aext(
+        g,,,, aext_int.aext_pe, aext_int.aext_pp, aext_int.aext_p);
     (; n : N_TILE :
         tile_aer[n].aext_pe = aext.ce[n];
         tile_aer[n].aext__pp = aext._cp[n];

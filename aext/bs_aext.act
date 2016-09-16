@@ -1,0 +1,25 @@
+// This file defines a modified brainstorm transmitter that interfaces with
+// the brainstorm datapath
+import "aer/aext/aext.act";
+import "aer/lib/compat_bs.act";
+
+export
+template <pint M_SPK_1of2>
+defproc BS_AEXT_INT (globals g_bs;
+                     bool aext_pp, aext_pe; aer::c1of<4> aext_p;
+                     aer::eMx1of2<M_SPK_1of2> y_spk) {
+    // modified interface between transmitter and the datapath
+    // that uses datapath port parameters
+    // M_SPK_1of2 = tree levels * 2
+    pint D = 4; // 1-of-D data
+    pint M_SPK_1of4 = M_SPK_1of2/2;
+    aer::globals g;
+    compat_bs::globals g_compat(g, g_bs);
+    aer::brain_transmitter::AEXT_INT<M_SPK_1of4, D> _(g, aext_pp, aext_pe, aext_p,);
+
+    aer::eMx1of4_to_eMx1of2<M_SPK_1of4, M_SPK_1of2> aext_converter(g,, y_spk);
+    (; m : M_SPK_1of4 :
+        _.y_spk.m[m].d = aext_converter.x.m[m].d;
+    )
+    _.y_spk.e = aext_converter.x.e;
+}
