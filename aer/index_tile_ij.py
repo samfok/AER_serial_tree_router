@@ -59,13 +59,15 @@ def insert_tile_ij(tile_i, tile_j, f_str):
     assert len(matches) == 1, 'More than 1 match for "#SCRIPT pint ' + \
         'tile_j[p4M/16];". File may only contain 1 tile_j directive'
 
+    tile_i_str = re.findall(".*[^,)]", str(tile_i)[1:])[0]
+    tile_j_str = re.findall(".*[^,)]", str(tile_j)[1:])[0]
     fw_str = re.sub(
         r".*#SCRIPT (pint tile_i\[p4M/16\];).*",
-        r"\1\ntile_i = {"+str(tile_i)[1:-1]+r"};",
+        r"\1\ntile_i = {"+tile_i_str+r"};",
         f_str)
     fw_str = re.sub(
         r".*#SCRIPT (pint tile_j\[p4M/16\];).*",
-        r"\1\ntile_j = {"+str(tile_j)[1:-1]+r"};",
+        r"\1\ntile_j = {"+tile_j_str+r"};",
         fw_str)
     return fw_str
     
