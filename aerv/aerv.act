@@ -483,7 +483,7 @@ namespace receiver {
 
 export
 template <pint M, N, pNM, N_SYN, N_MEM>
-defproc AERV (globals g; bool pp, pe; c1of<N> p;
+defproc AERV (globals g; bool _pp, _pe; c1of<N> p;
               e1of2 syn[N_SYN];
               bool yp_mem[N_MEM], ye_mem[N_MEM]; c1of<N> mem[N_MEM]) {
     // receiver capable of sending data to neuron
@@ -517,9 +517,10 @@ defproc AERV (globals g; bool pp, pe; c1of<N> p;
 
     receiver::REPEATER_TREE<M, N, N_LINK> repeaters(g,,,,,,);
 
-    receiver::TOP_INT<N> top_int(g, pp, repeaters.p__cp[0],
-                                 repeaters.p__ce[0], pe,
-                                 p, repeaters.p_c[0]);
+    repeaters.p__cp[0] = _pp;
+    repeaters.p__ce[0] = _pe;
+    repeaters.p_c[0]   = p;
+
     [ M = 1 ->
         pNM = N; // assert
         leaf[0]._pp = repeaters.c__pp[0];
@@ -574,7 +575,7 @@ defproc AERV (globals g; bool pp, pe; c1of<N> p;
 
 export
 template <pint M, N, NN>
-defproc AERV_NODATA (globals g; bool ye[NN], yp[NN], pp, pe; c1of<N> p) {
+defproc AERV_NODATA (globals g; bool ye[NN], yp[NN], _pp, _pe; c1of<N> p) {
     // receiver that does not send data to targets
     //     (targets could be synapses or neurons)
     // M depth of AERV tree
@@ -594,18 +595,18 @@ defproc AERV_NODATA (globals g; bool ye[NN], yp[NN], pp, pe; c1of<N> p) {
 
     [ M = 1 ->
         NN = N; // assert
-        leaf[0].pe = pe;
-        leaf[0].pp = pp;
+        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+            _pp => leaf[0].pp-
+            leaf[0].pe => _pe-
+        }
         leaf[0].p = p;
     [] M > 1 ->
         receiver::NODE<N> node[N_NODE];
         (; n : N_NODE :
             node[n].g = g;
         )
-        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-            pp => node[0]._pp-
-            node[0]._pe => pe-
-        }
+        node[0]._pp = _pp;
+        node[0]._pe = _pe;
         node[0].p = p;
 
         // connect NODEs to LEAFs
@@ -707,7 +708,7 @@ namespace brain_receiver {
     export
     template <pint M_SPK, M_MEM>
     defproc AERV_INT (globals g; eMx1of4<M_SPK> x_spk; eMx1of4<M_MEM> x_mem;
-                      bool aerv_pp, aerv_pe; c1of<4> aerv_p) {
+                      bool aerv__pp, aerv__pe; c1of<4> aerv_p) {
         // interface between datapath and receiver
         // merges input spike and input memory packet streams
         pint D = 4; // 1-of-D data
@@ -733,7 +734,11 @@ namespace brain_receiver {
         merge_x[1] = serial_mem.y;
 
         ::aer::interface::SERIAL_MERGE<2, D> merge(
-            g, merge_xp, merge_xe, aerv_pe, aerv_pp, merge_x, aerv_p);
+            g, merge_xp, merge_xe,,, merge_x,);
+
+        ::aer::receiver::TOP_INT<D> aerv_conv(g, merge.yp, aerv__pp,
+                                              aerv__pe, merge.ye,
+                                              merge.y, aerv_p);
     }
 
     export
@@ -879,7 +884,7 @@ defproc BRAIN_AERV (globals g; eMx1of4<M_SPK> x_spk;
     brain_receiver::HALF_BUFFER<N_SYN> buf_syn(g, aerv_syn, y_syn);
 
     AERV<M, D, p4M, N_SYN, N_MEM> aerv(
-        g, aerv_int.aerv_pp, aerv_int.aerv_pe, aerv_int.aerv_p,
+        g, aerv_int.aerv__pp, aerv_int.aerv__pe, aerv_int.aerv_p,
         aerv_syn, aerv_yp_mem, aerv_ye_mem, aerv_mem);
 }
 

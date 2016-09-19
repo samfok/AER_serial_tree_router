@@ -12,7 +12,7 @@ template <pint M_SPK_1of2, M_MEM_1of2>
 defproc BS_AERV_INT (globals g_bs;
                      aer::eMx1of2<M_SPK_1of2> x_spk;
                      aer::eMx1of2<M_MEM_1of2> x_mem;
-                     bool aerv_pp, aerv_pe; aer::c1of<4> aerv_p) {
+                     bool aerv__pp, aerv__pe; aer::c1of<4> aerv_p) {
     // modified interface between datapath and receiver that uses the
     // serializer defined in the brainstorm repository
     // merges input spike and input memory packet streams
@@ -39,7 +39,11 @@ defproc BS_AERV_INT (globals g_bs;
     merge_x[1].d = serial_mem_Od.aer.d;
 
     aer::interface::SERIAL_MERGE<2, D> merge(
-        g, merge_xp, merge_xe, aerv_pe, aerv_pp, merge_x, aerv_p);
+        g, merge_xp, merge_xe,,, merge_x,);
+
+    aer::receiver::TOP_INT<D> aerv_conv(g, merge.yp, aerv__pp,
+                                        aerv__pe, merge.ye,
+                                        merge.y, aerv_p);
 }
 
 export
@@ -98,6 +102,6 @@ defproc BS_AERV (globals g_bs; aer::eMx1of2<M_SPK_1of2> x_spk;
     aer::brain_receiver::HALF_BUFFER<N_SYN> buf_syn(g, aerv_syn, y_syn);
 
     aer::AERV<M_1of4, D, p4M, N_SYN, N_MEM> aerv(
-        g, aerv_int.aerv_pp, aerv_int.aerv_pe, aerv_int.aerv_p,
+        g, aerv_int.aerv__pp, aerv_int.aerv__pe, aerv_int.aerv_p,
         aerv_syn, aerv_yp_mem, aerv_ye_mem, aerv_mem);
 }

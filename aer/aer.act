@@ -8,7 +8,7 @@ namespace aer {
 
 export
 template <pint M, N, NN>
-defproc AER_NODATA (globals g; bool _xp[NN], xa[NN], ye[NN], yp[NN]) {
+defproc AER_NODATA (globals g; bool xp[NN], xa[NN], ye[NN], yp[NN]) {
     // address-event representation tranceiver
     // no data sent to receiving neuron
     // packets are serialized 
@@ -16,11 +16,19 @@ defproc AER_NODATA (globals g; bool _xp[NN], xa[NN], ye[NN], yp[NN]) {
     // M groups
     // N items per group
     // NN=N^M
-    AEXT<M, N, NN> aext(g, _xp, xa,,,);
-    interface::OUT_a1ofN<N> out(g, aext.pp, aext.pe, aext.p,);
+    AEXT<M, N, NN> aext(g, xp, xa,,,);
+    transmitter::TOP_INT<N>
+        top_int_aext(g, aext._pp,, aext.pe,, aext._p,);
+    interface::OUT_a1ofN<N>
+        out(g, top_int_aext.y_phi, top_int_aext.x_enable, 
+            top_int_aext.y_data,);
     interface::DESERIAL_RING<M, N, false, true> deserial(g, out.y,,);
     interface::SERIAL_RING<M, N> serial(g, deserial.y,,,);
-    AERV_NODATA<M, N, NN> aerv(g, ye, yp, serial.yp, serial.ye, serial.y);
+    receiver::TOP_INT<N>
+        top_int_aerv(g, serial.yp,,,serial.ye, serial.y,);
+
+    AERV_NODATA<M, N, NN> aerv(g, ye, yp,
+        top_int_aerv._y_phi, top_int_aerv._x_enable, top_int_aerv.y_data);
 }
 
 namespace brain_aer {
@@ -58,7 +66,7 @@ namespace brain_aer {
     export
     template <pbool unit_aext>
     defproc TILE_AER (globals g;
-                      bool aext_pe, aext__pp; c1of<4> aext__p;
+                      bool aext__pp, aext_pe; c1of<4> aext__p;
                       bool aerv__pp, aerv__pe; c1of<4> aerv_p;
                       bool nrn_req[16], nrn_ack[16];
                       a1of2 syn_spk[4]; aMx1of4<4> _mem; bool _pchg
@@ -76,13 +84,13 @@ namespace brain_aer {
         // transmitter components
         ::aer::transmitter::NODE<N> aext_node(g,,, aext_pe, aext__pp,, aext__p);
         ::aer::transmitter::LEAF<N> aext_leaf[N_AEXT_LEAF];
-        ::aer::brain_transmitter::NRN_BUF<NN> buf_nrn(g, nrn_req, nrn_ack,,);
+        ::aer::transmitter::NRN_BUF<NN> buf_nrn(g, nrn_req, nrn_ack,,);
         (; n : N_AEXT_LEAF :
             aext_leaf[n].g = g;
 
-            aext_node.ce[n] = aext_leaf[n].pe;
-            aext_node._cp[n] = aext_leaf[n]._pp;
-            aext_node._c[n] = aext_leaf[n]._p;
+            aext_leaf[n].pe = aext_node.ce[n];
+            aext_leaf[n]._pp = aext_node._cp[n];
+            aext_leaf[n]._p = aext_node._c[n];
         )
         (; nn : NN :
             buf_nrn._yp[nn] = aext_leaf[nn/N]._cp[nn%N];
@@ -252,7 +260,8 @@ defproc BRAIN_AER (globals_w_analog ga;
     )
     aext_int.y_spk.e = aext_out.e;
 
-    AEXT_TO_TILE<M, p4M> aext(g,,,, aext_int.aext_pe, aext_int.aext_pp, aext_int.aext_p);
+    AEXT_TO_TILE<M, p4M> 
+        aext(g,,,, aext_int.aext_pe, aext_int.aext__pp, aext_int.aext__p);
     (; n : N_TILE :
         tile_aer[n].aext_pe = aext.ce[n];
         tile_aer[n].aext__pp = aext._cp[n];
@@ -265,10 +274,8 @@ defproc BRAIN_AER (globals_w_analog ga;
     // receiver components
     brain_receiver::AERV_INT<M_SPK, M_MEM> aerv_int(
         g, aerv_spk_in, aerv_mem_in,,,);
-    receiver::TOP_INT<N> aerv_conv(
-        g, aerv_int.aerv_pp,,, aerv_int.aerv_pe, aerv_int.aerv_p,);
     AERV_TO_TILE<M-1, p4M/N> aerv(
-        g, aerv_conv._y_phi, aerv_conv._x_enable, aerv_conv.y_data,,,);
+        g, aerv_int.aerv__pp, aerv_int.aerv__pe, aerv_int.aerv_p,,,);
 
     (; n : N_TILE :
         tile_aer[n].aerv__pe = aerv._ce[n];

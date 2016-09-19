@@ -11,6 +11,24 @@ set g.sReset 1
 set g._pReset 1
 set g.pReset 0
 
+set g_bs._RST 0
+set g_bs.ADC_OUT[0] 0
+set g_bs.ADC_OUT[1] 0
+set g_bs.V_REF 0
+set g_bs.V_R 0
+set g_bs.V_G 0
+set g_bs.V_PE_PD 0
+set g_bs.V_PE_PU 0
+set g_bs.V_WINH 0
+set g_bs.V_WDC 0
+set g_bs.V_WEXC 0
+set g_bs.V_IK_B 0
+set g_bs.V_LK_A 0
+set g_bs.V_IOFFSET 0
+set g_bs.vddp 0
+set g_bs.vdda 0
+set g_bs.gnda 0
+
 cycle
 
 set g._pReset 0

@@ -4,12 +4,11 @@ import "aer/lib/test.act";
 pint M=3;
 pint N=2;
 pint NN=8; // NN=N^M
-::aer::globals g;
-::aer::active_handshaker<NN> a(g,,);
-::aer::AEXT<M, N, NN> aext(g,, a.i,,,);
-::aer::test::SINK_SERIAL<N> snk(g, aext.pp, aext.pe, aext.p);
-prs<g.Vdd, g.GND> {
-    (: nn : NN :
-        a.o[nn] => aext._xp[nn]-
-    )
-}
+aer::globals g;
+aer::active_handshaker<NN> a(g,,);
+aer::AEXT<M, N, NN> aext(g,, a.i,,,);
+aer::transmitter::TOP_INT<N> aext_int(g, aext._pp,,, aext.pe, aext._p,);
+
+aer::test::SINK_SERIAL<N>
+    snk(g, aext_int.y_phi, aext_int.x_enable, aext_int.y_data);
+(; nn : NN : a.o[nn] = aext.xp[nn];)

@@ -48,5 +48,6 @@ prs<g.Vdd, g.GND> {
     )
 }
 
-BS_AERV<M_1of2, M_1of4, p4M, M_SPK_1of2, M_SPK_1of4, M_MEM_1of2, M_MEM_1of4, N_SYN, N_MEM> aerv(
-    g_bs, spk_src_4to2.y, mem_src_4to2.y, y_syn, _y_mem);
+BS_AERV<M_1of2, M_1of4, p4M, M_SPK_1of2, M_SPK_1of4, 
+        M_MEM_1of2, M_MEM_1of4, N_SYN, N_MEM>
+    aerv(g_bs, spk_src_4to2.y, mem_src_4to2.y, y_syn, _y_mem);

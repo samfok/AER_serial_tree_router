@@ -80,6 +80,22 @@ namespace transmitter {
             )
         }
     }
+
+    export
+    template <pint NN>
+    defproc NRN_BUF (globals g; bool xp[NN], xa[NN], ya[NN], yp[NN]) {
+        // buffer the neuron spikes so that the refractory period does not
+        // hold up the transmitter
+        // NN neurons
+        prs<g.Vdd, g.GND> {
+            (: nn : NN :
+                xp[nn] & ~xa[nn] => yp[nn]+
+
+                ya[nn] -> xa[nn]+
+                ~ya[nn] & ~xp[nn] -> xa[nn]-
+            )
+        }
+    }
 } // namespace transmitter
 
 export
@@ -91,12 +107,14 @@ defproc AEXT (globals g; bool xp[NN], xa[NN], pe, pp; c1of<N> p) {
     pint N_LEAF = NN/N; // = N^(M-1)
     pint N_NODE = (NN-N) / (N*(N-1)); // = (N^(M-1)-1) / (N-1)
     // N_LEAF + N_NODE = (N^M-1) / (N-1)
+    transmitter::NRN_BUF<NN> buf(g, xp, xa,,);
+
     transmitter::LEAF<N> leaf[N_LEAF];
 
     (; n : N_LEAF :
         leaf[n].g = g;
-        leaf[n].cp = xp[n*N..(n+1)*N-1];
-        leaf[n].ca = xa[n*N..(n+1)*N-1];
+        leaf[n].cp = buf.yp[n*N..(n+1)*N-1];
+        leaf[n].ca = buf.ya[n*N..(n+1)*N-1];
     )
 
     [ M = 1 ->
@@ -189,24 +207,6 @@ defproc AEXT_TO_TILE (globals g; bool cp[p4M/16], ce[p4M/16]; c1of<4> c[p4M/16];
     ]
 }
 
-namespace brain_transmitter {
-    export
-    template <pint NN>
-    defproc NRN_BUF (globals g; bool xp[NN], xa[NN], ya[NN], yp[NN]) {
-        // buffer the neuron spikes so that the refractory period does not
-        // hold up the transmitter
-        // NN neurons
-        prs<g.Vdd, g.GND> {
-            (: nn : NN :
-                xp[nn] & ~xa[nn] => yp[nn]+
-
-                ya[nn] -> xa[nn]+
-                ~ya[nn] & ~xp[nn] -> xa[nn]-
-            )
-        }
-    }
-} // namespace brain_transmitter
-
 export
 template <pint M, N, NN>
 defproc BRAIN_AEXT (globals g; bool xp[NN], xa[NN]; eMx1ofN<M, N> y) {
@@ -218,8 +218,7 @@ defproc BRAIN_AEXT (globals g; bool xp[NN], xa[NN]; eMx1ofN<M, N> y) {
     // NN neurons
     //     NN = 4^M
     //     NN = 4096 in production
-    brain_transmitter::NRN_BUF<NN> buf(g, xp, xa,,);
-    AEXT<M, N, NN> aext(g, buf.yp, buf.ya,,,);
+    AEXT<M, N, NN> aext(g, xp, xa,,,);
     interface::OUT_a1ofN<N> out(g, aext.pp, aext.pe, aext.p,);
     interface::DESERIAL_RING<M, N, false, true> deserial(g, out.y, y);
 }

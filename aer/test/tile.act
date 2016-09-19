@@ -20,28 +20,17 @@ aer::test::SYNAPSE_ARR<NSYN> syn(g,);
 aer::test::MEM<M_MEM> mem(g,,);
 
 // transmitter components
-aer::interface::OUT_a1ofN<D> out(g,,,,);
-aer::interface::DESERIAL_RING<M, D, false, true> deserial(g, out.y,,);
-deserial.y.e = aext_snk.d.e;
-(; m : M_SPK :
-    deserial.y.m[m].d = aext_snk.d.m[m].d;
-)
+aer::brain_transmitter::AEXT_INT<M, D>
+    aext_int(g,,,,);
+aext_int.y_spk.e = aext_snk.d.e;
+(; m : M_SPK : aext_int.y_spk.m[m].d = aext_snk.d.m[m].d;)
 
 // receiver components
 aer::brain_receiver::AERV_INT<M_SPK, M_MEM> aerv_int(
     g, aerv_spk_src.d, aerv_mem_src.d,,,);
 
 // tile
-aer::brain_aer::TILE_AER<false> tile(
-    g, out.xe,,,,, aerv_int.aerv_p,
+aer::brain_aer::TILE_AER<false> tile(g,
+    aext_int.aext__pp, aext_int.aext_pe, aext_int.aext__p,
+    aerv_int.aerv__pp, aerv_int.aerv__pe, aerv_int.aerv_p,
     nrn.req, nrn.ack, syn.spk, mem._x, mem._pchg);
-
-prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-    tile.aext__pp => out.xp-
-    (: d : D :
-        tile.aext__p.d[d] => out.x.d[d]-
-    )
-
-    aerv_int.aerv_pp => tile.aerv__pp-
-    tile.aerv__pe => aerv_int.aerv_pe-
-}

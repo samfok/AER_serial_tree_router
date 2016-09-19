@@ -14,7 +14,7 @@ template <pint M_1of2, M_1of4, p4M, p2M; pint tile_i[p4M/16], tile_j[p4M/16];
           pbool unit_aext>
 defproc BS_AER (globals g_bs;
                 bool aext_nrn_req[p4M], aext_nrn_ack[p4M];
-                bool aext_pp, aext_pe; aer::c1of<4> aext_p;
+                bool aext__pp, aext_pe; aer::c1of<4> aext__p;
                 bool aerv__pp, aerv__pe; aer::c1of<4> aerv_p;
                 aer::a1of2 aerv_syn[p4M/4];
                 aer::aMx1of4<4> aerv__mem[p4M/4/4]) {
@@ -147,7 +147,7 @@ defproc BS_AER (globals g_bs;
     ]
 
     aer::AEXT_TO_TILE<M_1of4, p4M> aext(
-        g,,,, aext_pe, aext_pp, aext_p);
+        g,,,, aext_pe, aext__pp, aext__p);
     (; n : N_TILE :
         tile_aer[n].aext_pe = aext.ce[n];
         tile_aer[n].aext__pp = aext._cp[n];
@@ -182,11 +182,11 @@ defproc BS_AER_wrapper (globals g;
                         eMx1of4<4> AERMEM[p4M/4/4]) {
     // converts to the data types used by the rest of the BS repo
 
-    bool aext_pp = PP_TX;
+    bool aext__pp = PP_TX;
     bool aext_pe = PE_TX;
 
-    aer::c1of<4> aext_p;
-    aext_p.d = P_TX.d;
+    aer::c1of<4> aext__p;
+    aext__p.d = P_TX.d;
 
     bool aerv__pp = PP_RX;
     bool aerv__pe = PE_RX;
@@ -207,7 +207,7 @@ defproc BS_AER_wrapper (globals g;
     (;m:p4M/4/4: (;i:4: aerv__mem[m].b[i].d = AERMEM[m].b[i].d; ) )
 
     BS_AER<M_1of2, M_1of4, p4M, p2M, tile_i, tile_j, unit_aext> _(g,
-        aext_nrn_req, aext_nrn_ack, aext_pp, aext_pe, aext_p,
+        aext_nrn_req, aext_nrn_ack, aext__pp, aext_pe, aext__p,
         aerv__pp, aerv__pe, aerv_p, aerv_syn, aerv__mem);
 }
 
@@ -215,9 +215,9 @@ defproc BS_AER_wrapper (globals g;
 export
 template <pint M_1of2, M_1of4>
 defproc BS_AER_INT (globals g_bs;
-                    bool aext_pp, aext_pe; aer::c1of<4> aext_p;
+                    bool aext__pp, aext_pe; aer::c1of<4> aext__p;
                     aer::eMx1of2<M_1of2> aext_out;
-                    bool aerv_pp, aerv_pe; aer::c1of<4> aerv_p;
+                    bool aerv__pp, aerv__pe; aer::c1of<4> aerv_p;
                     aer::eMx1of2<M_1of2> aerv_spk_in;
                     aer::eMx1of2<M_1of2+6> aerv_mem_in) {
     // Brinstorm AER interface with the datapath
@@ -230,12 +230,15 @@ defproc BS_AER_INT (globals g_bs;
     pint M_SPK_1of2 = M_SPK_1of4*2;
     pint M_MEM_1of2 = M_MEM_1of4*2;
 
-    BS_AEXT_INT<M_SPK_1of2> aext_int(g_bs, aext_pp, aext_pe, aext_p, aext_out);
+    aer::globals g;
+    compat_bs::globals g_to_gbs(g, g_bs);
 
-    aer::receiver::TOP_INT<N> aerv_conv(g, aerv_pp,,, aerv_pe, aerv_p);
+    BS_AEXT_INT<M_SPK_1of2> aext_int(
+        g_bs, aext__pp, aext_pe, aext__p, aext_out);
+
     BS_AERV_INT<M_SPK_1of2, M_MEM_1of2> aerv_int(g_bs,
         aerv_spk_in, aerv_mem_in,
-        aerv_conv._y_phi, aerv_conv._x_enable, aerv_conv.y_data);
+        aerv__pp, aerv__pe, aerv_p);
 }
 
 export
@@ -247,18 +250,18 @@ defproc BS_AER_INT_wrapper (globals g_bs;
                             eMx1of2<M_1of2> SPK_RX; eMx1of2<M_1of2+6> MEM_RX) {
     // converts to data types used by the rest of the BS repo
 
-    bool aext_pp = PP_TX;
+    bool aext__pp = PP_TX;
     bool aext_pe = PE_TX;
 
-    aer::c1of<4> aext_p;
-    aext_p.d = P_TX.d;
+    aer::c1of<4> aext__p;
+    aext__p.d = P_TX.d;
 
     aer::eMx1of2<M_1of2> aext_out;
     (;m:M_1of2: aext_out.m[m].d = SPK_TX.b[m].d;)
     aext_out.e = SPK_TX.e;
 
-    bool aerv_pp = PP_RX;
-    bool aerv_pe = PE_RX;
+    bool aerv__pp = PP_RX;
+    bool aerv__pe = PE_RX;
 
     aer::c1of<4> aerv_p;
     aerv_p.d = P_RX.d;
@@ -272,6 +275,6 @@ defproc BS_AER_INT_wrapper (globals g_bs;
     aerv_mem_in.e = MEM_RX.e;
 
     BS_AER_INT<M_1of2, M_1of4> _(g_bs,
-        aext_pp, aext_pe, aext_p, aext_out,
-        aerv_pp, aerv_pe, aerv_p, aerv_spk_in, aerv_mem_in);
+        aext__pp, aext_pe, aext__p, aext_out,
+        aerv__pp, aerv__pe, aerv_p, aerv_spk_in, aerv_mem_in);
 }

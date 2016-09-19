@@ -194,6 +194,42 @@ namespace transmitter {
         ]
     }
 
+    export
+    template <pint NN>
+    defproc NRN_BUF (globals g; bool xp[NN], xa[NN], ya[NN], _yp[NN]) {
+        // buffer the neuron spikes so that the refractory period does not
+        // hold up the transmitter
+        // NN neurons
+        bool _xa[NN];
+        bool __xa[NN];
+        __xa = xa;
+        [ ~LAYOUT ->
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+                (: nn : NN :
+                    xp[nn] & _xa[nn] => _yp[nn]-
+
+                    ya[nn] -> _xa[nn]-
+                    ~ya[nn] & ~xp[nn] -> _xa[nn]+
+
+                    _xa[nn] => __xa[nn]-
+                )
+            }
+        [] LAYOUT ->
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+                (: nn : NN :
+                    xp[nn]<12> & _xa[nn]<12> -> _yp[nn]-
+                    ~xp[nn]<9> | ~_xa[nn]<9> -> _yp[nn]+
+
+                    ya[nn]<6> -> _xa[nn]-
+                    ~ya[nn]<18> & ~xp[nn]<18> -> _xa[nn]+
+
+                    ~_xa[nn]<9> -> __xa[nn]+
+                    _xa[nn]<6> -> __xa[nn]-
+                )
+            }
+        ]
+    }
+
     namespace repeaters {
         export
         template <pint M_idx, N>
@@ -411,7 +447,7 @@ namespace transmitter {
 
 export
 template <pint M, N, NN>
-defproc AEXT (globals g; bool _xp[NN], xa[NN], pe, pp; c1of<N> p) {
+defproc AEXT (globals g; bool xp[NN], xa[NN], pe, _pp; c1of<N> _p) {
     // Transmitter transmits spikes from neurons to datapath
     // M depth of AEXT tree (max 6)
     // N radix of AEXT tree
@@ -420,27 +456,27 @@ defproc AEXT (globals g; bool _xp[NN], xa[NN], pe, pp; c1of<N> p) {
     pint N_LEAF = NN/N; // = N^(M-1)
     pint N_NODE = (NN-N) / (N*(N-1)); // = (N^(M-1)-1) / (N-1)
 
+    transmitter::NRN_BUF<NN> buf(g, xp, xa,,);
+
     transmitter::LEAF<N> leaf[N_LEAF];
     (; n : N_LEAF :
         leaf[n].g = g;
-        leaf[n]._cp = _xp[n*N..(n+1)*N-1];
-        leaf[n].ca = xa[n*N..(n+1)*N-1];
+        leaf[n]._cp = buf._yp[n*N..(n+1)*N-1];
+        leaf[n].ca = buf.ya[n*N..(n+1)*N-1];
     )
-
-    transmitter::TOP_INT<N> top_int(g,, pp, pe,,, p);
 
     [ M = 1 ->
         NN = N; // assert
-        leaf[0]._pp = top_int._x_phi;
-        leaf[0].pe = top_int.y_enable;
-        leaf[0]._p = top_int._x_data;
+        leaf[0]._pp = _pp;
+        leaf[0].pe  = pe;
+        leaf[0]._p  = _p;
     [] M > 1 ->
         transmitter::REPEATER_TREE<M-1, N, N_NODE> repeaters(
             g,,,,,,);
 
-        repeaters.p__cp[0] = top_int._x_phi;
-        repeaters.p_ce[0] = top_int.y_enable;
-        repeaters.p__c[0] = top_int._x_data;
+        repeaters.p__cp[0] = _pp;
+        repeaters.p_ce[0]  = pe;
+        repeaters.p__c[0]  = _p;
 
         transmitter::NODE<N> node[N_NODE];
         (; n : N_NODE :
@@ -482,7 +518,7 @@ export
 template <pint M, p4M>
 defproc AEXT_TO_TILE (globals g;
                       bool _cp[p4M/16], ce[p4M/16]; c1of<4> _c[p4M/16];
-                      bool pe, pp; c1of<4> p) {
+                      bool pe, _pp; c1of<4> _p) {
     // AEXT tree above the TILE (in logic space)
     // contains all but the lowest level intermediate NODEs
     // M tree levels (require M>=2)
@@ -496,21 +532,15 @@ defproc AEXT_TO_TILE (globals g;
     pint N_LINK = N_LEAF + N_NODE; // = (N^(M-1)-1) / (N-1)
 
     transmitter::REPEATER_TREE<M-1, N, N_LINK> repeaters(g,,,,,,);
+
+    repeaters.p__cp[0] = _pp;
     repeaters.p_ce[0] = pe;
-    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-        // switch to active high outside of array
-        ~repeaters.p__cp[0]<9> -> pp+
-        repeaters.p__cp[0]<6> -> pp-
-        (: n : N :
-            ~repeaters.p__c[0].d[n]<9> -> p.d[n]+
-            repeaters.p__c[0].d[n]<6> -> p.d[n]-
-        )
-    }
+    repeaters.p__c[0] = _p;
 
     [ M = 2 ->
         p4M = 4*N; // assert
-        ce[0] = repeaters.c_pe[0];
         _cp[0] = repeaters.c__pp[0];
+        ce[0] = repeaters.c_pe[0];
         _c[0] = repeaters.c__p[0];
     [] M > 2 ->
         transmitter::NODE<N> node[N_NODE];
@@ -553,65 +583,18 @@ namespace brain_transmitter {
     export
     template <pint M, N>
     defproc AEXT_INT (globals g;
-                      bool aext_pp, aext_pe; c1of<N> aext_p;
+                      bool aext__pp, aext_pe; c1of<N> aext__p;
                       eMx1ofN<M, N> y_spk) {
         // interface between transmitter and the datapath
         // M tree levels 
         // N radix of tree (N^M neurons)
-        ::aer::interface::OUT_a1ofN<N> out(g, aext_pp, aext_pe, aext_p,);
-        ::aer::interface::DESERIAL_RING<M, N, false, true> deserial(g, out.y, y_spk,);
-    }
-
-    export
-    template <pint NN>
-    defproc NRN_BUF (globals g; bool xp[NN], xa[NN], ya[NN], _yp[NN]) {
-        // buffer the neuron spikes so that the refractory period does not
-        // hold up the transmitter
-        // NN neurons
-        bool _xa[NN];
-        bool __xa[NN];
-        __xa = xa;
-        [ ~LAYOUT ->
-            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                (: nn : NN :
-                    xp[nn] & _xa[nn] => _yp[nn]-
-
-                    ya[nn] -> _xa[nn]-
-                    ~ya[nn] & ~xp[nn] -> _xa[nn]+
-
-                    _xa[nn] => __xa[nn]-
-                )
-            }
-        [] LAYOUT ->
-            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                (: nn : NN :
-                    xp[nn]<12> & _xa[nn]<12> -> _yp[nn]-
-                    ~xp[nn]<9> | ~_xa[nn]<9> -> _yp[nn]+
-
-                    ya[nn]<6> -> _xa[nn]-
-                    ~ya[nn]<18> & ~xp[nn]<18> -> _xa[nn]+
-
-                    ~_xa[nn]<9> -> __xa[nn]+
-                    _xa[nn]<6> -> __xa[nn]-
-                )
-            }
-        ]
+        ::aer::transmitter::TOP_INT<N>
+            top_int(g, aext__pp,, aext_pe,, aext__p,);
+        ::aer::interface::OUT_a1ofN<N>
+            out(g, top_int.y_phi, top_int.y_enable, top_int.y_data,);
+        ::aer::interface::DESERIAL_RING<M, N, false, true>
+            deserial(g, out.y, y_spk,);
     }
 } // namespace brain_transmitter
-
-export
-template <pint M, N, NN>
-defproc BRAIN_AEXT (globals g; bool xp[NN], xa[NN], pe, pp; c1of<N> p) {
-    // braindrop / brainstorm transmitter system
-    // M tree depth
-    //     M = 6 in production
-    // N node fanout
-    //     N = 4 in production
-    // NN neurons
-    //     NN = 4^M
-    //     NN = 4096 in production
-    AEXT<M, N, NN> _(g,,, pe, pp, p);
-    brain_transmitter::NRN_BUF<NN> buf(g, xp, xa, _.xa, _._xp);
-}
 
 } // namespace aer

@@ -44,7 +44,6 @@ namespace brain_aer {
         // transmitter components
         ::aer::transmitter::NODE<N> aext_node(g,,, aext_pe, aext_pp,, aext_p);
         ::aer::transmitter::LEAF<N> aext_leaf[N_AEXT_LEAF];
-        ::aer::brain_transmitter::NRN_BUF<NN> buf_nrn(g, nrn_req, nrn_ack,,);
         (; n : N_AEXT_LEAF :
             aext_leaf[n].g = g;
             aext_leaf[n].pp = aext_node.cp[n];
@@ -52,8 +51,8 @@ namespace brain_aer {
             aext_leaf[n].p = aext_node.c[n];
         )
         (; nn : NN :
-            buf_nrn.yp[nn] = aext_leaf[nn/N].cp[nn%N];
-            buf_nrn.ya[nn] = aext_leaf[nn/N].ca[nn%N];
+            aext_leaf[nn/N].cp[nn%N] = nrn_req[nn];
+            aext_leaf[nn/N].ca[nn%N] = nrn_ack[nn];
         )
 
         // receiver components

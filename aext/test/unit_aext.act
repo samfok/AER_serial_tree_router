@@ -12,14 +12,14 @@ aer::e1of<NN> src;
 aer::eMx1of4<M> snk;
 
 aer::AEXT<M, N, NN> aext(g,,,,,);
-aer::interface::OUT_a1ofN<N> out(g, aext.pp, aext.pe, aext.p,);
+aer::transmitter::TOP_INT<N> aext_int(g, aext._pp,,, aext.pe, aext._p,);
+aer::interface::OUT_a1ofN<N>
+    out(g, aext_int.y_phi, aext_int.x_enable, aext_int.y_data,);
 aer::interface::DESERIAL_RING<M, N, false, true> deserial(g, out.y,,);
 aer::SINK_eMx1ofN<M, N> snk_(g, deserial.y);
 
+src.d = aext.xp;
 prs<g.Vdd, g.GND> {
-    (: nn : NN :
-        src.d[nn] => aext._xp[nn]-
-    )
     (| : nn : NN : aext.xa[nn]) => src.e-
 }
 
