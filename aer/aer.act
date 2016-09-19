@@ -265,8 +265,10 @@ defproc BRAIN_AER (globals_w_analog ga;
     // receiver components
     brain_receiver::AERV_INT<M_SPK, M_MEM> aerv_int(
         g, aerv_spk_in, aerv_mem_in,,,);
+    receiver::TOP_INT<N> aerv_conv(
+        g, aerv_int.aerv_pp,,, aerv_int.aerv_pe, aerv_int.aerv_p,);
     AERV_TO_TILE<M-1, p4M/N> aerv(
-        g, aerv_int.aerv_pp, aerv_int.aerv_pe, aerv_int.aerv_p,,,);
+        g, aerv_conv._y_phi, aerv_conv._x_enable, aerv_conv.y_data,,,);
 
     (; n : N_TILE :
         tile_aer[n].aerv__pe = aerv._ce[n];

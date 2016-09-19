@@ -3,8 +3,8 @@
 import "aer/aerv/aerv.act";
 import "aer/lib/test.act";
 
-pint M     = 3;
-pint p4M   = 64; // 4**M
+pint M     = 2;
+pint p4M   = 16; // 4**M
 pint M_SPK = M+1;
 pint M_MEM = M+4;
 pint N_SYN = p4M;
