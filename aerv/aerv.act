@@ -392,9 +392,6 @@ namespace receiver {
                             bool enable_pm, enable_mc; 
                             c1of<N> data_pm, data_mc) {
             // Repeaters grouped in the dedicated repeaters cutout
-            pint Mmax = 5; // max AERV tree level
-            [M_idx >= Mmax -> 0=1;] // assert false
-            pint S[Mmax][2], C[Mmax][2];
             mid::REPEATERS_M_PHI_DATA<M_idx, N>
                 repeaters_m_phi_data(g, phi_pm, phi_mc, data_pm, data_mc);
             mid::REPEATERS_M_ENABLE<M_idx, N>

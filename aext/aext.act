@@ -238,7 +238,7 @@ namespace transmitter {
                             bool p_ce, enable_pm; 
                             c1of<N> p__c, data_pm) {
             // Repeaters grouped in the parent node cutout
-            pint Mmax = 5; // max AEXT tree level
+            pint Mmax = 5; // max AEXT NODE tree level
             [M_idx >= Mmax -> 0=1;] // assert false
             pint S_e[2], C_e[Mmax][2];
             pint S_p_d[Mmax][1], C_p_d[Mmax][1];
@@ -266,52 +266,79 @@ namespace transmitter {
                 repeaters_enable(g, p_ce, enable_pm);
         }
 
+        namespace mid {
+            export
+            template <pint M_idx, N>
+            defproc REPEATERS_M_PHI_DATA(globals g;
+                                         bool phi_pm, phi_mc; 
+                                         c1of<N> data_pm, data_mc) {
+                // Repeaters grouped in the dedicated repeaters cutout
+                pint Mmax = 5; // max AEXT NODE tree level
+                [M_idx >= Mmax -> 0=1;] // assert false
+                pint S[Mmax][3], C[Mmax][3];
+                // sizing per repeater per stage (bottom to top in tree)
+                S = {{0, 0, 0 },
+                     {0, 0, 0 },
+                     {1, 5, 25},
+                     {1, 5, 25},
+                     {1, 5, 25}};
+                // cap per repeater per stage (bottom to top in tree)
+                C = {{0, 0, 0  },
+                     {0, 0, 0  },
+                     {4, 4, 64 },
+                     {4, 4, 192},
+                     {4, 4, 192}};
+
+                [ M_idx < 2 ->
+                    phi_pm = phi_mc; 
+                    data_pm = data_mc;
+                [] M_idx >= 2 ->
+                    REPEATER_BOOL<3, S[M_idx][0..2], C[M_idx][0..2]>
+                      repeaters_phi(g, phi_mc, phi_pm);
+                    REPEATER_c1of<N, 3, S[M_idx][0..2], C[M_idx][0..2]>
+                        repeater_data(g, data_mc, data_pm);
+                ]
+            }
+
+            export
+            template <pint M_idx, N>
+            defproc REPEATERS_M_ENABLE(globals g; bool enable_pm, enable_mc) {
+                // Repeaters grouped in the dedicated repeaters cutout
+                pint Mmax = 5; // max AEXT NODE tree level
+                [M_idx >= Mmax -> 0=1;] // assert false
+                pint S[Mmax][2], C[Mmax][2];
+                // sizing per repeater per stage (bottom to top in tree)
+                S = {{0, 0 },
+                     {0, 0 },
+                     {6, 36},
+                     {6, 36},
+                     {6, 36}};
+                // cap per repeater per stage (bottom to top in tree)
+                C = {{0, 0  },
+                     {0, 0  },
+                     {4, 64 },
+                     {4, 192},
+                     {4, 192}};
+    
+                [ M_idx < 2 ->
+                    enable_pm = enable_mc; 
+                [] M_idx >= 2 ->
+                    REPEATER_BOOL<2, S[M_idx][0..1], C[M_idx][0..1]>
+                        repeaters_en(g, enable_pm, enable_mc);
+                ]
+            }
+        } // namespace mid
+
         export
         template <pint M_idx, N>
         defproc REPEATERS_M(globals g;
                             bool phi_pm, phi_mc; 
                             bool enable_pm, enable_mc; 
                             c1of<N> data_pm, data_mc) {
-            // Repeaters grouped in the dedicated repeaters cutout
-            pint Mmax = 5; // max AEXT tree level
-            [M_idx >= Mmax -> 0=1;] // assert false
-            pint S_p_d[Mmax][3], C_p_d[Mmax][3];
-            pint S_e[Mmax][2], C_e[Mmax][2];
-            // sizing per repeater per stage (bottom to top in tree)
-            S_p_d = {{0, 0, 0 },
-                     {0, 0, 0 },
-                     {1, 5, 25},
-                     {1, 5, 25},
-                     {1, 5, 25}};
-            S_e = {{0, 0 },
-                   {0, 0 },
-                   {6, 36},
-                   {6, 36},
-                   {6, 36}};
-            // cap per repeater per stage (bottom to top in tree)
-            C_p_d = {{0, 0, 0  },
-                     {0, 0, 0  },
-                     {4, 4, 64 },
-                     {4, 4, 192},
-                     {4, 4, 192}};
-            C_e = {{0, 0  },
-                   {0, 0  },
-                   {4, 64 },
-                   {4, 192},
-                   {4, 192}};
-
-            [ M_idx < 2 ->
-                phi_pm = phi_mc; 
-                enable_pm = enable_mc; 
-                data_pm = data_mc;
-            [] M_idx >= 2 ->
-                REPEATER_BOOL<3, S_p_d[M_idx][0..2], C_p_d[M_idx][0..2]>
-                  repeaters_phi(g, phi_mc, phi_pm);
-                REPEATER_BOOL<2, S_e[M_idx][0..1], C_e[M_idx][0..1]>
-                    repeaters_en(g, enable_pm, enable_mc);
-                REPEATER_c1of<N, 3, S_p_d[M_idx][0..2], C_p_d[M_idx][0..2]>
-                    repeater_data(g, data_mc, data_pm);
-            ]
+            mid::REPEATERS_M_PHI_DATA<M_idx, N>
+                repeaters_m_phi_data(g, phi_pm, phi_mc, data_pm, data_mc);
+            mid::REPEATERS_M_ENABLE<M_idx, N>
+                repeaters_m_enable(g, enable_pm, enable_mc);
         }
 
         export
@@ -321,7 +348,7 @@ namespace transmitter {
                             bool enable_mc, c_pe; 
                             c1of<N> data_mc, c__p) {
             // Repeaters grouped in the child node cutout
-            pint Mmax = 5; // max AEXT tree level
+            pint Mmax = 5; // max AEXT NODE tree level
             [M_idx >= Mmax -> 0=1;] // assert false
             pint S_p_d[1], C_p_d[Mmax][1];
             // sizing per repeater per stage (bottom to top in tree)
