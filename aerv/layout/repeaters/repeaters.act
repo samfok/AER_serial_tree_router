@@ -1,0 +1,96 @@
+// This file is used for generating schematics for the
+// the repeater clusters laid out in the TILE cutout region
+import "aer/aerv/aerv.act";
+
+defproc AERV_MID_REPEATERS_2(aer::globals g;
+                             bool phi_pm[2], phi_mc[2];
+                             bool enable_pm[2], enable_mc[2];
+                             aer::c1of<4> data_pm[2], data_mc[2]) {
+    // Make level 2 REPEATER cluster
+    // Levels range from 0 to 4
+
+    pint N = 4;
+    aer::receiver::repeaters::REPEATERS_M<2, N> repeaters_mid[2];
+
+    (; m : 2 :
+        repeaters_mid[m].g = g;
+
+        repeaters_mid[m].phi_pm = phi_pm[m];
+        repeaters_mid[m].phi_mc = phi_mc[m];
+
+        repeaters_mid[m].enable_pm = enable_pm[m];
+        repeaters_mid[m].enable_mc = enable_mc[m];
+
+        repeaters_mid[m].data_pm = data_pm[m];
+        repeaters_mid[m].data_mc = data_mc[m];
+    )
+}
+
+defproc AERV_MID_REPEATERS_PHI_DATA_3(aer::globals g;
+                                      bool phi_pm[2], phi_mc[2];
+                                      aer::c1of<4> data_pm[2], data_mc[2]) {
+    // Make level 3 REPEATER cluster for phi and data
+    // Levels range from 0 to 4
+
+    pint N = 4;
+    aer::receiver::repeaters::mid::REPEATERS_M_PHI_DATA<3, N>
+        repeaters_mid_phi_data[2];
+
+    (; m : 2 :
+        repeaters_mid_phi_data[m].g = g;
+
+        repeaters_mid_phi_data[m].phi_pm = phi_pm[m];
+        repeaters_mid_phi_data[m].phi_mc = phi_mc[m];
+
+        repeaters_mid_phi_data[m].data_pm = data_pm[m];
+        repeaters_mid_phi_data[m].data_mc = data_mc[m];
+    )
+}
+
+defproc AERV_MID_REPEATERS_PHI_DATA_4(aer::globals g;
+                                      bool phi_pm, phi_mc;
+                                      aer::c1of<4> data_pm, data_mc) {
+    // Make level 4 REPEATER cluster for phi and data
+    // Levels range from 0 to 4
+
+    pint N = 4;
+    aer::receiver::repeaters::mid::REPEATERS_M_PHI_DATA<3, N>
+        repeaters_mid_phi_data;
+
+    repeaters_mid_phi_data.g = g;
+
+    repeaters_mid_phi_data.phi_pm = phi_pm;
+    repeaters_mid_phi_data.phi_mc = phi_mc;
+
+    repeaters_mid_phi_data.data_pm = data_pm;
+    repeaters_mid_phi_data.data_mc = data_mc;
+}
+
+defproc AERV_MID_REPEATERS_ENABLE_3_4(aer::globals g;
+                                      bool enable_pm, enable_mc) {
+    // Make level 3/4 REPEATER cluster for enable
+    // Levels range from 0 to 4
+
+    pint N = 4;
+    aer::receiver::repeaters::mid::REPEATERS_M_ENABLE<3, N>
+        repeaters_mid_enable;
+
+    repeaters_mid_enable.g = g;
+
+    repeaters_mid_enable.enable_pm = enable_pm;
+    repeaters_mid_enable.enable_mc = enable_mc;
+}
+
+export defproc Wrapper(aer::globals g) {
+    AERV_MID_REPEATERS_2 aerv_mid_repeaters_2;
+    AERV_MID_REPEATERS_PHI_DATA_3 aerv_mid_repeaters_phi_data_3;
+    AERV_MID_REPEATERS_PHI_DATA_4 aerv_mid_repeaters_phi_data_4;
+    AERV_MID_REPEATERS_ENABLE_3_4 aerv_mid_repeaters_enable_3_4;
+
+    aerv_mid_repeaters_2.g = g;
+    aerv_mid_repeaters_phi_data_3.g = g;
+    aerv_mid_repeaters_phi_data_4.g = g;
+    aerv_mid_repeaters_enable_3_4.g = g;
+}
+
+Wrapper dut;
