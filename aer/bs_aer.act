@@ -243,7 +243,7 @@ defproc BS_AER_INT (globals g_bs;
 
 export
 template <pint M_1of2, M_1of4>
-defproc BS_AER_INT_wrapper (globals g_bs;
+defproc BS_AER_INT_wrapper (globals g;
                             bool PP_TX, PE_TX; d1of<4> P_TX;
                             eMx1of2<M_1of2> SPK_TX;
                             bool PP_RX, PE_RX; d1of<4> P_RX;
@@ -274,7 +274,7 @@ defproc BS_AER_INT_wrapper (globals g_bs;
     (;m:M_1of2+6: aerv_mem_in.m[m].d = MEM_RX.b[m].d;)
     aerv_mem_in.e = MEM_RX.e;
 
-    BS_AER_INT<M_1of2, M_1of4> _(g_bs,
+    BS_AER_INT<M_1of2, M_1of4> _(g,
         aext__pp, aext_pe, aext__p, aext_out,
         aerv__pp, aerv__pe, aerv_p, aerv_spk_in, aerv_mem_in);
 }

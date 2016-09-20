@@ -1,8 +1,34 @@
+// This file is used for generating schematics for the
+// the AEXT NODEs laid out in the TILE cutout region
 import "aer/aerv/aerv.act";
+
+defproc AERV_NODE_0_3(aer::globals g) {
+    // Make level 0-3 NODE. All NODE cutouts are the same in the AERV tree
+    // Levels range from 0 to 3
+
+    pint N = 4;
+    aer::receiver::repeaters::REPEATERS_C<1, N> repeaters_top;
+    aer::receiver::NODE<4> node;
+    aer::receiver::repeaters::REPEATERS_P<0, N> repeaters_bot[N];
+
+    node.g = g;
+
+    repeaters_top.g = g;
+    repeaters_top.c__pp = node._pp;
+    repeaters_top.c__pe = node._pe;
+    repeaters_top.c_p = node.p;
+
+    (; n : N :
+        repeaters_bot[n].g = g;
+        repeaters_bot[n].p__cp = node._cp[n];
+        repeaters_bot[n].p__ce = node._ce[n];
+        repeaters_bot[n].p_c = node.c[n];
+    )
+}
 
 export defproc Wrapper(aer::globals g)
 {
-    aer::receiver::node_w_repeaters::NODE_w_REP<4, 1>  node_w_rep(g,,,,,,);
+    AERV_NODE_0_3 aerv_node_0_3(g);
 }
 
 Wrapper dut;

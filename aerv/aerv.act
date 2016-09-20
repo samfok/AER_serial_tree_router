@@ -320,6 +320,71 @@ namespace receiver {
             REPEATER_c1of<N, 2, S, C[M_idx][0..1]> repeater_data(g, p_c, data_pm);
         }
 
+        namespace mid {
+            export
+            template <pint M_idx, N>
+            defproc REPEATERS_M_PHI_DATA(globals g;
+                                         bool phi_pm, phi_mc; 
+                                         c1of<N> data_pm, data_mc) {
+                // Repeaters grouped in the dedicated repeaters cutout
+                pint Mmax = 5; // max AERV tree level
+                [M_idx >= Mmax -> 0=1;] // assert false
+                pint S[Mmax][2], C[Mmax][2];
+                // sizing per repeater per stage (bottom to top in tree)
+                S = {{0, 0 },
+                     {0, 0 },
+                     {6, 36},
+                     {6, 36},
+                     {6, 36}};
+                // cap per repeater per stage (bottom to top in tree)
+                C = {{0, 0  },
+                     {0, 0  },
+                     {4, 64 },
+                     {4, 192},
+                     {4, 192}};
+
+                [ M_idx < 2 ->
+                    phi_pm = phi_mc; 
+                    data_pm = data_mc;
+                    prs<g.Vdd, g.GND> {} // HACK so netgen -B doesn't complain
+                [] M_idx >= 2 ->
+                    REPEATER_BOOL<2, S[M_idx][0..1], C[M_idx][0..1]>
+                        repeaters_phi(g, phi_pm, phi_mc);
+                    REPEATER_c1of<N, 2, S[M_idx][0..1], C[M_idx][0..1]>
+                        repeater_data(g, data_pm, data_mc);
+                ]
+            }
+
+            export
+            template <pint M_idx, N>
+            defproc REPEATERS_M_ENABLE(globals g; bool enable_pm, enable_mc) {
+                // Repeaters grouped in the dedicated repeaters cutout
+                pint Mmax = 5; // max AERV tree level
+                [M_idx >= Mmax -> 0=1;] // assert false
+                pint S[Mmax][2], C[Mmax][2];
+                // sizing per repeater per stage (bottom to top in tree)
+                S = {{0, 0 },
+                     {0, 0 },
+                     {6, 36},
+                     {6, 36},
+                     {6, 36}};
+                // cap per repeater per stage (bottom to top in tree)
+                C = {{0, 0  },
+                     {0, 0  },
+                     {4, 64 },
+                     {4, 192},
+                     {4, 192}};
+
+                [ M_idx < 2 ->
+                    enable_pm = enable_mc; 
+                    prs<g.Vdd, g.GND> {} // HACK so netgen -B doesn't complain
+                [] M_idx >= 2 ->
+                    REPEATER_BOOL<2, S[M_idx][0..1], C[M_idx][0..1]>
+                        repeaters_en(g, enable_mc, enable_pm);
+                ]
+            }
+        } // namespace mid
+
         export
         template <pint M_idx, N>
         defproc REPEATERS_M(globals g;
@@ -330,32 +395,10 @@ namespace receiver {
             pint Mmax = 5; // max AERV tree level
             [M_idx >= Mmax -> 0=1;] // assert false
             pint S[Mmax][2], C[Mmax][2];
-            // sizing per repeater per stage (bottom to top in tree)
-            S = {{0, 0 },
-                 {0, 0 },
-                 {6, 36},
-                 {6, 36},
-                 {6, 36}};
-            // cap per repeater per stage (bottom to top in tree)
-            C = {{0, 0  },
-                 {0, 0  },
-                 {4, 64 },
-                 {4, 192},
-                 {4, 192}};
-
-            [ M_idx < 2 ->
-                phi_pm = phi_mc; 
-                enable_pm = enable_mc; 
-                data_pm = data_mc;
-                prs<g.Vdd, g.GND> {} // HACK so netgen -B doesn't complain
-            [] M_idx >= 2 ->
-                REPEATER_BOOL<2, S[M_idx][0..1], C[M_idx][0..1]>
-                    repeaters_phi(g, phi_pm, phi_mc);
-                REPEATER_BOOL<2, S[M_idx][0..1], C[M_idx][0..1]>
-                    repeaters_en(g, enable_mc, enable_pm);
-                REPEATER_c1of<N, 2, S[M_idx][0..1], C[M_idx][0..1]>
-                    repeater_data(g, data_pm, data_mc);
-            ]
+            mid::REPEATERS_M_PHI_DATA<M_idx, N>
+                repeaters_m_phi_data(g, phi_pm, phi_mc, data_pm, data_mc);
+            mid::REPEATERS_M_ENABLE<M_idx, N>
+                repeaters_m_enable(g, enable_pm, enable_mc);
         }
 
         export

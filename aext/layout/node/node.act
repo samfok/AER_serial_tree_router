@@ -1,9 +1,60 @@
+// This file is used for generating schematics for the
+// the AEXT NODEs laid out in the TILE cutout region
 import "aer/aext/aext.act";
+
+defproc AEXT_NODE_1_2(aer::globals g) {
+    // Make a level 1/2 NODE, the biggest kind of the NODE of the AEXT tree
+    // Levels range from 0 to 4
+
+    pint N = 4;
+    aer::transmitter::repeaters::REPEATERS_C<1, N> repeaters_top;
+    aer::transmitter::NODE<4> node;
+    aer::transmitter::repeaters::REPEATERS_P<0, N> repeaters_bot[N];
+
+    node.g = g;
+
+    repeaters_top.g = g;
+    repeaters_top.c__pp = node._pp;
+    repeaters_top.c_pe = node.pe;
+    repeaters_top.c__p = node._p;
+
+    (; n : N :
+        repeaters_bot[n].g = g;
+        repeaters_bot[n].p__cp = node._cp[n];
+        repeaters_bot[n].p_ce = node.ce[n];
+        repeaters_bot[n].p__c = node._c[n];
+    )
+}
+
+defproc AEXT_NODE_3_4(aer::globals g) {
+    // Make a level 3/4 NODE, the 2 highest NODEs in the AEXT tree,
+    // Levels range from 0 to 4
+
+    pint N = 4;
+    aer::transmitter::repeaters::REPEATERS_C<3, N> repeaters_top;
+    aer::transmitter::NODE<4> node;
+    aer::transmitter::repeaters::REPEATERS_P<2, N> repeaters_bot[N];
+
+    node.g = g;
+
+    repeaters_top.g = g;
+    repeaters_top.c__pp = node._pp;
+    repeaters_top.c_pe = node.pe;
+    repeaters_top.c__p = node._p;
+
+    (; n : N :
+        repeaters_bot[n].g = g;
+        repeaters_bot[n].p__cp = node._cp[n];
+        repeaters_bot[n].p_ce = node.ce[n];
+        repeaters_bot[n].p__c = node._c[n];
+    )
+}
+
 
 export defproc Wrapper(aer::globals g)
 {
-    aer::transmitter::node_w_repeaters::NODE_LVL_2_3<4, 2> node_2_3(g,,,,,,);
-    aer::transmitter::node_w_repeaters::NODE_LVL_4_5<4, 4>  node_4_5(g,,,,,,);
+    AEXT_NODE_1_2 aext_node_1_2(g);
+    AEXT_NODE_3_4 aext_node_3_4(g);
 }
 
 Wrapper dut;
