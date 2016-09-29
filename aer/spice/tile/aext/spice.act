@@ -33,7 +33,7 @@ export defproc Wrapper(globals_np g_np; a1of<1> nrn_src[16]; eMx1of4<2> aext_snk
     
     // transmitter components
     interface::OUT_a1ofN<D> out(g,,,,);
-    interface::DESERIAL_RING<M, D, false, true> deserial(g, out.y,);
+    interface::DESERIAL_RING<M, D, false, true> deserial(g, out.y,,);
     deserial.y.e = aext_snk.e;
     (; m : M_SPK :
         deserial.y.m[m].d = aext_snk.m[m].d;
@@ -47,7 +47,7 @@ export defproc Wrapper(globals_np g_np; a1of<1> nrn_src[16]; eMx1of4<2> aext_snk
       nrn_ack[nn] = nrn_src[nn].a;
     )
     brain_aer::TILE_AER<false> tile(
-        g, out.xe,,,,,, nrn_req, nrn_ack,,);
+        g, out.xe,,,,,, nrn_req, nrn_ack,,,);
 
     tile.aerv__pp = g.Vdd;
     (; d : D :
