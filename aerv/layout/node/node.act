@@ -2,8 +2,10 @@
 // the AEXT NODEs laid out in the TILE cutout region
 import "aer/aerv/aerv.act";
 
-defproc AERV_NODE_0_3(aer::globals g) {
-    // Make level 0-3 NODE. All NODE cutouts are the same in the AERV tree
+defproc AERV_NODE_0_3(aer::globals g;
+                      bool _pp, ___pe; aer::c1of<4> p;
+                      bool ___cp[4], _ce[4]; aer::c1of<4> __c[4]) {
+    // Make level 0-3 NODE. All NODE cutouts have the same contents in the AERV tree
     // Levels range from 0 to 3
 
     pint N = 4;
@@ -14,6 +16,9 @@ defproc AERV_NODE_0_3(aer::globals g) {
     node.g = g;
 
     repeaters_top.g = g;
+    repeaters_top.phi_mc = _pp;
+    repeaters_top.enable_mc = ___pe;
+    repeaters_top.data_mc = p;
     repeaters_top.c__pp = node._pp;
     repeaters_top.c__pe = node._pe;
     repeaters_top.c_p = node.p;
@@ -23,12 +28,16 @@ defproc AERV_NODE_0_3(aer::globals g) {
         repeaters_bot[n].p__cp = node._cp[n];
         repeaters_bot[n].p__ce = node._ce[n];
         repeaters_bot[n].p_c = node.c[n];
+        repeaters_bot[n].phi_pm = ___cp[n];
+        repeaters_bot[n].enable_pm = _ce[n];
+        repeaters_bot[n].data_pm = __c[n];
     )
 }
 
 export defproc Wrapper(aer::globals g)
 {
-    AERV_NODE_0_3 aerv_node_0_3(g);
+    AERV_NODE_0_3 aerv_node_0_3;
+    aerv_node_0_3.g = g;
 }
 
 Wrapper dut;

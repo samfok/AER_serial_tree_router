@@ -2,7 +2,9 @@
 // the AEXT NODEs laid out in the TILE cutout region
 import "aer/aext/aext.act";
 
-defproc AEXT_NODE_1_2(aer::globals g) {
+defproc AEXT_NODE_1_2(aer::globals g;
+                      bool __pp, pe; aer::c1of<4> __p;
+                      bool __cp[4], __ce[4]; aer::c1of<4> __c[4]) {
     // Make a level 1/2 NODE, the biggest kind of the NODE of the AEXT tree
     // Levels range from 0 to 4
 
@@ -14,19 +16,27 @@ defproc AEXT_NODE_1_2(aer::globals g) {
     node.g = g;
 
     repeaters_top.g = g;
+    repeaters_top.phi_mc    = __pp;
+    repeaters_top.enable_mc = pe;
+    repeaters_top.data_mc   = __p;
     repeaters_top.c__pp = node._pp;
-    repeaters_top.c_pe = node.pe;
-    repeaters_top.c__p = node._p;
+    repeaters_top.c_pe  = node.pe;
+    repeaters_top.c__p  = node._p;
 
     (; n : N :
         repeaters_bot[n].g = g;
         repeaters_bot[n].p__cp = node._cp[n];
-        repeaters_bot[n].p_ce = node.ce[n];
-        repeaters_bot[n].p__c = node._c[n];
+        repeaters_bot[n].p_ce  = node.ce[n];
+        repeaters_bot[n].p__c  = node._c[n];
+        repeaters_bot[n].phi_pm    = __cp[n];
+        repeaters_bot[n].enable_pm = __ce[n];
+        repeaters_bot[n].data_pm   = __c[n];
     )
 }
 
-defproc AEXT_NODE_3_4(aer::globals g) {
+defproc AEXT_NODE_3_4(aer::globals g;
+                      bool __pp, pe; aer::c1of<4> __p;
+                      bool _cp[4], __ce[4]; aer::c1of<4> _c[4]) {
     // Make a level 3/4 NODE, the 2 highest NODEs in the AEXT tree,
     // Levels range from 0 to 4
 
@@ -38,6 +48,9 @@ defproc AEXT_NODE_3_4(aer::globals g) {
     node.g = g;
 
     repeaters_top.g = g;
+    repeaters_top.phi_mc    = __pp;
+    repeaters_top.enable_mc = pe;
+    repeaters_top.data_mc   = __p;
     repeaters_top.c__pp = node._pp;
     repeaters_top.c_pe = node.pe;
     repeaters_top.c__p = node._p;
@@ -47,14 +60,19 @@ defproc AEXT_NODE_3_4(aer::globals g) {
         repeaters_bot[n].p__cp = node._cp[n];
         repeaters_bot[n].p_ce = node.ce[n];
         repeaters_bot[n].p__c = node._c[n];
+        repeaters_bot[n].phi_pm    = _cp[n];
+        repeaters_bot[n].enable_pm = __ce[n];
+        repeaters_bot[n].data_pm   = _c[n];
     )
 }
 
 
-export defproc Wrapper(aer::globals g)
-{
-    AEXT_NODE_1_2 aext_node_1_2(g);
-    AEXT_NODE_3_4 aext_node_3_4(g);
+export defproc Wrapper(aer::globals g) {
+    AEXT_NODE_1_2 aext_node_1_2;
+    AEXT_NODE_3_4 aext_node_3_4;
+
+    aext_node_1_2.g = g;
+    aext_node_3_4.g = g;
 }
 
 Wrapper dut;

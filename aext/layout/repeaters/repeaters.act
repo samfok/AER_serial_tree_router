@@ -82,15 +82,15 @@ defproc AEXT_MID_REPEATERS_ENABLE_3_4(aer::globals g;
 }
 
 export defproc Wrapper(aer::globals g) {
-    AEXT_MID_REPEATERS_2 aerv_mid_repeaters_2;
-    AEXT_MID_REPEATERS_PHI_DATA_3 aerv_mid_repeaters_phi_data_3;
-    AEXT_MID_REPEATERS_PHI_DATA_4 aerv_mid_repeaters_phi_data_4;
-    AEXT_MID_REPEATERS_ENABLE_3_4 aerv_mid_repeaters_enable_3_4;
+    AEXT_MID_REPEATERS_2 aext_mid_repeaters_2;
+    AEXT_MID_REPEATERS_PHI_DATA_3 aext_mid_repeaters_phi_data_3;
+    AEXT_MID_REPEATERS_PHI_DATA_4 aext_mid_repeaters_phi_data_4;
+    AEXT_MID_REPEATERS_ENABLE_3_4 aext_mid_repeaters_enable_3_4;
 
-    aerv_mid_repeaters_2.g = g;
-    aerv_mid_repeaters_phi_data_3.g = g;
-    aerv_mid_repeaters_phi_data_4.g = g;
-    aerv_mid_repeaters_enable_3_4.g = g;
+    aext_mid_repeaters_2.g = g;
+    aext_mid_repeaters_phi_data_3.g = g;
+    aext_mid_repeaters_phi_data_4.g = g;
+    aext_mid_repeaters_enable_3_4.g = g;
 }
 
 Wrapper dut;
