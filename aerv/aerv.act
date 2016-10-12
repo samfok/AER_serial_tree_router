@@ -346,7 +346,7 @@ namespace receiver {
                 [ M_idx < 2 ->
                     phi_pm = phi_mc; 
                     data_pm = data_mc;
-                    prs<g.Vdd, g.GND> {} // HACK so netgen -B doesn't complain
+                    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {} // HACK so netgen -B doesn't complain
                 [] M_idx >= 2 ->
                     REPEATER_BOOL<2, S[M_idx][0..1], C[M_idx][0..1]>
                         repeaters_phi(g, phi_pm, phi_mc);
@@ -377,7 +377,7 @@ namespace receiver {
 
                 [ M_idx < 2 ->
                     enable_pm = enable_mc; 
-                    prs<g.Vdd, g.GND> {} // HACK so netgen -B doesn't complain
+                    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {} // HACK so netgen -B doesn't complain
                 [] M_idx >= 2 ->
                     REPEATER_BOOL<2, S[M_idx][0..1], C[M_idx][0..1]>
                         repeaters_en(g, enable_mc, enable_pm);

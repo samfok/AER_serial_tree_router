@@ -256,6 +256,7 @@ namespace transmitter {
             [ M_idx > 1 ->
                 phi_pm = p__cp;
                 data_pm = p__c;
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {} // HACK so netgen -B doesn't complain
             [] M_idx <= 1 ->
                 REPEATER_BOOL<1, {S_p_d[M_idx][0]}, {C_p_d[M_idx][0]}>
                     repeaters_phi(g, phi_pm, p__cp);
@@ -292,6 +293,7 @@ namespace transmitter {
                 [ M_idx < 2 ->
                     phi_pm = phi_mc; 
                     data_pm = data_mc;
+                    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {} // HACK so netgen -B doesn't complain
                 [] M_idx >= 2 ->
                     REPEATER_BOOL<3, S[M_idx][0..2], C[M_idx][0..2]>
                       repeaters_phi(g, phi_mc, phi_pm);
@@ -322,6 +324,7 @@ namespace transmitter {
     
                 [ M_idx < 2 ->
                     enable_pm = enable_mc; 
+                    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {} // HACK so netgen -B doesn't complain
                 [] M_idx >= 2 ->
                     REPEATER_BOOL<2, S[M_idx][0..1], C[M_idx][0..1]>
                         repeaters_en(g, enable_pm, enable_mc);
