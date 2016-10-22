@@ -18,7 +18,7 @@ export deftype globals_w_analog <: int<8> (
     bool Vdd, GND, pReset, _pReset, sReset, _sReset, vpsub, vnsub;
     // analog signals
     bool _RST, ADC_OUT[2], V_REF, V_R, V_G, V_PE_PD, V_PE_PU, V_WINH, V_WDC, 
-    V_WEXC, V_IK_B, V_LK_A, V_IOFFSET
+    V_WEXC, V_LK_B, V_LK_A, V_IOFFSET
     )
 {
   set { }
