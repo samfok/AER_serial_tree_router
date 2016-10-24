@@ -92,7 +92,7 @@ defproc BS_AER (globals g_bs;
             tile_nrn_mem[n].V_WINH = g_bs.V_WINH;
             tile_nrn_mem[n].V_WDC = g_bs.V_WDC;
             tile_nrn_mem[n].V_WEXC = g_bs.V_WEXC;
-            tile_nrn_mem[n].V_IK_B = g_bs.V_IK_B;
+            tile_nrn_mem[n].V_LK_B = g_bs.V_LK_B;
             tile_nrn_mem[n].V_LK_A = g_bs.V_LK_A;
             tile_nrn_mem[n].V_IOFFSET = g_bs.V_IOFFSET;
 
