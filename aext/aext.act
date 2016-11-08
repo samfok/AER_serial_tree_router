@@ -445,7 +445,7 @@ namespace transmitter {
         // | node[2] -- node[1]    | {5, 1}         | {64, 4}         |
         // | node[3] -- node[2]    | {5, 1}         | {32, 4}         |
         // *----------------------------------------------------------*
-        pint Mmax = 5; // max AEXT repeater tree depth
+        pint Mmax = 4; // max AEXT repeater tree depth
         [M > Mmax -> 0=1;] // assert false
         pint M_idx = M-1;
 
@@ -501,7 +501,16 @@ defproc AEXT (globals g; bool xp[NN], xa[NN], pe, _pp; c1of<N> _p) {
         leaf[0].pe  = pe;
         leaf[0]._p  = _p;
     [] M > 1 ->
-        transmitter::REPEATER_TREE<M-1, N, N_NODE> repeaters(
+
+        [ M = 2 ->
+            pint N_LINK = 1;
+            pint M_REP = M-1;
+        [] M > 2 ->
+            pint N_LINK = N_NODE/N;
+            pint M_REP = M-2;
+        ]
+
+        transmitter::REPEATER_TREE<M_REP, N, N_LINK> repeaters(
             g,,,,,,);
 
         repeaters.p__cp[0] = _pp;
@@ -516,20 +525,33 @@ defproc AEXT (globals g; bool xp[NN], xa[NN], pe, _pp; c1of<N> _p) {
         node[0].pe = repeaters.c_pe[0];
         node[0]._p = repeaters.c__p[0];
 
-        // connect NODEs to LEAFs
-        pint N_LOW_NODE = N_LEAF/N; // NODEs connecting to LEAFs
-        pint NODE_BASE_IDX = N_NODE-N_LOW_NODE;
-        (; node_idx : NODE_BASE_IDX..N_NODE-1 :
+        // connect level 0 NODEs to LEAFs
+        pint N_L0_NODE = N_LEAF/N; // lvl 0 NODEs
+        pint NODE_L0_BASE_IDX = N_NODE-N_L0_NODE;
+        (; node_idx : NODE_L0_BASE_IDX..N_NODE-1 :
             (; n : N :
-                node[node_idx]._cp[n] = leaf[(node_idx-NODE_BASE_IDX)*N+n]._pp;
-                node[node_idx].ce[n] = leaf[(node_idx-NODE_BASE_IDX)*N+n].pe;
-                node[node_idx]._c[n] = leaf[(node_idx-NODE_BASE_IDX)*N+n]._p;
+                node[node_idx]._cp[n] = leaf[(node_idx-NODE_L0_BASE_IDX)*N+n]._pp;
+                node[node_idx].ce[n] = leaf[(node_idx-NODE_L0_BASE_IDX)*N+n].pe;
+                node[node_idx]._c[n] = leaf[(node_idx-NODE_L0_BASE_IDX)*N+n]._p;
             )
         )
 
+        // connect level 1 NODEs to level 0 NODEs
+        [ M > 2 ->
+            pint N_L1_NODE = N_L0_NODE/N; // lvl 1 NODEs
+            pint NODE_L1_BASE_IDX = N_NODE-N_L1_NODE -N_L0_NODE;
+            (; node_idx : NODE_L1_BASE_IDX..NODE_L0_BASE_IDX-1 :
+                (; n : N :
+                    node[node_idx]._cp[n] = node[node_idx*N+n+1]._pp;
+                    node[node_idx].ce[n] = node[node_idx*N+n+1].pe;
+                    node[node_idx]._c[n] = node[node_idx*N+n+1]._p;
+                )
+            )
+        ]
+
         // connect NODEs to NODEs
         [ M > 2 ->
-            (; np : NODE_BASE_IDX :
+            (; np : NODE_L1_BASE_IDX :
                 (; nc : N :
                     node[np]._cp[nc] = repeaters.p__cp[np*N+nc+1];
                     node[np].ce[nc] = repeaters.p_ce[np*N+nc+1];
@@ -557,11 +579,22 @@ defproc AEXT_TO_TILE (globals g;
         0=1; // assert false
     ]
     pint N = 4; // required for TILE
-    pint N_NODE = (p4M/N/N-1) / (N-1); // = (N^(M-2)-1) / (N-1)
-    pint N_LEAF = p4M/N/N; // = N^(M-2)
-    pint N_LINK = N_LEAF + N_NODE; // = (N^(M-1)-1) / (N-1)
+    // TILE contains the AEXT LEAFs and the lowest level AEXT NODEs
 
-    transmitter::REPEATER_TREE<M-1, N, N_LINK> repeaters(g,,,,,,);
+    // These are the number of nodes logically above the TILE
+    pint N_NODE_INT = (p4M/N/N/N-1) / (N-1);
+    pint N_NODE_LEAF = p4M/N/N/N;
+    pint N_NODE = N_NODE_INT + N_NODE_LEAF;
+
+    [ M = 2 ->
+        pint N_LINK = 1;
+        pint M_REP = M-1;
+    [] M > 2 ->
+        pint N_LINK = N_NODE;
+        pint M_REP = M-2;
+    ]
+
+    transmitter::REPEATER_TREE<M_REP, N, N_LINK> repeaters(g,,,,,,);
 
     repeaters.p__cp[0] = _pp;
     repeaters.p_ce[0] = pe;

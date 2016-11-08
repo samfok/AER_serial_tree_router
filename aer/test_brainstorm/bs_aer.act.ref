@@ -2,9 +2,9 @@
 import "aer/aer/bs_aer.act";
 import "aer/lib/test.act";
 import "aer/lib/compat_bs.act";
-pint M=2;
-pint p4M=16; // = 4^M
-pint p2M=4; // = 2^M
+pint M=3;
+pint p4M=64; // = 4^M
+pint p2M=8; // = 2^M
 pint M_AEXT_SPK_1of4=M;
 pint M_AEXT_SPK_1of2=M_AEXT_SPK_1of4*2;
 pint M_AERV_SPK_1of4=M;

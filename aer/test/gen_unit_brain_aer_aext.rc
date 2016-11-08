@@ -27,7 +27,7 @@ set ga.V_PE_PU 0
 set ga.V_WINH 0
 set ga.V_WDC 0
 set ga.V_WEXC 0
-set ga.V_IK_B 0
+set ga.V_LK_B 0
 set ga.V_LK_A 0
 set ga.V_IOFFSET 0
 
