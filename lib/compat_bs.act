@@ -9,9 +9,26 @@ import "lib/channel.act";
 
 namespace compat_bs {
     export 
-    defproc globals (::aer::globals aer;  globals bs) {
+    defproc globals (::aer::globals aer; ::globals bs) {
         aer.Vdd = bs.Vdd;
         aer.GND = bs.GND;
+        aer.pReset = bs.pReset;
+        aer._pReset = bs._pReset;
+        aer.sReset = bs.sReset;
+        aer._sReset = bs._sReset;
+        aer.vpsub = bs.vpsub;
+        aer.vnsub = bs.vnsub;
+        prs {} // HACK so netgen -B doesn't complain
+    }
+
+    export 
+    defproc globals_w_analog (::aer::globals_w_analog aer; ::globals bs) {
+        aer.Vdd = bs.Vdd;
+        aer.GND = bs.GND;
+        aer.vdda = bs.vdda;
+        aer.vddp = bs.vddp;
+        aer.gnda = bs.gnda;
+        aer.pbulk = bs.pbulk;
         aer.pReset = bs.pReset;
         aer._pReset = bs._pReset;
         aer.sReset = bs.sReset;
