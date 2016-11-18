@@ -179,6 +179,7 @@ defproc REPEATER_BOOL (globals g; bool i, o) {
     // C[M] capacitances (in units of min inverter capitance)
     preal min_inv_cap = 0.25; // assume min_inv_cap=0.25
     [ M > 0 ->
+        (; m : M : [S[m]<=0 -> 0=1;]) // assert false
         bool x[M+1];
         x[0] = i;
         x[M] = o;

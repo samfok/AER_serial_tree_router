@@ -31,4 +31,52 @@ set g.sReset 0
 
 status X
 
+# uget aext.pp
+# uget aext.pe
+# uget aext.p.d[0]
+# uget aext.p.d[1]
+# status X
+# 
+# uget aext.leaf[0]._pp
+# uget aext.leaf[0].pe
+# uget aext.leaf[0]._p.d[0]
+# status X
+# 
+# uget aext.node.cp[0][0]
+# uget aext.node.ce[0][0]
+# uget aext.node.c[0][0].d[0]
+# status X
+# 
+# uget aext.node.pp[0]
+# uget aext.node.pe[0]
+# uget aext.node.p[0].d[0]
+# status X
+# 
+# uget aext_int.rep_p.p__cp
+# uget aext_int.rep_p.p_ce
+# uget aext_int.rep_p.p__c.d[0]
+# status X
+# 
+# uget aext_int.y_phi
+# uget aext_int.y_enable
+# uget aext_int.y_data.d[0]
+# status X
+# 
+# set_principal aext_int.x_phi
+# set_principal aext_int.x_enable
+# set_principal aext_int.x_data.d[0]
+# set_principal aext_int.x_data.d[1]
+# set_principal aext_int.y_phi
+# set_principal aext_int.y_enable
+# set_principal aext_int.y_data.d[0]
+# set_principal aext_int.y_data.d[1]
+# watch aext_int.x_phi
+# watch aext_int.x_enable
+# watch aext_int.x_data.d[0]
+# watch aext_int.x_data.d[1]
+# watch aext_int.y_phi
+# watch aext_int.y_enable
+# watch aext_int.y_data.d[0]
+# watch aext_int.y_data.d[1]
+
 advance 1000100000

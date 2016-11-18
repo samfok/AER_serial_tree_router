@@ -6,9 +6,8 @@ import "aer/interface/interface.act";
 namespace aer {
 
 namespace transmitter {
-    export
     template <pint N>
-    defproc NODE (globals g; bool _cp[N], ce[N], pe, _pp; c1of<N> _c[N], _p) {
+    defproc NODE_ (globals g; bool _cp[N], ce[N], pe, _pp; c1of<N> _c[N], _p) {
         // AEXT tree NODE
         bool c_[N], _ce[N], v, _v, _u[N];
         c1of<N> p;
@@ -97,9 +96,8 @@ namespace transmitter {
         ]
     }
 
-    export
     template <pint N>
-    defproc LEAF (globals g; bool _cp[N], ca[N], pe, _pp; c1of<N> _p) {
+    defproc LEAF_ (globals g; bool _cp[N], ca[N], pe, _pp; c1of<N> _p) {
         // AEXT tree LEAF
         bool c[N], _c[N], __c[N], _u[N], v, _v, __v, pp;
         ::aer::arbiter::N_ARB_S<N> arb(g, _cp, c);
@@ -231,54 +229,95 @@ namespace transmitter {
     }
 
     namespace repeaters {
+        // Repeater and Node Structure:
+        //     LEAF -> REPEATERS_C<0> ->
+        //         REPEATERS_M<0> ->
+        //     REPEATERS_P<0> -> NODE_LVL0 -> REPEATERS_C<1> ->
+        //         REPEATERS_M<1> ->
+        //     REPEATERS_P<1> -> NODE_LVL1 -> REPEATERS_C<2> ->
+        //         REPEATERS_M<2> ->
+        //     REPEATERS_P<2> -> NODE_LVL2 -> REPEATERS_C<3> ->
+        //         REPEATERS_M<3> ->
+        //     REPEATERS_P<3> -> NODE_LVL3 -> REPEATERS_C<4> ->
+        //         REPEATERS_M<4> ->
+        //     REPEATERS_P<4> -> NODE_LVL4 -> REPEATERS_C<5> ->
+        //         REPEATERS_M<5> ->
+        //     REPEATERS_P<5> -> array edge
+        // .----------------------------------------------------------.
+        // |                 link  | S_enable       | C_enable        |
+        // |-----------------------|----------------|-----------------|
+        // | node[4] -- array edge | {3, 10, 6, 36} | {4, 64, 4, 192} |
+        // | node[3] -- node[4]    | {3, 10, 6, 36} | {4, 64, 4, 192} |
+        // | node[2] -- node[3]    | {3, 10, 6, 36} | {4, 64, 4, 64}  |
+        // | node[1] -- node[2]    | {3, 10}        | {4, 64}         |
+        // | node[0] -- node[1]    | {3, 10}        | {4, 32}         |
+        // | leaf    -- node[0]    |                |                 |
+        // |----------------------------------------------------------|
+        // |                 link  | S_phi/data     | C_phi/data      |
+        // |-----------------------|----------------|-----------------|
+        // | node[4] -- array edge | {5, 1, 5, 25}  | {64, 4, 4, 192} |
+        // | node[3] -- node[4]    | {5, 1, 5, 25}  | {64, 4, 4, 192} |
+        // | node[2] -- node[3]    | {5, 1, 5, 25}  | {64, 4, 4, 64}  |
+        // | node[1] -- node[2]    | {5, 1}         | {64, 4}         |
+        // | node[0] -- node[1]    | {5, 1}         | {32, 4}         |
+        // | leaf    -- node[0]    |                |                 |
+        // *----------------------------------------------------------*
         export
         template <pint M_idx, N>
         defproc REPEATERS_P(globals g;
-                            bool p__cp, phi_pm; 
-                            bool p_ce, enable_pm; 
-                            c1of<N> p__c, data_pm) {
+            bool p__cp, phi_pm; 
+            bool p_ce, enable_pm; 
+            c1of<N> p__c, data_pm)
             // Repeaters grouped in the parent node cutout
-            pint Mmax = 5; // max AEXT NODE tree level
+        {
+            pint Mmax = 6; // max AEXT NODE tree level
             [M_idx >= Mmax -> 0=1;] // assert false
-            pint S_e[2], C_e[Mmax][2];
+            pint S_e[Mmax][2], C_e[Mmax][2];
             pint S_p_d[Mmax][1], C_p_d[Mmax][1];
             // sizing per repeater per stage (bottom to top in tree)
-            S_p_d = {{1}, {1}, {0}, {0}, {0}};
-            S_e = {3, 10};
+            S_p_d = {{0}, {1}, {1}, {0}, {0}, {0}};
+            S_e = {{0, 0 }, {3, 10}, {3, 10},
+                   {3, 10}, {3, 10}, {3, 10}};
             // cap per repeater per stage (bottom to top in tree)
-            C_p_d = {{4}, {4}, {0}, {0}, {0}};
-            C_e = {{4, 32},
-                   {4, 64},
-                   {4, 64},
-                   {4, 64},
-                   {4, 64}};
+            C_p_d = {{0}, {4}, {4}, {0}, {0}, {0}};
+            C_e = {{0, 0 }, {4, 32}, {4, 64},
+                   {4, 64}, {4, 64}, {4, 64}};
 
-            [ M_idx > 1 ->
+            // phi and data
+            [ M_idx=0 | M_idx>2 ->
                 phi_pm = p__cp;
                 data_pm = p__c;
                 prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {} // HACK so netgen -B doesn't complain
-            [] M_idx <= 1 ->
+            [] M_idx>0 & M_idx <= 2 ->
                 REPEATER_BOOL<1, {S_p_d[M_idx][0]}, {C_p_d[M_idx][0]}>
                     repeaters_phi(g, phi_pm, p__cp);
                 REPEATER_c1of<N, 1, {S_p_d[M_idx][0]}, {C_p_d[M_idx][0]}>
                     repeater_data(g, data_pm, p__c);
             ]
-            REPEATER_BOOL<2, S_e, C_e[M_idx][0..1]>
-                repeaters_enable(g, p_ce, enable_pm);
+
+            // enable line
+            [ M_idx = 0 ->
+                enable_pm = p_ce;
+            [] M_idx > 0 ->
+                REPEATER_BOOL<2, S_e[M_idx][0..1], C_e[M_idx][0..1]>
+                    repeaters_enable(g, p_ce, enable_pm);
+            ]
         }
 
         namespace mid {
             export
             template <pint M_idx, N>
             defproc REPEATERS_M_PHI_DATA(globals g;
-                                         bool phi_pm, phi_mc; 
-                                         c1of<N> data_pm, data_mc) {
+                bool phi_pm, phi_mc; 
+                c1of<N> data_pm, data_mc)
                 // Repeaters grouped in the dedicated repeaters cutout
-                pint Mmax = 5; // max AEXT NODE tree level
-                [M_idx >= Mmax -> 0=1;] // assert false
+            {
+                pint Mmax = 6; // max AEXT NODE tree level
+                [M_idx<0 | M_idx>=Mmax -> 0=1;] // assert false
                 pint S[Mmax][3], C[Mmax][3];
                 // sizing per repeater per stage (bottom to top in tree)
                 S = {{0, 0, 0 },
+                     {0, 0, 0 },
                      {0, 0, 0 },
                      {1, 5, 25},
                      {1, 5, 25},
@@ -286,15 +325,16 @@ namespace transmitter {
                 // cap per repeater per stage (bottom to top in tree)
                 C = {{0, 0, 0  },
                      {0, 0, 0  },
+                     {0, 0, 0  },
                      {4, 4, 64 },
                      {4, 4, 192},
                      {4, 4, 192}};
 
-                [ M_idx < 2 ->
+                [ M_idx < 3 ->
                     phi_pm = phi_mc; 
                     data_pm = data_mc;
                     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {} // HACK so netgen -B doesn't complain
-                [] M_idx >= 2 ->
+                [] M_idx >= 3 ->
                     REPEATER_BOOL<3, S[M_idx][0..2], C[M_idx][0..2]>
                       repeaters_phi(g, phi_mc, phi_pm);
                     REPEATER_c1of<N, 3, S[M_idx][0..2], C[M_idx][0..2]>
@@ -303,14 +343,16 @@ namespace transmitter {
             }
 
             export
-            template <pint M_idx, N>
-            defproc REPEATERS_M_ENABLE(globals g; bool enable_pm, enable_mc) {
+            template <pint M_idx>
+            defproc REPEATERS_M_ENABLE(globals g; bool enable_pm, enable_mc)
                 // Repeaters grouped in the dedicated repeaters cutout
-                pint Mmax = 5; // max AEXT NODE tree level
-                [M_idx >= Mmax -> 0=1;] // assert false
+            {
+                pint Mmax = 6; // max AEXT NODE tree level
+                [M_idx<0 | M_idx>=Mmax -> 0=1;] // assert false
                 pint S[Mmax][2], C[Mmax][2];
                 // sizing per repeater per stage (bottom to top in tree)
                 S = {{0, 0 },
+                     {0, 0 },
                      {0, 0 },
                      {6, 36},
                      {6, 36},
@@ -318,14 +360,15 @@ namespace transmitter {
                 // cap per repeater per stage (bottom to top in tree)
                 C = {{0, 0  },
                      {0, 0  },
+                     {0, 0  },
                      {4, 64 },
                      {4, 192},
                      {4, 192}};
     
-                [ M_idx < 2 ->
+                [ M_idx < 3 ->
                     enable_pm = enable_mc; 
                     prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {} // HACK so netgen -B doesn't complain
-                [] M_idx >= 2 ->
+                [] M_idx >= 3 ->
                     REPEATER_BOOL<2, S[M_idx][0..1], C[M_idx][0..1]>
                         repeaters_en(g, enable_pm, enable_mc);
                 ]
@@ -335,227 +378,309 @@ namespace transmitter {
         export
         template <pint M_idx, N>
         defproc REPEATERS_M(globals g;
-                            bool phi_pm, phi_mc; 
-                            bool enable_pm, enable_mc; 
-                            c1of<N> data_pm, data_mc) {
+            bool phi_pm, phi_mc; 
+            bool enable_pm, enable_mc; 
+            c1of<N> data_pm, data_mc)
+        {
             mid::REPEATERS_M_PHI_DATA<M_idx, N>
                 repeaters_m_phi_data(g, phi_pm, phi_mc, data_pm, data_mc);
-            mid::REPEATERS_M_ENABLE<M_idx, N>
+            mid::REPEATERS_M_ENABLE<M_idx>
                 repeaters_m_enable(g, enable_pm, enable_mc);
         }
 
         export
         template <pint M_idx, N>
         defproc REPEATERS_C(globals g;
-                            bool phi_mc, c__pp; 
-                            bool enable_mc, c_pe; 
-                            c1of<N> data_mc, c__p) {
+            bool phi_mc, c__pp; 
+            bool enable_mc, c_pe; 
+            c1of<N> data_mc, c__p)
+        {
             // Repeaters grouped in the child node cutout
-            pint Mmax = 5; // max AEXT NODE tree level
-            [M_idx >= Mmax -> 0=1;] // assert false
-            pint S_p_d[1], C_p_d[Mmax][1];
+            pint Mmax = 6; // max AEXT NODE tree level
+            [M_idx<0 | M_idx>=Mmax -> 0=1;] // assert false
+            pint S_p_d[Mmax], C_p_d[Mmax][1];
             // sizing per repeater per stage (bottom to top in tree)
-            S_p_d = {5};
+            S_p_d = {0, 5, 5, 5, 5, 5};
             // cap per repeater per stage (bottom to top in tree)
-            C_p_d = {{32}, {64}, {64}, {64}, {64}};
+            C_p_d = {{0}, {32}, {64}, {64}, {64}, {64}};
 
-            REPEATER_BOOL<1, S_p_d, {C_p_d[M_idx][0]}>
-                repeaters_phi(g, c__pp, phi_mc);
+            [ M_idx=0 ->
+                phi_mc = c__pp;
+                data_mc = c__p;
+            [] M_idx>0 ->
+                REPEATER_BOOL<1, {S_p_d[M_idx]}, {C_p_d[M_idx][0]}>
+                    repeaters_phi(g, c__pp, phi_mc);
+                REPEATER_c1of<N, 1, {S_p_d[M_idx]}, {C_p_d[M_idx][0]}>
+                    repeater_data(g, c__p, data_mc);
+            ]
             enable_mc = c_pe;
-            REPEATER_c1of<N, 1, S_p_d, {C_p_d[M_idx][0]}>
-                repeater_data(g, c__p, data_mc);
-        }
-
-        export
-        template <pint M_idx, N>
-        defproc REPEATERS(globals g;
-                          bool p__cp, c__pp; 
-                          bool p_ce, c_pe; 
-                          c1of<N> p__c, c__p) {
-            // repeaters between NODEs in the repeater tree
-            // Parent NODE
-            // REPEATERS_P
-            // REPEATERS_M
-            // REPEATERS_C
-            // Child NODE
-
-            // pm parent-mid
-            // mc mid-child
-            bool phi_pm, phi_mc;
-            bool enable_pm, enable_mc;
-            c1of<N> data_pm, data_mc;
-
-            REPEATERS_P<M_idx, N> parent_repeaters(g,
-                p__cp, phi_pm, p_ce, enable_pm, p__c, data_pm);
-            REPEATERS_M<M_idx, N> mid_repeaters(g,
-                phi_pm, phi_mc, enable_pm, enable_mc, data_pm, data_mc);
-            REPEATERS_C<M_idx, N> child_repeaters(g,
-                phi_mc, c__pp, enable_mc, c_pe, data_mc, c__p);
         }
     } // namespace repeaters
-    export
-
-    template <pint M_idx, N, L, BASE_IDX, IDXs>
-    defproc REPEATER_TREE_ (globals g; 
-                            bool p__cp[L], c__pp[L];
-                            bool p_ce[L], c_pe[L];
-                            c1of<N> p__c[L], c__p[L]) {
-        // Utility for REPEATER_TREE
-        // M_idx AEXT tree level (max 4)
-        // N radix of AEXT tree (N=4 in production)
-        // L links in AEXT tree = (N^M_idx-1) / (N-1) = number of LEAFs and NODEs
-        // BASE_IDX index into port heap data structures
-        // IDXs number of ports to connect at this level of tree
-        repeaters::REPEATERS<M_idx, N> repeaters[IDXs];
-        (; i : IDXs :
-            repeaters[i].g = g;
-            repeaters[i].p__cp = p__cp[BASE_IDX+i];
-            repeaters[i].c__pp = c__pp[BASE_IDX+i];
-            repeaters[i].p_ce  = p_ce[BASE_IDX+i];
-            repeaters[i].c_pe  = c_pe[BASE_IDX+i];
-            repeaters[i].p__c  = p__c[BASE_IDX+i];
-            repeaters[i].c__p  = c__p[BASE_IDX+i];
-        )
-
-        [ M_idx > 0 ->
-            REPEATER_TREE_<M_idx-1, N, L, BASE_IDX+IDXs, IDXs*N> 
-                _(g, p__cp, c__pp, p_ce, c_pe, p__c, c__p);
-        ]
-    }
 
     export
-    template <pint M, N, L>
-    defproc REPEATER_TREE (globals g; 
-                           bool p__cp[L], c__pp[L];
-                           bool p_ce[L], c_pe[L];
-                           c1of<N> c__p[L], p__c[L]) {
-        // Repeaters and wire capacitances internal to the aext tree
-        // Can be understood as a tree overlaid with the aext tree
-        // M depth of AEXT repeater tree (max 5)
+    template <pint N>
+    defproc LEAF (globals g;
+        bool _cp[N], ca[N], pe, _pp; c1of<N> _p) 
+        // LEAF with repeaters placed in the same physical tile
         // N radix of AEXT tree (N=4 in production)
-        // L links in AEXT tree = (N^M-1) / (N-1) = number of LEAFs and NODEs
-        // .----------------------------------------------------------.
-        // |                 link  | S_enable       | C_enable        |
-        // |-----------------------|----------------|-----------------|
-        // | root    -- array edge | {3, 10, 6, 36} | {4, 64, 4, 192} |
-        // | node[0] -- root       | {3, 10, 6, 36} | {4, 64, 4, 192} |
-        // | node[1] -- node[0]    | {3, 10, 6, 36} | {4, 64, 4, 64}  |
-        // | node[2] -- node[1]    | {3, 10}        | {4, 64}         |
-        // | node[3] -- node[2]    | {3, 10}        | {4, 32}         |
-        // |----------------------------------------------------------|
-        // |                 link  | S_phi/data     | C_phi/data      |
-        // |-----------------------|----------------|-----------------|
-        // | root    -- array edge | {5, 1, 5, 25}  | {64, 4, 4, 192} |
-        // | node[0] -- root       | {5, 1, 5, 25}  | {64, 4, 4, 192} |
-        // | node[1] -- node[0]    | {5, 1, 5, 25}  | {64, 4, 4, 64}  |
-        // | node[2] -- node[1]    | {5, 1}         | {64, 4}         |
-        // | node[3] -- node[2]    | {5, 1}         | {32, 4}         |
-        // *----------------------------------------------------------*
-        pint Mmax = 4; // max AEXT repeater tree depth
-        [M > Mmax -> 0=1;] // assert false
-        pint M_idx = M-1;
+    {
+        repeaters::REPEATERS_C<0, N> rep_c(g,,,,,,);
+        rep_c.phi_mc = _pp;
+        rep_c.enable_mc = pe;
+        rep_c.data_mc = _p;
 
-        REPEATER_TREE_<M_idx, N, L, 0, 1> 
-            _(g, p__cp, c__pp, p_ce, c_pe, p__c, c__p);
+        LEAF_<N> _(g, _cp, ca,,,);
+        _._pp = rep_c.c__pp;
+        _.pe  = rep_c.c_pe;
+        _._p  = rep_c.c__p;
     }
 
     export
     template <pint M_idx, N>
-    defproc NODE_w_REPEATERS (
-        globals g; bool _cp[N], ce[N], pe, _pp; c1of<N> _c[N], _p) {
-        // NODE with repeaters placed in the same physical tile or tile
-        // cutout space
-        // M_idx [1-5] level in AEXT tree of NODE
+    defproc NODE (
+        globals g; bool cp[N], ce[N], pe, pp; c1of<N> c[N], p)
+        // NODE with repeaters placed in the same physical tile
+        // M_idx [1-6] level in AEXT tree of NODE
         // N radix of AEXT (N=4 in production)
-        pint M_REP_idx = M_idx-1; // repeater index
+    {
+        [M_idx<1 | M_idx>6 -> 0=1;] // assert false
 
-        repeaters::REPEATERS_P<M_REP_idx, N> rep_p(g,, _cp,, ce,, _c);
-        repeaters::REPEATERS_C<M_REP_idx, N> rep_c(g, _pp,, pe,, _p,);
+        repeaters::REPEATERS_P<M_idx-1, N> rep_p[N];
+        (; n : N :
+            rep_p[n].g = g;
+            rep_p[n].phi_pm = cp[n];
+            rep_p[n].enable_pm = ce[n];
+            rep_p[n].data_pm = c[n];
+        )
 
-        NODE<N> _(g,
-            rep_p.p__cp, rep_p.p_ce, rep_c.c__pp,
-            rep_c.c_e, rep_p.p__c, rep_c.c__p
-        );
+        repeaters::REPEATERS_C<M_idx, N> rep_c(g, pp,, pe,, p,);
+
+        NODE_<N> _(g,,,,,,);
+        (; n : N :
+            _._cp[n] = rep_p[n].p__cp;
+            _.ce[n] = rep_p[n].p_ce;
+            _._c[n] = rep_p[n].p__c;
+        )
+        _._pp = rep_c.c__pp;
+        _.pe  = rep_c.c_pe;
+        _._p  = rep_c.c__p;
     }
 
     export
-    template <pint M, N, N_NODE>
+    template <pint M_NODE, N, N_NODE, M_STOP>
     defproc NODE_TREE(globals g;
-        bool _cp[N_NODE][N], ce[N_NODE][N]; c1of<N> _c[N_NODE][N];
-        bool _pp[N_NODE],    pe[N_NODE];    c1of<N> _p[N_NODE]) {
-        // tree of NODES
-        [M>6 -> 1=0;]  // assert false
-        pint n_node[5]; // number of nodes at each level
+        bool cp[N_NODE][N], ce[N_NODE][N]; c1of<N> c[N_NODE][N];
+        bool pp[N_NODE],    pe[N_NODE];    c1of<N> p[N_NODE]) 
+        // tree of NODE_w_REPEATERS
+        // M_NODE [1-5] depth of tree (depth of AEXT tree - 1)
+        // N radix of tree
+        // N_NODE number of nodes
+        // M_STOP [0-5] 0-indexed bottom level of tree
+    {
+        [M_NODE>5 | M_NODE<1 -> 1=0;]  // assert false
+        [M_STOP>4 | M_STOP<0 -> 1=0;]  // assert false
 
-        [ M=6 -> n_node[4] = 1;]
+        pint n_node[M_STOP..M_NODE-1]; // number of nodes at each level
+        pint base_idx[M_STOP..M_NODE-1];
 
-        [ M>5 -> n_node[3]=n_node[4]*N;
-        [] M=5 -> n_node[3]=1;
-        [] M<5 -> n_node[3]=0;
-        ]
+        n_node[M_NODE-1] = 1;
+        base_idx[M_NODE-1] = 0;
+        (; m : M_STOP..M_NODE-2 :
+            n_node[M_NODE-2-m] = n_node[M_NODE-1-m]*N;
+            base_idx[M_NODE-2-m] = base_idx[M_NODE-1-m]+n_node[M_NODE-1-m];
+        )
 
-        (; 
         // level 4 NODEs
-        [ M=6 ->
-            n4 = 1;
-            NODE_w_REPEATERS<4, N> node_4(
-                g, _cp[0], ce[0], pe[0], _pp[0], _c[0], _p[0]
-            );
-        [] M<6 ->
-            n4 = 0;
+        [ M_NODE>=5 & M_NODE>M_STOP -> NODE<5, N> node_4[n_node[4]];
+            (; n : n_node[4] :
+                node_4[n].g = g;
+                node_4[n].cp = cp[base_idx[4]+n];
+                node_4[n].ce = ce[base_idx[4]+n];
+                node_4[n].c  = c[base_idx[4]+n];
+                node_4[n].pp = pp[base_idx[4]+n];
+                node_4[n].pe = pe[base_idx[4]+n];
+                node_4[n].p  = p[base_idx[4]+n];
+            )
         ]
-
         // level 3 NODEs
-        [ M>5 ->
-        [ M=5 ->
-            n3 = 1
-            NODE<3, N> node_3[];
+        [ M_NODE>=4 & M_NODE>M_STOP -> NODE<4, N> node_3[n_node[3]];
+            (; n : n_node[3] :
+                node_3[n].g = g;
+                node_3[n].cp = cp[base_idx[3]+n];
+                node_3[n].ce = ce[base_idx[3]+n];
+                node_3[n].c  = c[base_idx[3]+n];
+                node_3[n].pp = pp[base_idx[3]+n];
+                node_3[n].pe = pe[base_idx[3]+n];
+                node_3[n].p  = p[base_idx[3]+n];
+            )
         ]
-
-        [ M>=2 -> // level 0 NODEs
-            NODE<0, N> node_0[];
+        // level 2 NODEs
+        [ M_NODE>=3 & M_NODE>M_STOP -> NODE<3, N> node_2[n_node[2]];
+            (; n : n_node[2] :
+                node_2[n].g = g;
+                node_2[n].cp = cp[base_idx[2]+n];
+                node_2[n].ce = ce[base_idx[2]+n];
+                node_2[n].c  = c[base_idx[2]+n];
+                node_2[n].pp = pp[base_idx[2]+n];
+                node_2[n].pe = pe[base_idx[2]+n];
+                node_2[n].p  = p[base_idx[2]+n];
+            )
         ]
-
-        [ M>=3 -> // level 1 NODEs
-            NODE<1, N> node_1[];
+        // level 1 NODEs
+        [ M_NODE>=2 & M_NODE>M_STOP -> NODE<2, N> node_1[n_node[1]];
+            (; n : n_node[1] :
+                node_1[n].g = g;
+                node_1[n].cp = cp[base_idx[1]+n];
+                node_1[n].ce = ce[base_idx[1]+n];
+                node_1[n].c  = c[base_idx[1]+n];
+                node_1[n].pp = pp[base_idx[1]+n];
+                node_1[n].pe = pe[base_idx[1]+n];
+                node_1[n].p  = p[base_idx[1]+n];
+            )
         ]
-
-        [ M>=4 -> // level 2 NODEs
-            NODE<2, N> node_2[];
+        // level 0 NODEs
+        [ M_NODE>=1 & M_NODE>M_STOP -> NODE<1, N> node_0[n_node[0]];
+            (; n : n_node[0] :
+                node_0[n].g = g;
+                node_0[n].cp = cp[base_idx[0]+n];
+                node_0[n].ce = ce[base_idx[0]+n];
+                node_0[n].c  = c[base_idx[0]+n];
+                node_0[n].pp = pp[base_idx[0]+n];
+                node_0[n].pe = pe[base_idx[0]+n];
+                node_0[n].p  = p[base_idx[0]+n];
+            )
         ]
+    }
 
+    export
+    template <pint M, N, N_LINK, M_STOP>
+    defproc REPEATER_M_TREE(globals g;
+        bool phi_mc[N_LINK], phi_pm[N_LINK];
+        bool enable_mc[N_LINK], enable_pm[N_LINK];
+        c1of<N> data_mc[N_LINK], data_pm[N_LINK]) 
+        // tree of REPEATERS_M
+        // M [1-6] depth of tree (depth of AEXT tree)
+        // N radix of tree
+        // N_LINK number of repeater links
+        // M_STOP [0-5] 0-indexed bottom level of tree
+    {
+        [M>6 | M<1 -> 1=0;]  // assert false
+        [M_STOP>5 | M_STOP<0 -> 1=0;]  // assert false
+
+        pint n_rep[M_STOP..M-1]; // number of rep at each level
+        pint base_idx[M_STOP..M-1];
+
+        n_rep[M-1] = 1;
+        base_idx[M-1] = 0;
+        (; m : M_STOP..M-2 :
+            n_rep[M-2-m] = n_rep[M-1-m]*N;
+            base_idx[M-2-m] = base_idx[M-1-m]+n_rep[M-1-m];
+        )
+
+        // level 5 repeaters
+        [ M>=6 & M>M_STOP -> repeaters::REPEATERS_M<5, N> rep_5[n_rep[5]];
+            (; n : n_rep[5] :
+                rep_5[n].g = g;
+                rep_5[n].phi_pm = phi_pm[base_idx[5]+n];
+                rep_5[n].phi_mc = phi_mc[base_idx[5]+n];
+                rep_5[n].enable_pm = enable_pm[base_idx[5]+n];
+                rep_5[n].enable_mc = enable_mc[base_idx[5]+n];
+                rep_5[n].data_pm = data_pm[base_idx[5]+n];
+                rep_5[n].data_mc = data_mc[base_idx[5]+n];
+            )
+        ]
+        // level 4 repeaters
+        [ M>=5 & M>M_STOP -> repeaters::REPEATERS_M<4, N> rep_4[n_rep[4]];
+            (; n : n_rep[4] :
+                rep_4[n].g = g;
+                rep_4[n].phi_pm = phi_pm[base_idx[4]+n];
+                rep_4[n].phi_mc = phi_mc[base_idx[4]+n];
+                rep_4[n].enable_pm = enable_pm[base_idx[4]+n];
+                rep_4[n].enable_mc = enable_mc[base_idx[4]+n];
+                rep_4[n].data_pm = data_pm[base_idx[4]+n];
+                rep_4[n].data_mc = data_mc[base_idx[4]+n];
+            )
+        ]
+        // level 3 repeaters
+        [ M>=4 & M>M_STOP -> repeaters::REPEATERS_M<3, N> rep_3[n_rep[3]];
+            (; n : n_rep[3] :
+                rep_3[n].g = g;
+                rep_3[n].phi_pm = phi_pm[base_idx[3]+n];
+                rep_3[n].phi_mc = phi_mc[base_idx[3]+n];
+                rep_3[n].enable_pm = enable_pm[base_idx[3]+n];
+                rep_3[n].enable_mc = enable_mc[base_idx[3]+n];
+                rep_3[n].data_pm = data_pm[base_idx[3]+n];
+                rep_3[n].data_mc = data_mc[base_idx[3]+n];
+            )
+        ]
+        // level 2 repeaters
+        [ M>=3 & M>M_STOP -> repeaters::REPEATERS_M<2, N> rep_2[n_rep[2]];
+            (; n : n_rep[2] :
+                rep_2[n].g = g;
+                rep_2[n].phi_pm = phi_pm[base_idx[2]+n];
+                rep_2[n].phi_mc = phi_mc[base_idx[2]+n];
+                rep_2[n].enable_pm = enable_pm[base_idx[2]+n];
+                rep_2[n].enable_mc = enable_mc[base_idx[2]+n];
+                rep_2[n].data_pm = data_pm[base_idx[2]+n];
+                rep_2[n].data_mc = data_mc[base_idx[2]+n];
+            )
+        ]
+        // level 1 repeaters
+        [ M>=2 & M>M_STOP -> repeaters::REPEATERS_M<1, N> rep_1[n_rep[1]];
+            (; n : n_rep[1] :
+                rep_1[n].g = g;
+                rep_1[n].phi_pm = phi_pm[base_idx[1]+n];
+                rep_1[n].phi_mc = phi_mc[base_idx[1]+n];
+                rep_1[n].enable_pm = enable_pm[base_idx[1]+n];
+                rep_1[n].enable_mc = enable_mc[base_idx[1]+n];
+                rep_1[n].data_pm = data_pm[base_idx[1]+n];
+                rep_1[n].data_mc = data_mc[base_idx[1]+n];
+            )
+        ]
+        // level 0 repeaters
+        [ M>=1 & M>M_STOP -> repeaters::REPEATERS_M<0, N> rep_0[n_rep[0]];
+            (; n : n_rep[0] :
+                rep_0[n].g = g;
+                rep_0[n].phi_pm = phi_pm[base_idx[0]+n];
+                rep_0[n].phi_mc = phi_mc[base_idx[0]+n];
+                rep_0[n].enable_pm = enable_pm[base_idx[0]+n];
+                rep_0[n].enable_mc = enable_mc[base_idx[0]+n];
+                rep_0[n].data_pm = data_pm[base_idx[0]+n];
+                rep_0[n].data_mc = data_mc[base_idx[0]+n];
+            )
+        ]
     }
 
     export
     template <pint M, N>
-    defproc REPEATER_M_TREE() {
-    }
-
-    export
-    template <pint N>
     defproc TOP_INT (globals g;
-                     bool _x_phi, y_phi;
-                     bool x_enable, y_enable;
-                     c1of<N> _x_data, y_data) {
-        // interface at the top of the AEXT tree (including repeater tree)
+        bool x_phi, y_phi;
+        bool x_enable, y_enable;
+        c1of<N> x_data, y_data)
+        // interface at the top of the AEXT tree
         // converts between active low and high senses
+    {
+        repeaters::REPEATERS_P<M-1, N> rep_p(g,,,,,,);
+        x_phi = rep_p.phi_pm;
+        x_enable = rep_p.enable_pm;
+        x_data = rep_p.data_pm;
 
+        rep_p.p_ce = y_enable;
         prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-            ~_x_phi<9> -> y_phi+
-            _x_phi<6> -> y_phi-
+            ~rep_p.p__cp<9> -> y_phi+
+            rep_p.p__cp<6> -> y_phi-
 
             (: n : N :
-                ~_x_data.d[n]<9> -> y_data.d[n]+
-                _x_data.d[n]<6> -> y_data.d[n]-
+                ~rep_p.p__c.d[n]<9> -> y_data.d[n]+
+                rep_p.p__c.d[n]<6> -> y_data.d[n]-
             )
         }
-        x_enable = y_enable;
     }
 } // namespace transmitter
 
 export
 template <pint M, N, NN>
-defproc AEXT (globals g; bool xp[NN], xa[NN], pe, _pp; c1of<N> _p) {
+defproc AEXT (globals g; bool xp[NN], xa[NN], pe, pp; c1of<N> p) {
     // Transmitter transmits spikes from neurons to datapath
     // M depth of AEXT tree (max 6)
     // N radix of AEXT tree
@@ -563,6 +688,7 @@ defproc AEXT (globals g; bool xp[NN], xa[NN], pe, _pp; c1of<N> _p) {
 
     pint N_LEAF = NN/N; // = N^(M-1)
     pint N_NODE = (NN-N) / (N*(N-1)); // = (N^(M-1)-1) / (N-1)
+    pint N_LINK = N_NODE + N_LEAF;
 
     transmitter::NRN_BUF<NN> buf(g, xp, xa,,);
 
@@ -573,194 +699,85 @@ defproc AEXT (globals g; bool xp[NN], xa[NN], pe, _pp; c1of<N> _p) {
         leaf[n].ca = buf.ya[n*N..(n+1)*N-1];
     )
 
+    transmitter::REPEATER_M_TREE<M, N, N_LINK, 0> repeaters_mid(g,,,,,,);
+    repeaters_mid.phi_pm[0]    = pp;
+    repeaters_mid.enable_pm[0] = pe;
+    repeaters_mid.data_pm[0]   = p;
+    pint LEAF_BASE_IDX = N_NODE; // = N_LINK - N_LEAF
+    (; n : N_LEAF :
+        leaf[n]._pp = repeaters_mid.phi_mc[LEAF_BASE_IDX+n];
+        leaf[n].pe  = repeaters_mid.enable_mc[LEAF_BASE_IDX+n];
+        leaf[n]._p  = repeaters_mid.data_mc[LEAF_BASE_IDX+n];
+    )
+
     [ M = 1 ->
         NN = N; // assert
-        leaf[0]._pp = _pp;
-        leaf[0].pe  = pe;
-        leaf[0]._p  = _p;
     [] M > 1 ->
-        [ M = 2 ->
-            pint N_LINK = 1;
-            pint M_REP = M-1;
-        [] M > 2 ->
-            pint N_LINK = N_NODE/N;
-            pint M_REP = M-2;
-        ]
-
-        transmitter::NODE_ARR<M, N, N_NODE> node(g,,,,,,);
-        transmitter::REP_M_ARR<M, N> repeaters_mid;
-
-        // connect level 0 NODEs to LEAFs
-        pint N_L0_NODE = N_LEAF/N; // lvl 0 NODEs
-        pint NODE_L0_BASE_IDX = N_NODE-N_L0_NODE;
-        (; node_idx : NODE_L0_BASE_IDX..N_NODE-1 :
-            (; n : N :
-                node._cp[node_idx][n] = leaf[(node_idx-NODE_L0_BASE_IDX)*N+n]._pp;
-                node.ce[node_idx][n] = leaf[(node_idx-NODE_L0_BASE_IDX)*N+n].pe;
-                node._c[node_idx][n] = leaf[(node_idx-NODE_L0_BASE_IDX)*N+n]._p;
-            )
-        )
-
-        // connect level 1 NODEs to level 0 NODEs
-        [ M > 2 ->
-            pint N_L1_NODE = N_L0_NODE/N; // lvl 1 NODEs
-            pint NODE_L1_BASE_IDX = N_NODE-N_L1_NODE -N_L0_NODE;
-            (; node_idx : NODE_L1_BASE_IDX..NODE_L0_BASE_IDX-1 :
-                (; n : N :
-                    node._cp[node_idx][n] = node._pp[node_idx*N+n+1];
-                    node.ce[node_idx][n] = node.pe[node_idx*N+n+1];
-                    node._c[node_idx][n] = node._p[node_idx*N+n+1];
-                )
-            )
-        ]
-
-        // connect NODEs to NODEs
-        [ M > 2 ->
-            (; np : NODE_L1_BASE_IDX :
-                (; nc : N :
-                    node._cp[np][nc] = repeaters_mid.p__cp[np*N+nc+1];
-                    node.ce[np][nc] = repeaters_mid.p_ce[np*N+nc+1];
-                    node._c[np][nc] = repeaters_mid.p__c[np*N+nc+1];
-
-                    repeaters_mid.c__pp[np*N+nc+1] = node._pp[np*N+nc+1];
-                    repeaters_mid.c_pe[np*N+nc+1] = node.pe[np*N+nc+1];
-                    repeaters_mid.c__p[np*N+nc+1] = node._p[np*N+nc+1];
-                )
-            )
-        ]
-        
-        /*
-        transmitter::REPEATER_TREE<M_REP, N, N_LINK> repeaters(
-            g,,,,,,);
-
-        repeaters.p__cp[0] = _pp;
-        repeaters.p_ce[0]  = pe;
-        repeaters.p__c[0]  = _p;
-
-        transmitter::NODE<N> node[N_NODE];
+        transmitter::NODE_TREE<M-1, N, N_NODE, 0> node(g,,,,,,);
         (; n : N_NODE :
-            node[n].g = g;
+            node.pp[n] = repeaters_mid.phi_mc[n];
+            node.pe[n] = repeaters_mid.enable_mc[n];
+            node.p[n] = repeaters_mid.data_mc[n];
         )
-        node[0]._pp = repeaters.c__pp[0];
-        node[0].pe = repeaters.c_pe[0];
-        node[0]._p = repeaters.c__p[0];
 
-        // connect level 0 NODEs to LEAFs
-        pint N_L0_NODE = N_LEAF/N; // lvl 0 NODEs
-        pint NODE_L0_BASE_IDX = N_NODE-N_L0_NODE;
-        (; node_idx : NODE_L0_BASE_IDX..N_NODE-1 :
+        (; node_idx : N_NODE :
             (; n : N :
-                node[node_idx]._cp[n] = leaf[(node_idx-NODE_L0_BASE_IDX)*N+n]._pp;
-                node[node_idx].ce[n] = leaf[(node_idx-NODE_L0_BASE_IDX)*N+n].pe;
-                node[node_idx]._c[n] = leaf[(node_idx-NODE_L0_BASE_IDX)*N+n]._p;
+                repeaters_mid.phi_pm[node_idx*N+n+1] = node.cp[node_idx][n];
+                repeaters_mid.enable_pm[node_idx*N+n+1] = node.ce[node_idx][n];
+                repeaters_mid.data_pm[node_idx*N+n+1] =  node.c[node_idx][n];
             )
         )
-
-        // connect level 1 NODEs to level 0 NODEs
-        [ M > 2 ->
-            pint N_L1_NODE = N_L0_NODE/N; // lvl 1 NODEs
-            pint NODE_L1_BASE_IDX = N_NODE-N_L1_NODE -N_L0_NODE;
-            (; node_idx : NODE_L1_BASE_IDX..NODE_L0_BASE_IDX-1 :
-                (; n : N :
-                    node[node_idx]._cp[n] = node[node_idx*N+n+1]._pp;
-                    node[node_idx].ce[n] = node[node_idx*N+n+1].pe;
-                    node[node_idx]._c[n] = node[node_idx*N+n+1]._p;
-                )
-            )
-        ]
-
-        // connect NODEs to NODEs
-        [ M > 2 ->
-            (; np : NODE_L1_BASE_IDX :
-                (; nc : N :
-                    node[np]._cp[nc] = repeaters.p__cp[np*N+nc+1];
-                    node[np].ce[nc] = repeaters.p_ce[np*N+nc+1];
-                    node[np]._c[nc] = repeaters.p__c[np*N+nc+1];
-
-                    repeaters.c__pp[np*N+nc+1] = node[np*N+nc+1]._pp;
-                    repeaters.c_pe[np*N+nc+1] = node[np*N+nc+1].pe;
-                    repeaters.c__p[np*N+nc+1] =  node[np*N+nc+1]._p;
-                )
-            )
-        ]
-        */
     ]
 }
 
 export
 template <pint M, p4M>
 defproc AEXT_TO_TILE (globals g;
-                      bool _cp[p4M/16], ce[p4M/16]; c1of<4> _c[p4M/16];
-                      bool pe, _pp; c1of<4> _p) {
+    bool _cp[p4M/16], ce[p4M/16]; c1of<4> _c[p4M/16];
+    bool pe, pp; c1of<4> p)
     // AEXT tree above the TILE (in logic space)
     // contains all but the lowest level intermediate NODEs
     // M tree levels (require M>=2)
     // p4M = 4^M neurons
-    [ M < 2 ->
-        0=1; // assert false
-    ]
+{
+    [M<2 -> 0=1;] // assert false
     pint N = 4; // required for TILE
-    // TILE contains the AEXT LEAFs and the lowest level AEXT NODEs
+    // TILE contains the LEAFs and the lowest level NODEs
 
     // These are the number of nodes logically above the TILE
     pint N_NODE_INT = (p4M/N/N/N-1) / (N-1);
     pint N_NODE_LEAF = p4M/N/N/N;
     pint N_NODE = N_NODE_INT + N_NODE_LEAF;
 
-    [ M = 2 ->
-        pint N_LINK = 1;
-        pint M_REP = M-1;
-    [] M > 2 ->
-        pint N_LINK = N_NODE;
-        pint M_REP = M-2;
-    ]
+    // transmitter::REPEATER_M_TREE<M, N, N_LINK> repeaters_mid(g,,,,,,);
+    // repeaters_mid.phi_pm[0]    = pp;
+    // repeaters_mid.enable_pm[0] = pe;
+    // repeaters_mid.data_pm[0]   = p;
+    // pint LEAF_BASE_IDX = N_NODE; // = N_LINK - N_LEAF
+    // (; n : N_LEAF :
+    //     leaf[n]._pp = repeaters_mid.phi_mc[LEAF_BASE_IDX+n];
+    //     leaf[n].pe  = repeaters_mid.enable_mc[LEAF_BASE_IDX+n];
+    //     leaf[n]._p  = repeaters_mid.data_mc[LEAF_BASE_IDX+n];
+    // )
 
-    transmitter::REPEATER_TREE<M_REP, N, N_LINK> repeaters(g,,,,,,);
+    // [ M = 1 ->
+    //     NN = N; // assert
+    // [] M > 1 ->
+    //     transmitter::NODE_TREE<M-1, N, N_NODE> node(g,,,,,,);
+    //     (; n : N_NODE :
+    //         node.pp[n] = repeaters_mid.phi_mc[n];
+    //         node.pe[n] = repeaters_mid.enable_mc[n];
+    //         node.p[n] = repeaters_mid.data_mc[n];
+    //     )
 
-    repeaters.p__cp[0] = _pp;
-    repeaters.p_ce[0] = pe;
-    repeaters.p__c[0] = _p;
-
-    [ M = 2 ->
-        p4M = 4*N; // assert
-        _cp[0] = repeaters.c__pp[0];
-        ce[0] = repeaters.c_pe[0];
-        _c[0] = repeaters.c__p[0];
-    [] M > 2 ->
-        transmitter::NODE<N> node[N_NODE];
-        (; n : N_NODE :
-            node[n].g = g;
-        )
-        node[0].pe = repeaters.c_pe[0];
-        node[0]._pp = repeaters.c__pp[0];
-        node[0]._p = repeaters.c__p[0];
-
-        // connect NODEs to child ports
-        pint N_LOW_NODE = p4M/N/N/N; // NODEs connecting to LEAFs
-        pint NODE_BASE_IDX = N_NODE-N_LOW_NODE;
-        (; node_idx : NODE_BASE_IDX..N_NODE-1 :
-            (; n : N :
-                node[node_idx].ce[n] = ce[(node_idx-NODE_BASE_IDX)*N+n];
-                node[node_idx]._cp[n] = _cp[(node_idx-NODE_BASE_IDX)*N+n];
-                node[node_idx]._c[n] = _c[(node_idx-NODE_BASE_IDX)*N+n];
-            )
-        )
-
-        // connect NODEs to NODEs
-        [ M > 2 ->
-            (; np : NODE_BASE_IDX :
-                (; nc : N :
-                    node[np].ce[nc] = repeaters.p_ce[np*N+nc+1];
-                    node[np]._cp[nc] = repeaters.p__cp[np*N+nc+1];
-                    node[np]._c[nc] = repeaters.p__c[np*N+nc+1];
-
-                    repeaters.c_pe[np*N+nc+1] = node[np*N+nc+1].pe;
-                    repeaters.c__pp[np*N+nc+1] = node[np*N+nc+1]._pp;
-                    repeaters.c__p[np*N+nc+1] =  node[np*N+nc+1]._p;
-                )
-            )
-        ]
-    ]
+    //     (; node_idx : N_NODE :
+    //         (; n : N :
+    //             repeaters_mid.phi_pm[node_idx*N+n+1] = node.cp[node_idx][n];
+    //             repeaters_mid.enable_pm[node_idx*N+n+1] = node.ce[node_idx][n];
+    //             repeaters_mid.data_pm[node_idx*N+n+1] =  node.c[node_idx][n];
+    //         )
+    //     )
+    // ]
 }
 
 namespace brain_transmitter {
@@ -768,11 +785,12 @@ namespace brain_transmitter {
     template <pint M, N>
     defproc AEXT_INT (globals g;
                       bool aext__pp, aext_pe; c1of<N> aext__p;
-                      eMx1ofN<M, N> y_spk) {
+                      eMx1ofN<M, N> y_spk)
+    {
         // interface between transmitter and the datapath
         // M tree levels 
         // N radix of tree (N^M neurons)
-        ::aer::transmitter::TOP_INT<N>
+        ::aer::transmitter::TOP_INT<M, N>
             top_int(g, aext__pp,, aext_pe,, aext__p,);
         ::aer::interface::OUT_a1ofN<N>
             out(g, top_int.y_phi, top_int.y_enable, top_int.y_data,);

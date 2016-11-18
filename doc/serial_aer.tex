@@ -1803,18 +1803,18 @@ This process converts the transmitter and receiver serial format to a1ofN channe
 \subsubsection*{HSE}
 
 \begin{hse}
-*[[x\phi];xo+;[~x\phi];xo-]
+*[[x\phi];xe+;[~x\phi];xe-]
 
-*[[x0->y0+;[ya];xo-;[~x0];y0-;[~ya];xo+
-  []x1->y1+;[ya];xo-;[~x1];y1-;[~ya];xo+
+*[[x0->y0+;[ya];xe-;[~x0];y0-;[~ya];xe+
+  []x1->y1+;[ya];xe-;[~x1];y1-;[~ya];xe+
  ]]
 \end{hse}
 
 \subsubsection*{PRS}
 
 \begin{prs2}
-x\phi & ~ya -> xo+
-~x\phi | ya -> xo-
+x\phi & ~ya -> xe+
+~x\phi | ya -> xe-
 \end{prs2}
 
 \begin{prs2}
@@ -1833,8 +1833,8 @@ x\phi -> _x\phi-
 \end{prs2}
 
 \begin{prs2}
-~_x\phi & ~ya -> xo+
-_x\phi | ya -> xo-
+~_x\phi & ~ya -> xe+
+_x\phi | ya -> xe-
 \end{prs2}
 
 \begin{prs2}
@@ -1853,7 +1853,7 @@ x1 -> y1+
     \hline
     rule & transistor count & comments \\ \hline
     $\_x\phi$ & 2 & \\ \hline
-    $x_o$ & 4 & \\ \hline
+    $x_e$ & 4 & \\ \hline
     $\_y[0,1,2,3]$ & 0 & wires \\ \hline
     \hline total & 6 & \\ \hline
     \end{tabular}

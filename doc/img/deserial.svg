@@ -23,7 +23,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.8284272"
-     inkscape:cx="258.2101"
+     inkscape:cx="216.13725"
      inkscape:cy="414.3737"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -34,7 +34,7 @@
      fit-margin-bottom="0"
      inkscape:window-width="2560"
      inkscape:window-height="1576"
-     inkscape:window-x="2560"
+     inkscape:window-x="0"
      inkscape:window-y="24"
      inkscape:window-maximized="1" />
   <defs
@@ -454,7 +454,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -497,7 +497,7 @@
          y="0.14590454"
          x="277.33163"
          id="tspan4370"
-         sodipodi:role="line">xo</tspan></text>
+         sodipodi:role="line">xe</tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text4372"
@@ -571,7 +571,7 @@
            id="tspan5344"
            x="232.81616"
            y="-64.168236"
-           style="text-align:center;text-anchor:middle">po/</tspan><tspan
+           style="text-align:center;text-anchor:middle">pΦ/</tspan><tspan
            sodipodi:role="line"
            x="232.81616"
            y="-49.168236"
@@ -588,12 +588,12 @@
            id="tspan5348"
            x="286.73062"
            y="-64.668243"
-           style="text-align:center;text-anchor:middle">pi/</tspan><tspan
+           style="text-align:center;text-anchor:middle">pe/</tspan><tspan
            sodipodi:role="line"
            x="286.73062"
            y="-49.668243"
            id="tspan3381"
-           style="text-align:center;text-anchor:middle">c{0,1}i</tspan></text>
+           style="text-align:center;text-anchor:middle">c{0,1}e</tspan></text>
       <text
          xml:space="preserve"
          style="font-size:12px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
@@ -637,8 +637,8 @@
        d="m 290.0351,318.7389 0,96.25483"
        style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend-7)" />
     <rect
-       y="-12.305014"
-       x="226.84332"
+       y="-12.426334"
+       x="227.57803"
        height="65.045395"
        width="125.85457"
        id="rect3125"
