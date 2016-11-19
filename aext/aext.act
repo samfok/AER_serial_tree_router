@@ -482,19 +482,20 @@ namespace transmitter {
     {
         [M_NODE>5 | M_NODE<1 -> 1=0;]  // assert false
         [M_STOP>4 | M_STOP<0 -> 1=0;]  // assert false
+        pint M_IDX = M_NODE-1;
 
-        pint n_node[M_STOP..M_NODE-1]; // number of nodes at each level
-        pint base_idx[M_STOP..M_NODE-1];
+        pint n_node[M_STOP..M_IDX]; // number of nodes at each level
+        pint base_idx[M_STOP..M_IDX];
 
-        n_node[M_NODE-1] = 1;
-        base_idx[M_NODE-1] = 0;
-        (; m : M_STOP..M_NODE-2 :
-            n_node[M_NODE-2-m] = n_node[M_NODE-1-m]*N;
-            base_idx[M_NODE-2-m] = base_idx[M_NODE-1-m]+n_node[M_NODE-1-m];
+        n_node[M_IDX] = 1;
+        base_idx[M_IDX] = 0;
+        (; m : M_IDX-M_STOP :
+            n_node[M_IDX-1-m] = n_node[M_IDX-m]*N;
+            base_idx[M_IDX-1-m] = base_idx[M_IDX-m]+n_node[M_IDX-m];
         )
 
         // level 4 NODEs
-        [ M_NODE>=5 & M_NODE>M_STOP -> NODE<5, N> node_4[n_node[4]];
+        [ M_IDX>=4 & M_STOP<=4 -> NODE<5, N> node_4[n_node[4]];
             (; n : n_node[4] :
                 node_4[n].g = g;
                 node_4[n].cp = cp[base_idx[4]+n];
@@ -506,7 +507,7 @@ namespace transmitter {
             )
         ]
         // level 3 NODEs
-        [ M_NODE>=4 & M_NODE>M_STOP -> NODE<4, N> node_3[n_node[3]];
+        [ M_IDX>=3 & M_STOP<=3 -> NODE<4, N> node_3[n_node[3]];
             (; n : n_node[3] :
                 node_3[n].g = g;
                 node_3[n].cp = cp[base_idx[3]+n];
@@ -518,7 +519,7 @@ namespace transmitter {
             )
         ]
         // level 2 NODEs
-        [ M_NODE>=3 & M_NODE>M_STOP -> NODE<3, N> node_2[n_node[2]];
+        [ M_IDX>=2 & M_STOP<=2 -> NODE<3, N> node_2[n_node[2]];
             (; n : n_node[2] :
                 node_2[n].g = g;
                 node_2[n].cp = cp[base_idx[2]+n];
@@ -530,7 +531,7 @@ namespace transmitter {
             )
         ]
         // level 1 NODEs
-        [ M_NODE>=2 & M_NODE>M_STOP -> NODE<2, N> node_1[n_node[1]];
+        [ M_IDX>=1 & M_STOP<=1 -> NODE<2, N> node_1[n_node[1]];
             (; n : n_node[1] :
                 node_1[n].g = g;
                 node_1[n].cp = cp[base_idx[1]+n];
@@ -542,7 +543,7 @@ namespace transmitter {
             )
         ]
         // level 0 NODEs
-        [ M_NODE>=1 & M_NODE>M_STOP -> NODE<1, N> node_0[n_node[0]];
+        [ M_IDX>=0 & M_STOP<=0 -> NODE<1, N> node_0[n_node[0]];
             (; n : n_node[0] :
                 node_0[n].g = g;
                 node_0[n].cp = cp[base_idx[0]+n];
@@ -571,15 +572,16 @@ namespace transmitter {
     {
         [M>6 | M<1 -> 1=0;]  // assert false
         [M_STOP>5 | M_STOP<0 -> 1=0;]  // assert false
+        pint M_IDX = M-1;
 
-        pint n_rep[M_STOP..M-1]; // number of rep at each level
-        pint base_idx[M_STOP..M-1];
+        pint n_rep[M_STOP..M_IDX]; // number of rep at each level
+        pint base_idx[M_STOP..M_IDX];
 
-        n_rep[M-1] = 1;
-        base_idx[M-1] = 0;
-        (; m : M_STOP..M-2 :
-            n_rep[M-2-m] = n_rep[M-1-m]*N;
-            base_idx[M-2-m] = base_idx[M-1-m]+n_rep[M-1-m];
+        n_rep[M_IDX] = 1;
+        base_idx[M_IDX] = 0;
+        (; m : M_IDX-M_STOP :
+            n_rep[M_IDX-1-m] = n_rep[M_IDX-m]*N;
+            base_idx[M_IDX-1-m] = base_idx[M_IDX-m]+n_rep[M_IDX-m];
         )
 
         // skip root node, which will live in TOP_INT
@@ -589,7 +591,7 @@ namespace transmitter {
 
         // level 5 repeaters never get created (provided by TOP_INT)
         // level 4 repeaters; create if depth 6
-        [ M>=6 & M>M_STOP -> repeaters::REPEATERS_M<4, N> rep_4[n_rep[4]];
+        [ M_IDX>=5 & M_STOP<=4 -> repeaters::REPEATERS_M<4, N> rep_4[n_rep[4]];
             (; n : n_rep[4] :
                 rep_4[n].g = g;
                 rep_4[n].phi_pm = phi_pm[base_idx[4]+n];
@@ -601,7 +603,7 @@ namespace transmitter {
             )
         ]
         // level 3 repeaters; create if depth 5
-        [ M>=5 & M>M_STOP -> repeaters::REPEATERS_M<3, N> rep_3[n_rep[3]];
+        [ M_IDX>=4 & M_STOP<=3 -> repeaters::REPEATERS_M<3, N> rep_3[n_rep[3]];
             (; n : n_rep[3] :
                 rep_3[n].g = g;
                 rep_3[n].phi_pm = phi_pm[base_idx[3]+n];
@@ -613,7 +615,7 @@ namespace transmitter {
             )
         ]
         // level 2 repeaters; create if depth 4
-        [ M>=4 & M>M_STOP -> repeaters::REPEATERS_M<2, N> rep_2[n_rep[2]];
+        [ M_IDX>=3 & M_STOP<=2 -> repeaters::REPEATERS_M<2, N> rep_2[n_rep[2]];
             (; n : n_rep[2] :
                 rep_2[n].g = g;
                 rep_2[n].phi_pm = phi_pm[base_idx[2]+n];
@@ -624,8 +626,8 @@ namespace transmitter {
                 rep_2[n].data_mc = data_mc[base_idx[2]+n];
             )
         ]
-        // level 1 repeaters; create if depth 6
-        [ M>=3 & M>M_STOP -> repeaters::REPEATERS_M<1, N> rep_1[n_rep[1]];
+        // level 1 repeaters; create if depth 3
+        [ M_IDX>=2 & M_STOP<=1 -> repeaters::REPEATERS_M<1, N> rep_1[n_rep[1]];
             (; n : n_rep[1] :
                 rep_1[n].g = g;
                 rep_1[n].phi_pm = phi_pm[base_idx[1]+n];
@@ -636,8 +638,8 @@ namespace transmitter {
                 rep_1[n].data_mc = data_mc[base_idx[1]+n];
             )
         ]
-        // level 0 repeaters; create if depth 6
-        [ M>=2 & M>M_STOP -> repeaters::REPEATERS_M<0, N> rep_0[n_rep[0]];
+        // level 0 repeaters; create if depth 2
+        [ M_IDX>=1 & M_STOP<=0 -> repeaters::REPEATERS_M<0, N> rep_0[n_rep[0]];
             (; n : n_rep[0] :
                 rep_0[n].g = g;
                 rep_0[n].phi_pm = phi_pm[base_idx[0]+n];
@@ -707,7 +709,7 @@ defproc AEXT (globals g; bool xp[NN], xa[NN], pe, pp; c1of<N> p) {
     transmitter::REPEATER_M_TREE<M, N, N_LINK, 0> repeaters_mid(g,,,,,,);
     repeaters_mid.phi_pm[0]    = pp;
     repeaters_mid.enable_pm[0] = pe;
-    repeaters_mid.data_pm[0]      = p;
+    repeaters_mid.data_pm[0]   = p;
 
     pint LEAF_BASE_IDX = N_NODE; // = N_LINK - N_LEAF
     (; n : N_LEAF :
@@ -740,7 +742,7 @@ defproc AEXT (globals g; bool xp[NN], xa[NN], pe, pp; c1of<N> p) {
 export
 template <pint M, p4M>
 defproc AEXT_TO_TILE (globals g;
-    bool _cp[p4M/16], ce[p4M/16]; c1of<4> _c[p4M/16];
+    bool cp[p4M/16], ce[p4M/16]; c1of<4> c[p4M/16];
     bool pe, pp; c1of<4> p)
     // AEXT tree above the TILE (in logic space)
     // contains all but the lowest level intermediate NODEs
@@ -752,11 +754,10 @@ defproc AEXT_TO_TILE (globals g;
     // TILE contains the LEAFs and the lowest level NODEs
 
     // These are the number of nodes logically above the TILE
-    pint N_NODE_INT = (p4M/N/N/N-1) / (N-1);
-    pint N_NODE_LEAF = p4M/N/N/N;
-    pint N_NODE = N_NODE_INT + N_NODE_LEAF;
+    pint N_NODE = (p4M/N/N-1) / (N-1); // NODEs above TILEs
+    pint N_NODE_TILE = p4M/N/N; // NODEs in TILEs
     
-    pint N_LINK = N_NODE + N_NODE_LEAF*N;
+    pint N_LINK = N_NODE + N_NODE_TILE;
 
     transmitter::REPEATER_M_TREE<M, N, N_LINK, 1> repeaters_mid(g,,,,,,);
     // connect to root ports
@@ -767,9 +768,9 @@ defproc AEXT_TO_TILE (globals g;
     // connect to leaf ports
     pint BASE_REP_IDX = N_NODE;
     (; n : BASE_REP_IDX..N_LINK-1 :
-        repeaters_mid.phi_mc[n] = _cp[n-BASE_REP_IDX];
+        repeaters_mid.phi_mc[n] = cp[n-BASE_REP_IDX];
         repeaters_mid.enable_mc[n] = ce[n-BASE_REP_IDX];
-        repeaters_mid.data_mc[n] = _c[n-BASE_REP_IDX];
+        repeaters_mid.data_mc[n] = c[n-BASE_REP_IDX];
     )
 
     [ M>2 ->
@@ -794,12 +795,12 @@ namespace brain_transmitter {
     export
     template <pint M, N>
     defproc AEXT_INT (globals g;
-                      bool aext__pp, aext_pe; c1of<N> aext__p;
-                      eMx1ofN<M, N> y_spk)
-    {
+        bool aext__pp, aext_pe; c1of<N> aext__p;
+        eMx1ofN<M, N> y_spk)
         // interface between transmitter and the datapath
         // M tree levels 
         // N radix of tree (N^M neurons)
+    {
         ::aer::transmitter::TOP_INT<M, N>
             top_int(g, aext__pp,, aext_pe,, aext__p,);
         ::aer::interface::OUT_a1ofN<N>

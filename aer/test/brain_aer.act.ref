@@ -1,9 +1,9 @@
 // Tests the braindrop / brainstorm AER system
 import "aer/aer/aer.act";
 import "aer/lib/test.act";
-pint M=2;
-pint p4M=16; // = 4^M
-pint p2M=4; // = 2^M
+pint M=3;
+pint p4M=64; // = 4^M
+pint p2M=8; // = 2^M
 pint M_AERV_MEM=M+3;
 #SCRIPT pint tile_i[p4M/16];
 #SCRIPT pint tile_j[p4M/16];
