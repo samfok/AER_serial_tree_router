@@ -453,7 +453,10 @@ namespace transmitter {
             rep_p[n].data_pm = c[n];
         )
 
-        repeaters::REPEATERS_C<M_idx, N> rep_c(g, pp,, pe,, p,);
+        repeaters::REPEATERS_C<M_idx, N> rep_c(g,,,,,,);
+        rep_c.phi_mc = pp;
+        rep_c.enable_mc = pe;
+        rep_c.data_mc = p;
 
         NODE_<N> _(g,,,,,,);
         (; n : N :
@@ -563,6 +566,8 @@ namespace transmitter {
         // N radix of tree
         // N_LINK number of repeater links
         // M_STOP [0-5] 0-indexed bottom level of tree
+        // Does not include the root level mid-level repeater
+        //     which is provided by TOP_INT
     {
         [M>6 | M<1 -> 1=0;]  // assert false
         [M_STOP>5 | M_STOP<0 -> 1=0;]  // assert false
@@ -577,20 +582,14 @@ namespace transmitter {
             base_idx[M-2-m] = base_idx[M-1-m]+n_rep[M-1-m];
         )
 
-        // level 5 repeaters
-        [ M>=6 & M>M_STOP -> repeaters::REPEATERS_M<5, N> rep_5[n_rep[5]];
-            (; n : n_rep[5] :
-                rep_5[n].g = g;
-                rep_5[n].phi_pm = phi_pm[base_idx[5]+n];
-                rep_5[n].phi_mc = phi_mc[base_idx[5]+n];
-                rep_5[n].enable_pm = enable_pm[base_idx[5]+n];
-                rep_5[n].enable_mc = enable_mc[base_idx[5]+n];
-                rep_5[n].data_pm = data_pm[base_idx[5]+n];
-                rep_5[n].data_mc = data_mc[base_idx[5]+n];
-            )
-        ]
-        // level 4 repeaters
-        [ M>=5 & M>M_STOP -> repeaters::REPEATERS_M<4, N> rep_4[n_rep[4]];
+        // skip root node, which will live in TOP_INT
+        phi_mc[0] = phi_pm[0];
+        enable_mc[0] = enable_pm[0];
+        data_mc[0] = data_pm[0];
+
+        // level 5 repeaters never get created (provided by TOP_INT)
+        // level 4 repeaters; create if depth 6
+        [ M>=6 & M>M_STOP -> repeaters::REPEATERS_M<4, N> rep_4[n_rep[4]];
             (; n : n_rep[4] :
                 rep_4[n].g = g;
                 rep_4[n].phi_pm = phi_pm[base_idx[4]+n];
@@ -601,8 +600,8 @@ namespace transmitter {
                 rep_4[n].data_mc = data_mc[base_idx[4]+n];
             )
         ]
-        // level 3 repeaters
-        [ M>=4 & M>M_STOP -> repeaters::REPEATERS_M<3, N> rep_3[n_rep[3]];
+        // level 3 repeaters; create if depth 5
+        [ M>=5 & M>M_STOP -> repeaters::REPEATERS_M<3, N> rep_3[n_rep[3]];
             (; n : n_rep[3] :
                 rep_3[n].g = g;
                 rep_3[n].phi_pm = phi_pm[base_idx[3]+n];
@@ -613,8 +612,8 @@ namespace transmitter {
                 rep_3[n].data_mc = data_mc[base_idx[3]+n];
             )
         ]
-        // level 2 repeaters
-        [ M>=3 & M>M_STOP -> repeaters::REPEATERS_M<2, N> rep_2[n_rep[2]];
+        // level 2 repeaters; create if depth 4
+        [ M>=4 & M>M_STOP -> repeaters::REPEATERS_M<2, N> rep_2[n_rep[2]];
             (; n : n_rep[2] :
                 rep_2[n].g = g;
                 rep_2[n].phi_pm = phi_pm[base_idx[2]+n];
@@ -625,8 +624,8 @@ namespace transmitter {
                 rep_2[n].data_mc = data_mc[base_idx[2]+n];
             )
         ]
-        // level 1 repeaters
-        [ M>=2 & M>M_STOP -> repeaters::REPEATERS_M<1, N> rep_1[n_rep[1]];
+        // level 1 repeaters; create if depth 6
+        [ M>=3 & M>M_STOP -> repeaters::REPEATERS_M<1, N> rep_1[n_rep[1]];
             (; n : n_rep[1] :
                 rep_1[n].g = g;
                 rep_1[n].phi_pm = phi_pm[base_idx[1]+n];
@@ -637,8 +636,8 @@ namespace transmitter {
                 rep_1[n].data_mc = data_mc[base_idx[1]+n];
             )
         ]
-        // level 0 repeaters
-        [ M>=1 & M>M_STOP -> repeaters::REPEATERS_M<0, N> rep_0[n_rep[0]];
+        // level 0 repeaters; create if depth 6
+        [ M>=2 & M>M_STOP -> repeaters::REPEATERS_M<0, N> rep_0[n_rep[0]];
             (; n : n_rep[0] :
                 rep_0[n].g = g;
                 rep_0[n].phi_pm = phi_pm[base_idx[0]+n];
@@ -658,14 +657,20 @@ namespace transmitter {
         bool x_enable, y_enable;
         c1of<N> x_data, y_data)
         // interface at the top of the AEXT tree
-        // converts between active low and high senses
+        // includes the mid and parent-level repeaters above the last NODE
     {
+        repeaters::REPEATERS_M<M-1, N> rep_m(g,,,,,,);
+        x_phi = rep_m.phi_mc;
+        x_enable = rep_m.enable_mc;
+        x_data = rep_m.data_mc;
+
         repeaters::REPEATERS_P<M-1, N> rep_p(g,,,,,,);
-        x_phi = rep_p.phi_pm;
-        x_enable = rep_p.enable_pm;
-        x_data = rep_p.data_pm;
+        rep_m.phi_pm = rep_p.phi_pm;
+        rep_m.enable_pm = rep_p.enable_pm;
+        rep_m.data_pm = rep_p.data_pm;
 
         rep_p.p_ce = y_enable;
+        // convert from active low to active high
         prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
             ~rep_p.p__cp<9> -> y_phi+
             rep_p.p__cp<6> -> y_phi-
@@ -702,7 +707,8 @@ defproc AEXT (globals g; bool xp[NN], xa[NN], pe, pp; c1of<N> p) {
     transmitter::REPEATER_M_TREE<M, N, N_LINK, 0> repeaters_mid(g,,,,,,);
     repeaters_mid.phi_pm[0]    = pp;
     repeaters_mid.enable_pm[0] = pe;
-    repeaters_mid.data_pm[0]   = p;
+    repeaters_mid.data_pm[0]      = p;
+
     pint LEAF_BASE_IDX = N_NODE; // = N_LINK - N_LEAF
     (; n : N_LEAF :
         leaf[n]._pp = repeaters_mid.phi_mc[LEAF_BASE_IDX+n];
@@ -714,6 +720,7 @@ defproc AEXT (globals g; bool xp[NN], xa[NN], pe, pp; c1of<N> p) {
         NN = N; // assert
     [] M > 1 ->
         transmitter::NODE_TREE<M-1, N, N_NODE, 0> node(g,,,,,,);
+
         (; n : N_NODE :
             node.pp[n] = repeaters_mid.phi_mc[n];
             node.pe[n] = repeaters_mid.enable_mc[n];
@@ -748,36 +755,39 @@ defproc AEXT_TO_TILE (globals g;
     pint N_NODE_INT = (p4M/N/N/N-1) / (N-1);
     pint N_NODE_LEAF = p4M/N/N/N;
     pint N_NODE = N_NODE_INT + N_NODE_LEAF;
+    
+    pint N_LINK = N_NODE + N_NODE_LEAF*N;
 
-    // transmitter::REPEATER_M_TREE<M, N, N_LINK> repeaters_mid(g,,,,,,);
-    // repeaters_mid.phi_pm[0]    = pp;
-    // repeaters_mid.enable_pm[0] = pe;
-    // repeaters_mid.data_pm[0]   = p;
-    // pint LEAF_BASE_IDX = N_NODE; // = N_LINK - N_LEAF
-    // (; n : N_LEAF :
-    //     leaf[n]._pp = repeaters_mid.phi_mc[LEAF_BASE_IDX+n];
-    //     leaf[n].pe  = repeaters_mid.enable_mc[LEAF_BASE_IDX+n];
-    //     leaf[n]._p  = repeaters_mid.data_mc[LEAF_BASE_IDX+n];
-    // )
+    transmitter::REPEATER_M_TREE<M, N, N_LINK, 1> repeaters_mid(g,,,,,,);
+    // connect to root ports
+    repeaters_mid.phi_pm[0]    = pp;
+    repeaters_mid.enable_pm[0] = pe;
+    repeaters_mid.data_pm[0]   = p;
 
-    // [ M = 1 ->
-    //     NN = N; // assert
-    // [] M > 1 ->
-    //     transmitter::NODE_TREE<M-1, N, N_NODE> node(g,,,,,,);
-    //     (; n : N_NODE :
-    //         node.pp[n] = repeaters_mid.phi_mc[n];
-    //         node.pe[n] = repeaters_mid.enable_mc[n];
-    //         node.p[n] = repeaters_mid.data_mc[n];
-    //     )
+    // connect to leaf ports
+    pint BASE_REP_IDX = N_NODE;
+    (; n : BASE_REP_IDX..N_LINK-1 :
+        repeaters_mid.phi_mc[n] = _cp[n-BASE_REP_IDX];
+        repeaters_mid.enable_mc[n] = ce[n-BASE_REP_IDX];
+        repeaters_mid.data_mc[n] = _c[n-BASE_REP_IDX];
+    )
 
-    //     (; node_idx : N_NODE :
-    //         (; n : N :
-    //             repeaters_mid.phi_pm[node_idx*N+n+1] = node.cp[node_idx][n];
-    //             repeaters_mid.enable_pm[node_idx*N+n+1] = node.ce[node_idx][n];
-    //             repeaters_mid.data_pm[node_idx*N+n+1] =  node.c[node_idx][n];
-    //         )
-    //     )
-    // ]
+    [ M>2 ->
+        transmitter::NODE_TREE<M-1, N, N_NODE, 1> node(g,,,,,,);
+        (; n : N_NODE :
+            node.pp[n] = repeaters_mid.phi_mc[n];
+            node.pe[n] = repeaters_mid.enable_mc[n];
+            node.p[n] = repeaters_mid.data_mc[n];
+        )
+
+        (; node_idx : N_NODE :
+            (; n : N :
+                repeaters_mid.phi_pm[node_idx*N+n+1] = node.cp[node_idx][n];
+                repeaters_mid.enable_pm[node_idx*N+n+1] = node.ce[node_idx][n];
+                repeaters_mid.data_pm[node_idx*N+n+1] =  node.c[node_idx][n];
+            )
+        )
+    ]
 }
 
 namespace brain_transmitter {
