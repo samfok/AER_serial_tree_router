@@ -316,19 +316,11 @@ namespace transmitter {
                 [M_idx<0 | M_idx>=Mmax -> 0=1;] // assert false
                 pint S[Mmax][3], C[Mmax][3];
                 // sizing per repeater per stage (bottom to top in tree)
-                S = {{0, 0, 0 },
-                     {0, 0, 0 },
-                     {0, 0, 0 },
-                     {1, 5, 25},
-                     {1, 5, 25},
-                     {1, 5, 25}};
+                S = {{0, 0, 0 }, {0, 0, 0 }, {0, 0, 0 },
+                     {1, 5, 25}, {1, 5, 25}, {1, 5, 25}};
                 // cap per repeater per stage (bottom to top in tree)
-                C = {{0, 0, 0  },
-                     {0, 0, 0  },
-                     {0, 0, 0  },
-                     {4, 4, 64 },
-                     {4, 4, 192},
-                     {4, 4, 192}};
+                C = {{0, 0, 0  }, {0, 0, 0  }, {0, 0, 0  },
+                     {4, 4, 64 }, {4, 4, 192}, {4, 4, 192}};
 
                 [ M_idx < 3 ->
                     phi_pm = phi_mc; 
@@ -344,9 +336,8 @@ namespace transmitter {
 
             export
             template <pint M_idx>
-            defproc REPEATERS_M_ENABLE(globals g; bool enable_pm, enable_mc)
+            defproc REPEATERS_M_ENABLE(globals g; bool enable_pm, enable_mc) {
                 // Repeaters grouped in the dedicated repeaters cutout
-            {
                 pint Mmax = 6; // max AEXT NODE tree level
                 [M_idx<0 | M_idx>=Mmax -> 0=1;] // assert false
                 pint S[Mmax][2], C[Mmax][2];
@@ -381,6 +372,7 @@ namespace transmitter {
             bool phi_pm, phi_mc; 
             bool enable_pm, enable_mc; 
             c1of<N> data_pm, data_mc)
+            // Repeaters grouped in the dedicated repeaters cutout
         {
             mid::REPEATERS_M_PHI_DATA<M_idx, N>
                 repeaters_m_phi_data(g, phi_pm, phi_mc, data_pm, data_mc);
@@ -461,8 +453,8 @@ namespace transmitter {
         NODE_<N> _(g,,,,,,);
         (; n : N :
             _._cp[n] = rep_p[n].p__cp;
-            _.ce[n] = rep_p[n].p_ce;
-            _._c[n] = rep_p[n].p__c;
+            _.ce[n]  = rep_p[n].p_ce;
+            _._c[n]  = rep_p[n].p__c;
         )
         _._pp = rep_c.c__pp;
         _.pe  = rep_c.c_pe;
@@ -474,11 +466,11 @@ namespace transmitter {
     defproc NODE_TREE(globals g;
         bool cp[N_NODE][N], ce[N_NODE][N]; c1of<N> c[N_NODE][N];
         bool pp[N_NODE],    pe[N_NODE];    c1of<N> p[N_NODE]) 
-        // tree of NODE_w_REPEATERS
+        // tree of NODE
         // M_NODE [1-5] depth of tree (depth of AEXT tree - 1)
         // N radix of tree
         // N_NODE number of nodes
-        // M_STOP [0-5] 0-indexed bottom level of tree
+        // M_STOP [0-4] 0-indexed bottom level of tree
     {
         [M_NODE>5 | M_NODE<1 -> 1=0;]  // assert false
         [M_STOP>4 | M_STOP<0 -> 1=0;]  // assert false
@@ -602,7 +594,7 @@ namespace transmitter {
                 rep_4[n].data_mc = data_mc[base_idx[4]+n];
             )
         ]
-        // level 3 repeaters; create if depth 5
+        // level 3 repeaters; create if depth 5 or more
         [ M_IDX>=4 & M_STOP<=3 -> repeaters::REPEATERS_M<3, N> rep_3[n_rep[3]];
             (; n : n_rep[3] :
                 rep_3[n].g = g;
@@ -614,7 +606,7 @@ namespace transmitter {
                 rep_3[n].data_mc = data_mc[base_idx[3]+n];
             )
         ]
-        // level 2 repeaters; create if depth 4
+        // level 2 repeaters; create if depth 4 or more
         [ M_IDX>=3 & M_STOP<=2 -> repeaters::REPEATERS_M<2, N> rep_2[n_rep[2]];
             (; n : n_rep[2] :
                 rep_2[n].g = g;
@@ -626,7 +618,7 @@ namespace transmitter {
                 rep_2[n].data_mc = data_mc[base_idx[2]+n];
             )
         ]
-        // level 1 repeaters; create if depth 3
+        // level 1 repeaters; create if depth 3 or more
         [ M_IDX>=2 & M_STOP<=1 -> repeaters::REPEATERS_M<1, N> rep_1[n_rep[1]];
             (; n : n_rep[1] :
                 rep_1[n].g = g;
@@ -638,7 +630,7 @@ namespace transmitter {
                 rep_1[n].data_mc = data_mc[base_idx[1]+n];
             )
         ]
-        // level 0 repeaters; create if depth 2
+        // level 0 repeaters; create if depth 2 or more
         [ M_IDX>=1 & M_STOP<=0 -> repeaters::REPEATERS_M<0, N> rep_0[n_rep[0]];
             (; n : n_rep[0] :
                 rep_0[n].g = g;

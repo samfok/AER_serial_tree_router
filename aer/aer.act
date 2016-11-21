@@ -8,7 +8,7 @@ namespace aer {
 
 export
 template <pint M, N, NN>
-defproc AER_NODATA (globals g; bool xp[NN], xa[NN], ye[NN], yp[NN]) {
+defproc AER_NODATA (globals g; bool xp[NN], xa[NN], ye[NN], yp[NN])
     // address-event representation tranceiver
     // no data sent to receiving neuron
     // packets are serialized 
@@ -16,19 +16,19 @@ defproc AER_NODATA (globals g; bool xp[NN], xa[NN], ye[NN], yp[NN]) {
     // M groups
     // N items per group
     // NN=N^M
+{
     AEXT<M, N, NN> aext(g, xp, xa,,,);
     transmitter::TOP_INT<M, N>
         top_int_aext(g, aext.pp,, aext.pe,, aext.p,);
-    interface::OUT_a1ofN<N>
-        out(g, top_int_aext.y_phi, top_int_aext.y_enable, 
-            top_int_aext.y_data,);
+    interface::OUT_a1ofN<N> out(g,
+        top_int_aext.y_phi, top_int_aext.y_enable, top_int_aext.y_data,
+    );
     interface::DESERIAL_RING<M, N, false, true> deserial(g, out.y,,);
     interface::SERIAL_RING<M, N> serial(g, deserial.y,,,);
-    receiver::TOP_INT<N>
-        top_int_aerv(g, serial.yp,,,serial.ye, serial.y,);
-
+    receiver::TOP_INT<M, N>
+        top_int_aerv(g, serial.yp,, serial.ye,, serial.y,);
     AERV_NODATA<M, N, NN> aerv(g, ye, yp,
-        top_int_aerv._y_phi, top_int_aerv._x_enable, top_int_aerv.y_data);
+        top_int_aerv.y_phi, top_int_aerv.y_enable, top_int_aerv.y_data);
 }
 
 namespace brain_aer {

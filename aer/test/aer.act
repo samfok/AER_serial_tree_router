@@ -1,8 +1,8 @@
 // Tests the serial tree AER system
 import "aer/aer/aer.act";
 pint M=1;
-pint N=4;
-pint NN=4; // NN=N^M
+pint N=2;
+pint NN=2; // NN=N^M
 aer::globals g;
 aer::SOURCE_random_a1of1 src[NN];
 aer::passive_handshaker<NN> y(g,,);
