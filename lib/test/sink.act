@@ -7,8 +7,8 @@ pint NN=8; // NN=N^M
 aer::globals g;
 aer::active_handshaker<NN> a(g,,);
 aer::AEXT<M, N, NN> aext(g,, a.i,,,);
-aer::transmitter::TOP_INT<N> aext_int(g, aext._pp,,, aext.pe, aext._p,);
+aer::transmitter::TOP_INT<M, N> aext_int(g, aext.pp,, aext.pe,, aext.p,);
 
 aer::test::SINK_SERIAL<N>
-    snk(g, aext_int.y_phi, aext_int.x_enable, aext_int.y_data);
+    snk(g, aext_int.y_phi, aext_int.y_enable, aext_int.y_data);
 (; nn : NN : a.o[nn] = aext.xp[nn];)

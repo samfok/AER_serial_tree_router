@@ -907,7 +907,7 @@ namespace brain_receiver {
         ::aer::interface::SERIAL_MERGE<2, D> merge(
             g, merge_xp, merge_xe,,, merge_x,);
 
-        ::aer::receiver::TOP_INT<M_SPK, D> aerv_conv(g,
+        ::aer::receiver::TOP_INT<M_SPK-1, D> aerv_conv(g,
             merge.yp, aerv__pp,
             merge.ye, aerv__pe,
             merge.y, aerv_p
