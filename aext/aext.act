@@ -287,7 +287,7 @@ namespace transmitter {
             [ M_idx=0 | M_idx>2 ->
                 phi_pm = p__cp;
                 data_pm = p__c;
-                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {} // HACK so netgen -B doesn't complain
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {} // HACK to appease netgen -B
             [] M_idx>0 & M_idx <= 2 ->
                 REPEATER_BOOL<1, {S_p_d[M_idx][0]}, {C_p_d[M_idx][0]}>
                     repeaters_phi(g, phi_pm, p__cp);
@@ -298,6 +298,7 @@ namespace transmitter {
             // enable line
             [ M_idx = 0 ->
                 enable_pm = p_ce;
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {} // HACK to appease netgen -B
             [] M_idx > 0 ->
                 REPEATER_BOOL<2, S_e[M_idx][0..1], C_e[M_idx][0..1]>
                     repeaters_enable(g, p_ce, enable_pm);
@@ -325,7 +326,7 @@ namespace transmitter {
                 [ M_idx < 3 ->
                     phi_pm = phi_mc; 
                     data_pm = data_mc;
-                    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {} // HACK so netgen -B doesn't complain
+                    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {} // HACK to appease netgen -B
                 [] M_idx >= 3 ->
                     REPEATER_BOOL<3, S[M_idx][0..2], C[M_idx][0..2]>
                       repeaters_phi(g, phi_mc, phi_pm);
@@ -358,7 +359,7 @@ namespace transmitter {
     
                 [ M_idx < 3 ->
                     enable_pm = enable_mc; 
-                    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {} // HACK so netgen -B doesn't complain
+                    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {} // HACK to appease netgen -B
                 [] M_idx >= 3 ->
                     REPEATER_BOOL<2, S[M_idx][0..1], C[M_idx][0..1]>
                         repeaters_en(g, enable_pm, enable_mc);
@@ -399,6 +400,7 @@ namespace transmitter {
             [ M_idx=0 ->
                 phi_mc = c__pp;
                 data_mc = c__p;
+                prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {} // HACK to appease netgen -B
             [] M_idx>0 ->
                 REPEATER_BOOL<1, {S_p_d[M_idx]}, {C_p_d[M_idx][0]}>
                     repeaters_phi(g, c__pp, phi_mc);
@@ -641,6 +643,10 @@ namespace transmitter {
                 rep_0[n].data_pm = data_pm[base_idx[0]+n];
                 rep_0[n].data_mc = data_mc[base_idx[0]+n];
             )
+        ]
+
+        [ M_IDX<=M_STOP ->
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {} // HACK to appease netgen -B
         ]
     }
 

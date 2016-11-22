@@ -1,40 +1,10 @@
 // defines a transmitter/receiver for 16 neurons and 4 synapses
 import "aer/aer/aer.act";
 
-defproc TILE_AER(aer::globals g;
-                 bool _aext__pp, aext_pe; aer::c1of<4> _aext__p;
-                 bool aerv__pp, __aerv__pe; aer::c1of<4> aerv_p;
-                 bool nrn_req[16], nrn_ack[16];
-                 aer::a1of2 syn_spk[4]; aer::aMx1of4<4> _mem; bool _pchg) {
-    pint N = 4;
-
-    aer::brain_aer::TILE_AER<false>
-        tile(g,,,,,,, nrn_req, nrn_ack, syn_spk, _mem, _pchg);
-    aer::transmitter::repeaters::REPEATERS_C<0, N> aext_tile_repeaters;
-    aer::receiver::repeaters::REPEATERS_C<0, N> aerv_tile_repeaters;
-
-    aext_tile_repeaters.g = g;
-    aerv_tile_repeaters.g = g;
-
-    tile.aext__pp = aext_tile_repeaters.c__pp;
-    tile.aext_pe  = aext_tile_repeaters.c_pe;
-    tile.aext__p  = aext_tile_repeaters.c__p;
-    aext_tile_repeaters.phi_mc    = _aext__pp;
-    aext_tile_repeaters.enable_mc = aext_pe;
-    aext_tile_repeaters.data_mc   = _aext__p;
-
-    tile.aerv__pp = aerv_tile_repeaters.c__pp;
-    tile.aerv__pe = aerv_tile_repeaters.c__pe;
-    tile.aerv_p   = aerv_tile_repeaters.c_p;
-    aerv_tile_repeaters.phi_mc    = aerv__pp;
-    aerv_tile_repeaters.enable_mc = __aerv__pe;
-    aerv_tile_repeaters.data_mc   = aerv_p;
-}
-
 export defproc Wrapper(aer::globals g)
 {
-    TILE_AER tile_aer;
-    tile_aer.g = g;
+    aer::brain_aer::TILE_AER<false> tile;
+    tile.g = g;
 }
 
 Wrapper dut;

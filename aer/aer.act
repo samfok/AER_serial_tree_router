@@ -120,9 +120,9 @@ namespace brain_aer {
         }
     }
 
+
     export
-    template <pint M, p4M, p2M; pint tile_i[p4M/16], tile_j[p4M/16];
-              pbool unit_aext>
+    template <pint M, p4M, p2M; pint tile_i[p4M/16], tile_j[p4M/16]; pbool unit_aext>
     defproc NRN_AER (
         globals_w_analog ga;
         bool aext_nrn_req[p4M], aext_nrn_ack[p4M];
@@ -283,7 +283,7 @@ namespace brain_aer {
             tile_aer[n]._mem = aerv__mem[n];
         )
     }
-}
+} // namespace brain_aer
 
 export
 template <pint M, p4M, p2M; pint tile_i[p4M/16], tile_j[p4M/16];

@@ -21,7 +21,8 @@ export defproc Wrapper(aer::globals_np g_np)
 
     pint M_1of4 = 6;
     pint M_1of2 = M_1of4*2;
-    pint NN = 4096;
+    pint p4M = 4096;
+    pint p2M = 64;
     BS_AER<M_1of2, M_1of4, NN> aer(g,,,,,,,);
 }
 
