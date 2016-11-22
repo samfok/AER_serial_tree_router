@@ -10,13 +10,14 @@ import "aer/lib/compat_bs.act";
 export
 template <pint M_SPK_1of2, M_MEM_1of2>
 defproc BS_AERV_INT (globals g_bs;
-                     aer::eMx1of2<M_SPK_1of2> x_spk;
-                     aer::eMx1of2<M_MEM_1of2> x_mem;
-                     bool aerv__pp, aerv__pe; aer::c1of<4> aerv_p) {
+    aer::eMx1of2<M_SPK_1of2> x_spk; aer::eMx1of2<M_MEM_1of2> x_mem;
+    bool aerv__pp, aerv__pe; aer::c1of<4> aerv_p)
     // modified interface between datapath and receiver that uses the
     // serializer defined in the brainstorm repository
     // merges input spike and input memory packet streams
+{
     pint D = 4; // 1-of-D data
+    pint M_SPK_1of4 = M_SPK_1of2/2;
     aer::globals g;
     compat_bs::globals g_compat(g, g_bs);
 
@@ -41,16 +42,16 @@ defproc BS_AERV_INT (globals g_bs;
     aer::interface::SERIAL_MERGE<2, D> merge(
         g, merge_xp, merge_xe,,, merge_x,);
 
-    aer::receiver::TOP_INT<D> aerv_conv(g, merge.yp, aerv__pp,
-                                        aerv__pe, merge.ye,
-                                        merge.y, aerv_p);
+    aer::receiver::TOP_INT<M_SPK_1of4-1, D> aerv_conv(g,
+        merge.yp, aerv__pp, merge.ye, aerv__pe, merge.y, aerv_p
+    );
 }
 
 export
 template <pint M_1of2, M_1of4, p4M, M_SPK_1of2, M_SPK_1of4, M_MEM_1of2, M_MEM_1of4, N_SYN, N_MEM>
-defproc BS_AERV (globals g_bs; aer::eMx1of2<M_SPK_1of2> x_spk; 
-                    aer::eMx1of2<M_MEM_1of2> x_mem;
-                    aer::a1of2 y_syn[N_SYN]; aer::aMx1of4<M_MEM_1of4-M_1of4> _y_mem[N_MEM]) {
+defproc BS_AERV (globals g_bs;
+    aer::eMx1of2<M_SPK_1of2> x_spk; aer::eMx1of2<M_MEM_1of2> x_mem;
+    aer::a1of2 y_syn[N_SYN]; aer::aMx1of4<M_MEM_1of4-M_1of4> _y_mem[N_MEM])
     // modified braindrop / brainstorm receiver system that uses
     // the serializer defined in the brainstorm repository
     // M tree depth
@@ -67,6 +68,7 @@ defproc BS_AERV (globals g_bs; aer::eMx1of2<M_SPK_1of2> x_spk;
     //     N_SYN = 4^M_1of4 = 1024 in production
     // N_MEM configuration memories
     //     N_MEM = 4^(M_1of4-1) = 256 in production
+{
     M_1of4*2 = M_1of2; // assert
     M_SPK_1of4*2 = M_SPK_1of2; //assert
     M_MEM_1of4*2 = M_MEM_1of2; // assert
