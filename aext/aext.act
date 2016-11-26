@@ -228,7 +228,7 @@ namespace transmitter {
         ]
     }
 
-    namespace repeaters {
+    namespace repeaters
         // Repeater and Node Structure:
         //     LEAF -> REPEATERS_C<0> ->
         //         REPEATERS_M<0> ->
@@ -262,6 +262,7 @@ namespace transmitter {
         // | node[0] -- node[1]    | {5, 1}         | {32, 4}         |
         // | leaf    -- node[0]    |                |                 |
         // *----------------------------------------------------------*
+    {
         export
         template <pint M_idx, N>
         defproc REPEATERS_P(globals g;
@@ -434,10 +435,10 @@ namespace transmitter {
     defproc NODE (
         globals g; bool cp[N], ce[N], pe, pp; c1of<N> c[N], p)
         // NODE with repeaters placed in the same physical tile
-        // M_idx [1-6] level in AEXT tree of NODE
+        // M_idx [1-5] level in AEXT tree of NODE
         // N radix of AEXT (N=4 in production)
     {
-        [M_idx<1 | M_idx>6 -> 0=1;] // assert false
+        [M_idx<1 | M_idx>5 -> 0=1;] // assert false
 
         repeaters::REPEATERS_P<M_idx-1, N> rep_p[N];
         (; n : N :

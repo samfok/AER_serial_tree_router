@@ -486,9 +486,10 @@ namespace receiver {
     template <pint M_IDX, N>
     defproc NODE (globals g; bool _pp, _pe, _ce[N], _cp[N]; c1of<N> p, c[N]) 
         // NODE with repeaters in the same physical tile
+        // M_idx [1-4] level in AERV tree of NODE
         // N fanout (radix)
     {
-        [M_IDX<1 | M_IDX>5 -> 0=1;] // assert false
+        [M_IDX<1 | M_IDX>4 -> 0=1;] // assert false
         repeaters::REPEATERS_P<M_IDX-1, N> rep_p[N];
         (; n : N :
             rep_p[n].g = g;

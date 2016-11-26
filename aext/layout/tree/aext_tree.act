@@ -1,0 +1,140 @@
+// This file is used for generating schematics for:
+// the AEXT NODEs laid out in the TILE cutout region
+// the AEXT repeater clusters laid out in the TILE cutout region
+import "aer/aext/aext.act";
+
+defproc AEXT_NODE_2_3(aer::globals g;
+    bool __pp, pe; aer::c1of<4> __p;
+    bool __cp[4], __ce[4]; aer::c1of<4> __c[4])
+    // Make a level 2/3 NODE, the biggest kind of the NODE of the AEXT tree
+    // Levels range from 0 to 5
+{
+    pint M_idx = 2;
+    pint N = 4;
+    aer::transmitter::NODE<M_idx, N> node;
+    node.g = g;
+
+    node.cp = __cp;
+    node.ce = __ce;
+    node.c = __c;
+
+    node.pp = __pp;
+    node.pe = pe;
+    node.p = __p;
+}
+
+defproc AEXT_NODE_4_5(aer::globals g;
+    bool __pp, pe; aer::c1of<4> __p;
+    bool _cp[4], __ce[4]; aer::c1of<4> _c[4])
+    // Make a level 4/5 NODE, the 2 highest NODEs in the AEXT tree,
+    // Levels range from 0 to 5
+{
+    pint M_idx = 4;
+    pint N = 4;
+    aer::transmitter::NODE<M_idx, N> node;
+    node.g = g;
+
+    node.cp = _cp;
+    node.ce = __ce;
+    node.c = _c;
+
+    node.pp = __pp;
+    node.pe = pe;
+    node.p = __p;
+}
+
+defproc AEXT_MID_REPEATERS_3(aer::globals g;
+    bool phi_pm[2], phi_mc[2];
+    bool enable_pm[2], enable_mc[2];
+    aer::c1of<4> data_pm[2], data_mc[2])
+    // Level 3 REPEATER cluster
+    // Levels range from 0 to 5
+{
+    pint M_idx = 3;
+    pint N = 4;
+    aer::transmitter::repeaters::REPEATERS_M<M_idx, N> repeaters_mid[2];
+
+    (; m : 2 :
+        repeaters_mid[m].g = g;
+
+        repeaters_mid[m].phi_pm = phi_pm[m];
+        repeaters_mid[m].phi_mc = phi_mc[m];
+
+        repeaters_mid[m].enable_pm = enable_pm[m];
+        repeaters_mid[m].enable_mc = enable_mc[m];
+
+        repeaters_mid[m].data_pm = data_pm[m];
+        repeaters_mid[m].data_mc = data_mc[m];
+    )
+}
+
+defproc AEXT_MID_REPEATERS_PHI_DATA_4_5(aer::globals g;
+    bool phi_pm, phi_mc; aer::c1of<4> data_pm, data_mc)
+    // Level 4/5 REPEATER cluster for phi and data
+    // Levels range from 0 to 5
+{
+    pint M_idx = 4;
+    pint N = 4;
+    aer::transmitter::repeaters::mid::REPEATERS_M_PHI_DATA<M_idx, N>
+        repeaters_mid_phi_data;
+
+    repeaters_mid_phi_data.g = g;
+
+    repeaters_mid_phi_data.phi_pm = phi_pm;
+    repeaters_mid_phi_data.phi_mc = phi_mc;
+
+    repeaters_mid_phi_data.data_pm = data_pm;
+    repeaters_mid_phi_data.data_mc = data_mc;
+}
+
+defproc AEXT_MID_REPEATERS_ENABLE_4(aer::globals g;
+    bool enable_pm[2], enable_mc[2])
+    // Level 4 REPEATER cluster for enable
+    // Levels range from 0 to 5
+{
+    pint M_idx = 4;
+    pint N = 4;
+    aer::transmitter::repeaters::mid::REPEATERS_M_ENABLE<M_idx>
+        repeaters_mid_enable[2];
+
+    (; m : 2 :
+        repeaters_mid_enable[m].g = g;
+
+        repeaters_mid_enable[m].enable_pm = enable_pm[m];
+        repeaters_mid_enable[m].enable_mc = enable_mc[m];
+    )
+}
+
+defproc AEXT_MID_REPEATERS_ENABLE_5(aer::globals g;
+    bool enable_pm, enable_mc)
+    // Level 5 REPEATER cluster for enable
+    // Levels range from 0 to 5
+{
+    pint M_idx = 5;
+    pint N = 4;
+    aer::transmitter::repeaters::mid::REPEATERS_M_ENABLE<M_idx>
+        repeaters_mid_enable;
+
+    repeaters_mid_enable.g = g;
+
+    repeaters_mid_enable.enable_pm = enable_pm;
+    repeaters_mid_enable.enable_mc = enable_mc;
+}
+
+export defproc Wrapper(aer::globals g) {
+    AEXT_NODE_2_3 aext_node_2_3;
+    AEXT_NODE_4_5 aext_node_4_5;
+    aext_node_2_3.g = g;
+    aext_node_4_5.g = g;
+
+    AEXT_MID_REPEATERS_3 aext_mid_repeaters_3;
+    AEXT_MID_REPEATERS_PHI_DATA_4_5 aext_mid_repeaters_phi_data_4_5;
+    AEXT_MID_REPEATERS_ENABLE_4 aext_mid_repeaters_enable_4;
+    AEXT_MID_REPEATERS_ENABLE_5 aext_mid_repeaters_enable_5;
+    aext_mid_repeaters_3.g = g;
+    aext_mid_repeaters_phi_data_4_5.g = g;
+    aext_mid_repeaters_enable_4.g = g;
+    aext_mid_repeaters_enable_5.g = g;
+}
+
+Wrapper dut;
