@@ -1,0 +1,20 @@
+// Tests the braindrop / brainstorm AER system
+import "aer/aer/aer.act";
+import "aer/lib/test.act";
+pint M=4;
+pint p4M=256; // = 4^M
+pint p2M=16; // = 2^M
+pint M_AERV_MEM=M+3;
+#SCRIPT pint tile_i[p4M/16];
+#SCRIPT pint tile_j[p4M/16];
+
+aer::globals_w_analog ga;
+aer::globals g;
+aer::globals_to_globals_w_analog g_to_ga(g, ga);
+
+aer::SINK_eMx1of4<M> aext_snk(g,);
+aer::test::SOURCE_BRAIN_AERV<M, 1, 0, 2> aerv_spk_src(g,);
+aer::test::SOURCE_BRAIN_AERV<M_AERV_MEM, M_AERV_MEM-M+1, 2, 1> aerv_mem_src(g,);
+
+aer::BRAIN_AER<M, p4M, p2M, tile_i, tile_j, false> aer(
+    ga,,, aext_snk.d, aerv_spk_src.d, aerv_mem_src.d,,);
