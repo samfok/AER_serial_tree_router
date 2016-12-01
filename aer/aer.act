@@ -208,6 +208,7 @@ namespace brain_aer {
                 tile_nrn_mem[n].gndd = ga.GND;
                 tile_nrn_mem[n].vddd = ga.Vdd;
                 tile_nrn_mem[n].vddp = ga.vddp;
+                tile_nrn_mem[n].gnda = ga.gnda;
                 tile_nrn_mem[n].vdda = ga.vdda;
                 tile_nrn_mem[n].vpsub = ga.vpsub;
                 tile_nrn_mem[n].pbulk = ga.pbulk;
