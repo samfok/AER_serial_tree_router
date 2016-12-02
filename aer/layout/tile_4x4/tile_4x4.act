@@ -1,7 +1,7 @@
 // defines a 4x4 tile array
 import "aer/aer/aer.act";
 
-defproc TILE_4x4(aer::globals_w_analog g) {
+defproc BraindropTileArray_4x4(aer::globals_w_analog g) {
     pint M=4;
     pint p4M=256;
     pint p2M=16;
@@ -15,7 +15,7 @@ defproc TILE_4x4(aer::globals_w_analog g) {
 }
 
 export defproc Wrapper(aer::globals_w_analog g) {
-    TILE_4x4 tile_4x4(g);
+    BraindropTileArray_4x4 tile_4x4(g);
 }
 
 Wrapper dut;

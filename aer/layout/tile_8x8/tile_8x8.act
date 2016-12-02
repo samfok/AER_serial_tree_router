@@ -1,7 +1,7 @@
 // defines a 8x8 tile array
 import "aer/aer/aer.act";
 
-defproc TILE_8x8(aer::globals_w_analog g) {
+defproc BraindropTileArray_8x8(aer::globals_w_analog g) {
     pint M=5;
     pint p4M=1024;
     pint p2M=32;
@@ -15,7 +15,7 @@ defproc TILE_8x8(aer::globals_w_analog g) {
 }
 
 export defproc Wrapper(aer::globals_w_analog g) {
-    TILE_8x8 tile_8x8(g);
+    BraindropTileArray_8x8 tile_8x8(g);
 }
 
 Wrapper dut;

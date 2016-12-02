@@ -1,7 +1,7 @@
 // defines a single tile
 import "aer/aer/aer.act";
 
-defproc TILE_1x1(aer::globals_w_analog g) {
+defproc BraindropTileArray_1x1(aer::globals_w_analog g) {
     pint M=2;
     pint p4M=16;
     pint p2M=4;
@@ -15,7 +15,7 @@ defproc TILE_1x1(aer::globals_w_analog g) {
 }
 
 export defproc Wrapper(aer::globals_w_analog g) {
-    TILE_1x1 tile_1x1(g);
+    BraindropTileArray_1x1 tile_1x1(g);
 }
 
 Wrapper dut;

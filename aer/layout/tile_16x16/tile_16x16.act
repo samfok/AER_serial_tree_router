@@ -1,7 +1,7 @@
 // defines a 16x16 tile array
 import "aer/aer/aer.act";
 
-defproc TILE_16x16(aer::globals_w_analog g) {
+defproc BraindropTileArray_16x16(aer::globals_w_analog g) {
     pint M=6;
     pint p4M=4096;
     pint p2M=64;
@@ -15,7 +15,7 @@ defproc TILE_16x16(aer::globals_w_analog g) {
 }
 
 export defproc Wrapper(aer::globals_w_analog g) {
-    TILE_16x16 tile_16x16(g);
+    BraindropTileArray_16x16 tile_16x16(g);
 }
 
 Wrapper dut;

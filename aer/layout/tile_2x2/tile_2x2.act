@@ -1,7 +1,7 @@
 // defines a 2x2 tile array
 import "aer/aer/aer.act";
 
-defproc TILE_2x2(aer::globals_w_analog g) {
+defproc BraindropTileArray_2x2(aer::globals_w_analog g) {
     pint M=3;
     pint p4M=64;
     pint p2M=8;
@@ -15,7 +15,7 @@ defproc TILE_2x2(aer::globals_w_analog g) {
 }
 
 export defproc Wrapper(aer::globals_w_analog g) {
-    TILE_2x2 tile_2x2(g);
+    BraindropTileArray_2x2 tile_2x2(g);
 }
 
 Wrapper dut;
