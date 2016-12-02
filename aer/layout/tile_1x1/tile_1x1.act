@@ -1,0 +1,21 @@
+// defines a single tile
+import "aer/aer/aer.act";
+
+defproc TILE_1x1(aer::globals_w_analog g) {
+    pint M=2;
+    pint p4M=16;
+    pint p2M=4;
+    pint tile_i[p4M/16];
+    pint tile_j[p4M/16];
+    tile_i = {0};
+    tile_j = {0};
+
+    aer::brain_aer::NRN_AER<M, p4M, p2M, tile_i, tile_j, false> tile_1x1;
+    tile_1x1.ga = g;
+}
+
+export defproc Wrapper(aer::globals_w_analog g) {
+    TILE_1x1 tile_1x1(g);
+}
+
+Wrapper dut;

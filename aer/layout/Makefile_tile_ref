@@ -1,0 +1,17 @@
+NETGEN := netgen -l -p'Wrapper<>' -B
+ACT_PATH := $(subst alex_,,$(ACT_PATH))
+ROULETTE_PATH := samfok@roulette.stanford.edu:~/netlist/
+
+ACT_FILE := $(shell find * -name 'tile*.act')
+SPI_TGT := $(ACT_FILE:%act=%spi)
+
+all: $(SPI_TGT)
+
+%.spi: %.act ${ACT_PATH}/aer/aer/aer.act
+	$(NETGEN) -o$@ -C$(shell find * -name 'tile*netgen*.conf') $< || (rm $@; exit 1)
+	scp $@ $(ROULETTE_PATH)
+
+clean:
+	@rm $(SPI_TGT)
+
+.PHONY: clean

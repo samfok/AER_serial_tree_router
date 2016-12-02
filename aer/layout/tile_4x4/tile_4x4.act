@@ -1,0 +1,21 @@
+// defines a 4x4 tile array
+import "aer/aer/aer.act";
+
+defproc TILE_4x4(aer::globals_w_analog g) {
+    pint M=4;
+    pint p4M=256;
+    pint p2M=16;
+    pint tile_i[p4M/16];
+    pint tile_j[p4M/16];
+    tile_i = {0, 1, 0, 1, 2, 3, 2, 3, 0, 1, 0, 1, 2, 3, 2, 3};
+    tile_j = {0, 0, 1, 1, 0, 0, 1, 1, 2, 2, 3, 3, 2, 2, 3, 3};
+
+    aer::brain_aer::NRN_AER<M, p4M, p2M, tile_i, tile_j, false> tile_4x4;
+    tile_4x4.ga = g;
+}
+
+export defproc Wrapper(aer::globals_w_analog g) {
+    TILE_4x4 tile_4x4(g);
+}
+
+Wrapper dut;
