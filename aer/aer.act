@@ -244,7 +244,7 @@ namespace brain_aer {
                     tile_diff[tile_i[n]][tile_j[n]].DIFF_SYN_D;
             )
             [ L > 1 ->
-                (; l0: L-2 :
+                (; l0 : L-1 :
                     (; l1 : L :
                         tile_diff[l0][l1].DIFF_CM_D =
                             tile_diff[l0+1][l1].DIFF_CM_U;
