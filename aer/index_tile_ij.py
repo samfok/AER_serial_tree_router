@@ -19,8 +19,8 @@ def addr_1of4_to_ij(addr_1of4):
     addr_j = 0
     for word in addr_1of4:
         ijlen /= 2
-        addr_i += word%2 * ijlen
-        addr_j += word/2 * ijlen
+        addr_i += (word>1) * ijlen
+        addr_j += ((word>0) & (word<3)) * ijlen
     return addr_i, addr_j
 
 def addr_flat_to_1of4(addr_flat, words):
@@ -71,7 +71,6 @@ def insert_tile_ij(tile_i, tile_j, f_str):
         fw_str)
     return fw_str
     
-
 def parse_file(fname):
     """read in the act file"""
     assert fname[-8:] == '.act.ref', "filename must end with .act.ref"
