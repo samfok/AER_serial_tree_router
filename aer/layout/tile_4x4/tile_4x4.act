@@ -7,8 +7,8 @@ defproc BraindropTileArray_4x4(aer::globals_w_analog g) {
     pint p2M=16;
     pint tile_i[p4M/16];
     pint tile_j[p4M/16];
-    tile_i = {0, 1, 0, 1, 2, 3, 2, 3, 0, 1, 0, 1, 2, 3, 2, 3};
-    tile_j = {0, 0, 1, 1, 0, 0, 1, 1, 2, 2, 3, 3, 2, 2, 3, 3};
+    tile_i = {0, 0, 1, 1, 0, 0, 1, 1, 2, 2, 3, 3, 2, 2, 3, 3};
+    tile_j = {0, 1, 1, 0, 2, 3, 3, 2, 2, 3, 3, 2, 0, 1, 1, 0};
 
     aer::brain_aer::NRN_AER<M, p4M, p2M, tile_i, tile_j, false> tile_4x4;
     tile_4x4.ga = g;

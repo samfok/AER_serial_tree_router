@@ -1,0 +1,18 @@
+import "aer/aext/aext.act";
+import "aer/aerv/aerv.act";
+
+defproc AER_TO_TILE (aer::globals g) {
+    pint M=5;
+    pint N=4;
+    pint p4M=1024;
+    aer::AEXT_TO_TILE<M, p4M> aext_to_tile;
+    aer::AERV_TO_TILE<M-1, p4M/N> aerv_to_tile;
+    aext_to_tile.g = g;
+    aerv_to_tile.g = g;
+}
+
+export defproc Wrapper (aer::globals g) {
+    AER_TO_TILE aer_to_tile(g);
+}
+
+Wrapper dut;
