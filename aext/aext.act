@@ -563,7 +563,7 @@ namespace transmitter {
         // N_LINK number of repeater links
         // M_STOP [0-5] 0-indexed bottom level of tree
         // Does not include the root level mid-level repeater
-        //     which is provided by TOP_INT
+        //     which is provided by EDGE_INT
     {
         [M>6 | M<1 -> 1=0;]  // assert false
         [M_STOP>5 | M_STOP<0 -> 1=0;]  // assert false
@@ -579,12 +579,12 @@ namespace transmitter {
             base_idx[M_IDX-1-m] = base_idx[M_IDX-m]+n_rep[M_IDX-m];
         )
 
-        // skip root node, which will live in TOP_INT
+        // skip root node, which will live in EDGE_INT
         phi_mc[0] = phi_pm[0];
         enable_mc[0] = enable_pm[0];
         data_mc[0] = data_pm[0];
 
-        // level 5 repeaters never get created (provided by TOP_INT)
+        // level 5 repeaters never get created (provided by EDGE_INT)
         // level 4 repeaters; create if depth 6
         [ M_IDX>=5 & M_STOP<=4 -> repeaters::REPEATERS_M<4, N> rep_4[n_rep[4]];
             (; n : n_rep[4] :
@@ -653,22 +653,36 @@ namespace transmitter {
 
     export
     template <pint M, N>
-    defproc TOP_INT (globals g;
+    defproc EDGE_INT (globals g;
         bool x_phi, y_phi;
         bool x_enable, y_enable;
         c1of<N> x_data, y_data)
-        // interface at the top of the AEXT tree
-        // includes the mid and parent-level repeaters above the last NODE
+        // interface above the AEXT tree to the edge of the array
+        // includes the mid-level repeaters above the last NODE
     {
         repeaters::REPEATERS_M<M-1, N> rep_m(g,,,,,,);
         x_phi = rep_m.phi_mc;
         x_enable = rep_m.enable_mc;
         x_data = rep_m.data_mc;
+        y_phi = rep_m.phi_pm;
+        y_enable = rep_m.enable_pm;
+        y_data = rep_m.data_pm;
+    }
 
+    export
+    template <pint M, N>
+    defproc TOP_INT (globals g;
+        bool x_phi, y_phi;
+        bool x_enable, y_enable;
+        c1of<N> x_data, y_data)
+        // interface at the top of the AEXT tree, beyond the array edge
+        // includes the parent-level repeaters above the last NODE
+        // and inverters to flip senses
+    {
         repeaters::REPEATERS_P<M-1, N> rep_p(g,,,,,,);
-        rep_m.phi_pm = rep_p.phi_pm;
-        rep_m.enable_pm = rep_p.enable_pm;
-        rep_m.data_pm = rep_p.data_pm;
+        x_phi = rep_p.phi_pm;
+        x_enable = rep_p.enable_pm;
+        x_data = rep_p.data_pm;
 
         rep_p.p_ce = y_enable;
         // convert from active low to active high

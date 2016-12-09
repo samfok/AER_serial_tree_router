@@ -13,25 +13,26 @@ export
 template <pint M_1of2, M_1of4, p4M, p2M; pint tile_i[p4M/16], tile_j[p4M/16];
           pbool unit_aext>
 defproc BS_AER (globals g_bs;
-                bool aext_nrn_req[p4M], aext_nrn_ack[p4M];
-                bool aext__pp, aext_pe; aer::c1of<4> aext__p;
-                bool aerv__pp, aerv__pe; aer::c1of<4> aerv_p;
-                aer::a1of2 aerv_syn[p4M/4];
-                aer::aMx1of4<4> aerv__mem[p4M/4/4]) {
-    // modified braindrop / brainstorm aer system that uses the 
-    // the serializer defined in the brainstorm repository at the top of the
-    // receiver tree
-    // and outputs eMx1of2 data from the transmitter to the datapath
-    // M depth of AEXT tree (require M > 2)
-    //     M_1of4 = 6 in production
-    //     M_1of4-1 depth of AERV tree
-    // p4M = 4^M neurons
-    //     4^(M-1) synapses
-    //     4^(M-2) neuron/synapse configuration memories
-    // p2M = 2^M = sqrt(p4M) 
-    //     L = p2M / 4 tiles per side of the array
-    // tile_i maps flat tile indexing to i of 2d ij tile indexing
-    // tile_j maps flat tile indexing to j of 2d ij tile indexing
+        bool aext_nrn_req[p4M], aext_nrn_ack[p4M];
+        bool aext__pp, aext_pe; aer::c1of<4> aext__p;
+        bool aerv__pp, aerv__pe; aer::c1of<4> aerv_p;
+        aer::a1of2 aerv_syn[p4M/4];
+        aer::aMx1of4<4> aerv__mem[p4M/4/4])
+        // modified braindrop / brainstorm aer system that uses the 
+        // the serializer defined in the brainstorm repository at the top of 
+        // the receiver tree
+        // and outputs eMx1of2 data from the transmitter to the datapath
+        // M depth of AEXT tree (require M > 2)
+        //     M_1of4 = 6 in production
+        //     M_1of4-1 depth of AERV tree
+        // p4M = 4^M neurons
+        //     4^(M-1) synapses
+        //     4^(M-2) neuron/synapse configuration memories
+        // p2M = 2^M = sqrt(p4M) 
+        //     L = p2M / 4 tiles per side of the array
+        // tile_i maps flat tile indexing to i of 2d ij tile indexing
+        // tile_j maps flat tile indexing to j of 2d ij tile indexing
+{
     M_1of4*2 = M_1of2; // assert
     [M_1of4<2 -> 0=1;] // assert false
     pint N = 4; // radix of AEXT/AERV tree
@@ -42,11 +43,18 @@ defproc BS_AER (globals g_bs;
 
     aer::globals_w_analog ga;
     compat_bs::globals_w_analog g_to_gbs(ga, g_bs);
+    aer::globals g;
+    aer::globals_to_globals_w_analog g_to_ga(g, ga);
+
+    aer::transmitter::EDGE_INT<M_SPK_1of4, N>
+        aext_e_int(g,, aext__pp,, aext_pe,, aext__p);
+    aer::receiver::EDGE_INT<M_SPK_1of4-1, N>
+        aerv_e_int(g, aerv__pp,, aerv__pe,, aerv_p,);
 
     aer::brain_aer::NRN_AER<M_1of4, p4M, p2M, tile_i, tile_j, unit_aext> _(
         ga, aext_nrn_req, aext_nrn_ack,
-        aext__pp, aext_pe, aext__p,
-        aerv__pp, aerv__pe, aerv_p,
+        aext_e_int.x_phi, aext_e_int.x_enable, aext_e_int.x_data,
+        aerv_e_int.y_phi, aerv_e_int.y_enable, aerv_e_int.y_data,
         aerv_syn, aerv__mem
     );
 }

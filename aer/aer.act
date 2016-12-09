@@ -18,8 +18,10 @@ defproc AER_NODATA (globals g; bool xp[NN], xa[NN], ye[NN], yp[NN])
     // NN=N^M
 {
     AEXT<M, N, NN> aext(g, xp, xa,,,);
-    transmitter::TOP_INT<M, N>
-        top_int_aext(g, aext.pp,, aext.pe,, aext.p,);
+    transmitter::EDGE_INT<M, N>
+        e_int_aext(g, aext.pp,, aext.pe,, aext.p,);
+    transmitter::TOP_INT<M, N> top_int_aext(g, 
+        e_int_aext.y_phi,, e_int_aext.y_enable,, e_int_aext.y_data,);
     interface::OUT_a1ofN<N> out(g,
         top_int_aext.y_phi, top_int_aext.y_enable, top_int_aext.y_data,
     );
@@ -27,8 +29,10 @@ defproc AER_NODATA (globals g; bool xp[NN], xa[NN], ye[NN], yp[NN])
     interface::SERIAL_RING<M, N> serial(g, deserial.y,,,);
     receiver::TOP_INT<M, N>
         top_int_aerv(g, serial.yp,, serial.ye,, serial.y,);
+    receiver::EDGE_INT<M, N> e_int_aerv(g,
+        top_int_aerv.y_phi,, top_int_aerv.y_enable,, top_int_aerv.y_data,);
     AERV_NODATA<M, N, NN> aerv(g, ye, yp,
-        top_int_aerv.y_phi, top_int_aerv.y_enable, top_int_aerv.y_data);
+        e_int_aerv.y_phi, e_int_aerv.y_enable, e_int_aerv.y_data);
 }
 
 namespace brain_aer {
@@ -316,21 +320,25 @@ defproc BRAIN_AER (globals_w_analog ga;
     globals_to_globals_w_analog g_to_ga(g, ga);
 
     // transmitter interface
-    brain_transmitter::AEXT_INT<M_SPK, N> aext_int(g,,,,);
+    brain_transmitter::AEXT_INT<M_SPK, N> aext_t_int(g,,,,);
     (; m : M_SPK :
-        aext_int.y_spk.m[m].d = aext_out.m[m].d;
+        aext_t_int.y_spk.m[m].d = aext_out.m[m].d;
     )
-    aext_int.y_spk.e = aext_out.e;
+    aext_t_int.y_spk.e = aext_out.e;
+    transmitter::EDGE_INT<M, N> aext_e_int(g,
+        , aext_t_int.aext__pp,, aext_t_int.aext_pe,, aext_t_int.aext__p);
 
     // receiver interface
-    brain_receiver::AERV_INT<M_SPK, M_MEM> aerv_int(
+    brain_receiver::AERV_INT<M_SPK, M_MEM> aerv_t_int(
         g, aerv_spk_in, aerv_mem_in,,,);
+    receiver::EDGE_INT<M_SPK-1, N> aerv_e_int(g,
+        aerv_t_int.aerv__pp,, aerv_t_int.aerv__pe,, aerv_t_int.aerv_p,);
 
     // neuron and aer array
     brain_aer::NRN_AER<M, p4M, p2M, tile_i, tile_j, unit_aext> nrn_aer(
         ga, aext_nrn_req, aext_nrn_ack,
-        aext_int.aext__pp, aext_int.aext_pe, aext_int.aext__p,
-        aerv_int.aerv__pp, aerv_int.aerv__pe, aerv_int.aerv_p,
+        aext_e_int.x_phi, aext_e_int.x_enable, aext_e_int.x_data,
+        aerv_e_int.y_phi, aerv_e_int.y_enable, aerv_e_int.y_data,
         aerv_syn, aerv__mem
     );
 }
