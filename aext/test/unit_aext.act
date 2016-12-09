@@ -12,9 +12,11 @@ aer::e1of<NN> src;
 aer::eMx1of4<M> snk;
 
 aer::AEXT<M, N, NN> aext(g,,,,,);
-aer::transmitter::TOP_INT<M, N> aext_int(g, aext.pp,, aext.pe,, aext.p,);
+aer::transmitter::EDGE_INT<M, N> aext_e_int(g, aext.pp,, aext.pe,, aext.p,);
+aer::transmitter::TOP_INT<M, N> aext_t_int(g,
+    aext_e_int.y_phi,, aext_e_int.y_enable,, aext_e_int.y_data,);
 aer::interface::OUT_a1ofN<N>
-    out(g, aext_int.y_phi, aext_int.y_enable, aext_int.y_data,);
+    out(g, aext_t_int.y_phi, aext_t_int.y_enable, aext_t_int.y_data,);
 aer::interface::DESERIAL_RING<M, N, false, true> deserial(g, out.y,,);
 aer::SINK_eMx1ofN<M, N> snk_(g, deserial.y);
 

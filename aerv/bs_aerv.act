@@ -79,6 +79,8 @@ defproc BS_AERV (globals g_bs;
     compat_bs::globals g_compat(g, g_bs);
 
     BS_AERV_INT<M_SPK_1of2, M_MEM_1of2> aerv_int(g_bs, x_spk, x_mem,,,);
+    aer::receiver::EDGE_INT<M_SPK_1of4-1, D> e_int(g,
+        aerv_int.aerv__pp,, aerv_int.aerv__pe,, aerv_int.aerv_p,);
     aer::brain_receiver::DESERIALIZER<M_MEM_1of4-M_1of4, D> mem_deserial[N_MEM];
     bool aerv_yp_mem[N_MEM];
     bool aerv_ye_mem[N_MEM];
@@ -103,7 +105,8 @@ defproc BS_AERV (globals g_bs;
     aer::e1of2 aerv_syn[N_SYN];
     aer::brain_receiver::HALF_BUFFER<N_SYN> buf_syn(g, aerv_syn, y_syn);
 
-    aer::AERV<M_1of4, D, p4M, N_SYN, N_MEM> aerv(
-        g, aerv_int.aerv__pp, aerv_int.aerv__pe, aerv_int.aerv_p,
-        aerv_syn, aerv_yp_mem, aerv_ye_mem, aerv_mem);
+    aer::AERV<M_1of4, D, p4M, N_SYN, N_MEM> aerv(g,
+        e_int.y_phi, e_int.y_enable, e_int.y_data,
+        aerv_syn, aerv_yp_mem, aerv_ye_mem, aerv_mem
+    );
 }

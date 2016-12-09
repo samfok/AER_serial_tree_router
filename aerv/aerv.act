@@ -601,7 +601,7 @@ namespace receiver {
         // N_LINK number of repeater links
         // M_STOP [0-5] 0-indexed bottom level of tree
         // Does not include the root level mid-level repeater
-        //     which is provided by TOP_INT
+        //     which is provided by EDGE_INT
     {
         [M>5 | M<1 -> 1=0;]  // assert false
         [M_STOP>4 | M_STOP<0 -> 1=0;]  // assert false
@@ -617,12 +617,12 @@ namespace receiver {
             base_idx[M_IDX-1-m] = base_idx[M_IDX-m]+n_rep[M_IDX-m];
         )
 
-        // skip root node, which will live in TOP_INT
+        // skip root node, which will live in EDGE_INT
         phi_mc[0] = phi_pm[0];
         enable_mc[0] = enable_pm[0];
         data_mc[0] = data_pm[0];
 
-        // level 4 repeaters never get created (provided by TOP_INT)
+        // level 4 repeaters never get created (provided by EDGE_INT)
         // level 3 repeaters; create if depth 5
         [ M_IDX>=4 & M_STOP<=3 -> repeaters::REPEATERS_M<3, N> rep_3[n_rep[3]];
             (; n : n_rep[3] :
@@ -679,6 +679,24 @@ namespace receiver {
 
     export
     template <pint M, N>
+    defproc EDGE_INT (globals g;
+        bool x_phi, y_phi;
+        bool x_enable, y_enable;
+        c1of<N> x_data, y_data)
+        // interface above the AERV tree to the edge of the array
+        // includes the mid-level repeaters above the last NODE
+    {
+        repeaters::REPEATERS_M<M-1, N> rep_m(g,,,,,,);
+        x_phi = rep_m.phi_pm;
+        x_enable = rep_m.enable_pm;
+        x_data = rep_m.data_pm;
+        rep_m.phi_mc = y_phi;
+        rep_m.enable_mc = y_enable;
+        rep_m.data_mc = y_data;
+    }
+
+    export
+    template <pint M, N>
     defproc TOP_INT (globals g;
         bool x_phi, y_phi;
         bool x_enable, y_enable;
@@ -697,13 +715,9 @@ namespace receiver {
         }
         x_data = rep_p.p_c;
 
-        repeaters::REPEATERS_M<M-1, N> rep_m(g,,,,,,);
-        rep_p.phi_pm = rep_m.phi_pm;
-        rep_p.enable_pm = rep_m.enable_pm;
-        rep_p.data_pm = rep_m.data_pm;
-        rep_m.phi_mc = y_phi;
-        rep_m.enable_mc = y_enable;
-        rep_m.data_mc = y_data;
+        rep_p.phi_pm = y_phi;
+        rep_p.enable_pm = y_enable;
+        rep_p.data_pm = y_data;
     }
 } // namespace receiver
 
@@ -1018,8 +1032,8 @@ namespace brain_receiver {
 export
 template <pint M, p4M, M_SPK, M_MEM, N_SYN, N_MEM>
 defproc BRAIN_AERV (globals g; eMx1of4<M_SPK> x_spk; 
-                    eMx1of4<M_MEM> x_mem;
-                    a1of2 y_syn[N_SYN]; aMx1of4<M_MEM-M> _y_mem[N_MEM]) {
+    eMx1of4<M_MEM> x_mem; a1of2 y_syn[N_SYN]; aMx1of4<M_MEM-M> _y_mem[N_MEM])
+{
     // braindrop / brainstorm receiver system
     // M tree depth
     //     M = 5 in production
@@ -1037,6 +1051,8 @@ defproc BRAIN_AERV (globals g; eMx1of4<M_SPK> x_spk;
     N_MEM*4 = N_SYN; // assert
 
     brain_receiver::AERV_INT<M_SPK, M_MEM> aerv_int(g, x_spk, x_mem,,,);
+    receiver::EDGE_INT<M_SPK-1, D> e_int(g,
+        aerv_int.aerv__pp,, aerv_int.aerv__pe,, aerv_int.aerv_p,);
     brain_receiver::DESERIALIZER<M_MEM-M, D> mem_deserial[N_MEM];
     bool aerv_yp_mem[N_MEM];
     bool aerv_ye_mem[N_MEM];
@@ -1061,9 +1077,10 @@ defproc BRAIN_AERV (globals g; eMx1of4<M_SPK> x_spk;
     e1of2 aerv_syn[N_SYN];
     brain_receiver::HALF_BUFFER<N_SYN> buf_syn(g, aerv_syn, y_syn);
 
-    AERV<M, D, p4M, N_SYN, N_MEM> aerv(
-        g, aerv_int.aerv__pp, aerv_int.aerv__pe, aerv_int.aerv_p,
-        aerv_syn, aerv_yp_mem, aerv_ye_mem, aerv_mem);
+    AERV<M, D, p4M, N_SYN, N_MEM> aerv(g,
+        e_int.y_phi, e_int.y_enable, e_int.y_data,
+        aerv_syn, aerv_yp_mem, aerv_ye_mem, aerv_mem
+    );
 }
 
 } // namespace aer
