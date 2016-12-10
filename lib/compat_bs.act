@@ -35,6 +35,20 @@ namespace compat_bs {
         aer._sReset = bs._sReset;
         aer.vpsub = bs.vpsub;
         aer.vnsub = bs.vnsub;
+        aer._RST = bs._sReset;
+        aer.ADC_OUT[0] = bs.i_in_adc0;
+        aer.ADC_OUT[1] = bs.i_in_adc1;
+        aer.V_REF = bs.V_REF_G;
+        aer.V_R = bs.V_DIFF_R_G;
+        aer.V_G = bs.V_DIFF_G_G;
+        aer.V_PE_PD = bs.V_SYN_PD_G;
+        aer.V_PE_PU = bs.V_SYN_PU_G;
+        aer.V_WINH = bs.V_WINH_G;
+        aer.V_WDC = bs.V_WDC_G;
+        aer.V_WEXC = bs.V_WEXC_G;
+        aer.V_LK_B = bs.V_LK_B_G;
+        aer.V_LK_A = bs.V_LK_A_G;
+        aer.V_IOFFSET = bs.V_OFFSET_G;
         prs {} // HACK so netgen -B doesn't complain
     }
 
