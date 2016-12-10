@@ -34,5 +34,9 @@ prs {
     )
 }
 
-aer::BRAIN_AER<M, p4M, p2M, tile_i, tile_j, false> aer(
-    ga,,, aext_snk.d, aerv_spk_src_.y, aerv_mem_src.d, syn_spk,);
+aer::BRAIN_AER_INT<M, p4M, p2M> aer_int(
+    g,,,, aext_snk.d,,,, aerv_spk_src_.y, aerv_mem_src.d);
+aer::BRAIN_AER<M, p4M, p2M, tile_i, tile_j, false> aer(ga,,,
+    aer_int.aext_pp, aer_int.aext_pe, aer_int.aext_p,
+    aer_int.aerv__pp, aer_int.aerv__pe, aer_int.aerv_p,,
+);

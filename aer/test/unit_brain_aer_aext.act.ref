@@ -21,8 +21,13 @@ aer::SINK_eMx1of4<M> aext_snk(g, snk);
 aer::test::SOURCE_BRAIN_AERV<M, 1, 0, 2> aerv_spk_src(g,);
 aer::test::SOURCE_BRAIN_AERV<M_AERV_MEM, M_AERV_MEM-M+1, 2, 1> aerv_mem_src(g,);
 
-aer::BRAIN_AER<M, p4M, p2M, tile_i, tile_j, true> aer(
-    ga, spk_src.d,, snk, aerv_spk_src.d, aerv_mem_src.d,,);
+aer::BRAIN_AER_INT<M, p4M, p2M> aer_int(
+    g,,,, snk,,,, aerv_spk_src.d, aerv_mem_src.d);
+aer::BRAIN_AER<M, p4M, p2M, tile_i, tile_j, true> aer(ga,
+    spk_src.d,,
+    aer_int.aext_pp, aer_int.aext_pe, aer_int.aext_p,
+    aer_int.aerv__pp, aer_int.aerv__pe, aer_int.aerv_p,,
+);
 
 prs<g.Vdd, g.GND> {
     (| : nn : NN : aer.aext_nrn_ack[nn]) => spk_src.e-

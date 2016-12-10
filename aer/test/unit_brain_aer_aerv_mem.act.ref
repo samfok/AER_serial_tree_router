@@ -36,5 +36,9 @@ aer::eMx1of4<M_AERV_MEM-M+1> mem_dat[N_MEM];
     }
 )
 
-aer::BRAIN_AER<M, p4M, p2M, tile_i, tile_j, false> aer(
-    ga,,, aext_snk.d, aerv_spk_src.d, aerv_mem_src_.y,, _mem);
+aer::BRAIN_AER_INT<M, p4M, p2M> aer_int(
+    g,,,, aext_snk.d,,,, aerv_spk_src.d, aerv_mem_src_.y);
+aer::BRAIN_AER<M, p4M, p2M, tile_i, tile_j, false> aer(ga,,,
+    aer_int.aext_pp, aer_int.aext_pe, aer_int.aext_p,
+    aer_int.aerv__pp, aer_int.aerv__pe, aer_int.aerv_p,,
+);

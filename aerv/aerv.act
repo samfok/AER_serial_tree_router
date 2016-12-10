@@ -898,9 +898,10 @@ namespace brain_receiver {
     export
     template <pint M_SPK, M_MEM>
     defproc AERV_INT (globals g; eMx1of4<M_SPK> x_spk; eMx1of4<M_MEM> x_mem;
-                      bool aerv__pp, aerv__pe; c1of<4> aerv_p) {
+        bool aerv__pp, aerv__pe; c1of<4> aerv_p) 
         // interface between datapath and receiver
         // merges input spike and input memory packet streams
+    {
         pint D = 4; // 1-of-D data
         ::aer::interface::SERIAL_RING<M_SPK, D> serial_spk(g,,,,);
         ::aer::interface::SERIAL_RING<M_MEM, D> serial_mem(g,,,,);

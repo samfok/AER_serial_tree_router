@@ -295,8 +295,8 @@ template <pint M, p4M, p2M; pint tile_i[p4M/16], tile_j[p4M/16];
           pbool unit_aext>
 defproc BRAIN_AER (globals_w_analog ga;
     bool aext_nrn_req[p4M], aext_nrn_ack[p4M];
-    eMx1of4<M> aext_out;
-    eMx1of4<M> aerv_spk_in; eMx1of4<M+3> aerv_mem_in;
+    bool aext__pp, aext_pe; c1of<4> aext__p;
+    bool aerv__pp, aerv__pe; c1of<4> aerv_p;
     a1of2 aerv_syn[p4M/4]; aMx1of4<4> aerv__mem[p4M/4/4])
     // aer system for braindrop / brainstorm
     // M depth of AEXT tree (require M > 2)
@@ -308,8 +308,8 @@ defproc BRAIN_AER (globals_w_analog ga;
     //     L = p2M / 4 tiles per side of the array
     // tile_i maps flat tile indexing to i of 2d ij tile indexing
     // tile_j maps flat tile indexing to j of 2d ij tile indexing
-    // unit_aext whether to disconnect the transmitter neuron random sources or not
-    //     as during unit testing
+    // unit_aext whether to disconnect the transmitter neuron random sources or
+    // not as during unit testing
 {
     [M<2 -> 0=1;] // assert false
     pint N = 4; // radix of AEXT/AERV tree
@@ -320,19 +320,11 @@ defproc BRAIN_AER (globals_w_analog ga;
     globals_to_globals_w_analog g_to_ga(g, ga);
 
     // transmitter interface
-    brain_transmitter::AEXT_INT<M_SPK, N> aext_t_int(g,,,,);
-    (; m : M_SPK :
-        aext_t_int.y_spk.m[m].d = aext_out.m[m].d;
-    )
-    aext_t_int.y_spk.e = aext_out.e;
-    transmitter::EDGE_INT<M, N> aext_e_int(g,
-        , aext_t_int.aext__pp,, aext_t_int.aext_pe,, aext_t_int.aext__p);
+    transmitter::EDGE_INT<M, N> aext_e_int(g,, aext__pp,, aext_pe,, aext__p);
 
     // receiver interface
-    brain_receiver::AERV_INT<M_SPK, M_MEM> aerv_t_int(
-        g, aerv_spk_in, aerv_mem_in,,,);
-    receiver::EDGE_INT<M_SPK-1, N> aerv_e_int(g,
-        aerv_t_int.aerv__pp,, aerv_t_int.aerv__pe,, aerv_t_int.aerv_p,);
+    receiver::EDGE_INT<M_SPK-1, N>
+        aerv_e_int(g, aerv__pp,, aerv__pe,, aerv_p,);
 
     // neuron and aer array
     brain_aer::NRN_AER<M, p4M, p2M, tile_i, tile_j, unit_aext> nrn_aer(
@@ -343,4 +335,33 @@ defproc BRAIN_AER (globals_w_analog ga;
     );
 }
 
+export
+template <pint M, p4M, p2M>
+defproc BRAIN_AER_INT (globals g;
+    bool aext_pp, aext_pe; c1of<4> aext_p;
+    eMx1of4<M> aext_out;
+    bool aerv__pp, aerv__pe; c1of<4> aerv_p;
+    eMx1of4<M> aerv_spk_in; eMx1of4<M+3> aerv_mem_in)
+    // AER interface with the datapath
+    // contains the AEXT deserializer and the AERV serializer
+    // M depth of AEXT tree (require M > 2)
+    //     M-1 depth of AERV tree
+{
+    [M<2 -> 0=1;] // assert false
+    pint N = 4; // radix of AEXT/AERV tree
+    pint M_SPK = M;
+    pint M_MEM = M+3;
+    
+    // transmitter interface
+    brain_transmitter::AEXT_INT<M_SPK, N>
+        aext_t_int(g, aext_pp, aext_pe, aext_p,);
+    (; m : M_SPK :
+        aext_t_int.y_spk.m[m].d = aext_out.m[m].d;
+    )
+    aext_t_int.y_spk.e = aext_out.e;
+
+    // receiver interface
+    brain_receiver::AERV_INT<M_SPK, M_MEM> aerv_t_int(
+        g, aerv_spk_in, aerv_mem_in, aerv__pp, aerv__pe, aerv_p);
+}
 } // namespace aer

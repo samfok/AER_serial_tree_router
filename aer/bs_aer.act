@@ -63,13 +63,12 @@ export
 template <pint M_1of2, M_1of4, p4M, p2M; pint tile_i[p4M/16], tile_j[p4M/16];
           pbool unit_aext>
 defproc BS_AER_wrapper (globals g;
-                        bool PP_TX, PE_TX; d1of<4> P_TX;
-                        bool PP_RX, PE_RX; d1of<4> P_RX;
-                        a1of1 AERSOMA[p4M]; // exposed for testing
-                        e1of2 AERSYN[p4M/4];
-                        eMx1of4<4> AERMEM[p4M/4/4]) {
+    bool PP_TX, PE_TX; d1of<4> P_TX;
+    bool PP_RX, PE_RX; d1of<4> P_RX;
+    // exposed for testing
+    a1of1 AERSOMA[p4M]; e1of2 AERSYN[p4M/4]; eMx1of4<4> AERMEM[p4M/4/4])
     // converts to the data types used by the rest of the BS repo
-
+{
     bool aext__pp = PP_TX;
     bool aext_pe = PE_TX;
 
@@ -96,20 +95,21 @@ defproc BS_AER_wrapper (globals g;
 
     BS_AER<M_1of2, M_1of4, p4M, p2M, tile_i, tile_j, unit_aext> _(g,
         aext_nrn_req, aext_nrn_ack, aext__pp, aext_pe, aext__p,
-        aerv__pp, aerv__pe, aerv_p, aerv_syn, aerv__mem);
+        aerv__pp, aerv__pe, aerv_p, aerv_syn, aerv__mem
+    );
 }
 
 
 export
 template <pint M_1of2, M_1of4>
 defproc BS_AER_INT (globals g_bs;
-                    bool aext__pp, aext_pe; aer::c1of<4> aext__p;
-                    aer::eMx1of2<M_1of2> aext_out;
-                    bool aerv__pp, aerv__pe; aer::c1of<4> aerv_p;
-                    aer::eMx1of2<M_1of2> aerv_spk_in;
-                    aer::eMx1of2<M_1of2+6> aerv_mem_in) {
+    bool aext__pp, aext_pe; aer::c1of<4> aext__p;
+    aer::eMx1of2<M_1of2> aext_out;
+    bool aerv__pp, aerv__pe; aer::c1of<4> aerv_p;
+    aer::eMx1of2<M_1of2> aerv_spk_in; aer::eMx1of2<M_1of2+6> aerv_mem_in)
     // Brinstorm AER interface with the datapath
     // contains the AEXT deserializer and the AERV serializer
+{
     M_1of4*2 = M_1of2; // assert
     [M_1of4<2 -> 0=1;] // assert false
     pint N = 4; // radix of AEXT/AERV tree
@@ -132,12 +132,12 @@ defproc BS_AER_INT (globals g_bs;
 export
 template <pint M_1of2, M_1of4>
 defproc BS_AER_INT_wrapper (globals g;
-                            bool PP_TX, PE_TX; d1of<4> P_TX;
-                            eMx1of2<M_1of2> SPK_TX;
-                            bool PP_RX, PE_RX; d1of<4> P_RX;
-                            eMx1of2<M_1of2> SPK_RX; eMx1of2<M_1of2+6> MEM_RX) {
+    bool PP_TX, PE_TX; d1of<4> P_TX;
+    eMx1of2<M_1of2> SPK_TX;
+    bool PP_RX, PE_RX; d1of<4> P_RX;
+    eMx1of2<M_1of2> SPK_RX; eMx1of2<M_1of2+6> MEM_RX)
     // converts to data types used by the rest of the BS repo
-
+{
     bool aext__pp = PP_TX;
     bool aext_pe = PE_TX;
 
