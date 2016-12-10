@@ -1,0 +1,60 @@
+// defines a 16x16 tile array with edge repeaters
+import "aer/aer/aer.act";
+
+defproc BraindropTileArray_16x16(bool?
+    Vdd, GND, pReset, _pReset, _sReset, vpsub, vnsub,
+    ADC_OUT_0, ADC_OUT_1,
+    V_REF, V_R, V_G, V_PE_PD, V_PE_PU,
+    V_WINH, V_WDC, V_WEXC, V_LK_B, V_LK_A, V_IOFFSET,
+    vdda, vddp, gnda, pbulk;
+    bool! aext_pp; bool? aext_pe; bool! aext_p_d0, aext_p_d1, aext_p_d2, aext_p_d3;
+    bool? aerv_pp; bool! aerv_pe; bool? aerv_p_d0, aerv_p_d1, aerv_p_d2, aerv_p_d3
+    ) {}
+
+defproc BraindropTileArray_top(aer::globals_w_analog g;
+    bool aext_pp, aext_pe; aer::c1of<4> aext_p;
+    bool aerv__pp, aerv__pe; aer::c1of<4> aerv_p)
+{
+    pint M=6;
+    pint N=4;
+    BraindropTileArray_16x16 tile_16x16(
+        g.Vdd, g.GND, g.pReset, g._pReset, g._sReset, g.vpsub, g.vnsub,
+        g.ADC_OUT[0], g.ADC_OUT[1],
+        g.V_REF, g.V_R, g.V_G, g.V_PE_PD, g.V_PE_PU,
+        g.V_WINH, g.V_WDC, g.V_WEXC, g.V_LK_B, g.V_LK_A, g.V_IOFFSET,
+        g.vdda, g.vddp, g.gnda, g.pbulk,
+        aext_pp, aext_pe, aext_p.d[0], aext_p.d[1], aext_p.d[2], aext_p.d[3],
+        aerv__pp, aerv__pe, aerv_p.d[0], aerv_p.d[1], aerv_p.d[2], aerv_p.d[3]
+    );
+
+    aer::globals gd;
+    aer::globals_to_globals_w_analog g_to_ga(gd, g);
+    // transmitter interface
+    aer::transmitter::EDGE_INT<M, N> aext_e_int(gd,
+        tile_16x16.aext_pp, aext_pp,
+        tile_16x16.aext_pe, aext_pe,
+        , aext_p
+    );
+    aext_e_int.x_data.d[0] = tile_16x16.aext_p_d0;
+    aext_e_int.x_data.d[1] = tile_16x16.aext_p_d1;
+    aext_e_int.x_data.d[2] = tile_16x16.aext_p_d2;
+    aext_e_int.x_data.d[3] = tile_16x16.aext_p_d3;
+
+    // receiver interface
+    aer::receiver::EDGE_INT<M-1, N> aerv_e_int(gd,
+        aerv__pp, tile_16x16.aerv_pp,
+        aerv__pe, tile_16x16.aerv_pe,
+        aerv_p,
+    );
+    aerv_e_int.y_data.d[0] = tile_16x16.aerv_p_d0;
+    aerv_e_int.y_data.d[1] = tile_16x16.aerv_p_d1;
+    aerv_e_int.y_data.d[2] = tile_16x16.aerv_p_d2;
+    aerv_e_int.y_data.d[3] = tile_16x16.aerv_p_d3;
+}
+
+export defproc Wrapper(aer::globals_w_analog g) {
+    BraindropTileArray_top tile_16x16_top;
+    tile_16x16_top.g = g;
+}
+
+Wrapper dut;

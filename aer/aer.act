@@ -295,7 +295,7 @@ template <pint M, p4M, p2M; pint tile_i[p4M/16], tile_j[p4M/16];
           pbool unit_aext>
 defproc BRAIN_AER (globals_w_analog ga;
     bool aext_nrn_req[p4M], aext_nrn_ack[p4M];
-    bool aext__pp, aext_pe; c1of<4> aext__p;
+    bool aext_pp, aext_pe; c1of<4> aext_p;
     bool aerv__pp, aerv__pe; c1of<4> aerv_p;
     a1of2 aerv_syn[p4M/4]; aMx1of4<4> aerv__mem[p4M/4/4])
     // aer system for braindrop / brainstorm
@@ -320,7 +320,7 @@ defproc BRAIN_AER (globals_w_analog ga;
     globals_to_globals_w_analog g_to_ga(g, ga);
 
     // transmitter interface
-    transmitter::EDGE_INT<M, N> aext_e_int(g,, aext__pp,, aext_pe,, aext__p);
+    transmitter::EDGE_INT<M, N> aext_e_int(g,, aext_pp,, aext_pe,, aext_p);
 
     // receiver interface
     receiver::EDGE_INT<M_SPK-1, N>
