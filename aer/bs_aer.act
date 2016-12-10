@@ -137,6 +137,7 @@ defproc BS_AER_INT_wrapper (globals g;
     bool PP_RX, PE_RX; d1of<4> P_RX;
     eMx1of2<M_1of2> SPK_RX; eMx1of2<M_1of2+6> MEM_RX)
     // converts to data types used by the rest of the BS repo
+{
     bool aext_pp = PP_TX;
     bool aext_pe = PE_TX;
 
