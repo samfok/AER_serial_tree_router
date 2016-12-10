@@ -7,7 +7,6 @@ AER_MAKE_FILES := $(AER_SUBDIRS:%=%/Makefile)
 SUBDIRS := $(TILE_SUBDIRS) $(AER_SUBDIRS)
 
 default: tile_make_files aer_make_files all
-	echo $(SUBDIRS)
 
 tile_make_files: $(TILE_MAKE_FILES)
 aer_make_files: $(AER_MAKE_FILES)
