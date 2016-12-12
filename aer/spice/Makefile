@@ -1,4 +1,5 @@
-COSIM := ~/bin/cosim_vpsub_vnsub.pl
+COSIM := cosim.pl
+ACT_PATH := $(subst alex_,,$(ACT_PATH))
 SPICE_ACT := $(sort $(shell find * -name '*.act'))
 SPICE_HSIM := $(SPICE_ACT:%spice.act=%hsim.fsdb)
 
