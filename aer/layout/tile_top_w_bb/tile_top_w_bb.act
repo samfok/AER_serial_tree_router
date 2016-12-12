@@ -22,9 +22,7 @@ defproc BraindropTileArray_top(aer::globals_w_analog g;
         g.ADC_OUT[0], g.ADC_OUT[1],
         g.V_REF, g.V_R, g.V_G, g.V_PE_PD, g.V_PE_PU,
         g.V_WINH, g.V_WDC, g.V_WEXC, g.V_LK_B, g.V_LK_A, g.V_IOFFSET,
-        g.vdda, g.vddp, g.gnda, g.pbulk,
-        aext_pp, aext_pe, aext_p.d[0], aext_p.d[1], aext_p.d[2], aext_p.d[3],
-        aerv__pp, aerv__pe, aerv_p.d[0], aerv_p.d[1], aerv_p.d[2], aerv_p.d[3]
+        g.vdda, g.vddp, g.gnda, g.pbulk,,,,,,,,,,,,
     );
 
     aer::globals gd;
