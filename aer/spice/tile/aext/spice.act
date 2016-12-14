@@ -26,18 +26,10 @@ export defproc Wrapper(globals_np g_np; a1of<1> nrn_src[16]; eMx1of4<2> aext_snk
 
     pint M=2;
     pint NN=16;
-    pint NSYN=4;
+    pint N_SYN=4;
     pint M_SPK=2;
     pint M_MEM=4;
     pint D=4;
-    
-    // transmitter components
-    interface::OUT_a1ofN<D> out(g,,,,);
-    interface::DESERIAL_RING<M, D, false, true> deserial(g, out.y,,);
-    deserial.y.e = aext_snk.e;
-    (; m : M_SPK :
-        deserial.y.m[m].d = aext_snk.m[m].d;
-    )
     
     // tile
     bool nrn_req[NN];
@@ -46,28 +38,26 @@ export defproc Wrapper(globals_np g_np; a1of<1> nrn_src[16]; eMx1of4<2> aext_snk
       nrn_req[nn] = nrn_src[nn].d[0];
       nrn_ack[nn] = nrn_src[nn].a;
     )
-    brain_aer::TILE_AER<false> tile(
-        g, out.xe,,,,,, nrn_req, nrn_ack,,,);
+    brain_aer::TILE_AER<false> tile(g,,,,,,, nrn_req, nrn_ack,,,);
 
     tile.aerv__pp = g.Vdd;
-    (; d : D :
-        tile.aerv_p.d[d] = g.GND;
-    )
-    (; n : NSYN :
-        tile.syn_spk[n].a = g.GND;
-    )
+    (; d : D : tile.aerv_p.d[d] = g.GND;)
+    (; n : N_SYN : tile.syn_spk[n].a = g.GND;)
     tile._mem.a = g.GND;
     
-    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-        tile.aext__pp<6> -> out.xp-
-        ~tile.aext__pp<9> -> out.xp+
-        (: d : D :
-            tile.aext__p.d[d]<6> -> out.x.d[d]-
-            ~tile.aext__p.d[d]<9> -> out.x.d[d]+
+    // interface
+    transmitter::EDGE_INT<M, D>
+        e_int(g, tile.aext_pp,, tile.aext_pe,, tile.aext_p,);
+    brain_transmitter::AEXT_INT<M, D>
+        a_int(g, e_int.y_phi, e_int.y_enable, e_int.y_data,);
+    (; m : M :
+        (; d : D :
+            a_int.y_spk.m[m].d[d] = aext_snk.m[m].d[d];
         )
-    }
+    )
+    a_int.y_spk.e = aext_snk.e;
+} // defproc Wrapper
 
-}
-}
+} // namespace aer
 
 aer::Wrapper dut;
