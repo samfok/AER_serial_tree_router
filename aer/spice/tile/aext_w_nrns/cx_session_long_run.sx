@@ -1,0 +1,107 @@
+### Custom WaveView session file (version K-2015.06 build 05/23/15) ###
+### saved at 20:14:04 on Thu Dec 15 2016 ###
+wdf 0 "/ufs/vlsi/brainstorm/brainstorm/act/aer/aer/spice/tile/aext_w_nrns/cx_session_long_run.sx.wdf" load=used 
+scalar list
+waveview_begin 1  stack  offset=0 name_b=274 mntr_b=274 name_width=259 "name=power_bias" 
+  panel_begin linear pidx=0 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.v(ga_2v__g)" attr=1:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.v(ga_2v__ioffset)" attr=2:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.v(ga_2v__lk__a)" attr=4:1:1:0 disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.v(ga_2v__lk__b)" attr=4:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=4 fidx=0 "delim=." sigtype=1 "name=xdut.v(ga_2v__pe__pd)" attr=5:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=5 fidx=0 "delim=." sigtype=1 "name=xdut.v(ga_2v__pe__pu)" attr=6:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=6 fidx=0 "delim=." sigtype=1 "name=xdut.v(ga_2v__r)" attr=7:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=7 fidx=0 "delim=." sigtype=1 "name=xdut.v(ga_2v__ref)" attr=0:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=8 fidx=0 "delim=." sigtype=1 "name=xdut.v(ga_2v__wdc)" attr=1:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=9 fidx=0 "delim=." sigtype=1 "name=xdut.v(ga_2v__wexc)" attr=2:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=10 fidx=0 "delim=." sigtype=1 "name=xdut.v(ga_2v__winh)" attr=3:1:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=1 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=v(g_2__preset_dut)" attr=1:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=v(g_2__sreset_dut)" attr=2:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.v(g_2preset)" attr=3:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.v(g_2sreset)" attr=4:3:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=2 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=v(gnd)" attr=5:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=v(gnda)" attr=6:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=v(pbulk)" attr=7:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=v(vdd)" attr=0:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=4 fidx=0 "delim=." sigtype=1 "name=v(vdda)" attr=1:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=5 fidx=0 "delim=." sigtype=1 "name=v(vddp)" attr=2:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=6 fidx=0 "delim=." sigtype=1 "name=v(vnsub)" attr=3:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=7 fidx=0 "delim=." sigtype=1 "name=v(vpsub)" attr=4:3:1:0 autoset=true disp=show 
+  panel_end
+waveview_end
+waveview_begin 2  stack  offset=0 name_b=495 mntr_b=495 name_width=480 "name=transmitter" 
+  panel_begin linear pidx=0 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=v(aext__snk_2e_dut)" attr=1:5:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=1 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=v(aext__snk_2b_01_1_2d_00_1_dut)" attr=5:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=v(aext__snk_2b_01_1_2d_01_1_dut)" attr=6:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=v(aext__snk_2b_01_1_2d_02_1_dut)" attr=7:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=v(aext__snk_2b_01_1_2d_03_1_dut)" attr=0:4:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=2 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=v(aext__snk_2b_00_1_2d_00_1_dut)" attr=1:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=v(aext__snk_2b_00_1_2d_01_1_dut)" attr=2:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=v(aext__snk_2b_00_1_2d_02_1_dut)" attr=3:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=v(aext__snk_2b_00_1_2d_03_1_dut)" attr=4:1:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=3 nvpos=0 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__ack_00_1)" attr=0:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__ack_010_1)" attr=1:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__ack_011_1)" attr=2:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__ack_012_1)" attr=3:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=4 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__ack_013_1)" attr=4:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=5 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__ack_014_1)" attr=5:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=6 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__ack_015_1)" attr=6:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=7 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__ack_01_1)" attr=7:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=8 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__ack_02_1)" attr=0:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=9 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__ack_03_1)" attr=1:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=10 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__ack_04_1)" attr=2:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=11 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__ack_05_1)" attr=3:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=12 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__ack_06_1)" attr=4:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=13 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__ack_07_1)" attr=5:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=14 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__ack_08_1)" attr=6:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=15 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__ack_09_1)" attr=7:6:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=4 nvpos=0 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__req_00_1)" attr=0:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__req_010_1)" attr=1:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__req_011_1)" attr=2:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__req_012_1)" attr=3:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=4 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__req_013_1)" attr=4:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=5 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__req_014_1)" attr=5:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=6 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__req_015_1)" attr=6:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=7 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__req_01_1)" attr=7:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=8 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__req_02_1)" attr=0:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=9 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__req_03_1)" attr=1:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=10 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__req_04_1)" attr=2:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=11 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__req_05_1)" attr=3:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=12 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__req_06_1)" attr=4:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=13 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__req_07_1)" attr=5:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=14 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__req_08_1)" attr=6:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=15 fidx=0 "delim=." sigtype=1 "name=xdut.v(aer_2aext__nrn__req_09_1)" attr=7:7:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=5 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xaer.xtile__nrn__mem_00_1.xi3.xi1.v(out)" attr=0:5:1:0 autoset=true disp=show 
+  panel_end
+waveview_end
+waveview_begin 3  stack  offset=0 name_b=449 mntr_b=449 name_width=434 "name=soma" 
+  panel_begin linear pidx=0 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xaer.xtile__nrn__mem_00_1.xi3.xi1.v(_ack)" attr=5:5:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=1 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xaer.xtile__nrn__mem_00_1.xi3.xi1.v(prev_out)" attr=3:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.xaer.xtile__nrn__mem_00_1.xi3.xi1.v(out)" attr=4:4:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=2 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xaer.xtile__nrn__mem_00_1.xi3.xi1.v(n_vm)" attr=0:0:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=3 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.xaer.xtile__nrn__mem_00_1.xi3.xi1.v(_disable)" attr=4:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.xaer.xtile__nrn__mem_00_1.xi3.xi1.v(disable)" attr=5:5:1:0 autoset=true disp=show 
+  panel_end
+waveview_end

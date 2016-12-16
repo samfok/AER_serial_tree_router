@@ -42,3 +42,5 @@ hsim**
 **\.nfs**
 **\.spef**
 **cosim_conf_base.xml
+**pqr.trace
+**pqr.names

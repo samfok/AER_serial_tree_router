@@ -6,23 +6,8 @@ namespace aer {
 
 export defproc Wrapper(globals_np g_np; a1of<1> nrn_src[16]; eMx1of4<2> aext_snk)
 {
-    bool Vdd;
-    bool GND;
-    bool vpsub;
-    bool vnsub;
-    globals g;
-
-    // rails and reset
-    g.Vdd = Vdd;
-    g.GND = GND;
-    g.vpsub = vpsub;
-    g.vnsub = vnsub;
-    prs <Vdd, GND> {
-        g_np._sReset<20> => g.sReset-
-        g_np._pReset<20> => g.pReset-
-    }
-    g._pReset = g_np._pReset;
-    g._sReset = g_np._sReset;
+    globals g; bool Vdd, GND, vpsub, vnsub;
+    test::COSIM_GLOBALS_RESET cosim_reset(g_np, g, Vdd, GND, vpsub, vnsub);
 
     pint M=2;
     pint NN=16;
