@@ -24,9 +24,9 @@
   <global name="netgen_cfg" value="/ufs/cad/lib/netgen/st28soi.conf" />
 
   <!-- Simulation time settings -->
-  <global name="sim_time" value="20" />
+  <global name="sim_time" value="10" />
   <global name="timescale" value="1ns/10ps" />
-  <global name="_sReset_time" value="5" />
+  <global name="_sReset_time" value="3" />
   <global name="_pReset_time" value="2" />
 
   <!-- Measurement start/stop times -->
@@ -34,7 +34,7 @@
   <global name="measurement_stop_time" value="20n" />	<!--usually end of sim  !-->
 
   <!-- SPICE models -->
-  <global name="additional_spice_files" value="/ufs/cad/lib/spice/st28soi.spi" />
+  <global name="additional_spice_files" value="/ufs/cad/lib/spice/st28soi.spi footer.spi" />
 
   <!-- Global voltages (Vdd, GND, Vdd/2, Vdd_harness) -->
 
