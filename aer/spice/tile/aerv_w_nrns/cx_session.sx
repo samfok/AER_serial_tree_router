@@ -1,0 +1,83 @@
+### Custom WaveView session file (version K-2015.06 build 05/23/15) ###
+### saved at 19:43:13 on Fri Dec 16 2016 ###
+wdf 0 "/ufs/vlsi/brainstorm/brainstorm/act/aer/aer/spice/tile/aerv_w_nrns/hsim.fsdb" load=used 
+scalar list
+waveview_begin 1  stack  offset=0 name_b=337 mntr_b=337 name_width=322 "name=receiver" 
+  panel_begin linear pidx=0 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.x__.v(aer_2aerv__syn_00_1_2a)" attr=1:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.x__.v(aer_2aerv__syn_01_1_2a)" attr=2:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.x__.v(aer_2aerv__syn_02_1_2a)" attr=3:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.x__.v(aer_2aerv__syn_03_1_2a)" attr=4:3:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=1 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.x__.v(aer_2aerv__syn_00_1_2f)" attr=1:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.x__.v(aer_2aerv__syn_00_1_2t)" attr=2:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.x__.v(aer_2aerv__syn_01_1_2f)" attr=3:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.x__.v(aer_2aerv__syn_01_1_2t)" attr=4:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=4 fidx=0 "delim=." sigtype=1 "name=xdut.x__.v(aer_2aerv__syn_02_1_2f)" attr=5:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=5 fidx=0 "delim=." sigtype=1 "name=xdut.x__.v(aer_2aerv__syn_02_1_2t)" attr=6:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=6 fidx=0 "delim=." sigtype=1 "name=xdut.x__.v(aer_2aerv__syn_03_1_2f)" attr=7:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=7 fidx=0 "delim=." sigtype=1 "name=xdut.x__.v(aer_2aerv__syn_03_1_2t)" attr=0:7:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=2 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=v(aerv__spk__src_2e_dut)" attr=0:0:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=3 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=v(aerv__spk__src_2b_00_1_2d_00_1_dut)" attr=0:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=v(aerv__spk__src_2b_00_1_2d_01_1_dut)" attr=1:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=v(aerv__spk__src_2b_00_1_2d_02_1_dut)" attr=2:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=v(aerv__spk__src_2b_00_1_2d_03_1_dut)" attr=3:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=4 fidx=0 "delim=." sigtype=1 "name=v(aerv__spk__src_2b_01_1_2d_00_1_dut)" attr=4:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=5 fidx=0 "delim=." sigtype=1 "name=v(aerv__spk__src_2b_01_1_2d_01_1_dut)" attr=5:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=6 fidx=0 "delim=." sigtype=1 "name=v(aerv__spk__src_2b_01_1_2d_02_1_dut)" attr=6:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=7 fidx=0 "delim=." sigtype=1 "name=v(aerv__spk__src_2b_01_1_2d_03_1_dut)" attr=7:7:1:0 autoset=true disp=show 
+  panel_end
+waveview_end
+waveview_begin 2  stack  offset=0 name_b=456 mntr_b=456 name_width=441 "name=synapse" 
+  panel_begin linear pidx=0 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.x__.xaer.xtile__nrn__mem_00_1.xneuron_2x2_0.xsynapse.v(_sign)" attr=6:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.x__.xaer.xtile__nrn__mem_00_1.xneuron_2x2_1.xsynapse.v(_sign)" attr=7:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.x__.xaer.xtile__nrn__mem_00_1.xneuron_2x2_2.xsynapse.v(_sign)" attr=0:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.x__.xaer.xtile__nrn__mem_00_1.xneuron_2x2_3.xsynapse.v(_sign)" attr=1:0:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=1 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.x__.xaer.xtile__nrn__mem_00_1.xneuron_2x2_0.xsynapse.xipe.v(n_vpw)" attr=2:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.x__.xaer.xtile__nrn__mem_00_1.xneuron_2x2_1.xsynapse.xipe.v(n_vpw)" attr=3:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.x__.xaer.xtile__nrn__mem_00_1.xneuron_2x2_2.xsynapse.xipe.v(n_vpw)" attr=4:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.x__.xaer.xtile__nrn__mem_00_1.xneuron_2x2_3.xsynapse.xipe.v(n_vpw)" attr=5:4:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=2 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.x__.xaer.xtile__nrn__mem_00_1.xneuron_2x2_0.xsynapse.v(spk)" attr=5:5:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.x__.xaer.xtile__nrn__mem_00_1.xneuron_2x2_1.xsynapse.v(spk)" attr=6:6:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.x__.xaer.xtile__nrn__mem_00_1.xneuron_2x2_2.xsynapse.v(spk)" attr=7:7:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.x__.xaer.xtile__nrn__mem_00_1.xneuron_2x2_3.xsynapse.v(spk)" attr=0:0:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=3 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.x__.xaer.xtile__nrn__mem_00_1.xneuron_2x2_0.xsynapse.v(_pulse)" attr=0:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.x__.xaer.xtile__nrn__mem_00_1.xneuron_2x2_1.xsynapse.v(_pulse)" attr=1:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.x__.xaer.xtile__nrn__mem_00_1.xneuron_2x2_2.xsynapse.v(_pulse)" attr=2:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=." sigtype=1 "name=xdut.x__.xaer.xtile__nrn__mem_00_1.xneuron_2x2_3.xsynapse.v(_pulse)" attr=3:3:1:0 autoset=true disp=show 
+  panel_end
+waveview_end
+waveview_begin 3  stack  offset=0 name_b=442 mntr_b=442 name_width=427 "name=receiver+synapse" 
+  panel_begin linear pidx=0 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.x__.xaer.xtile__nrn__mem_00_1.xneuron_2x2_0.xsynapse.v(_sign)" attr=0:0:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.x__.xaer.xtile__nrn__mem_00_1.xneuron_2x2_0.xsynapse.v(n_vin_a)" attr=1:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.x__.xaer.xtile__nrn__mem_00_1.xneuron_2x2_0.xsynapse.xipe.v(n_vpw)" attr=2:2:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=1 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.x__.xaer.xtile__nrn__mem_00_1.xneuron_2x2_1.xsynapse.v(_sign)" attr=1:1:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.x__.xaer.xtile__nrn__mem_00_1.xneuron_2x2_1.xsynapse.v(n_vin_a)" attr=2:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.x__.xaer.xtile__nrn__mem_00_1.xneuron_2x2_1.xsynapse.xipe.v(n_vpw)" attr=3:3:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=2 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.x__.xaer.xtile__nrn__mem_00_1.xneuron_2x2_2.xsynapse.v(_sign)" attr=2:2:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.x__.xaer.xtile__nrn__mem_00_1.xneuron_2x2_2.xsynapse.v(n_vin_a)" attr=3:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.x__.xaer.xtile__nrn__mem_00_1.xneuron_2x2_2.xsynapse.xipe.v(n_vpw)" attr=4:4:1:0 autoset=true disp=show 
+  panel_end
+  panel_begin linear pidx=3 spath=name+file xlabel=sec 
+    line src=wdf lidx=0 fidx=0 "delim=." sigtype=1 "name=xdut.x__.xaer.xtile__nrn__mem_00_1.xneuron_2x2_3.xsynapse.v(_sign)" attr=3:3:1:0 autoset=true disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=." sigtype=1 "name=xdut.x__.xaer.xtile__nrn__mem_00_1.xneuron_2x2_3.xsynapse.v(n_vin_a)" attr=4:4:1:0 autoset=true disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=." sigtype=1 "name=xdut.x__.xaer.xtile__nrn__mem_00_1.xneuron_2x2_3.xsynapse.xipe.v(n_vpw)" attr=5:5:1:0 autoset=true disp=show 
+  panel_end
+waveview_end

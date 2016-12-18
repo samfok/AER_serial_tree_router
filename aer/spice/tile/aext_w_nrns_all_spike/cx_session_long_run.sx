@@ -1,6 +1,6 @@
 ### Custom WaveView session file (version K-2015.06 build 05/23/15) ###
-### saved at 13:52:25 on Fri Dec 16 2016 ###
-wdf 0 "/ufs/vlsi/brainstorm/brainstorm/act/aer/aer/spice/tile/aext_w_nrns/cx_session_long_run.sx.wdf" load=used 
+### saved at 14:02:19 on Fri Dec 16 2016 ###
+wdf 0 "/ufs/vlsi/brainstorm/brainstorm/act/aer/aer/spice/tile/aext_w_nrns_all_spike/cx_session_long_run.sx.wdf" load=used 
 scalar list
 waveview_begin 1  stack  offset=0 name_b=274 mntr_b=274 name_width=259 "name=power_bias" 
   panel_begin linear pidx=0 spath=name+file xlabel=sec 

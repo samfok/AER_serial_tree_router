@@ -29,7 +29,7 @@
   <global name="measurement_stop_time" value="50u" />	<!--usually end of sim  !-->
 
   <!-- SPICE models -->
-  <global name="additional_spice_files" value="/ufs/cad/lib/spice/st28soi.spi /ufs/vlsi/brainstorm/brainstorm/spice/power.spi /ufs/vlsi/brainstorm/brainstorm/spice/DevicesHeader.sp /ufs/vlsi/brainstorm/brainstorm/spice/BraindropTile_Fake_Bias_Driver.sp FakeMem.sp /ufs/vlsi/brainstorm/brainstorm/spice/BraindropTileNeuronsBBMemory.sp" />
+  <global name="additional_spice_files" value="/ufs/cad/lib/spice/st28soi.spi /ufs/vlsi/brainstorm/brainstorm/spice/power.spi /ufs/vlsi/brainstorm/brainstorm/spice/DevicesHeader.sp /ufs/vlsi/brainstorm/brainstorm/spice/BraindropTile_Bias_Driver.sp FakeMem.sp /ufs/vlsi/brainstorm/brainstorm/spice/BraindropTileNeuronsBBMemory.sp" />
 
   <!-- Global voltages (Vdd, GND, Vdd/2, Vdd_harness) -->
 
@@ -61,7 +61,6 @@
   <global name="excessive_rise_fall_fanout" value="" /><!--0..2,def=1, driving trans.!-->
   <global name="high_impedance_fanout" value="" /><!--0..2,def=0, all trans. !-->
 
-
   <global name="subcircuit_node_voltage" value="" /><!-- ave, max v-values for node !-->
   <global name="HSIMNODECAP" value="" />	<!--def="*"(all), node capacitance list-->
 
@@ -76,8 +75,6 @@
 
   <global name="extra_hsim_parameters">
 	
-	
  </global>
 
 </cosimulation>
-

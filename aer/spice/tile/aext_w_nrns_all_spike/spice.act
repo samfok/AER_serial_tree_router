@@ -1,62 +1,9 @@
-// Spice the AEXT portion of the braindrop / brainstorm AER system
-import "aer/aer/aer.act";
-import "aer/lib/test.act";
-
-export defproc BraindropTile_Bias_Driver(bool?
-    g_2v__g, g_2v__ioffset, g_2v__lk__a, g_2v__lk__b, g_2v__pe__pd,
-    g_2v__pe__pu, g_2v__r, g_2v__ref, g_2v__wdc, g_2v__wexc, g_2v__winh,
-    g_2gnda, g_2vdda, g_2vddp, g_2pbulk, g_2vnsub) {}
-
+// Spice the AEXT portion of the braindrop tile with 16 spking neurons
+import "aer/aer/spice/tile/aext_w_nrns.act";
 namespace aer {
-
 export defproc Wrapper(globals_np g_np; eMx1of4<2> aext_snk)
 {
-    globals g; bool Vdd, GND, vpsub, vnsub;
-    test::COSIM_GLOBALS_RESET cosim_reset(g_np, g, Vdd, GND, vpsub, vnsub);
-
-    bool gnda, vdda, vddp, pbulk;
-    globals_w_analog ga; 
-    ga.gnda = gnda;
-    ga.vdda = vdda;
-    ga.vddp = vddp;
-    ga.pbulk = pbulk;
-    globals_to_globals_w_analog g_to_ga(g, ga);
-    BraindropTile_Bias_Driver bias_driver(
-        ga.V_G, ga.V_IOFFSET, ga.V_LK_A, ga.V_LK_B, ga.V_PE_PD,
-        ga.V_PE_PU, ga.V_R, ga.V_REF,
-        ga.V_WDC, ga.V_WEXC, ga.V_WINH,
-        ga.gnda, ga.vdda, ga.vddp, ga.pbulk, ga.vnsub
-    );
-
-    pint M=2;
-    pint NN=16;
-    pint N_SYN=4;
-    pint N_MEM=1;
-    pint M_SPK=2;
-    pint M_MEM=4;
-    pint D=4;
-    pint p4M=16;
-    pint p2M=4;
-    
-    // aer
-    brain_aer::NRN_AER<M, p4M, p2M, {0}, {0}, false>
-        aer(ga,,,,,,,,,,);
-    aer.aerv__pp = g.Vdd;
-    (; d : D : aer.aerv_p.d[d] = g.GND;)
-    
-    // interface
-    transmitter::EDGE_INT<M, D>
-        e_int(g, aer.aext_pp,, aer.aext_pe,, aer.aext_p,);
-    brain_transmitter::AEXT_INT<M, D>
-        a_int(g, e_int.y_phi, e_int.y_enable, e_int.y_data,);
-    (; m : M :
-        (; d : D :
-            a_int.y_spk.m[m].d[d] = aext_snk.m[m].d[d];
-        )
-    )
-    a_int.y_spk.e = aext_snk.e;
-} // defproc Wrapper
-
-} // namespace aer
-
+    Wrapper_ _(g_np, aext_snk);
+}
+}
 aer::Wrapper dut;
