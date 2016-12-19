@@ -1,4 +1,4 @@
-// Spice the synaptic input of the tile
+// Spice the memory input of the tile
 import "aer/aer/spice/tile/aerv_w_nrns.act";
 namespace aer {
 export defproc Wrapper(globals_np g_np; eMx1of4<2> aerv_spk_src; eMx1of4<5> aerv_mem_src)
