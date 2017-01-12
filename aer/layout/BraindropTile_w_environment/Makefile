@@ -1,4 +1,4 @@
-NETGEN := netgen -l -p'Wrapper<>' -B
+NETGEN := netgen -l -p'TOP<>' -B
 ACT_PATH := $(subst alex_,,$(ACT_PATH))
 ROULETTE_PATH := samfok@roulette.stanford.edu:~/netlist/
 

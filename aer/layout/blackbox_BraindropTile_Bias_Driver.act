@@ -1,0 +1,5 @@
+// blackbox for neuron bias drivers
+export defproc BraindropTile_Bias_Driver(bool?
+    g_2v__g, g_2v__ioffset, g_2v__lk__a, g_2v__lk__b, g_2v__pe__pd,
+    g_2v__pe__pu, g_2v__r, g_2v__ref, g_2v__wdc, g_2v__wexc, g_2v__winh,
+    g_2gnda, g_2vdda, g_2vddp, g_2pbulk, g_2vnsub) {}

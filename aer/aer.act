@@ -68,7 +68,6 @@ namespace brain_aer {
     }
 
     export
-    template <pbool unit_aext>
     defproc TILE_AER (globals g;
         bool aext_pp, aext_pe; c1of<4> aext_p;
         bool aerv__pp, aerv__pe; c1of<4> aerv_p;
@@ -163,7 +162,7 @@ namespace brain_aer {
         globals_to_globals_w_analog g_to_ga(g, ga);
     
         // TILEs
-        TILE_AER<unit_aext> tile_aer[N_TILE];
+        TILE_AER tile_aer[N_TILE];
         (; n : N_TILE : tile_aer[n].g = g;)
         // neuron, synapse, memory
         [ ~LAYOUT ->

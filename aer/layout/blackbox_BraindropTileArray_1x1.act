@@ -1,0 +1,13 @@
+// blackbox for 1x1 tile array
+defproc BraindropTileArray_1x1(bool?
+    Vdd, GND, pReset, __pReset, __sReset, vpsub, vnsub,
+    ADC__OUT_00_1, ADC__OUT_01_1,
+    V__REF, V__R, V__G, V__PE__PD, V__PE__PU,
+    V__WINH, V__WDC, V__WEXC, V__LK__B, V__LK__A,
+    V__IOFFSET,
+    vdda, vddp, gnda, pbulk,
+    aext__pp, aext_pe,
+    aext__p_d_00, aext__p_d_01, aext__p_d_02, aext__p_d_03,
+    aerv__pp, aerv__pe,
+    aerv_p_d_00, aerv_p_d_01, aerv_p_d_02, aerv_p_d_03) {}
+

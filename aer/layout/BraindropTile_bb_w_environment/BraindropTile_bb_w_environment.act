@@ -1,22 +1,7 @@
 // defines a single tile
 import "aer/aer/aer.act";
-
-export defproc BraindropTile_Bias_Driver(bool?
-    g_2v__g, g_2v__ioffset, g_2v__lk__a, g_2v__lk__b, g_2v__pe__pd,
-    g_2v__pe__pu, g_2v__r, g_2v__ref, g_2v__wdc, g_2v__wexc, g_2v__winh,
-    g_2gnda, g_2vdda, g_2vddp, g_2pbulk, g_2vnsub) {}
-
-defproc BraindropTileArray_1x1(bool?
-    Vdd, GND, pReset, __pReset, __sReset, vpsub, vnsub,
-    ADC__OUT_00_1, ADC__OUT_01_1,
-    V__REF, V__R, V__G, V__PE__PD, V__PE__PU,
-    V__WINH, V__WDC, V__WEXC, V__LK__B, V__LK__A,
-    V__IOFFSET,
-    vdda, vddp, gnda, pbulk,
-    aext__pp, aext_pe,
-    aext__p_d_00, aext__p_d_01, aext__p_d_02, aext__p_d_03,
-    aerv__pp, aerv__pe,
-    aerv_p_d_00, aerv_p_d_01, aerv_p_d_02, aerv_p_d_03) {}
+import "aer/aer/layout/blackbox_BraindropTile_Bias_Driver.act";
+import "aer/aer/layout/blackbox_BraindropTileArray_1x1.act";
 
 defproc TOP(aer::globals_w_analog ga) {
     bool Vdd, GND, vpsub, vnsub;
@@ -90,8 +75,4 @@ defproc TOP(aer::globals_w_analog ga) {
     tile.aerv_p_d_03 = ga.GND;
 }
 
-export defproc Wrapper(aer::globals_w_analog ga) {
-    TOP top(ga);
-}
-
-Wrapper dut;
+TOP dut;
