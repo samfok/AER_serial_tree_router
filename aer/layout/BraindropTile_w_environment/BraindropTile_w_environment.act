@@ -1,0 +1,77 @@
+// defines a single tile
+import "aer/aer/aer.act";
+
+export defproc BraindropTile_Bias_Driver(bool?
+    g_2v__g, g_2v__ioffset, g_2v__lk__a, g_2v__lk__b, g_2v__pe__pd,
+    g_2v__pe__pu, g_2v__r, g_2v__ref, g_2v__wdc, g_2v__wexc, g_2v__winh,
+    g_2gnda, g_2vdda, g_2vddp, g_2pbulk, g_2vnsub) {}
+
+defproc BraindropTileArray_1x1(aer::globals_w_analog g;
+    bool aext_pp, aext_pe; aer::c1of<4> aext_p;
+    bool aerv__pp, aerv__pe; aer::c1of<4> aerv_p)
+{
+    pint M=2;
+    pint p4M=16;
+    pint p2M=4;
+    pint tile_i[p4M/16];
+    pint tile_j[p4M/16];
+    tile_i = {0};
+    tile_j = {0};
+
+    aer::brain_aer::NRN_AER<M, p4M, p2M, tile_i, tile_j, false> tile_1x1;
+    tile_1x1.ga = g;
+    tile_1x1.aext_pp = aext_pp;
+    tile_1x1.aext_pe = aext_pe;
+    tile_1x1.aext_p = aext_p;
+    tile_1x1.aerv__pp = aerv__pp;
+    tile_1x1.aerv__pe = aerv__pe;
+    tile_1x1.aerv_p = aerv_p;
+}
+
+defproc TOP(aer::globals_w_analog ga) {
+    bool Vdd, GND, vpsub, vnsub;
+    bool gnda, vdda, vddp, pbulk;
+    bool _sReset, _pReset, sReset, pReset;
+    ga.Vdd = Vdd;
+    ga.GND = GND;
+    ga.vpsub = vpsub;
+    ga.vnsub = vnsub;
+    ga.gnda = gnda;
+    ga.vdda = vdda;
+    ga.vddp = vddp;
+    ga.pbulk = pbulk;
+    ga._sReset = _sReset;
+    ga._pReset = _pReset;
+    ga.sReset = sReset;
+    ga.pReset = pReset;
+    aer::globals g;
+    aer::globals_to_globals_w_analog g_to_ga(g, ga);
+    aer::test::RESET reset(
+        g.Vdd, g.GND, g.vpsub, g.vnsub,
+        g._sReset, g._pReset, g.sReset, g.pReset
+    );
+
+    BraindropTile_Bias_Driver bias_driver(
+        ga.V_G, ga.V_IOFFSET, ga.V_LK_A, ga.V_LK_B, ga.V_PE_PD,
+        ga.V_PE_PU, ga.V_R, ga.V_REF,
+        ga.V_WDC, ga.V_WEXC, ga.V_WINH,
+        ga.gnda, ga.vdda, ga.vddp, ga.pbulk, ga.vnsub
+    );
+
+    BraindropTileArray_1x1 tile;
+    tile.g = ga;
+
+    aer::test::SINK_SERIAL<4> sink;
+    sink.g = g;
+    sink.p = tile.aext_pp;
+    sink.e = tile.aext_pe;
+    sink.d = tile.aext_p;
+    tile.aerv__pp = ga.Vdd;
+    (; d : 4 : tile.aerv_p.d[d] = ga.GND;)
+}
+
+export defproc Wrapper(aer::globals_w_analog ga) {
+    TOP top(ga);
+}
+
+Wrapper dut;
