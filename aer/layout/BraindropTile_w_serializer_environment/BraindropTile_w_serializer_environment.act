@@ -1,0 +1,83 @@
+import "lib/channel.act";
+import "lib/globals.act";
+import "lib/env.act";
+import "aer/aer/bs_aer.act";
+import "aer/aer/layout/blackbox_BraindropTile_Bias_Driver.act";
+
+defproc BraindropTileArray_1x1(aer::globals_w_analog g;
+    bool aext_pp, aext_pe; aer::c1of<4> aext_p;
+    bool aerv__pp, aerv__pe; aer::c1of<4> aerv_p)
+{
+    pint M=2;
+    pint p4M=16;
+    pint p2M=4;
+    pint tile_i[p4M/16];
+    pint tile_j[p4M/16];
+    tile_i = {0};
+    tile_j = {0};
+
+    aer::brain_aer::NRN_AER<M, p4M, p2M, tile_i, tile_j, false> tile_1x1;
+    tile_1x1.ga = g;
+    tile_1x1.aext_pp = aext_pp;
+    tile_1x1.aext_pe = aext_pe;
+    tile_1x1.aext_p = aext_p;
+    tile_1x1.aerv__pp = aerv__pp;
+    tile_1x1.aerv__pe = aerv__pe;
+    tile_1x1.aerv_p = aerv_p;
+}
+
+defproc TOP(globals g; eMx1of2<10> AERV_MEM_IN)
+{
+    bool Vdd, GND, vpsub, vnsub;
+    bool gnda, vdda, vddp, pbulk;
+    bool _sReset, _pReset, sReset, pReset;
+    g.Vdd = Vdd;
+    g.GND = GND;
+    g.vpsub = vpsub;
+    g.vnsub = vnsub;
+    g.gnda = gnda;
+    g.vdda = vdda;
+    g.vddp = vddp;
+    g.pbulk = pbulk;
+    g._sReset = _sReset;
+    g._pReset = _pReset;
+    g.sReset = sReset;
+    g.pReset = pReset;
+    aer::globals_w_analog ga;
+    compat_bs::globals_w_analog ga_t_g(ga, g);
+    aer::test::RESET reset(
+        g.Vdd, g.GND, g.vpsub, g.vnsub,
+        g._sReset, g._pReset, g.sReset, g.pReset
+    );
+
+    BraindropTile_Bias_Driver bias_driver(
+        ga.V_G, ga.V_IOFFSET, ga.V_LK_A, ga.V_LK_B, ga.V_PE_PD,
+        ga.V_PE_PU, ga.V_R, ga.V_REF,
+        ga.V_WDC, ga.V_WEXC, ga.V_WINH,
+        ga.gnda, ga.vdda, ga.vddp, ga.pbulk, ga.vnsub
+    );
+
+    pint M = 4;
+    pint D = 4;
+    bool PP_TX, PE_TX; d1of<D> P_TX;
+    bool PP_RX, PE_RX; d1of<D> P_RX;
+
+    eMx1of2<M> AEXT_OUT;
+    eMx1of2<M> AERV_SPK_IN;
+
+    BS_AER_INT_wrapper<M, M/2> aer_int(g,
+        PP_TX, PE_TX, P_TX, AEXT_OUT, 
+        PP_RX, PE_RX, P_RX, AERV_SPK_IN, AERV_MEM_IN
+    );
+
+    BraindropTileArray_1x1 tile;
+    tile.g = ga;
+    tile.aext_pp = PP_TX;
+    tile.aext_pe = PE_TX;
+    (; d : D : tile.aext_p.d[d] = P_TX.d[d];)
+    tile.aerv__pp = PP_RX;
+    tile.aerv__pe = PE_RX;
+    (; d : D : tile.aerv_p.d[d] = P_RX.d[d];)
+}
+
+TOP dut;
