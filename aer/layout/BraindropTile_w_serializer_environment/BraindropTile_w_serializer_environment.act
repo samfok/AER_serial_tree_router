@@ -26,25 +26,25 @@ defproc BraindropTileArray_1x1(aer::globals_w_analog g;
     tile_1x1.aerv_p = aerv_p;
 }
 
-defproc TOP(globals g; eMx1of2<10> AERV_MEM_IN)
+defproc TOP(aer::globals_w_analog ga)
 {
     bool Vdd, GND, vpsub, vnsub;
     bool gnda, vdda, vddp, pbulk;
     bool _sReset, _pReset, sReset, pReset;
-    g.Vdd = Vdd;
-    g.GND = GND;
-    g.vpsub = vpsub;
-    g.vnsub = vnsub;
-    g.gnda = gnda;
-    g.vdda = vdda;
-    g.vddp = vddp;
-    g.pbulk = pbulk;
-    g._sReset = _sReset;
-    g._pReset = _pReset;
-    g.sReset = sReset;
-    g.pReset = pReset;
-    aer::globals_w_analog ga;
-    compat_bs::globals_w_analog ga_t_g(ga, g);
+    ga.Vdd = Vdd;
+    ga.GND = GND;
+    ga.vpsub = vpsub;
+    ga.vnsub = vnsub;
+    ga.gnda = gnda;
+    ga.vdda = vdda;
+    ga.vddp = vddp;
+    ga.pbulk = pbulk;
+    ga._sReset = _sReset;
+    ga._pReset = _pReset;
+    ga.sReset = sReset;
+    ga.pReset = pReset;
+    aer::globals g;
+    aer::globals_to_globals_w_analog g_to_ga(g, ga);
     aer::test::RESET reset(
         g.Vdd, g.GND, g.vpsub, g.vnsub,
         g._sReset, g._pReset, g.sReset, g.pReset
@@ -57,27 +57,56 @@ defproc TOP(globals g; eMx1of2<10> AERV_MEM_IN)
         ga.gnda, ga.vdda, ga.vddp, ga.pbulk, ga.vnsub
     );
 
-    pint M = 4;
+    pint M_SPK = 4;
+    pint M_MEM = M_SPK+6;
     pint D = 4;
     bool PP_TX, PE_TX; d1of<D> P_TX;
     bool PP_RX, PE_RX; d1of<D> P_RX;
 
-    eMx1of2<M> AEXT_OUT;
-    eMx1of2<M> AERV_SPK_IN;
+    eMx1of2<M_SPK> AEXT_OUT;
+    eMx1of2<M_SPK> AERV_SPK_IN;
+    eMx1of2<M_MEM> AERV_MEM_IN;
 
-    BS_AER_INT_wrapper<M, M/2> aer_int(g,
+    globals g_bs;
+    compat_bs::globals_w_analog ga_t_g(ga, g_bs);
+    BS_AER_INT_wrapper<M_SPK, M_SPK/2> aer_int(g_bs,
         PP_TX, PE_TX, P_TX, AEXT_OUT, 
         PP_RX, PE_RX, P_RX, AERV_SPK_IN, AERV_MEM_IN
     );
 
     BraindropTileArray_1x1 tile;
     tile.g = ga;
+
     tile.aext_pp = PP_TX;
     tile.aext_pe = PE_TX;
     (; d : D : tile.aext_p.d[d] = P_TX.d[d];)
     tile.aerv__pp = PP_RX;
     tile.aerv__pe = PE_RX;
     (; d : D : tile.aerv_p.d[d] = P_RX.d[d];)
+
+    aer::SINK_eMx1of2<M_SPK> aext_sink(g,);
+    aext_sink.d.e = AEXT_OUT.e;
+    (; m : M_SPK : (; d : 2 : aext_sink.d.m[m].d[d] = AEXT_OUT.b[m].d[d];))
+
+    (; m : M_MEM : (; d : 2 : AERV_MEM_IN.b[m].d[d] = g.GND;))
+
+    bool input[3];
+    prs <Vdd, GND | vpsub, vnsub> {
+        ~AERV_SPK_IN.e<9> -> input[0]+
+        AERV_SPK_IN.e<6> -> input[0]-
+
+        ~input[0]<18> -> input[1]+
+        input[0]<12> -> input[1]-
+
+        ~input[1]<36> -> input[2]+
+        input[1]<24> -> input[2]-
+
+        (: m : M_SPK :
+            ~input[2]<18> & ~g.sReset<18> -> AERV_SPK_IN.b[m].d[0]+
+            input[2]<6> | g.sReset<6>  -> AERV_SPK_IN.b[m].d[0]-
+        )
+    }
+    (; m : M_SPK : AERV_SPK_IN.b[m].d[1] = g.GND;)
 }
 
 TOP dut;
