@@ -30,7 +30,7 @@ aer::brain_receiver::AERV_INT<M_SPK, M_MEM> aerv_int(
     g, aerv_spk_src.d, aerv_mem_src.d,,,);
 
 // tile
-aer::brain_aer::TILE_AER<false> tile(g,
+aer::brain_aer::TILE_AER tile(g,
     aext_int.aext__pp, aext_int.aext_pe, aext_int.aext__p,
     aerv_int.aerv__pp, aerv_int.aerv__pe, aerv_int.aerv_p,
     nrn.req, nrn.ack, syn.spk, mem._x, mem._pchg);
