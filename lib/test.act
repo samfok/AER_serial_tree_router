@@ -73,8 +73,9 @@ defproc SINK_SERIAL (globals g; bool p, e; c1of<N> d) {
 export
 defproc NRN (globals g; bool req, ack) {
     // models N neurons producing spikes
-    prs<g.Vdd, g.GND> {
-        ~g.sReset & ~ack => req+
+    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+        ~g.sReset<9> & ~ack<9> -> req+
+        g.sReset<6> | ack<6> -> req-
     }
 }
 

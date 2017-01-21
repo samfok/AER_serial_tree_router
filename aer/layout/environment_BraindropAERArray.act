@@ -1,0 +1,49 @@
+import "aer/aer/aer.act";
+import "aer/aerv/bs_aerv.act";
+import "aer/lib/test.act";
+
+export
+template <pint NN, NSYN, NMEM, M, M_MEM>
+defproc AER_ENV(aer::globals g;
+    bool nrn_req[NN], nrn_ack[NN];
+    aer::a1of2 syn_spk[NSYN]; aer::aMx1of4<4> _mem[NMEM]; bool _pchg[NMEM];
+    bool aext__pp, aext_pe; aer::c1of<4> aext__p;
+    bool aerv__pp, aerv__pe; aer::c1of<4> aerv_p;
+    aer::eMx1of2<M*2> aext_out;
+    aer::eMx1of2<M*2> aerv_spk_in; aer::eMx1of2<M_MEM*2> aerv_mem_in) 
+    // defines an environment interface for the AER tree
+    // generates neuron spikes and sinks spikes to synapse and packets to memory
+    // NN number of neurons
+    // NSYN number of synapses
+    // NMEM number of config memories
+    // M depth of AEXT tree
+    // M_MEM 1of4 packet length to write to memory
+{
+    NMEM*4 = NSYN; // assert
+    NSYN*4 = NN; // assert
+
+    pint D = 4;
+    pint M_SPK = M;
+    pint M_MEM_IN = 4;
+
+    aer::test::NRN_ARR<NN> nrn(g, nrn_req, nrn_ack);
+    aer::test::SYNAPSE_ARR<NSYN> syn(g, syn_spk);
+    aer::test::MEM<M_MEM_IN> mem[NMEM];
+    (; n : NMEM : mem[n].g = g;)
+    (; n : NMEM : mem[n]._x = _mem[n];)
+    (; n : NMEM : mem[n]._pchg = _pchg[n];)
+
+    // transmitter components
+    aer::brain_transmitter::AEXT_INT<M, D>
+        aext_int(g, aext__pp, aext_pe, aext__p,);
+    aer::eMx1of4_to_eMx1of2<M, M*2> aext_converter(g,,);
+    (; m : M : aext_int.y_spk.m[m].d = aext_converter.x.m[m].d;)
+    aext_int.y_spk.e = aext_converter.x.e;
+    aext_converter.y = aext_out;
+
+    // receiver components
+    globals g_bs;
+    compat_bs::globals g_compat(g, g_bs);
+    BS_AERV_INT<M_SPK*2, M_MEM*2> aerv_int(g_bs,
+        aerv_spk_in, aerv_mem_in, aerv__pp, aerv__pe, aerv_p);
+}
