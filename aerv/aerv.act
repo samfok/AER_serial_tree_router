@@ -371,7 +371,7 @@ namespace receiver {
             }
 
             export
-            template <pint M_idx, N>
+            template <pint M_idx>
             defproc REPEATERS_M_ENABLE(globals g; bool enable_pm, enable_mc) {
                 // Repeaters grouped in the dedicated repeaters cutout
                 pint Mmax = 5; // max AERV tree level
@@ -404,7 +404,7 @@ namespace receiver {
         {
             mid::REPEATERS_M_PHI_DATA<M_idx, N>
                 repeaters_m_phi_data(g, phi_pm, phi_mc, data_pm, data_mc);
-            mid::REPEATERS_M_ENABLE<M_idx, N>
+            mid::REPEATERS_M_ENABLE<M_idx>
                 repeaters_m_enable(g, enable_pm, enable_mc);
         }
 

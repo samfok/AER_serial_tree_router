@@ -76,7 +76,7 @@ defproc AERV_MID_REPEATERS_PHI_DATA_4 (aer::globals g;
     // Level 4 REPEATER cluster for phi and data
     // Levels range from 0 to 4
 {
-    pint M_idx = 3;
+    pint M_idx = 4;
     pint N = 4;
     aer::receiver::repeaters::mid::REPEATERS_M_PHI_DATA<M_idx, N>
         repeaters_mid_phi_data;
@@ -96,8 +96,7 @@ defproc AERV_MID_REPEATERS_ENABLE_3_4 (aer::globals g;
     // Levels range from 0 to 4
 {
     pint M_idx = 3;
-    pint N = 4;
-    aer::receiver::repeaters::mid::REPEATERS_M_ENABLE<M_idx, N>
+    aer::receiver::repeaters::mid::REPEATERS_M_ENABLE<M_idx>
         repeaters_mid_enable;
 
     repeaters_mid_enable.g = g;
