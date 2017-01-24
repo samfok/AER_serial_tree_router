@@ -1,0 +1,42 @@
+// defines a top level tile array
+import "aer/aer/layout/environment_BraindropAERArray.act";
+import "aer/aer/layout/BraindropAERArray_RCX_16x16/BraindropAERArray_RCX_16x16.act";
+
+export
+defproc BraindropAERArray_RCX_top(aer::globals g;
+    bool aext_pp, aext_pe; aer::c1of<4> aext_p;
+    bool aerv__pp, aerv__pe; aer::c1of<4> aerv_p;
+    bool nrn_req[16], nrn_ack[16];
+    aer::a1of2 syn_spk[4]; aer::aMx1of4<4> _mem; bool _pchg)
+{
+    BraindropAERArray_RCX_16x16 base_16x16(g,,,,,,,
+        nrn_req, nrn_ack,
+        syn_spk, _mem, _pchg
+    );
+
+    // transmitter
+    aer::transmitter::repeaters::mid::REPEATERS_M_PHI_DATA<5, 4> aext_repeaters_mid_phi_data_5;
+    aer::transmitter::repeaters::mid::REPEATERS_M_ENABLE<5> aext_repeaters_mid_enable_5;
+    aext_repeaters_mid_phi_data_5.g = g;
+    aext_repeaters_mid_enable_5.g = g;
+
+    aext_repeaters_mid_phi_data_5.phi_mc  = base_16x16.aext_pp;
+    aext_repeaters_mid_enable_5.enable_mc = base_16x16.aext_pe;
+    aext_repeaters_mid_phi_data_5.data_mc = base_16x16.aext_p;
+    aext_repeaters_mid_phi_data_5.phi_pm  = aext_pp;
+    aext_repeaters_mid_enable_5.enable_pm = aext_pe;
+    aext_repeaters_mid_phi_data_5.data_pm = aext_p;
+
+    // receiver
+    aer::receiver::repeaters::mid::REPEATERS_M_PHI_DATA<4, 4> aerv_repeaters_mid_phi_data_4;
+    aer::receiver::repeaters::mid::REPEATERS_M_ENABLE<4> aerv_repeaters_mid_enable_4;
+    aerv_repeaters_mid_phi_data_4.g = g;
+    aerv_repeaters_mid_enable_4.g = g;
+
+    aerv_repeaters_mid_phi_data_4.phi_mc  = base_16x16.aerv__pp;
+    aerv_repeaters_mid_enable_4.enable_mc = base_16x16.aerv__pe;
+    aerv_repeaters_mid_phi_data_4.data_mc = base_16x16.aerv_p;
+    aerv_repeaters_mid_phi_data_4.phi_pm   = aerv__pp;
+    aerv_repeaters_mid_enable_4.enable_pm  = aerv__pe;
+    aerv_repeaters_mid_phi_data_4.data_pm  = aerv_p;
+}

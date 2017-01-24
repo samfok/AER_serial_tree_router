@@ -15,7 +15,7 @@ $(NETGEN_CONF):
 	@sed -i "s/FOLDP/27/g" $(NETGEN_CONF)
 	@sed -i "s/FOLDN/18/g" $(NETGEN_CONF)
 
-%.spi: %.act ${ACT_PATH}/aer/aer/layout/BraindropAERArray_RCX_2x2/BraindropAERArray_RCX_2x2.act ${ACT_PATH}/aer/aer/aer.act ${ACT_PATH}/aer/aext/aext.act ${ACT_PATH}/aer/aerv/aerv.act ${ACT_PATH}/aer/interface/interface.act ${NETGEN_CONF} ${POSTPROCESS}
+%.spi: %.act ${ACT_PATH}/aer/aer/layout/BraindropAERArray_RCX_8x8/BraindropAERArray_RCX_8x8.act ${ACT_PATH}/aer/aer/aer.act ${ACT_PATH}/aer/aext/aext.act ${ACT_PATH}/aer/aerv/aerv.act ${ACT_PATH}/aer/interface/interface.act ${NETGEN_CONF} ${POSTPROCESS}
 	$(NETGEN) -o$@ -C$(NETGEN_CONF) $< || (rm $@; exit 1)
 	$(CREATE_CDL) $@ || (rm $@; exit 1)
 	$(POSTPROCESS) $@  || (rm $@; exit 1)

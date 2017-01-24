@@ -1,10 +1,10 @@
-// defines a 2x2 tile array
+// defines a top level tile array
 import "aer/aer/layout/environment_BraindropAERArray.act";
-import "aer/aer/layout/BraindropAERArray_RCX_2x2/BraindropAERArray_RCX_2x2.act";
+import "aer/aer/layout/BraindropAERArray_RCX_top/BraindropAERArray_RCX_top.act";
 
 export defproc TOP(aer::globals g;
-    aer::eMx1of2<6> aext_out;
-    aer::eMx1of2<6> aerv_spk_in; aer::eMx1of2<12> aerv_mem_in
+    aer::eMx1of2<12> aext_out;
+    aer::eMx1of2<12> aerv_spk_in; aer::eMx1of2<18> aerv_mem_in
     )
 {
     bool Vdd, GND, vpsub, vnsub;
@@ -22,7 +22,7 @@ export defproc TOP(aer::globals g;
         g._sReset, g._pReset, g.sReset, g.pReset
     );
 
-    pint M=3;
+    pint M=6;
     pint NN=16;
     pint NSYN=4;
     pint NMEM=1;
@@ -42,7 +42,7 @@ export defproc TOP(aer::globals g;
     (; m : M_MEM*2 : (; n : 2 : aerv_mem_in.m[m].n[n] = g.GND;))
 
     // tile
-    BraindropAERArray_RCX_2x2 aer_2x2(g,
+    BraindropAERArray_RCX_top aer_top(g,
         aer_env.aext__pp, aer_env.aext_pe, aer_env.aext__p,
         aer_env.aerv__pp, aer_env.aerv__pe, aer_env.aerv_p,
         aer_env.nrn_req, aer_env.nrn_ack, aer_env.syn_spk,

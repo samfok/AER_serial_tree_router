@@ -26,20 +26,13 @@ export defproc TOP(aer::globals g;
     pint NN=16;
     pint NSYN=4;
     pint NMEM=1;
-    pint M_MEM=M+3;
+    pint M_MEM=6;
     pint M_SPK=M;
     pint D=4;
 
     // aer environment
     AER_ENV<NN, NSYN, NMEM, M, M_MEM> aer_env(g,,,,,,,,,,,,
         aext_out, aerv_spk_in, aerv_mem_in);
-
-    // transmitter sink
-    aer::SINK_eMx1of2<M*2> aext_snk(g, aext_out);
-
-    // receiver components
-    (; m : M*2 : (; n : 2 : aerv_spk_in.m[m].n[n] = g.GND;))
-    (; m : M_MEM*2 : (; n : 2 : aerv_mem_in.m[m].n[n] = g.GND;))
 
     // tile
     BraindropAERArray_RCX_2x2 aer_2x2(g,

@@ -1,0 +1,62 @@
+// defines a 16x16 tile array
+import "aer/aer/layout/environment_BraindropAERArray.act";
+import "aer/aer/layout/BraindropAERArray_RCX_8x8/BraindropAERArray_RCX_8x8.act";
+
+export
+defproc BraindropAERArray_RCX_16x16(aer::globals g;
+    bool aext_pp, aext_pe; aer::c1of<4> aext_p;
+    bool aerv__pp, aerv__pe; aer::c1of<4> aerv_p;
+    bool nrn_req[16], nrn_ack[16];
+    aer::a1of2 syn_spk[4]; aer::aMx1of4<4> _mem; bool _pchg)
+{
+    BraindropAERArray_RCX_8x8 base_8x8(g,,,,,,,
+        nrn_req, nrn_ack,
+        syn_spk, _mem, _pchg
+    );
+
+    // transmitter
+    aer::transmitter::NODE<5, 4> aext_node_5(g,,,,,,);
+    aer::transmitter::repeaters::mid::REPEATERS_M_PHI_DATA<4, 4> aext_repeaters_mid_phi_data_4;
+    aer::transmitter::repeaters::mid::REPEATERS_M_ENABLE<4> aext_repeaters_mid_enable_4[2];
+    aext_repeaters_mid_phi_data_4.g = g;
+    (; m : 2 : aext_repeaters_mid_enable_4[m].g = g;)
+
+    aext_repeaters_mid_phi_data_4.phi_mc     = base_8x8.aext_pp;
+    aext_repeaters_mid_enable_4[0].enable_mc = base_8x8.aext_pe;
+    aext_repeaters_mid_phi_data_4.data_mc    = base_8x8.aext_p;
+    aext_node_5.cp[0] = aext_repeaters_mid_phi_data_4.phi_pm;
+    aext_node_5.ce[0] = aext_repeaters_mid_enable_4[0].enable_pm;
+    aext_node_5.c[0]  = aext_repeaters_mid_phi_data_4.data_pm;
+
+    // aext_repeaters_mid_enable_4[1].enable_mc
+    aext_node_5.ce[1] = aext_repeaters_mid_enable_4[1].enable_pm;
+    (; c : 1..3 : aext_node_5.cp[c] = g.Vdd;)
+    (; c : 1..3 : (; d : 4 : aext_node_5.c[c].d[d] = g.Vdd;))
+
+    aext_node_5.pp = aext_pp;
+    aext_node_5.pe = aext_pe;
+    aext_node_5.p = aext_p;
+
+    // receiver
+    aer::receiver::NODE<3, 4> aerv_node_4(g,,,,,,);
+    aer::receiver::repeaters::mid::REPEATERS_M_PHI_DATA<3, 4> aerv_repeaters_mid_phi_data_3[2];
+    aer::receiver::repeaters::mid::REPEATERS_M_ENABLE<3> aerv_repeaters_mid_enable_3;
+    (; m : 2 : aerv_repeaters_mid_phi_data_3[m].g = g;)
+    aerv_repeaters_mid_enable_3.g = g;
+
+    aerv_repeaters_mid_phi_data_3[0].phi_mc  = base_8x8.aerv__pp;
+    aerv_repeaters_mid_enable_3.enable_mc    = base_8x8.aerv__pe;
+    aerv_repeaters_mid_phi_data_3[0].data_mc = base_8x8.aerv_p;
+    aerv_node_4._cp[0] = aerv_repeaters_mid_phi_data_3[0].phi_pm;
+    aerv_node_4._ce[0] = aerv_repeaters_mid_enable_3.enable_pm;
+    aerv_node_4.c[0]   = aerv_repeaters_mid_phi_data_3[0].data_pm;
+
+    aerv_node_4._cp[1] = aerv_repeaters_mid_phi_data_3[1].phi_pm;
+    aerv_node_4.c[1]   = aerv_repeaters_mid_phi_data_3[1].data_pm;
+
+    (; c : 1..3 : aerv_node_4._ce[c] = g.Vdd;)
+
+    aerv_node_4._pp = aerv__pp;
+    aerv_node_4._pe = aerv__pe;
+    aerv_node_4.p = aerv_p;
+}
