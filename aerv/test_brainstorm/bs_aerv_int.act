@@ -6,13 +6,10 @@ import "aer/lib/compat_bs.act";
 
 pint M_1of4     = 3;
 pint M_1of2     = 2*M_1of4;
-pint p4M        = 64; // 4**M_1of4
 pint M_SPK_1of4 = M_1of4+1;
 pint M_SPK_1of2 = 2*M_SPK_1of4;
 pint M_MEM_1of4 = M_1of4+4;
 pint M_MEM_1of2 = 2*M_MEM_1of4;
-pint N_SYN = p4M;
-pint N_MEM = N_SYN/4;
 pint D     = 4;
 
 globals g_bs;

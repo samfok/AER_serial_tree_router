@@ -1,6 +1,7 @@
 // This file defines a modified brainstorm transmitter that interfaces with
 // the brainstorm datapath
 import "aer/aext/aext.act";
+import "core/serializer/AERSerializer.act";
 import "aer/lib/compat_bs.act";
 
 export

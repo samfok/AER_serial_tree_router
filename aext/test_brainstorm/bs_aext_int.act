@@ -1,0 +1,38 @@
+// tests the serial aer transmitter
+import "aer/aext/bs_aext.act";
+import "aer/interface/interface.act";
+import "aer/lib/compat_bs.act";
+
+pint M_1of4     = 3;
+pint M_1of2     = 2*M_1of4;
+pint p4M        = 64; // 4**M_1of4
+pint M_SPK_1of4 = M_1of4+1;
+pint M_SPK_1of2 = 2*M_SPK_1of4;
+pint N_SYN = p4M;
+pint D     = 4;
+
+globals g_bs;
+aer::globals g;
+compat_bs::globals g_to_gbs(g, g_bs);
+
+aer::SOURCE_random_eMx1ofN<M_SPK_1of2, 2> spk_src(g,);
+aer::SINK_eMx1ofN<M_SPK_1of2, 2> spk_sink(g,);
+
+bool aext__pp;
+bool aext_pe;
+aer::c1of<4> aext__p;
+
+BS_AEXT_INT_TESTER<M_SPK_1of2> bs_aext_int_tester(g_bs,
+    aext__pp, aext_pe, aext__p,
+);
+(; m : M_SPK_1of2: (; d : 2 :
+    bs_aext_int_tester.x_spk.m[m].d[d] = spk_src.d.m[m].d[d];
+))
+bs_aext_int_tester.x_spk.e = spk_src.d.e;
+BS_AEXT_INT<M_SPK_1of2> bs_aext_int(g_bs,
+    aext__pp, aext_pe, aext__p,
+);
+(; m : M_SPK_1of2: (; d : 2 :
+    bs_aext_int.y_spk.m[m].d[d] = spk_sink.d.m[m].d[d];
+))
+bs_aext_int.y_spk.e = spk_sink.d.e;
