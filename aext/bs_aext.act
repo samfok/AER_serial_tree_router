@@ -6,11 +6,12 @@ import "aer/lib/compat_bs.act";
 export
 template <pint M_SPK_1of2>
 defproc BS_AEXT_INT (globals g_bs;
-                     bool aext__pp, aext_pe; aer::c1of<4> aext__p;
-                     aer::eMx1of2<M_SPK_1of2> y_spk) {
+    bool aext__pp, aext_pe; aer::c1of<4> aext__p;
+    aer::eMx1of2<M_SPK_1of2> y_spk)
     // modified interface between transmitter and the datapath
     // that uses datapath port parameters
     // M_SPK_1of2 = tree levels * 2
+{
     pint D = 4; // 1-of-D data
     pint M_SPK_1of4 = M_SPK_1of2/2;
     aer::globals g;
@@ -24,4 +25,39 @@ defproc BS_AEXT_INT (globals g_bs;
         _.y_spk.m[m].d = aext_converter.x.m[m].d;
     )
     _.y_spk.e = aext_converter.x.e;
+}
+
+export
+template <pint M_SPK_1of2>
+defproc BS_AEXT_INT_TESTER (globals g_bs;
+    bool aext__pp, aext_pe; aer::c1of<4> aext__p;
+    aer::eMx1of2<M_SPK_1of2> x_spk)
+    // process for testing BS_AEXT_INT
+    // takes in standard eMx1of2 data in on x_spk
+    // outputs aer-protocol data on aext_* 
+{
+    pint D = 4; // 1-of-D data
+    pint M_SPK_1of4 = M_SPK_1of2/2;
+    aer::globals g;
+    compat_bs::globals g_compat(g, g_bs);
+
+    bool aext_pp;
+    d1of<4> aext_p;
+
+    // serialize
+    serializer::AERSERN<M_SPK_1of2> serial_spk(g_bs,,
+        aext_pp, aext_pe, aext_p
+    );
+    compat_bs::eMx1of2<M_SPK_1of2> serial_spk_I(x_spk, serial_spk.I);
+
+    // convert to aext senses
+    prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+        ~aext_pp<9> -> aext__pp+
+        aext_pp<6> -> aext__pp-
+
+        (: d : D :
+            ~aext_p.d[d]<9> -> aext__p.d[d]+
+            aext_p.d[d]<6> -> aext__p.d[d]-
+        )
+    }
 }
