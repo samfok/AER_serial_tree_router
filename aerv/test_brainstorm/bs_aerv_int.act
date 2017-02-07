@@ -1,0 +1,38 @@
+// tests that bs_aerv works without deadlock, instability, or interference
+// while both spikes and memory packets are being delivered randomly
+import "aer/aerv/bs_aerv.act";
+import "aer/lib/test.act";
+import "aer/lib/compat_bs.act";
+
+pint M_1of4     = 3;
+pint M_1of2     = 2*M_1of4;
+pint M_SPK_1of4 = M_1of4+1;
+pint M_SPK_1of2 = 2*M_SPK_1of4;
+pint M_MEM_1of4 = M_1of4+4;
+pint M_MEM_1of2 = 2*M_MEM_1of4;
+pint D     = 4;
+
+globals g_bs;
+aer::globals g;
+compat_bs::globals g_to_gbs(g, g_bs);
+
+aer::test::SOURCE_BRAIN_AERV<M_SPK_1of4, M_SPK_1of4-M_1of4, 0, 2> spk_src(g,);
+aer::eMx1of4_to_eMx1of2<M_SPK_1of4, M_SPK_1of2> spk_src_4to2(g, spk_src.d,);
+aer::SINK_eMx1ofN<M_SPK_1of2, 2> spk_sink(g,);
+
+bool aerv__pp;
+bool aerv__pe;
+aer::c1of<4> aerv_p;
+
+BS_AERV_INT<M_SPK_1of2, M_MEM_1of2> bs_aerv_int(g_bs,
+    spk_src_4to2.y,, aerv__pp, aerv__pe, aerv_p
+);
+(; m : M_MEM_1of2 : (; d : 2 : bs_aerv_int.x_mem.m[m].d[d] = g.GND;))
+
+BS_AERV_INT_TESTER<M_SPK_1of2> bs_aerv_int_tester(g_bs,,
+    aerv__pp, aerv__pe, aerv_p
+);
+(; m : M_SPK_1of2 : (; d : 2 :
+    bs_aerv_int_tester.y_spk.m[m].d[d] = spk_sink.d.m[m].d[d];
+))
+bs_aerv_int_tester.y_spk.e = spk_sink.d.e;
