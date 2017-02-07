@@ -24,7 +24,7 @@ sim/%.sim: prs/%.prs %.rc
 
 prs: $(PRS_OBJS)
 
-prs/%.prs: %.act ${AEXT_PATH}/aext.act ${AEXT_PATH}/ref_aext.act ${AER_PATH}/interface/interface.act ${AER_PATH}/lib/comm.act ${AER_PATH}/lib/arbiter.act
+prs/%.prs: %.act ${AEXT_PATH}/aext.act ${AEXT_PATH}/bs_aext.act ${AEXT_PATH}/ref_aext.act ${AER_PATH}/interface/interface.act ${AER_PATH}/lib/comm.act ${AER_PATH}/lib/arbiter.act
 	@mkdir -p prs
 	@printf 'compiling %s...\n' $(subst .act,,$(<F))
 	@$(CFLAT) $< > $@ || (rm -f $@; exit 1)
