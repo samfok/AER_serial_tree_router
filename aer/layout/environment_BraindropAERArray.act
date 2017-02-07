@@ -3,7 +3,7 @@ import "aer/aerv/bs_aerv.act";
 import "aer/lib/test.act";
 
 export
-template <pint NN, NSYN, NMEM, M, M_MEM>
+template <pint NN, NSYN, NMEM, M, M_MEM; pbool nrn_spk>
 defproc AER_ENV(aer::globals g;
     bool nrn_req[NN], nrn_ack[NN];
     aer::a1of2 syn_spk[NSYN]; aer::aMx1of4<4> _mem[NMEM]; bool _pchg[NMEM];
@@ -26,7 +26,12 @@ defproc AER_ENV(aer::globals g;
     pint M_SPK = M;
     pint M_MEM_IN = 4;
 
-    aer::test::NRN_ARR<NN> nrn(g, nrn_req, nrn_ack);
+    [ nrn_spk ->
+        aer::test::NRN_ARR<NN> nrn(g, nrn_req, nrn_ack);
+    [] ~nrn_spk ->
+        (; nn : NN : nrn_req[nn] = g.GND;)
+    ]
+
     aer::test::SYNAPSE_ARR<NSYN> syn(g, syn_spk);
     aer::test::MEM<M_MEM_IN> mem[NMEM];
     (; n : NMEM : mem[n].g = g;)

@@ -2,7 +2,7 @@
 import "aer/aer/layout/environment_BraindropAERArray.act";
 import "aer/aer/layout/BraindropAERArray_RCX_1x1/BraindropAERArray_RCX_1x1.act";
 
-export defproc TOP(aer::globals g;
+export defproc BraindropAERArray_RCX_1x1_wrapper(aer::globals g;
     aer::eMx1of2<4> aext_out;
     aer::eMx1of2<4> aerv_spk_in; aer::eMx1of2<10> aerv_mem_in
     )
@@ -44,4 +44,4 @@ export defproc TOP(aer::globals g;
 
 }
 
-TOP dut;
+BraindropAERArray_RCX_1x1_wrapper dut;

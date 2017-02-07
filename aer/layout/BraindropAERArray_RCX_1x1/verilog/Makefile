@@ -1,4 +1,4 @@
-NETGEN := netgen -l -p'TOP<>' -B
+NETGEN := netgen -l -p'BraindropAERArray_RCX_1x1_wrapper<>' -B
 CREATE_CDL := ./create_cdl.csh
 POSTPROCESS := ./postprocess_netlist.csh
 ACT_PATH := $(subst alex_,,$(ACT_PATH))
