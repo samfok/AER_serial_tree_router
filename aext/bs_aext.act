@@ -62,3 +62,27 @@ defproc BS_AEXT_INT_TESTER (globals g_bs;
         )
     }
 }
+
+export
+template <pint M_SPK_1of2>
+defproc BS_AEXT_INT_WRAPPER (globals g_bs;
+    bool aext__pp, aext_pe; d1of<4> aext__p;
+    eMx1of2<M_SPK_1of2> y_spk)
+{
+    BS_AEXT_INT<M_SPK_1of2> _(g_bs, aext__pp, aext_pe,,);
+    (; d : 4 : aext__p.d[d] = _.aext__p.d[d];)
+    (; m : M_SPK_1of2 : (; d : 4 : y_spk.b[m].d[d] = _.y_spk.m[m].d[d];))
+    y_spk.e = _.y_spk.e;
+}
+
+export
+template <pint M_SPK_1of2>
+defproc BS_AEXT_INT_TESTER_WRAPPER (globals g_bs;
+    bool aext__pp, aext_pe; d1of<4> aext__p;
+    eMx1of2<M_SPK_1of2> x_spk)
+{
+    BS_AEXT_INT_TESTER<M_SPK_1of2> _(g_bs, aext__pp, aext_pe,,);
+    (; d : 4 : aext__p.d[d] = _.aext__p.d[d];)
+    (; m : M_SPK_1of2 : (; d : 4 : x_spk.b[m].d[d] = _.x_spk.m[m].d[d];))
+    x_spk.e = _.x_spk.e;
+}
