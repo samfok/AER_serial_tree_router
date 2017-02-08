@@ -679,20 +679,34 @@ namespace transmitter {
         // includes the parent-level repeaters above the last NODE
         // and inverters to flip senses
     {
-        repeaters::REPEATERS_P<M-1, N> rep_p(g,,,,,,);
-        x_phi = rep_p.phi_pm;
-        x_enable = rep_p.enable_pm;
-        x_data = rep_p.data_pm;
+        /* layout is missing top repeaters
+            repeaters::REPEATERS_P<M-1, N> rep_p(g,,,,,,);
+            x_phi = rep_p.phi_pm;
+            x_enable = rep_p.enable_pm;
+            x_data = rep_p.data_pm;
 
-        rep_p.p_ce = y_enable;
+            rep_p.p_ce = y_enable;
+            // convert from active low to active high
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+                ~rep_p.p__cp<9> -> y_phi+
+                rep_p.p__cp<6> -> y_phi-
+
+                (: n : N :
+                    ~rep_p.p__c.d[n]<9> -> y_data.d[n]+
+                    rep_p.p__c.d[n]<6> -> y_data.d[n]-
+                )
+            }
+        */
+
+        x_enable = y_enable;
         // convert from active low to active high
         prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-            ~rep_p.p__cp<9> -> y_phi+
-            rep_p.p__cp<6> -> y_phi-
+            ~x_phi<9> -> y_phi+
+            x_phi<6> -> y_phi-
 
             (: n : N :
-                ~rep_p.p__c.d[n]<9> -> y_data.d[n]+
-                rep_p.p__c.d[n]<6> -> y_data.d[n]-
+                ~x_data.d[n]<9> -> y_data.d[n]+
+                x_data.d[n]<6> -> y_data.d[n]-
             )
         }
     }
