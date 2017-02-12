@@ -679,7 +679,21 @@ namespace transmitter {
         // includes the parent-level repeaters above the last NODE
         // and inverters to flip senses
     {
-        /* layout is missing top repeaters
+        [ (LAYOUT & (M=6)) ->
+            // full neuron array layout is missing top repeaters
+            // repeaters accounted for in datapath aer interface
+            x_enable = y_enable;
+            // convert from active low to active high
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+                ~x_phi<9> -> y_phi+
+                x_phi<6> -> y_phi-
+
+                (: n : N :
+                    ~x_data.d[n]<9> -> y_data.d[n]+
+                    x_data.d[n]<6> -> y_data.d[n]-
+                )
+            }
+        [] (~LAYOUT | (M!=6)) ->
             repeaters::REPEATERS_P<M-1, N> rep_p(g,,,,,,);
             x_phi = rep_p.phi_pm;
             x_enable = rep_p.enable_pm;
@@ -696,19 +710,8 @@ namespace transmitter {
                     rep_p.p__c.d[n]<6> -> y_data.d[n]-
                 )
             }
-        */
+        ]
 
-        x_enable = y_enable;
-        // convert from active low to active high
-        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-            ~x_phi<9> -> y_phi+
-            x_phi<6> -> y_phi-
-
-            (: n : N :
-                ~x_data.d[n]<9> -> y_data.d[n]+
-                x_data.d[n]<6> -> y_data.d[n]-
-            )
-        }
     }
 } // namespace transmitter
 

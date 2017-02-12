@@ -704,7 +704,19 @@ namespace receiver {
         // interface at the top of the AERV tree (including repeater tree)
         // converts between active low and high senses
     {
-        /* layout is missing top repeaters
+        [ (LAYOUT & (M=6)) ->
+            // full neuron array layout is missing top repeaters
+            // repeaters accounted for in datapath aer interface
+            // convert between active high and low
+            prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
+                ~x_phi<9> -> y_phi+
+                x_phi<6> -> y_phi-
+
+                ~y_enable<9> -> x_enable+
+                y_enable<6> -> x_enable-
+            }
+            x_data = y_data;
+        [] (~LAYOUT | (M!=6)) ->
             repeaters::REPEATERS_P<M-1, N> rep_p(g,,,,,,);
             // convert between active high and low
             prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
@@ -719,17 +731,7 @@ namespace receiver {
             rep_p.phi_pm = y_phi;
             rep_p.enable_pm = y_enable;
             rep_p.data_pm = y_data;
-        */
-
-        // convert between active high and low
-        prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-            ~x_phi<9> -> y_phi+
-            x_phi<6> -> y_phi-
-
-            ~y_enable<9> -> x_enable+
-            y_enable<6> -> x_enable-
-        }
-        x_data = y_data;
+        ]
     }
 } // namespace receiver
 
