@@ -18,7 +18,7 @@ def addr_1of4_to_ij(addr_1of4):
     addr_i = 0
     addr_j = 0
     for word in addr_1of4:
-        ijlen /= 2
+        ijlen //= 2
         addr_i += (word>1) * ijlen
         addr_j += ((word>0) & (word<3)) * ijlen
     return addr_i, addr_j
@@ -27,8 +27,8 @@ def addr_flat_to_1of4(addr_flat, words):
     """Converts address from flat to 1of4"""
     flatlen = 4**words
     addr_1of4 = []
-    for w in xrange(words):
-        flatlen /= 4
+    for w in range(words):
+        flatlen //= 4
         addr_1of4.append(addr_flat/flatlen % 4)
     return addr_1of4
 
@@ -79,19 +79,19 @@ def parse_file(fname):
     M = extract_pint("M", f_str)
     p4M = extract_pint("p4M", f_str)
     assert 4**M == p4M, "p4M != 4^M"
-    ntiles = p4M / NRN_PTILE
+    ntiles = p4M // NRN_PTILE
     M_TILE = M-2 # because 16 neurons per tile
 
     tile_i, tile_j = zip(
         *map(lambda x: addr_flat_to_ij(x, M_TILE), range(ntiles)))
 
     fw_str = insert_tile_ij(tile_i, tile_j, f_str)
-    print fw_str
+    print(fw_str)
 
 if __name__ == "__main__":
     assert len(sys.argv) == 2, "must give file to parse"
     try:
         parse_file(sys.argv[1])
     except AssertionError as e:
-        print 'Failed to run index_tile_ij.py on ' + sys.argv[1]
+        print('Failed to run index_tile_ij.py on ' + sys.argv[1])
         raise
