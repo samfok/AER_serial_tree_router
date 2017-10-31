@@ -73,18 +73,18 @@ The channels can carry four symbols:
     \begin{tabular}{r|l}
     \hline
     symbol & meaning \\ \hline
-    $\phi$ & channel will have data \\
+    $r$ & channel has been requested \\
     0 & channel data is 0 \\
     1 & channel data is 1 \\
-    $\neg\phi$ & channel no longer has data \\
+    $\neg r$ & channel no longer requested \\
     \hline
     \end{tabular}
 \end{center}
 
-A packet of data begins with $\phi$.
-Following $\phi$ is a a sequence of 0s and 1s containing the packet data.
+A packet of data begins with $r$.
+Following $r$ is a a sequence of 0s and 1s containing the packet data.
 There is no limit on the length of the data sequence packet.
-The packet ends with $\neg\phi$. 
+The packet ends with $\neg r$. 
 
 \subsection{Buffer}
 
@@ -95,27 +95,27 @@ The serial protocol is best understood by considering Serial Buffer.
 
 \begin{lstlisting}[mathescape]
 Repeat {
-    Wait for $\phi$ from the source.
-    Relay $\phi$ from source to sink.
-    While (source is not sending $\neg\phi$)) {
+    Wait for $r$ from the source.
+    Relay $r$ from source to sink.
+    While (source is not sending $\neg r$)) {
         Relay data from source to sink
     }
-    Relay $\neg\phi$ from source to sink.
+    Relay $\neg r$ from source to sink.
 }
 \end{lstlisting}
 
 \subsubsection*{CHP}
 
 \begin{csp}
-*[[#{X=\phi}->Y!X?
+*[[#{X=r}->Y!X?
   []#{X=0}|#{X=1}->Y!X?
-  []#{X=\neg\phi}->Y!X?
+  []#{X=\neg\ r}->Y!X?
  ]]
 \end{csp}
 
 \noindent
-In the $\overline{X=\phi}$ and $\overline{X=\neg\phi}$ branches,
-the $Y!X?$ communications are 2-phase since $\phi$ and $\neg\phi$ 
+In the $\overline{X=r}$ and $\overline{X=\neg r}$ branches,
+the $Y!X?$ communications are 2-phase since $r$ and $\neg r$ 
 communications occur in pairs (i.e. they alternate). \\
 In the $\overline{X=0}\ \vee \overline{X=1}$ branch,
 the $Y!X?$ communication is 4-phase.
@@ -124,26 +124,26 @@ the $Y!X?$ communication is 4-phase.
 \subsubsection*{HSE}
 
 \begin{hse}
-*[[x\phi->y\phi+;[yi];xo+
-  []x0->y0+;[~yi];xo-;[~x0];y0-;[yi];xo+
-  []x1->y1+;[~yi];xo-;[~x1];y1-;[yi];xo+
-  []~x\phi->y\phi-;[~yi];xo-
+*[[xr->yr+;[ye];xe+
+  []x0->y0+;[~ye];xe-;[~x0];y0-;[ye];xe+
+  []x1->y1+;[~ye];xe-;[~x1];y1-;[ye];xe+
+  []~xr->yr-;[~ye];xe-
  ]]
 \end{hse}
 
 \noindent
-The source sends the $\phi$ symbol by raising $x\phi$, and the buffer
+The source sends the $r$ symbol by raising $xr$, and the buffer
 acknowledges with $x_o\uparrow$. \\
-The buffer relays the $\phi$ to the sink with $y\phi\uparrow$, and the
+The buffer relays the $r$ to the sink with $yr\uparrow$, and the
 sink acknowledges by raising $y_i$. \\
 Data from the source is relayed to the sink with standard, unpipelined,
 4-phase handshakes. Note that the source is acknowledged with $x_o\downarrow$, 
 and that the sink acknowledges the data by lowering $y_i$. 
 The second half of the 4-phase handshakes returns the process to the state 
 ready to receive data. \\
-The source sends the $\neg\phi$ symbol by lowering $x\phi$, and the buffer
+The source sends the $\neg r$ symbol by lowering $xr$, and the buffer
 acknowledges with $x_o\downarrow$. \\
-The buffer relays the $\neg\phi$ to the sink with $y\phi\downarrow$, and the
+The buffer relays the $\neg r$ to the sink with $yr\downarrow$, and the
 sink acknowledges by lowering $y_i$. \\
 
 \noindent
@@ -156,10 +156,10 @@ Serial Source outputs random data.
 \subsubsection*{CHP}
 
 \begin{csp}
-*[[~u->Y!\phi;u+
+*[[~u->Y!r;u+
   []u->[true->Y!0
          \|true->Y!1
-         \|true->Y!\neg\phi;u-
+         \|true->Y!\neg r;u-
          ]
  ]]
 \end{csp}
@@ -171,10 +171,10 @@ data generation.
 \subsubsection*{HSE}
 
 \begin{hse}
-*[[~u->y\phi+;[yi];u+
-  []u->[true->y0+;[~yi];y0-;[yi]
-         \|true->y1+;[~yi];y1-;[yi]
-         \|true->y\phi-;[~yi];u-
+*[[~u->yr+;[ye];u+
+  []u->[true->y0+;[~ye];y0-;[ye]
+         \|true->y1+;[~ye];y1-;[ye]
+         \|true->yr-;[~ye];u-
          ]
  ]]
 \end{hse}
@@ -186,19 +186,19 @@ Serial Sink does as sinks do.
 \subsubsection*{CHP}
 
 \begin{csp}
-*[[#{X=\phi}->X?
+*[[#{X=r}->X?
   []#{X=0}|#{X=1}->X?
-  []#{X=\neg\phi}->X?
+  []#{X=\neg r}->X?
  ]]
 \end{csp}
 
 \subsubsection*{HSE}
 
 \begin{hse}
-*[[x\phi->xo+
-  []x0->xo-;[~x0];xo+
-  []x1->xo-;[~x1];xo+
-  []~x\phi->xo-
+*[[xr->xe+
+  []x0->xe-;[~x0];xe+
+  []x1->xe-;[~x1];xe+
+  []~xr->xe-
  ]]
 \end{hse}
 
@@ -234,19 +234,19 @@ branch it came from.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Neuron (NRN) \label{sec:AEXT_NRN}}
 
-From the perspective of the transmitter, neurons simply transmit $\phi$ to 
-emit a spike and $\neg\phi$ after reset.
+From the perspective of the transmitter, neurons simply transmit $r$ to 
+emit a spike and $\neg r$ after reset.
 
 \subsubsection*{CHP}
 
 \begin{csp}
-*[X!\phi;X!\neg\phi]
+*[X!r;X!\neg r]
 \end{csp}
 
 \subsubsection*{HSE}
 
 \begin{hse}
-*[x\phi+;[xi];x\phi-;[~xi]]
+*[xr+;[xa];xr-;[~xa]]
 \end{hse}
 
 \noindent
@@ -283,43 +283,43 @@ compactness, the design uses a 4-ary tree and 1-of-4 words.
 
 \begin{lstlisting}[mathescape]
 Repeat {
-    Wait for and arbitrate between $\phi$ from the neurons.
-    Relay $\phi$ from the arbiter-selected neuron to parent.
+    Wait for and arbitrate between $r$ from the neurons.
+    Relay $r$ from the arbiter-selected neuron to parent.
     Send 0, 1, 2, or 3 to the parent indicating which neuron was selected.
-    Relay $\neg\phi$ from the selected neuron to the parent.
+    Relay $\neg r$ from the selected neuron to the parent.
 }
 \end{lstlisting}
 
 \subsubsection*{CHP}
 
 \begin{csp}
-*[[#{C0=\phi}->P!C0?;P!0;P!C0?
-  \|#{C1=\phi}->P!C1?;P!1;P!C0?
+*[[#{C0=r}->P!C0?;P!0;P!C0?
+  \|#{C1=r}->P!C1?;P!1;P!C0?
  ]]
 \end{csp}
 
 \noindent
 Matching the CHP to the psuedo-code, the nondeterministic selection and 
 probes implement the wait and arbitrate between neurons. \\
-Traversing the first branch, $P!C0?$ relays $\phi$ from neuron to parent. \\
+Traversing the first branch, $P!C0?$ relays $r$ from neuron to parent. \\
 $P!0$ sends $0$ to the parent to indicate the selected neuron. \\
-The second $P!C0?$ relays $\neg\phi$ from neuron to parent.
+The second $P!C0?$ relays $\neg r$ from neuron to parent.
 
 \subsubsection*{HSE}
 
 We implement the HSE
 
 \begin{hse}
-*[[c0\phi->c0+;[~c0\phi];c0-
-  \|c1\phi->c1+;[~c1\phi];c1-
+*[[c0r->c0+;[~c0r];c0-
+  \|c1r->c1+;[~c1r];c1-
  ]]
 
-*[[c0->p\phi+;[pi];u0+;
-    p0+;[~pi];v+;c0o+;[~c0];p0-;[pi];
-    p\phi-;[~pi];u0-;c0o-,v-
-  []c1->p\phi+;[pi];u1+;
-    p1+;[~pi];v+;c1o+;[~c1];p1-;[pi];
-    p\phi-;[~pi];u1-;c1o-,v-
+*[[c0->pr+;[pe];u0+;
+    p0+;[~pe];v+;c0a+;[~c0];p0-;[pe];
+    pr-;[~pe];u0-;c0a-,v-
+  []c1->pr+;[pe];u1+;
+    p1+;[~pe];v+;c1a+;[~c1];p1-;[pe];
+    pr-;[~pe];u1-;c1a-,v-
  ]]
 \end{hse}
 
@@ -327,12 +327,12 @@ We implement the HSE
 To get there, we start by directly translating the CHP:
 
 \begin{hse}
-*[[c0\phi->p\phi+;[pi];c0o+;
-    p0+;[~pi];p0-;[pi];
-    [~c0\phi];p\phi-;[~pi];c0o-
-  \|c1\phi->p\phi+;[pi];c1o+;
-    p1+;[~pi];p1-;[pi];
-    [~c1\phi];p\phi-;[~pi];c1o-
+*[[c0r->pr+;[pe];c0e+;
+    p0+;[~pe];p0-;[pe];
+    [~c0r];pr-;[~pe];c0e-
+  \|c1r->pr+;[pe];c1e+;
+    p1+;[~pe];p1-;[pe];
+    [~c1r];pr-;[~pe];c1e-
  ]]
 \end{hse}
 
@@ -340,13 +340,13 @@ To get there, we start by directly translating the CHP:
 To match the HSE to the CHP, consider the first branch of the nondeterministic
 selection: 
 
-$c0\phi\rightarrow\phi\uparrow;\texttt{[}p_i\texttt{]};c0_o$ implements 
-$\overline{C0=\phi}\longrightarrow P!C0?$ with 2-phase communications that
+$c0r\rightarrow\ r\uparrow;\texttt{[}pe\texttt{]};c0_o$ implements 
+$\overline{C0=r}\longrightarrow P!C0?$ with 2-phase communications that
 pair with the 2-phase communications at the end of the branch.
 
-$p0\uparrow;\texttt{[}\neg p_i\texttt{]};p0\downarrow;\texttt{[}p_i\texttt{]}$ implements $P!0$ with a 4-phase communication.
+$p0\uparrow;\texttt{[}\neg pe\texttt{]};p0\downarrow;\texttt{[}pe\texttt{]}$ implements $P!0$ with a 4-phase communication.
 
-$\texttt{[}\neg c0\phi\texttt{]};p\phi\downarrow;\texttt{[}\neg pi\texttt{]};c0o\downarrow$ implements $P!C0$ with 2-phase communications that pair with the 
+$\texttt{[}\neg c0r\texttt{]};pr\downarrow;\texttt{[}\neg pe\texttt{]};c0o\downarrow$ implements $P!C0$ with 2-phase communications that pair with the 
 2-phase communications at the beginning of the branch. \\
 
 \noindent
@@ -355,12 +355,12 @@ indistinguishable, so we overlap the first and the third communications into
 the second communication.
 
 \begin{hse}
-*[[c0\phi->p\phi+;[pi];
-    p0+;[~pi];\red{c0o+;[~c0\phi]};p0-;[pi];
-    p\phi-;[~pi];c0o-
-  \|c1\phi->p\phi+;[pi];
-    p1+;[~pi];\red{c1o+;[~c1\phi]};p1-;[pi];
-    p\phi-;[~pi];c1o-
+*[[c0r->pr+;[pe];
+    p0+;[~pe];\red{c0e+;[~c0r]};p0-;[pe];
+    pr-;[~pe];c0e-
+  \|c1r->pr+;[pe];
+    p1+;[~pe];\red{c1e+;[~c1r]};p1-;[pe];
+    pr-;[~pe];c1e-
  ]]
 \end{hse}
 
@@ -369,12 +369,12 @@ Since we have ready-made N-way arbiters, we introduce state variables $c[0,1]$
 to represent the arbitration.
 
 \begin{hse}
-*[[c0\phi->\red{c0+};p\phi+;[pi];
-    p0+;[~pi];c0o+;[~c0\phi];\red{c0-};p0-;[pi];
-    p\phi-;[~pi];c0o-
-  \|c1\phi->\red{c1+};p\phi+;[pi];
-    p1+;[~pi];c1o+;[~c1\phi];\red{c1-};p1-;[pi];
-    p\phi-;[~pi];c1o-
+*[[c0r->\red{c0+};pr+;[pe];
+    p0+;[~pe];c0e+;[~c0r];\red{c0-};p0-;[pe];
+    pr-;[~pe];c0e-
+  \|c1r->\red{c1+};pr+;[pe];
+    p1+;[~pe];c1e+;[~c1r];\red{c1-};p1-;[pe];
+    pr-;[~pe];c1e-
  ]]
 \end{hse}
 
@@ -382,37 +382,37 @@ to represent the arbitration.
 and break out the nondeterministic selection into a separate, arbitration process.
 
 \begin{hse}
-*[[\red{c0\phi->c0+;[~c0\phi];c0-}
-  \|\red{c1\phi->c1+;[~c1\phi];c1-}
+*[[\red{c0r->c0+;[~c0r];c0-}
+  \|\red{c1r->c1+;[~c1r];c1-}
  ]]
 
-*[[\red{c0}->p\phi+;[pi];
-    p0+;[~pi];c0o+;[\red{~c0}];p0-;[pi];
-    p\phi-;[~pi];c0o-
-  []\red{c1}->p\phi+;[pi];
-    p1+;[~pi];c1o+;[\red{~c1}];p1-;[pi];
-    p\phi-;[~pi];c1o-
+*[[\red{c0}->pr+;[pe];
+    p0+;[~pe];c0e+;[\red{~c0}];p0-;[pe];
+    pr-;[~pe];c0e-
+  []\red{c1}->pr+;[pe];
+    p1+;[~pe];c1e+;[\red{~c1}];p1-;[pe];
+    pr-;[~pe];c1e-
  ]]
 \end{hse}
 
 \noindent
 However, note that the arbitration process is free to select a different branch
 as soon as one branch completes. For example, after $c0\!\downarrow$ compeletes,
-the arbitration process is free to execute $c1\!\uparrow$ should $c1\phi$ be high.
+the arbitration process is free to execute $c1\!\uparrow$ should $c1r$ be high.
 Therefore, we add state variable $v$ to preserve the mutual exclusion in the
 mutually exclusive selection process.
 
 \begin{hse}
-*[[c0\phi->c0+;[~c0\phi];c0-
-  \|c1\phi->c1+;[~c1\phi];c1-
+*[[c0r->c0+;[~c0r];c0-
+  \|c1r->c1+;[~c1r];c1-
  ]]
 
-*[[c0->p\phi+;[pi];
-    p0+;[~pi];\red{v+};c0o+;[~c0];p0-;[pi];
-    p\phi-;[~pi];c0o-,\red{v-}
-  []c1->p\phi+;[pi];
-    p1+;[~pi];\red{v+};c1o+;[~c1];p1-;[pi];
-    p\phi-;[~pi];c1o-,\red{v-}
+*[[c0->pr+;[pe];
+    p0+;[~pe];\red{v+};c0e+;[~c0];p0-;[pe];
+    pr-;[~pe];c0e-,\red{v-}
+  []c1->pr+;[pe];
+    p1+;[~pe];\red{v+};c1e+;[~c1];p1-;[pe];
+    pr-;[~pe];c1e-,\red{v-}
  ]]
 \end{hse}
 
@@ -425,16 +425,16 @@ Finally, to make the $p[0,1]$ and $c[0,1]_o$ gates combinational and overall
 reduce transistor count, we introduce state variables $u[0,1]$.
 
 \begin{hse}
-*[[c0\phi->c0+;[~c0\phi];c0-
-  \|c1\phi->c1+;[~c1\phi];c1-
+*[[c0r->c0+;[~c0r];c0-
+  \|c1r->c1+;[~c1r];c1-
  ]]
 
-*[[c0->p\phi+;[pi];\red{u0+}
-    p0+;[~pi];v+;c0o+;[~c0];p0-;[pi];
-    p\phi-;[~pi];\red{u0-};c0o-,v-
-  []c1->p\phi+;[pi];\red{u1+}
-    p1+;[~pi];v+;c1o+;[~c1];p1-;[pi];
-    p\phi-;[~pi];\red{u1-};c1o-,v-
+*[[c0->pr+;[pe];\red{u0+}
+    p0+;[~pe];v+;c0e+;[~c0];p0-;[pe];
+    pr-;[~pe];\red{u0-};c0e-,v-
+  []c1->pr+;[pe];\red{u1+}
+    p1+;[~pe];v+;c1e+;[~c1];p1-;[pe];
+    pr-;[~pe];\red{u1-};c1e-,v-
  ]]
 \end{hse}
 
@@ -447,16 +447,16 @@ The $c0$ and $c1$ state variables are the outputs of a standard N-way arbiter
 with inputs $c0_i$ and $c1_i$.
 
 \begin{prs2}
-(c0 | c1) & ~v -> p\phi+
-pi & v -> p\phi-
+(c0 | c1) & ~v -> pr+
+pe & v -> pr-
 \end{prs2}
 
 \begin{prs2}
-c0 & pi & ~v -> u0+
-~c0 & ~p\phi & ~pi -> u0-
+c0 & pe & ~v -> u0+
+~c0 & ~pr & ~pe -> u0-
 
-c1 & pi & ~v -> u1+
-~c1 & ~p\phi & ~pi -> u1-
+c1 & pe & ~v -> u1+
+~c1 & ~pr & ~pe -> u1-
 \end{prs2}
 
 \noindent
@@ -464,7 +464,7 @@ The $\neg c[0,1]$ in the pulldowns eliminate an isochronic fork to allow for
 bubble-reshuffling.
 
 \begin{prs2}
-(u0 | u1) & ~pi -> v+
+(u0 | u1) & ~pe -> v+
 ~u0 & ~u1 -> v-
 \end{prs2}
 
@@ -477,11 +477,11 @@ u1 & c1 -> p1+
 \end{prs2}
 
 \begin{prs2}
-u0 & v -> c0o+
-~u0 | ~v -> c0o-
+u0 & v -> c0e+
+~u0 | ~v -> c0e-
 
-u1 & v -> c1o+
-~u1 | ~v -> c1o-
+u1 & v -> c1e+
+~u1 | ~v -> c1e-
 \end{prs2}
 
 \noindent
@@ -492,7 +492,7 @@ u1 & v -> c1o+
     \hline
     rule & transistor count & comments \\ \hline
     $c[0,1,2,3]$ & 92 & 4-way unpipelined arbiter \\ \hline
-    $p\phi$ & 11 & \\ \hline
+    $pr$ & 11 & \\ \hline
     $u[0,1,2,3]$ & 40 & \\ \hline
     $v$ & 13 & \\ \hline
     $p[0,1,2,3]$ & 16 & \\ \hline
@@ -520,8 +520,8 @@ c1 -> _c1-
 \end{prs2}
 
 \begin{prs2}
-(~_c0 | ~_c1) & ~__v -> p\phi+
-pi & __v -> p\phi-
+(~_c0 | ~_c1) & ~__v -> pr+
+pe & __v -> pr-
 \end{prs2}
 
 \begin{prs2}
@@ -533,15 +533,15 @@ _c1 -> __c1-
 \end{prs2}
 
 \begin{prs2}
-__c0 & pi & _v -> _u0-
-~__c0 & ~p\phi & ~pi -> _u0+
+__c0 & pe & _v -> _u0-
+~__c0 & ~pr & ~pe -> _u0+
 
-__c1 & pi & _v -> _u1-
-~__c1 & ~p\phi & ~pi -> _u1+
+__c1 & pe & _v -> _u1-
+~__c1 & ~pr & ~pe -> _u1+
 \end{prs2}
 
 \begin{prs2}
-(~_u0 | ~_u1) & ~pi -> v+
+(~_u0 | ~_u1) & ~pe -> v+
 _u0 & _u1 -> v-
 \end{prs2}
 
@@ -554,11 +554,11 @@ _u1 | _c1 -> p1-
 \end{prs2}
 
 \begin{prs2}
-~_u0 & ~_v -> c0o+
-_u0 | _v -> c0o-
+~_u0 & ~_v -> c0e+
+_u0 | _v -> c0e-
 
-~_u1 & ~_v -> c1o+
-_u1 | _v -> c1o-
+~_u1 & ~_v -> c1e+
+_u1 | _v -> c1e-
 \end{prs2}
 
 \noindent
@@ -572,7 +572,7 @@ _u1 | _v -> c1o-
     $\_\_v$ & 2 & \\ \hline
     $c[0,1,2,3]$ & 92 & 4-way unpipelined arbiter \\ \hline
     $\_c[0,1,2,3]$ & 8 & \\ \hline
-    $\_p\phi$ & 11 & \\ \hline
+    $\_pr$ & 11 & \\ \hline
     $\_\_c[0,1,2,3]$ & 8 & \\ \hline
     $\_u[0,1,2,3]$ & 40 & \\ \hline
     $\_v$ & 13 & \\ \hline
@@ -597,21 +597,21 @@ The input/output ports are shown as follows:
 
 \begin{lstlisting}[mathescape]
 Repeat {
-    Wait for and arbitrate between $\phi$ from the children.
-    Relay $\phi$ from the arbiter-selected child to parent.
+    Wait for and arbitrate between $r$ from the children.
+    Relay $r$ from the arbiter-selected child to parent.
     Send 0, 1, 2, or 3 to the parent indicating which child was selected.
-    While (selected child is not sending $\neg\phi$) {
+    While (selected child is not sending $\neg r$) {
         Relay data from the selected child to parent
     }
-    Relay $\neg\phi$ from the selected child to the parent.
+    Relay $\neg r$ from the selected child to the parent.
 }
 \end{lstlisting}
 
 \subsubsection*{CHP}
 
 \begin{csp}
-*[[#{C0=\phi}->P!C0?;P!0;[#{C0=\neg\phi}->P!C0?]
-  \|#{C1=\phi}->P!C1?;P!1;[#{C1=\neg\phi}->P!C1?]
+*[[#{C0=r}->P!C0?;P!0;[#{C0=\neg r}->P!C0?]
+  \|#{C1=r}->P!C1?;P!1;[#{C1=\neg r}->P!C1?]
  ]]
 
 *[[(#{C0=0}|#{C0=1})->P!C0?
@@ -622,18 +622,18 @@ Repeat {
 \noindent
 Matching the CHP to the psuedo-code, the nondeterministic selection and 
 probes in the first process implement the wait and arbitrate between children. \\
-Traversing the first process' first branch, $P!C0?$ relays $\phi$ to the parent. \\
+Traversing the first process' first branch, $P!C0?$ relays $r$ to the parent. \\
 $P!0$ sends $0$ to the parent to indicate the selected child. \\
-Next, we wait for $\overline{C0=\neg\phi}$, which implements the while-loop 
+Next, we wait for $\overline{C0=\neg r}$, which implements the while-loop 
 condition. \\
-While the top process waits for $\neg\phi$, the bottom process relays 
+While the top process waits for $\neg r$, the bottom process relays 
 data from the children to the parent. \\
 A child following the serial protocol only sends data after having 
-its $\phi$ communication completed. Therefore the arbitration in
+its $r$ communication completed. Therefore the arbitration in
 the top process ensures that branches in the bottom process are mutually 
 exclusive. \\
-Finally, when $\neg\phi$ arrives, we return to the top process and relay
-$\neg\phi$ with $P!C0?$. \\
+Finally, when $\neg r$ arrives, we return to the top process and relay
+$\neg r$ with $P!C0?$. \\
 
 
 \subsubsection*{HSE}
@@ -641,24 +641,24 @@ $\neg\phi$ with $P!C0?$. \\
 We implement the HSE
 
 \begin{hse}
-*[[c0\phi->c0+;[~c0\phi];c0-
-  \|c1\phi->c1+;[~c1\phi];c1-
+*[[c0r->c0+;[~c0r];c0-
+  \|c1r->c1+;[~c1r];c1-
  ]]
 
-*[[c0->p\phi+;[pi];w0+;
-    p0+[~pi];u+;w0-;p0-;[pi];c0o+;
-    [~c0];p\phi-;[~pi];c0o-;u-
-  []c1->p\phi+;[pi];w1+;
-    p1+;[~pi];u+;w1-;p1-;[pi];c1o+;
-    [~c1];p\phi-;[~pi];c1o-;u-
+*[[c0->pr+;[pe];w0+;
+    p0+[~pe];u+;w0-;p0-;[pe];c0e+;
+    [~c0];pr-;[~pe];c0e-;u-
+  []c1->pr+;[pe];w1+;
+    p1+;[~pe];u+;w1-;p1-;[pe];c1e+;
+    [~c1];pr-;[~pe];c1e-;u-
  ]]
 \end{hse}
 
 \begin{hse}
-*[[c00->p0+;[~pi];c0o-;[~c00];p0-;[pi];c0o+
-  []c01->p1+;[~pi];c1o-;[~c01];p1-;[pi];c1o+
-  []c10->p0+;[~pi];c0o-;[~c10];p0-;[pi];c0o+
-  []c11->p1+;[~pi];c1o-;[~c11];p1-;[pi];c1o+
+*[[c00->p0+;[~pe];c0e-;[~c00];p0-;[pe];c0e+
+  []c01->p1+;[~pe];c1e-;[~c01];p1-;[pe];c1e+
+  []c10->p0+;[~pe];c0e-;[~c10];p0-;[pe];c0e+
+  []c11->p1+;[~pe];c1e-;[~c11];p1-;[pe];c1e+
  ]]
 \end{hse}
 
@@ -666,20 +666,20 @@ We implement the HSE
 To get there, we first directly translate the CHP.
 
 \begin{hse}
-*[[c0\phi->p\phi+;[pi];c0o+;
-    p0+;[~pi];p0-;[pi];
-    [~c0\phi];p\phi-;[~pi];c0o-
-  \|c1\phi->p\phi+;[pi];c1o+;
-    p1+;[~pi];p1-;[pi];
-    [~c1\phi];p\phi-;[~pi];c1o-
+*[[c0r->pr+;[pe];c0e+;
+    p0+;[~pe];p0-;[pe];
+    [~c0r];pr-;[~pe];c0e-
+  \|c1r->pr+;[pe];c1e+;
+    p1+;[~pe];p1-;[pe];
+    [~c1r];pr-;[~pe];c1e-
  ]]
 \end{hse}
 
 \begin{hse}
-*[[c00->p0+;[~pi];c0o-;[~c00];p0-;[pi];c0o+
-  []c01->p1+;[~pi];c1o-;[~c01];p1-;[pi];c1o+
-  []c10->p0+;[~pi];c0o-;[~c10];p0-;[pi];c0o+
-  []c11->p1+;[~pi];c1o-;[~c11];p1-;[pi];c1o+
+*[[c00->p0+;[~pe];c0e-;[~c00];p0-;[pe];c0e+
+  []c01->p1+;[~pe];c1e-;[~c01];p1-;[pe];c1e+
+  []c10->p0+;[~pe];c0e-;[~c10];p0-;[pe];c0e+
+  []c11->p1+;[~pe];c1e-;[~c11];p1-;[pe];c1e+
  ]]
 \end{hse}
 
@@ -692,23 +692,23 @@ children to the parent.
 The child can send data as soon as $c[0,1]_o\!\uparrow$ completes.
 To ensure that we prepend a word indicating which child was selected before
 the child sends data, we overlap the $P!C[0,1]?$ communications relaying
-$\phi$ to the parent across the $P![0,1]$ communications.
+$r$ to the parent across the $P![0,1]$ communications.
 
 \begin{hse}
-*[[c0\phi->p\phi+;[pi];
-    p0+;[~pi];p0-;[pi];\red{c0o+;}
-    [~c0\phi];p\phi-;[~pi];c0o-
-  \|c1\phi->p\phi+;[pi];
-    p1+;[~pi];p1-;[pi];\red{c1o+;}
-    [~c1\phi];p\phi-;[~pi];c1o-
+*[[c0r->pr+;[pe];
+    p0+;[~pe];p0-;[pe];\red{c0e+;}
+    [~c0r];pr-;[~pe];c0e-
+  \|c1r->pr+;[pe];
+    p1+;[~pe];p1-;[pe];\red{c1e+;}
+    [~c1r];pr-;[~pe];c1e-
  ]]
 \end{hse}
 
 \begin{hse}
-*[[c00->p0+;[~pi];c0o-;[~c00];p0-;[pi];c0o+
-  []c01->p1+;[~pi];c1o-;[~c01];p1-;[pi];c1o+
-  []c10->p0+;[~pi];c0o-;[~c10];p0-;[pi];c0o+
-  []c11->p1+;[~pi];c1o-;[~c11];p1-;[pi];c1o+
+*[[c00->p0+;[~pe];c0e-;[~c00];p0-;[pe];c0e+
+  []c01->p1+;[~pe];c1e-;[~c01];p1-;[pe];c1e+
+  []c10->p0+;[~pe];c0e-;[~c10];p0-;[pe];c0e+
+  []c11->p1+;[~pe];c1e-;[~c11];p1-;[pe];c1e+
  ]]
 \end{hse}
 
@@ -717,20 +717,20 @@ The states immediately before and after the $P![0,1]$ communications are
 indistinguishable, so we introduce state variables $u0$ and $u1$.
 
 \begin{hse}
-*[[c0\phi->p\phi+;[pi];\red{u0+};
-    p0+;[~pi];\red{u0-};p0-;[pi];c0o+;
-    [~c0\phi];p\phi-;[~pi];c0o-
-  \|c1\phi->p\phi+;[pi];\red{u1+};
-    p1+;[~pi];\red{u1-};p1-;[pi];c1o+;
-    [~c1\phi];p\phi-;[~pi];c1o-
+*[[c0r->pr+;[pe];\red{u0+};
+    p0+;[~pe];\red{u0-};p0-;[pe];c0e+;
+    [~c0r];pr-;[~pe];c0e-
+  \|c1r->pr+;[pe];\red{u1+};
+    p1+;[~pe];\red{u1-};p1-;[pe];c1e+;
+    [~c1r];pr-;[~pe];c1e-
  ]]
 \end{hse}
 
 \begin{hse}
-*[[c00->p0+;[~pi];c0o-;[~c00];p0-;[pi];c0o+
-  []c01->p1+;[~pi];c1o-;[~c01];p1-;[pi];c1o+
-  []c10->p0+;[~pi];c0o-;[~c10];p0-;[pi];c0o+
-  []c11->p1+;[~pi];c1o-;[~c11];p1-;[pi];c1o+
+*[[c00->p0+;[~pe];c0e-;[~c00];p0-;[pe];c0e+
+  []c01->p1+;[~pe];c1e-;[~c01];p1-;[pe];c1e+
+  []c10->p0+;[~pe];c0e-;[~c10];p0-;[pe];c0e+
+  []c11->p1+;[~pe];c1e-;[~c11];p1-;[pe];c1e+
  ]]
 \end{hse}
 
@@ -739,20 +739,20 @@ Since we have ready-made N-way arbiters, we introduce state variables $c[0,1]$
 to represent the arbitration.
 
 \begin{hse}
-*[[c0\phi->\red{c0+};p\phi+;[pi];u0+
-    p0+;[~pi];u0-;p0-;[pi];c0o+;
-    [~c0\phi];\red{c0-};p\phi-;[~pi];c0o-
-  \|c1\phi->\red{c1+};p\phi+;[pi];u1+
-    p1+;[~pi];u1-;p1-;[pi];c1o+;
-    [~c1\phi];\red{c1-};p\phi-;[~pi];c1o-
+*[[c0r->\red{c0+};pr+;[pe];u0+
+    p0+;[~pe];u0-;p0-;[pe];c0e+;
+    [~c0r];\red{c0-};pr-;[~pe];c0e-
+  \|c1r->\red{c1+};pr+;[pe];u1+
+    p1+;[~pe];u1-;p1-;[pe];c1e+;
+    [~c1r];\red{c1-};pr-;[~pe];c1e-
  ]]
 \end{hse}
 
 \begin{hse}
-*[[c00->p0+;[~pi];c0o-;[~c00];p0-;[pi];c0o+
-  []c01->p1+;[~pi];c1o-;[~c01];p1-;[pi];c1o+
-  []c10->p0+;[~pi];c0o-;[~c10];p0-;[pi];c0o+
-  []c11->p1+;[~pi];c1o-;[~c11];p1-;[pi];c1o+
+*[[c00->p0+;[~pe];c0e-;[~c00];p0-;[pe];c0e+
+  []c01->p1+;[~pe];c1e-;[~c01];p1-;[pe];c1e+
+  []c10->p0+;[~pe];c0e-;[~c10];p0-;[pe];c0e+
+  []c11->p1+;[~pe];c1e-;[~c11];p1-;[pe];c1e+
  ]]
 \end{hse}
 
@@ -760,24 +760,24 @@ to represent the arbitration.
 and break out the nondeterministic selection into a separate, arbitration process.
 
 \begin{hse}
-*[[\red{c0\phi->c0+;[~c0\phi];c0-}
-  \|\red{c1\phi->c1+;[~c1\phi];c1-}
+*[[\red{c0r->c0+;[~c0r];c0-}
+  \|\red{c1r->c1+;[~c1r];c1-}
  ]]
 
-*[[\red{c0}->p\phi+;[pi];u0+;
-    p0+[~pi];u0-;p0-;[pi];c0o+;
-    [\red{~c0}];p\phi-;[~pi];c0o-
-  []\red{c1}->p\phi+;[pi];u1+;
-    p1+;[~pi];u1-;p1-;[pi];c1o+;
-    [\red{~c1}];p\phi-;[~pi];c1o-
+*[[\red{c0}->pr+;[pe];u0+;
+    p0+[~pe];u0-;p0-;[pe];c0e+;
+    [\red{~c0}];pr-;[~pe];c0e-
+  []\red{c1}->pr+;[pe];u1+;
+    p1+;[~pe];u1-;p1-;[pe];c1e+;
+    [\red{~c1}];pr-;[~pe];c1e-
  ]]
 \end{hse}
 
 \begin{hse}
-*[[c00->p0+;[~pi];c0o-;[~c00];p0-;[pi];c0o+
-  []c01->p1+;[~pi];c1o-;[~c01];p1-;[pi];c1o+
-  []c10->p0+;[~pi];c0o-;[~c10];p0-;[pi];c0o+
-  []c11->p1+;[~pi];c1o-;[~c11];p1-;[pi];c1o+
+*[[c00->p0+;[~pe];c0e-;[~c00];p0-;[pe];c0e+
+  []c01->p1+;[~pe];c1e-;[~c01];p1-;[pe];c1e+
+  []c10->p0+;[~pe];c0e-;[~c10];p0-;[pe];c0e+
+  []c11->p1+;[~pe];c1e-;[~c11];p1-;[pe];c1e+
  ]]
 \end{hse}
 
@@ -786,24 +786,24 @@ As in AEXT LEAF, the arbitration process is free to select a different branch
 as soon as one branch completes. Therefore, we add state variable $v$ to preserve the mutual exclusion in the mutually exclusive selection.
 
 \begin{hse}
-*[[c0\phi->c0+;[~c0\phi];c0-
-  \|c1\phi->c1+;[~c1\phi];c1-
+*[[c0r->c0+;[~c0r];c0-
+  \|c1r->c1+;[~c1r];c1-
  ]]
 
-*[[c0->p\phi+;[pi];u0+;
-    p0+;[~pi];\red{v+};u0-;p0-;[pi];c0o+;
-    [~c0];p\phi-;[~pi];c0o-;\red{v-}
-  []c1->p\phi+;[pi];u0+;
-    p1+;[~pi];\red{v+};u1-;p1-;[pi];c1o+;
-    [~c1];p\phi-;[~pi];c1o-;\red{v-}
+*[[c0->pr+;[pe];u0+;
+    p0+;[~pe];\red{v+};u0-;p0-;[pe];c0e+;
+    [~c0];pr-;[~pe];c0e-;\red{v-}
+  []c1->pr+;[pe];u0+;
+    p1+;[~pe];\red{v+};u1-;p1-;[pe];c1e+;
+    [~c1];pr-;[~pe];c1e-;\red{v-}
  ]]
 \end{hse}
 
 \begin{hse}
-*[[c00->p0+;[~pi];c0o-;[~c00];p0-;[pi];c0o+
-  []c01->p1+;[~pi];c1o-;[~c01];p1-;[pi];c1o+
-  []c10->p0+;[~pi];c0o-;[~c10];p0-;[pi];c0o+
-  []c11->p1+;[~pi];c1o-;[~c11];p1-;[pi];c1o+
+*[[c00->p0+;[~pe];c0e-;[~c00];p0-;[pe];c0e+
+  []c01->p1+;[~pe];c1e-;[~c01];p1-;[pe];c1e+
+  []c10->p0+;[~pe];c0e-;[~c10];p0-;[pe];c0e+
+  []c11->p1+;[~pe];c1e-;[~c11];p1-;[pe];c1e+
  ]]
 \end{hse}
 
@@ -813,29 +813,29 @@ which completes our expansion.
 \subsubsection*{PRS}
 
 \begin{prs2}
-~u & (c0 | c1) -> p\phi+
-(c0o & ~c0) | (c1o & ~c1) -> p\phi-
+~u & (c0 | c1) -> pr+
+(c0o & ~c0) | (c1o & ~c1) -> pr-
 \end{prs2}
 
 \begin{prs2}
-c0 & pi & ~u -> w0+
+c0 & pe & ~u -> w0+
 u -> w0-
 
-c1 & pi & ~u -> w1+
+c1 & pe & ~u -> w1+
 u -> w1-
 \end{prs2}
 
 \begin{prs2}
-(w0 | w1) & ~pi -> u+
-~c0o & ~c1o & ~p\phi -> u-
+(w0 | w1) & ~pe -> u+
+~c0o & ~c1o & ~pr -> u-
 \end{prs2}
 
 \begin{prs2}
-c0 & u & pi & ~c1o -> c0o+
-~pi -> c0o-
+c0 & u & pe & ~c1o -> c0e+
+~pe -> c0e-
 
-c1 & u & pi ~c0o -> c1o+
-~pi -> c1o-
+c1 & u & pe ~c0o -> c1e+
+~pe -> c1e-
 \end{prs2}
 
 \begin{prs2}
@@ -866,43 +866,43 @@ c01 | c11 | w1 -> p1+
 \subsubsection*{CMOS-implementable PRS}
 
 \begin{prs2}
-_u & (c0 | c1) -> _p\phi-
-(~_c0o & ~c0) | (~_c1o & ~c1) -> _p\phi+
+_u & (c0 | c1) -> _pr-
+(~_c0o & ~c0) | (~_c1o & ~c1) -> _pr+
 
-~_p\phi -> p\phi+
-_p\phi -> p\phi-
+~_pr -> pr+
+_pr -> pr-
 \end{prs2}
 
 \begin{prs2}
-c0 & pi & _u -> _w0-
+c0 & pe & _u -> _w0-
 ~_u -> _w0+
 
-c1 & pi & _u -> _w1-
+c1 & pe & _u -> _w1-
 ~_u -> _w1+
 \end{prs2}
 
 \begin{prs2}
-(~_w0 | ~_w1) & ~pi -> u+
-_c0o & _c1o & _p\phi -> u-
+(~_w0 | ~_w1) & ~pe -> u+
+_c0o & _c1o & _pr -> u-
 
 ~u -> _u+
 u -> _u-
 \end{prs2}
 
 \begin{prs2}
-c0 & u & pi & _c1o -> _c0o-
-~pi -> _c0o+
+c0 & u & pe & _c1o -> _c0e-
+~pe -> _c0e+
 
-c1 & u & pi _c0o -> _c1o-
-~pi -> _c1o+
+c1 & u & pe _c0o -> _c1e-
+~pe -> _c1e+
 \end{prs2}
 
 \begin{prs2}
-~_c0o -> c0o+
-_c0o -> c0o-
+~_c0o -> c0e+
+_c0o -> c0e-
 
-~_c1o -> c1o+
-_c1o -> c1o-
+~_c1o -> c1e+
+_c1o -> c1e-
 \end{prs2}
 
 \begin{prs2}
@@ -923,7 +923,7 @@ p1 -> _p1-
 
 \noindent
 Note that the root NODE does not create $\_p[0,1]$.
-We simply present a normal-sense $p_i$, $p\phi$, and $p[0,1]$ interface to the environment.
+We simply present a normal-sense $pe$, $pr$, and $p[0,1]$ interface to the environment.
 
 \noindent
 4-ary accounting:
@@ -933,8 +933,8 @@ We simply present a normal-sense $p_i$, $p\phi$, and $p[0,1]$ interface to the e
     \hline
     rule & transistor count & comments \\ \hline
     $c[0,1,2,3]$ & 92 & 4-way unpipelined arbiter \\ \hline
-    $\_p\phi$ & 13 & staticized by $p\phi$ \\ \hline
-    $p\phi$ & 4 & staticizes $\_p\phi$ \\ \hline
+    $\_pr$ & 13 & staticized by $pr$ \\ \hline
+    $pr$ & 4 & staticizes $\_pr$ \\ \hline
     $\_w[0,1,2,3]$ & 32 & \\ \hline
     $u$ & 10 & staticized by $\_u$ \\ \hline
     $\_u$ & 4 & staticizes $u$ \\ \hline
@@ -958,17 +958,17 @@ We assume that neuron contains a C-element at its output already.
 \subsubsection{HSE}
 
 \begin{hse}
-*[[x\phi];y\phi+;[yi];xo+;y\phi-;[~yi&~x\phi];xo-]
+*[[xr];yr+;[ye];xe+;yr-;[~ye&~xr];xe-]
 \end{hse}
 
 \subsubsection{PRS}
 
 \begin{prs2}
-x\phi & ~xo -> y\phi+
-~x\phi | xo -> y\phi-
+xr & ~xe -> yr+
+~xr | xe -> yr-
 
-yi -> xo+
-~x\phi & ~yi -> xo-
+ye -> xe+
+~xr & ~ye -> xe-
 \end{prs2}
 
 \noindent
@@ -978,7 +978,7 @@ approximate accounting:
     \begin{tabular}{|r|l|l|}
     \hline
     rule & transistor count & comments \\ \hline
-    $y\phi$ & 4 & \\ \hline
+    $yr$ & 4 & \\ \hline
     $x_o$ & 7 & \\ \hline
     \hline total & 11 & \\ \hline
     \end{tabular}
@@ -987,16 +987,16 @@ approximate accounting:
 \subsubsection{CMOS-implementable PRS}
 
 \begin{prs2}
-x\phi & _xo -> _y\phi-
-~x\phi | ~_xo -> _y\phi+
+xr & _xo -> _yr-
+~xr | ~_xo -> _yr+
 
-yi -> _xo-
-~x\phi & ~yi -> _xo+
+ye -> _xe-
+~xr & ~ye -> _xe+
 \end{prs2}
 
 \begin{prs2}
-~_xo -> __xo+
-_xo -> __xo-
+~_xo -> __xe+
+_xo -> __xe-
 \end{prs2}
 
 \noindent
@@ -1006,7 +1006,7 @@ accounting:
     \begin{tabular}{|r|l|l|}
     \hline
     rule & transistor count & comments \\ \hline
-    $y\phi$ & 4 & \\ \hline
+    $yr$ & 4 & \\ \hline
     $\_x_o$ & 3 & staticized by $\_\_x_o$ \\ \hline
     $\_\_x_o$ & 4 & staticizes $x_o$ \\ \hline
     \hline total & 11 & \\ \hline
@@ -1072,57 +1072,57 @@ The input/output ports are shown as follows:
   \includegraphics[width=.25\textwidth]{img/aerv_node.pdf}
 \end{center}
 
-\subsubsection*{Pseudo-code}
+\subsubsection*{Pseude-code}
 
 \begin{lstlisting}[mathescape]
 Repeat {
-    Wait for and consume $\phi$ from the parent.
+    Wait for and consume $r$ from the parent.
     Read in a word from the parent
         and use it to set which child to target.
-    Send $\phi$ to the targeted child.
-    While (parent is not sending $\neg\phi$) {
+    Send $r$ to the targeted child.
+    While (parent is not sending $\neg r$) {
         Relay data from the parent to the targeted child.
     }
-    Relay $\neg\phi$ from the parent to the targeted child.
+    Relay $\neg r$ from the parent to the targeted child.
 }
 \end{lstlisting}
 
 \subsubsection*{CHP}
 
 \begin{csp}
-*[[#{P=\phi}->P?;[#{P=0}->P?c;C0!\phi[]#{P=1}->P?c;C1!\phi]
+*[[#{P=r}->P?;[#{P=0}->P?c;C0!r[]#{P=1}->P?c;C1!r]
   [](#{P=0}|#{P=1})&c=0->C0!P?
   [](#{P=0}|#{P=1})&c=1->C1!P?
-  []#{P=\neg\phi}&c=0->C0!P?
-  []#{P=\neg\phi}&c=1->C1!P?
+  []#{P=\neg r}&c=0->C0!P?
+  []#{P=\neg r}&c=1->C1!P?
  ]]
 \end{csp}
 
 \noindent
 To match the CHP to the psuedo-code, we start in the top branch. \\
-First, we wait for $\phi$ and consume it with $P?$. $P?c$ then stores 
-the next word in $c$ as the child to target and is followed by $C0!\phi$ 
-or $C1!\phi$, which send $\phi$ to the targeted child. 
-Note that in the transmitter processes, we simply relay the $\phi$ from the 
-selected child to the parent. Here, we do not know where to send $\phi$
+First, we wait for $r$ and consume it with $P?$. $P?c$ then stores 
+the next word in $c$ as the child to target and is followed by $C0!r$ 
+or $C1!r$, which send $r$ to the targeted child. 
+Note that in the transmitter processes, we simply relay the $r$ from the 
+selected child to the parent. Here, we do not know where to send $r$
 until receiving the first data word of the packet. \\ 
 The second and third branches relay data from the parent to the targeted child. \\
-The last two branches relay $\neg\phi$ to the targeted child. \\
+The last two branches relay $\neg r$ to the targeted child. \\
 
 \subsubsection*{HSE}
 
 We implement the HSE
 
 \begin{hse}
-*[[p\phi->po+;
-    [p0->u0+;uu+;po-;[~p0];v+;c0\phi+;[c0i];po+
-    []p1->u1+;uu+;po-;[~p1];v+;c1\phi+;[c1i];po+
+*[[pr->pe+;
+    [p0->u0+;uu+;pe-;[~p0];v+;c0r+;[c0e];pe+
+    []p1->u1+;uu+;pe-;[~p1];v+;c1r+;[c1e];pe+
     ]
-  []p0&c0\phi->c00+;[~c0i];po-;[~p0];c00-;[c0i];po+
-  []p1&c0\phi->c01+;[~c0i];po-;[~p1];c01-;[c0i];po+
-  []p0&c1\phi->c10+;[~c1i];po-;[~p0];c10-;[c1i];po+
-  []p1&c1\phi->c11+;[~c1i];po-;[~p1];c11-;[c1i];po+
-  []~p\phi->u0-,u1-;uu-,(c0\phi-,c1\phi-;[~c0i&~c1i];po-),v-
+  []p0&c0r->c00+;[~c0e];pe-;[~p0];c00-;[c0e];pe+
+  []p1&c0r->c01+;[~c0e];pe-;[~p1];c01-;[c0e];pe+
+  []p0&c1r->c10+;[~c1e];pe-;[~p0];c10-;[c1e];pe+
+  []p1&c1r->c11+;[~c1e];pe-;[~p1];c11-;[c1e];pe+
+  []~pr->u0-,u1-;uu-,(c0r-,c1r-;[~c0e&~c1e];pe-),v-
  ]]
 \end{hse}
 
@@ -1130,22 +1130,22 @@ We implement the HSE
 To get there, we first directly translate the CHP,
 
 \begin{hse}
-*[[p\phi->po+;
-    [p0->c0+;po-;[~p0];po+;c0\phi+;[c0i]
-    []p1->c1+;po-;[~p1];po+;c1\phi+;[c1i]
+*[[pr->pe+;
+    [p0->c0+;pe-;[~p0];pe+;c0r+;[c0e]
+    []p1->c1+;pe-;[~p1];pe+;c1r+;[c1e]
     ]
-  []p0&c0->c00+;[~c0i];po-;[~p0];c00-;[c0i];po+
-  []p1&c0->c01+;[~c0i];po-;[~p1];c01-;[c0i];po+
-  []p0&c1->c10+;[~c1i];po-;[~p0];c10-;[c1i];po+
-  []p1&c1->c11+;[~c1i];po-;[~p1];c11-;[c1i];po+
-  []~p\phi&c0->c0\phi-;[~c0i];po-
-  []~p\phi&c1->c1\phi-;[~c1i];po-
+  []p0&c0->c00+;[~c0e];pe-;[~p0];c00-;[c0e];pe+
+  []p1&c0->c01+;[~c0e];pe-;[~p1];c01-;[c0e];pe+
+  []p0&c1->c10+;[~c1e];pe-;[~p0];c10-;[c1e];pe+
+  []p1&c1->c11+;[~c1e];pe-;[~p1];c11-;[c1e];pe+
+  []~pr&c0->c0r-;[~c0e];pe-
+  []~pr&c1->c1r-;[~c1e];pe-
  ]]
 \end{hse}
 
 \noindent
 The top branch in the HSE implements the top branch of the CHP. 2-phase
-handshakes implement the $P?$, $C0!\phi$, and $C1!\phi$ communications. 
+handshakes implement the $P?$, $C0!r$, and $C1!r$ communications. 
 A 4-phase handshake implements $P?c$. The 2-phase handshakes will be 
 paired with 2-phase handshakes in the bottom two HSE branches, which
 implement the bottom two CHP branches, to return the process to its original
@@ -1153,100 +1153,100 @@ state. \\
 The remaining four HSE branches implement the two CHP branches that relay
 data from the parent to the selected child.
 
-Since the communications for $\neg\phi$ reset the process to its
+Since the communications for $\neg r$ reset the process to its
 original state, we can combine the last two branches into one.
 
 \begin{hse}
-*[[p\phi->po+;
-    [p0->c0+;po-;[~p0];po+;c0\phi+;[c0i]
-    []p1->c1+;po-;[~p1];po+;c1\phi+;[c1i]
+*[[pr->pe+;
+    [p0->c0+;pe-;[~p0];pe+;c0r+;[c0e]
+    []p1->c1+;pe-;[~p1];pe+;c1r+;[c1e]
     ]
-  []p0&c0->c00+;[~c0i];po-;[~p0];c00-;[c0i];po+
-  []p1&c0->c01+;[~c0i];po-;[~p1];c01-;[c0i];po+
-  []p0&c1->c10+;[~c1i];po-;[~p0];c10-;[c1i];po+
-  []p1&c1->c11+;[~c1i];po-;[~p1];c11-;[c1i];po+
-  []\red{~p\phi->c0-,c1-;c0\phi-,c1\phi-;[~c0i&~c1i];po-}
+  []p0&c0->c00+;[~c0e];pe-;[~p0];c00-;[c0e];pe+
+  []p1&c0->c01+;[~c0e];pe-;[~p1];c01-;[c0e];pe+
+  []p0&c1->c10+;[~c1e];pe-;[~p0];c10-;[c1e];pe+
+  []p1&c1->c11+;[~c1e];pe-;[~p1];c11-;[c1e];pe+
+  []\red{~pr->c0-,c1-;c0r-,c1r-;[~c0e&~c1e];pe-}
  ]]
 \end{hse}
 
 \noindent
-Next, we overlap the $P?c$ communication with the $C0!\phi$ and $C1!\phi$ 
-communications and add a reset for $c$ during the $\neg\phi$ 
+Next, we overlap the $P?c$ communication with the $C0!r$ and $C1!r$ 
+communications and add a reset for $c$ during the $\neg r$ 
 communications.
 
 \begin{hse}
-*[[p\phi->po+;
-    [p0->po-;[~p0];\red{c0+};c0\phi+;[c0i];\red{po+}
-    []p1->po-;[~p1];\red{c1+};c1\phi+;[c1i];\red{po+}
+*[[pr->pe+;
+    [p0->pe-;[~p0];\red{c0+};c0r+;[c0e];\red{pe+}
+    []p1->pe-;[~p1];\red{c1+};c1r+;[c1e];\red{pe+}
     ]
-  []p0&c0->c00+;[~c0i];po-;[~p0];c00-;[c0i];po+
-  []p1&c0->c01+;[~c0i];po-;[~p1];c01-;[c0i];po+
-  []p0&c1->c10+;[~c1i];po-;[~p0];c10-;[c1i];po+
-  []p1&c1->c11+;[~c1i];po-;[~p1];c11-;[c1i];po+
-  []~p\phi->\red{c0-,c1-};c0\phi-,c1\phi-;[~c0i&~c1i];po-
+  []p0&c0->c00+;[~c0e];pe-;[~p0];c00-;[c0e];pe+
+  []p1&c0->c01+;[~c0e];pe-;[~p1];c01-;[c0e];pe+
+  []p0&c1->c10+;[~c1e];pe-;[~p0];c10-;[c1e];pe+
+  []p1&c1->c11+;[~c1e];pe-;[~p1];c11-;[c1e];pe+
+  []~pr->\red{c0-,c1-};c0r-,c1r-;[~c0e&~c1e];pe-
  ]]
 \end{hse}
 
 \noindent
-$c[0,1]\phi$ transitions always follow $c[0,1]$ transitions,
-respectively, so we can eliminate $c[0,1]$ and use $c[0,1]\phi$  
+$c[0,1]r$ transitions always follow $c[0,1]$ transitions,
+respectively, so we can eliminate $c[0,1]$ and use $c[0,1]r$  
 in their place.
 
 \begin{hse}
-*[[p\phi->po+;
-    [p0->po-;[~p0];c0\phi+;[c0i];po+
-    []p1->po-;[~p1];c1\phi+;[c1i];po+
+*[[pr->pe+;
+    [p0->pe-;[~p0];c0r+;[c0e];pe+
+    []p1->pe-;[~p1];c1r+;[c1e];pe+
     ]
-  []p0&c0\phi->c00+;[~c0i];po-;[~p0];c00-;[c0i];po+
-  []p1&c0\phi->c01+;[~c0i];po-;[~p1];c01-;[c0i];po+
-  []p0&c1\phi->c10+;[~c1i];po-;[~p0];c10-;[c1i];po+
-  []p1&c1\phi->c11+;[~c1i];po-;[~p1];c11-;[c1i];po+
-  []~p\phi->c0\phi-,c1\phi-;[~c0i&~c1i];po-
+  []p0&c0r->c00+;[~c0e];pe-;[~p0];c00-;[c0e];pe+
+  []p1&c0r->c01+;[~c0e];pe-;[~p1];c01-;[c0e];pe+
+  []p0&c1r->c10+;[~c1e];pe-;[~p0];c10-;[c1e];pe+
+  []p1&c1r->c11+;[~c1e];pe-;[~p1];c11-;[c1e];pe+
+  []~pr->c0r-,c1r-;[~c0e&~c1e];pe-
  ]]
 \end{hse}
 
 \noindent
-In the top branch, note that $c[0,1]\phi$ raise after the parent data clears.
+In the top branch, note that $c[0,1]r$ raise after the parent data clears.
 Therefore, we need to introduce state variables $u[0,1]$ to store the first
 parent data word.
 
 \begin{hse}
-*[[p\phi->po+;
-    [p0->\red{u0+};po-;[~p0];c0\phi+;[c0i];po+
-    []p1->\red{u1+};po-;[~p1];c1\phi+;[c1i];po+
+*[[pr->pe+;
+    [p0->\red{u0+};pe-;[~p0];c0r+;[c0e];pe+
+    []p1->\red{u1+};pe-;[~p1];c1r+;[c1e];pe+
     ]
-  []p0&c0\phi->c00+;[~c0i];po-;[~p0];c00-;[c0i];po+
-  []p1&c0\phi->c01+;[~c0i];po-;[~p1];c01-;[c0i];po+
-  []p0&c1\phi->c10+;[~c1i];po-;[~p0];c10-;[c1i];po+
-  []p1&c1\phi->c11+;[~c1i];po-;[~p1];c11-;[c1i];po+
-  []~p\phi->\red{u0-,u1-};c0\phi-,c1\phi-;[~c0i&~c1i];po-
+  []p0&c0r->c00+;[~c0e];pe-;[~p0];c00-;[c0e];pe+
+  []p1&c0r->c01+;[~c0e];pe-;[~p1];c01-;[c0e];pe+
+  []p0&c1r->c10+;[~c1e];pe-;[~p0];c10-;[c1e];pe+
+  []p1&c1r->c11+;[~c1e];pe-;[~p1];c11-;[c1e];pe+
+  []~pr->\red{u0-,u1-};c0r-,c1r-;[~c0e&~c1e];pe-
  ]]
 \end{hse}
 
 \noindent
-We clear the first parent data word before raising $c[0,1]\phi$ so that the 
+We clear the first parent data word before raising $c[0,1]r$ so that the 
 subsequent data can be steered to the selected child by simply ANDing the parent 
-data with the $c[0,1]\phi$ lines. If we instead clear the parent data after 
-raising one of $c[0,1]\phi$, we must increase the complexity of the child data 
+data with the $c[0,1]r$ lines. If we instead clear the parent data after 
+raising one of $c[0,1]r$, we must increase the complexity of the child data 
 gates. The cost of storing the first parent data word scales with the data width
 whereas the cost of making the child data gates more complicated 
 scales with the (data width) $\times$ (number of children). Therefore
 storing the first parent data word is cheaper than increasing the complexity
 of the child gates. 
 
-Moving on, we introduce state variable $v$ to make the $c[0,1]\phi$ gates
+Moving on, we introduce state variable $v$ to make the $c[0,1]r$ gates
 combinational.
 
 \begin{hse}
-*[[p\phi->po+;
-    [p0->u0+;po-;[~p0];\red{v+};c0\phi+;[c0i];po+
-    []p1->u1+;po-;[~p1];\red{v+};c1\phi+;[c1i];po+
+*[[pr->pe+;
+    [p0->u0+;pe-;[~p0];\red{v+};c0r+;[c0e];pe+
+    []p1->u1+;pe-;[~p1];\red{v+};c1r+;[c1e];pe+
     ]
-  []p0&c0\phi->c00+;[~c0i];po-;[~p0];c00-;[c0i];po+
-  []p1&c0\phi->c01+;[~c0i];po-;[~p1];c01-;[c0i];po+
-  []p0&c1\phi->c10+;[~c1i];po-;[~p0];c10-;[c1i];po+
-  []p1&c1\phi->c11+;[~c1i];po-;[~p1];c11-;[c1i];po+
-  []~p\phi->u0-,u1-;c0\phi-,c1\phi-;[~c0i&~c1i];po-,\red{v-}
+  []p0&c0r->c00+;[~c0e];pe-;[~p0];c00-;[c0e];pe+
+  []p1&c0r->c01+;[~c0e];pe-;[~p1];c01-;[c0e];pe+
+  []p0&c1r->c10+;[~c1e];pe-;[~p0];c10-;[c1e];pe+
+  []p1&c1r->c11+;[~c1e];pe-;[~p1];c11-;[c1e];pe+
+  []~pr->u0-,u1-;c0r-,c1r-;[~c0e&~c1e];pe-,\red{v-}
  ]]
 \end{hse}
 
@@ -1255,15 +1255,15 @@ Finally, we introduce state variable $uu$ to reduce the number of transistors
 in series for the $p_o$ gate.
 
 \begin{hse}
-*[[p\phi->po+;
-    [p0->u0+;\red{uu+};po-;[~p0];v+;c0\phi+;[c0i];po+
-    []p1->u1+;\red{uu+};po-;[~p1];v+;c1\phi+;[c1i];po+
+*[[pr->pe+;
+    [p0->u0+;\red{uu+};pe-;[~p0];v+;c0r+;[c0e];pe+
+    []p1->u1+;\red{uu+};pe-;[~p1];v+;c1r+;[c1e];pe+
     ]
-  []p0&c0\phi->c00+;[~c0i];po-;[~p0];c00-;[c0i];po+
-  []p1&c0\phi->c01+;[~c0i];po-;[~p1];c01-;[c0i];po+
-  []p0&c1\phi->c10+;[~c1i];po-;[~p0];c10-;[c1i];po+
-  []p1&c1\phi->c11+;[~c1i];po-;[~p1];c11-;[c1i];po+
-  []~p\phi->u0-,u1-;\red{uu-},(c0\phi-,c1\phi-;[~c0i&~c1i];po-),v-
+  []p0&c0r->c00+;[~c0e];pe-;[~p0];c00-;[c0e];pe+
+  []p1&c0r->c01+;[~c0e];pe-;[~p1];c01-;[c0e];pe+
+  []p0&c1r->c10+;[~c1e];pe-;[~p0];c10-;[c1e];pe+
+  []p1&c1r->c11+;[~c1e];pe-;[~p1];c11-;[c1e];pe+
+  []~pr->u0-,u1-;\red{uu-},(c0r-,c1r-;[~c0e&~c1e];pe-),v-
  ]]
 \end{hse}
 
@@ -1278,16 +1278,16 @@ u0 | u1 -> uu+
 \end{prs2}
 
 \begin{prs2}
-p\phi & ~uu | c0i | c1i -> po+
-(~p\phi | uu) & ~c0i & ~c1i -> po-
+pr & ~uu | c0e | c1e -> pe+
+(~pr | uu) & ~c0e & ~c1e -> pe-
 \end{prs2}
 
 \begin{prs2}
 p0 & ~v -> u0+
-~p\phi -> u0-
+~pr -> u0-
 
 p1 & ~v -> u1+
-~p\phi -> u1-
+~pr -> u1-
 \end{prs2}
 
 \begin{prs2}
@@ -1296,25 +1296,25 @@ uu & ~p0 & ~p1 -> v+
 \end{prs2}
 
 \begin{prs2}
-v & u0 -> c0\phi+
-~v | ~u0 -> c0\phi-
+v & u0 -> c0r+
+~v | ~u0 -> c0r-
 
-v & u1 -> c1\phi+
-~v | ~u1 -> c1\phi-
+v & u1 -> c1r+
+~v | ~u1 -> c1r-
 \end{prs2}
 
 \begin{prs2}
-p0 & c0\phi -> c00+
-~p0 | ~c0\phi -> c00-
+p0 & c0r -> c00+
+~p0 | ~c0r -> c00-
 
-p1 & c0\phi -> c01+
-~p1 | ~c0\phi -> c01-
+p1 & c0r -> c01+
+~p1 | ~c0r -> c01-
 
-p0 & c1\phi -> c10+
-~p0 | ~c1\phi -> c10-
+p0 & c1r -> c10+
+~p0 | ~c1r -> c10-
 
-p1 & c1\phi -> c11+
-~p1 | ~c1\phi -> c11-
+p1 & c1r -> c11+
+~p1 | ~c1r -> c11-
 \end{prs2}
 
 \noindent
@@ -1328,7 +1328,7 @@ p1 & c1\phi -> c11+
     $p_o$ & 12 & \\ \hline
     $u[0,1,2,3]$ & 28 & \\ \hline
     $v$ & 10 & \\ \hline
-    $c[0,1,2,3]\phi$ & 16 & \\ \hline
+    $c[0,1,2,3]r$ & 16 & \\ \hline
     $c[0,1,2,3][0,1,2,3]$ & 64 & \\ \hline
     \hline total & 138 & \\ \hline
     \end{tabular}
@@ -1345,7 +1345,7 @@ p1 & c1\phi -> c11+
     $p_o$ & 10 & \\ \hline
     $u[0,1,2]$ & 21 & \\ \hline
     $v$ & 10 & \\ \hline
-    $c[0,1,2]\phi$ & 12 & \\ \hline
+    $c[0,1,2]r$ & 12 & \\ \hline
     $c[0,1,2][0,1,2,3]$ & 48 & \\ \hline
     \hline total & 107 & \\ \hline
     \end{tabular}
@@ -1367,8 +1367,8 @@ _u0 & _u1 -> uu-
 \end{prs2}
 
 \begin{prs2}
-~_p\phi & ~uu | ~_c0i | ~_c1i -> po+
-(_p\phi | uu) & _c0i & _c1i -> po-
+~_pr & ~uu | ~_c0e | ~_c1e -> pe+
+(_pr | uu) & _c0e & _c1e -> pe-
 \end{prs2}
 
 \begin{prs2}
@@ -1386,10 +1386,10 @@ p1 -> _p1-
 
 \begin{prs2}
 ~_p0 & ~__v -> u0+
-_p\phi -> u0-
+_pr -> u0-
 
 ~_p1 & ~__v -> u1+
-_p\phi -> u1-
+_pr -> u1-
 \end{prs2}
 
 \begin{prs2}
@@ -1398,30 +1398,30 @@ uu & _p0 & _p1 -> _v-
 \end{prs2}
 
 \begin{prs2}
-__v & u0 -> _c0\phi-
-~__v | ~u0 -> _c0\phi+
+__v & u0 -> _c0r-
+~__v | ~u0 -> _c0r+
 
-__v & u1 -> _c1\phi-
-~__v | ~u1 -> _c1\phi+
+__v & u1 -> _c1r-
+~__v | ~u1 -> _c1r+
 \end{prs2}
 
 \begin{prs2}
-~_p0 & ~_c0\phi -> c00+
-_p0 | _c0\phi -> c00-
+~_p0 & ~_c0r -> c00+
+_p0 | _c0r -> c00-
 
-~_p1 & ~_c0\phi -> c01+
-_p1 | _c0\phi -> c01-
+~_p1 & ~_c0r -> c01+
+_p1 | _c0r -> c01-
 
-~_p0 & ~_c1\phi -> c10+
-_p0 | _c1\phi -> c10-
+~_p0 & ~_c1r -> c10+
+_p0 | _c1r -> c10-
 
-~_p1 & ~_c1\phi -> c11+
-_p1 | _c1\phi -> c11-
+~_p1 & ~_c1r -> c11+
+_p1 | _c1r -> c11-
 \end{prs2}
 
 \begin{prs2}
-~po -> _po+
-po -> _po-
+~pe -> _pe+
+pe -> _pe-
 \end{prs2}
 
 \noindent
@@ -1438,7 +1438,7 @@ po -> _po-
     $\_p[0,1,2,3]$ & 8 \\ \hline
     $u[0,1,2,3]$ & 28 & \\ \hline
     $\_v$ & 10 & \\ \hline
-    $\_c[0,1,2,3]\phi$ & 16 & \\ \hline
+    $\_c[0,1,2,3]r$ & 16 & \\ \hline
     $c[0,1,2,3][0,1,2,3]$ & 64 & \\ \hline
     \hline total & 156 & \\ \hline
     \end{tabular}
@@ -1458,7 +1458,7 @@ po -> _po-
     $\_p[0,1,2,3]$ & 8 \\ \hline
     $u[0,1,2]$ & 21 & \\ \hline
     $\_v$ & 10 & \\ \hline
-    $\_c[0,1,2]\phi$ & 12 & \\ \hline
+    $\_c[0,1,2]r$ & 12 & \\ \hline
     $c[0,1,2][0,1,2,3]$ & 48 & \\ \hline
     \hline total & 123 & \\ \hline
     \end{tabular}
@@ -1472,26 +1472,26 @@ We designed a custom leaf because the synapse needed buffering.
 \subsubsection*{HSE}
 
 \begin{hse}
-*[[p\phi->po+;
-    [p0->u0+;uu+;po-;[~p0];v+;c0\phi+;po+
-    []p1->u1+;uu+;po-;[~p1];v+;c1\phi+;po+
-    []p2->u2+;uu+;po-;[~p2];v+;c2\phi+;[c2i];po+
+*[[pr->pe+;
+    [p0->u0+;uu+;pe-;[~p0];v+;c0r+;pe+
+    []p1->u1+;uu+;pe-;[~p1];v+;c1r+;pe+
+    []p2->u2+;uu+;pe-;[~p2];v+;c2r+;[c2i];pe+
     ]
-  []p0&c0\phi->[c00e];c000+;po-;[~c00e&~p0];c000-;po+;
-  []p1&c0\phi->[c00e];c001+;po-;[~c00e&~p1];c001-;po+;
-  []p2&c0\phi->[c01e];c010+;po-;[~c01e&~p2];c010-;po+;
-  []p3&c0\phi->[c01e];c011+;po-;[~c01e&~p3];c011-;po+;
-  []p0&c1\phi->[c10e];c100+;po-;[~c10e&~p0];c100-;po+;
-  []p1&c1\phi->[c10e];c101+;po-;[~c10e&~p1];c101-;po+;
-  []p2&c1\phi->[c11e];c100+;po-;[~c11e&~p2];c110-;po+;
-  []p3&c1\phi->[c11e];c101+;po-;[~c11e&~p3];c111-;po+;
-  []p0&c2\phi->;c20+;[~c2i];po-;[~p0];c20-;[c2i];po+;
-  []p1&c2\phi->;c21+;[~c2i];po-;[~p1];c21-;[c2i];po+;
-  []p2&c2\phi->;c22+;[~c2i];po-;[~p2];c22-;[c2i];po+;
-  []p3&c2\phi->;c23+;[~c2i];po-;[~p3];c23-;[c2i];po+;
-  []~p\phi&c0\phi->u0-;(uu-;v-),(c0\phi-;po-)
-  []~p\phi&c1\phi->u1-;(uu-;v-),(c1\phi-;po-)
-  []~p\phi&c2\phi->u2-;(uu-;v-),(c2\phi-;[~c2i];po-)
+  []p0&c0r->[c00e];c000+;pe-;[~c00e&~p0];c000-;pe+;
+  []p1&c0r->[c00e];c001+;pe-;[~c00e&~p1];c001-;pe+;
+  []p2&c0r->[c01e];c010+;pe-;[~c01e&~p2];c010-;pe+;
+  []p3&c0r->[c01e];c011+;pe-;[~c01e&~p3];c011-;pe+;
+  []p0&c1r->[c10e];c100+;pe-;[~c10e&~p0];c100-;pe+;
+  []p1&c1r->[c10e];c101+;pe-;[~c10e&~p1];c101-;pe+;
+  []p2&c1r->[c11e];c100+;pe-;[~c11e&~p2];c110-;pe+;
+  []p3&c1r->[c11e];c101+;pe-;[~c11e&~p3];c111-;pe+;
+  []p0&c2r->;c20+;[~c2i];pe-;[~p0];c20-;[c2i];pe+;
+  []p1&c2r->;c21+;[~c2i];pe-;[~p1];c21-;[c2i];pe+;
+  []p2&c2r->;c22+;[~c2i];pe-;[~p2];c22-;[c2i];pe+;
+  []p3&c2r->;c23+;[~c2i];pe-;[~p3];c23-;[c2i];pe+;
+  []~pr&c0r->u0-;(uu-;v-),(c0r-;pe-)
+  []~pr&c1r->u1-;(uu-;v-),(c1r-;pe-)
+  []~pr&c2r->u2-;(uu-;v-),(c2r-;[~c2i];pe-)
  ]]
 \end{hse}
 
@@ -1503,13 +1503,13 @@ u0 | u1 | u2 -> uu+
 \end{prs2}
 
 \begin{prs2}
-pp & ~uu | c0\phi & ~c0[0,1][0,1] | c1\phi & ~c1[0,1][0,1] | c2i -> po+
-(~pp | uu) & (~c0\phi | c0[0,1][0,1]) & (~c1\phi | c1[0,1][0,1]) & ~c2i -> po-
+pp & ~uu | c0r & ~c0[0,1][0,1] | c1r & ~c1[0,1][0,1] | c2i -> pe+
+(~pp | uu) & (~c0r | c0[0,1][0,1]) & (~c1r | c1[0,1][0,1]) & ~c2i -> pe-
 \end{prs2}
 
 \begin{prs2}
 p[0,1,2] & ~v -> u[0,1,2]+
-~p\phi -> u[0,1,2]-
+~pr -> u[0,1,2]-
 \end{prs2}
 
 \begin{prs2}
@@ -1518,27 +1518,27 @@ uu & ~p[0,1,2] -> v+
 \end{prs2}
 
 \begin{prs2}
-v & u[0,1,2] -> c[0,1,2]\phi+
-~v | ~u[0,1,2] -> c[0,1,2]\phi-
+v & u[0,1,2] -> c[0,1,2]r+
+~v | ~u[0,1,2] -> c[0,1,2]r-
 \end{prs2}
 
 \begin{prs2}
-p0 & c[0,1]\phi & c[0,1]0e -> c[0,1]00+
+p0 & c[0,1]r & c[0,1]0e -> c[0,1]00+
 ~p0 & ~c[0,1]0e -> c[0,1]00-
 
-p1 & c[0,1]\phi & c[0,1]0e -> c[0,1]01+
+p1 & c[0,1]r & c[0,1]0e -> c[0,1]01+
 ~p1 & ~c[0,1]0e -> c[0,1]01-
 
-p2 & c[0,1]\phi & c[0,1]0e -> c[0,1]10+
+p2 & c[0,1]r & c[0,1]0e -> c[0,1]10+
 ~p2 & ~c[0,1]0e -> c[0,1]10-
 
-p3 & c[0,1]\phi & c[0,1]1e -> c[0,1]11+
+p3 & c[0,1]r & c[0,1]1e -> c[0,1]11+
 ~p3 & ~c[0,1]1e -> c[0,1]11-
 \end{prs2}
 
 \begin{prs2}
-p[0,1,2,3] & c2\phi -> c2[0,1,2,3]+
-~p[0,1,2,3] | ~c2\phi -> c2[0,1,2,3]-
+p[0,1,2,3] & c2r -> c2[0,1,2,3]+
+~p[0,1,2,3] | ~c2r -> c2[0,1,2,3]-
 \end{prs2}
 
 \noindent
@@ -1552,7 +1552,7 @@ approximate accounting:
     $p_o$ & 26 & \\ \hline
     $u[0,1,2]$ & 21 & \\ \hline
     $v$ & 9 & \\ \hline
-    $c[0,1,2]\phi$ & 12 & \\ \hline
+    $c[0,1,2]r$ & 12 & \\ \hline
     $c[0,1][0,1][0,1]$ & 72 & \\ \hline
     $c2[0,1,2,3]$ & 16 & \\
     \hline total & 162 & \\ \hline
@@ -1572,8 +1572,8 @@ uu -> _uu-
 \end{prs2}
 
 \begin{prs2}
-p\phi & _uu | c0\phi & _c0[0,1][0,1] | c1\phi & _c1[0,1][0,1] | c2i -> _po-
-(~p\phi | ~_uu) & (~c0\phi | ~_c0[0,1][0,1]) & (~c1\phi | ~_c1[0,1][0,1]) & ~c2i -> _po+
+pr & _uu | c0r & _c0[0,1][0,1] | c1r & _c1[0,1][0,1] | c2i -> _pe-
+(~pr | ~_uu) & (~c0r | ~_c0[0,1][0,1]) & (~c1r | ~_c1[0,1][0,1]) & ~c2i -> _pe+
 \end{prs2}
 
 \begin{prs2}
@@ -1583,7 +1583,7 @@ v -> _v-
 
 \begin{prs2}
 p[0,1,2] & _v -> _u[0,1,2]-
-~p\phi -> _u[0,1,2]+
+~pr -> _u[0,1,2]+
 \end{prs2}
 
 \begin{prs2}
@@ -1592,34 +1592,34 @@ _uu -> v-
 \end{prs2}
 
 \begin{prs2}
-~_v & ~_u[0,1,2] -> c[0,1,2]\phi+
-_v | _u[0,1,2] -> c[0,1,2]\phi-
+~_v & ~_u[0,1,2] -> c[0,1,2]r+
+_v | _u[0,1,2] -> c[0,1,2]r-
 \end{prs2}
 
 \begin{prs2}
-p0 & c[0,1]\phi & c[0,1]0e -> _c[0,1]00-
+p0 & c[0,1]r & c[0,1]0e -> _c[0,1]00-
 ~p0 & ~c[0,1]0e -> _c[0,1]00+
 
-p1 & c[0,1]\phi & c[0,1]0e -> _c[0,1]01-
+p1 & c[0,1]r & c[0,1]0e -> _c[0,1]01-
 ~p1 & ~c[0,1]0e -> _c[0,1]01+
 
-p2 & c[0,1]\phi & c[0,1]0e -> _c[0,1]10-
+p2 & c[0,1]r & c[0,1]0e -> _c[0,1]10-
 ~p2 & ~c[0,1]0e -> _c[0,1]10+
 
-p3 & c[0,1]\phi & c[0,1]1e -> _c[0,1]11-
+p3 & c[0,1]r & c[0,1]1e -> _c[0,1]11-
 ~p3 & ~c[0,1]1e -> _c[0,1]11+
 \end{prs2}
 
 \begin{prs2}
-p[0,1,2,3] & c2\phi -> _c2[0,1,2,3]-
-~p[0,1,2,3] | ~c2\phi -> _c2[0,1,2,3]+
+p[0,1,2,3] & c2r -> _c2[0,1,2,3]-
+~p[0,1,2,3] | ~c2r -> _c2[0,1,2,3]+
 \end{prs2}
 
 % interface inverters
 
 \begin{prs2}
-~_p\phi -> p\phi+
-_p\phi -> p\phi-
+~_pr -> pr+
+_pr -> pr-
 \end{prs2}
 
 \begin{prs2}
@@ -1654,10 +1654,10 @@ accounting:
     $\_v$ & 2 & \\ \hline
     $\_u[0,1,2]$ & 21 & \\ \hline
     $v$ & 9 & \\ \hline
-    $c[0,1,2]\phi$ & 12 & \\ \hline
+    $c[0,1,2]r$ & 12 & \\ \hline
     $\_c[0,1][0,1][0,1]$ & 40 & staticized by $\_\_c[0,1][0,1][0,1]$ \\ \hline
     $\_c2[0,1,2,3]$ & 16 & \\
-    $p\phi$ & 2 & \\
+    $pr$ & 2 & \\
     $\_c[0,1][0,1][0,1]$ & 32 & staticizes $\_c[0,1][0,1][0,1]$ \\ \hline
     $\_\_c2[0,1,2,3]$ & 8 & \\ \hline
     \hline total & 176 & \\ \hline
@@ -1667,36 +1667,36 @@ accounting:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{AERV MERGE ACK \label{sec:AERV_MERGE_ACK}}
 
-The MERGE ACK process merges the $\phi$ communications at the receiver leaves
+The MERGE ACK process merges the $r$ communications at the receiver leaves
 with the acknowledges from the synapses or deserializer.
 
 \subsubsection*{HSE}
 
 \begin{hse}
-*[[p\phi&~c0i&~ci1->po+;
-  []p\phi&c0i->c+;po-;[~c0i];c-;po+
-  []p\phi&c1i->c+;po-;[~c1i];c-;po+
-  []~p\phi->po-
+*[[pr&~c0e&~ci1->pe+;
+  []pr&c0e->c+;pe-;[~c0e];c-;pe+
+  []pr&c1e->c+;pe-;[~c1e];c-;pe+
+  []~pr->pe-
  ]]
 \end{hse}
 
 \subsubsection*{PRS}
 
 \begin{prs}
-p\phi & ~c0i -> po+
-~p\phi | c0i -> po-
+pr & ~c0e -> pe+
+~pr | c0i -> pe-
 \end{prs}
 
 \subsubsection*{CMOS-implementable PRS}
 
 \begin{prs2}
-~p\phi -> _p\phi+
-p\phi -> _p\phi-
+~pr -> _pr+
+pr -> _pr-
 \end{prs2}
 
 \begin{prs2}
-~_p\phi & ~c0i -> po+
-_p\phi | c0i -> po-
+~_pr & ~c0i -> pe+
+_pr | c0i -> pe-
 \end{prs2}
 
 \noindent
@@ -1706,7 +1706,7 @@ accounting:
     \begin{tabular}{|r|l|l|}
     \hline
     rule & transistor count & comments \\ \hline
-    $\_p\phi$ & 2 & \\ \hline
+    $\_pr$ & 2 & \\ \hline
     $\_po$ & 4 & \\ \hline
     \hline total & 6 & \\ \hline
     \end{tabular}
@@ -1803,7 +1803,7 @@ This process converts the transmitter and receiver serial format to a1ofN channe
 \subsubsection*{HSE}
 
 \begin{hse}
-*[[x\phi];xe+;[~x\phi];xe-]
+*[[xr];xe+;[~xr];xe-]
 
 *[[x0->y0+;[ya];xe-;[~x0];y0-;[~ya];xe+
   []x1->y1+;[ya];xe-;[~x1];y1-;[~ya];xe+
@@ -1813,8 +1813,8 @@ This process converts the transmitter and receiver serial format to a1ofN channe
 \subsubsection*{PRS}
 
 \begin{prs2}
-x\phi & ~ya -> xe+
-~x\phi | ya -> xe-
+xr & ~ya -> xe+
+~xr | ya -> xe-
 \end{prs2}
 
 \begin{prs2}
@@ -1828,13 +1828,13 @@ x1 -> y1+
 \subsubsection*{CMOS-implementable PRS}
 
 \begin{prs2}
-~x\phi -> _x\phi+
-x\phi -> _x\phi-
+~xr -> _xr+
+xr -> _xr-
 \end{prs2}
 
 \begin{prs2}
-~_x\phi & ~ya -> xe+
-_x\phi | ya -> xe-
+~_xr & ~ya -> xe+
+_xr | ya -> xe-
 \end{prs2}
 
 \begin{prs2}
@@ -1852,7 +1852,7 @@ x1 -> y1+
     \begin{tabular}{|r|l|l|}
     \hline
     rule & transistor count & comments \\ \hline
-    $\_x\phi$ & 2 & \\ \hline
+    $\_xr$ & 2 & \\ \hline
     $x_e$ & 4 & \\ \hline
     $\_y[0,1,2,3]$ & 0 & wires \\ \hline
     \hline total & 6 & \\ \hline
@@ -2267,44 +2267,44 @@ y1 -> _y1-
 \subsubsection*{HSE}
 
 \begin{hse}
-*[[si];so+;[x0|x1];y\phi+;
-  [~si&yi];y\phi-;[~yi];so-]
+*[[si];so+;[x0|x1];yr+;
+  [~si&ye];yr-;[~ye];so-]
 
-*[[x0->y0+;[~yi];xa+;[~x0];y0-;[yi];xa-
-  []x1->y1+;[~yi];xa+;[~x1];y1-;[yi];xa-
+*[[x0->y0+;[~ye];xa+;[~x0];y0-;[ye];xa-
+  []x1->y1+;[~ye];xa+;[~x1];y1-;[ye];xa-
  ]]
 \end{hse}
 
 \subsubsection*{PRS}
 
 \begin{prs2}
-x0 | x1 -> y\phi+
-~si & yi -> y\phi-
+x0 | x1 -> yr+
+~si & ye -> yr-
 \end{prs2}
 
 \begin{prs2}
 si -> so+
-~si & ~yi & ~y\phi -> so-
+~si & ~ye & ~yr -> so-
 \end{prs2}
 
 \begin{prs2}
-yi & x0 -> y0+
+ye & x0 -> y0+
 ~x0 -> y0-
 
-yi & x1 -> y1+
+ye & x1 -> y1+
 ~x1 -> y1-
 \end{prs2}
 
 \begin{prs2}
-(y0 | y1) & ~yi -> xa+
-yi -> xa-
+(y0 | y1) & ~ye -> xa+
+ye -> xa-
 \end{prs2}
 
 \subsubsection*{CMOS-implementable PRS}
 
 \begin{prs2}
-~_x0 | ~_x1 -> y\phi+
-_si & yi -> y\phi-
+~_x0 | ~_x1 -> yr+
+_si & ye -> yr-
 \end{prs2}
 
 \begin{prs2}
@@ -2314,7 +2314,7 @@ _si -> __si-
 
 \begin{prs2}
 __si -> _so-
-~__si & ~yi & ~y\phi -> _so+
+~__si & ~ye & ~yr -> _so+
 \end{prs2}
 
 \begin{prs2}
@@ -2326,16 +2326,16 @@ _x1 -> __x1-
 \end{prs2}
 
 \begin{prs2}
-yi & __x0 -> _y0-
+ye & __x0 -> _y0-
 ~__x0 -> _y0+
 
-yi & __x1 -> _y1-
+ye & __x1 -> _y1-
 ~__x1 -> _y1+
 \end{prs2}
 
 \begin{prs2}
-(~_y0 | ~_y1) & ~yi -> xa+
-yi -> xa-
+(~_y0 | ~_y1) & ~ye -> xa+
+ye -> xa-
 \end{prs2}
 
 \begin{prs2}
@@ -2353,7 +2353,7 @@ _y1 -> y1-
     \begin{tabular}{|r|l|l|}
     \hline
     rule & transistor count & comments \\ \hline
-    $y\phi$ & 10 & \\ \hline
+    $y\_r$ & 10 & \\ \hline
     $\_\_s_i$ & 2 & \\ \hline
     $\_s_o$ & 8 & \\ \hline
     $\_\_x[0,1,2,3]$ & 8 & \\ \hline
@@ -2421,7 +2421,7 @@ For M inputs and 1-of-D encoding,
 
 \begin{hse}
 *[[
-   \langle\|m:M:xmi->yo+;[yi];xmo+;[~xmi];yo-;[~yi];xmo-\rangle
+   \langle\|m:M:xmi->yo+;[ye];xmo+;[~xmi];yo-;[~ye];xmo-\rangle
  ]]
 
 *[[
@@ -2433,14 +2433,14 @@ For M inputs and 1-of-D encoding,
 For M=2 and D=2,
 
 \begin{hse}
-*[[x0i->yo+;[yi];x0o+;[~x0i];yo-;[~yi];x0o-
-  \|x1i->yo+;[yi];x1o+;[~x1i];yo-;[~yi];x1o-
+*[[x0i->yo+;[ye];x0o+;[~x0i];yo-;[~ye];x0o-
+  \|x1i->yo+;[ye];x1o+;[~x1i];yo-;[~ye];x1o-
  ]]
 
-*[[x00->y0+;[~yi];x0o-;[~x00];y0-;[yi];x0o-
-  []x01->y1+;[~yi];x0o-;[~x01];y1-;[yi];x0o-
-  []x10->y0+;[~yi];x1o-;[~x10];y0-;[yi];x1o-
-  []x11->y1+;[~yi];x1o-;[~x11];y1-;[yi];x1o-
+*[[x00->y0+;[~ye];x0o-;[~x00];y0-;[ye];x0o-
+  []x01->y1+;[~ye];x0o-;[~x01];y1-;[ye];x0o-
+  []x10->y0+;[~ye];x1o-;[~x10];y0-;[ye];x1o-
+  []x11->y1+;[~ye];x1o-;[~x11];y1-;[ye];x1o-
  ]]
 \end{hse}
 

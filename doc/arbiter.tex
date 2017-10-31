@@ -752,6 +752,13 @@ cso | sso -> _so-
 The tree is built from NODEs. 
 The leaves of the tree service requests from $N$ clients.
 
+\begin{figure}
+  \centering
+  \includegraphics[width=.5\textwidth]{img/tree_ring_arbiter.pdf}
+  \caption{Greedy, fair, tree/ring, N-way arbiter NODE}
+  \label{fig:n_arb}
+\end{figure}
+
 \subsubsection*{Accounting}
 
 NODES cost 30$K$+18 transistors, where $K$ is the radix of the tree.
@@ -887,7 +894,7 @@ x | pe -> sr-
 \subsubsection*{CMOS-implementable PRS}
 
 \begin{prs2}
-pe & (c0r | c1r) -> x-
+_pe & (c0r | c1r) -> x-
 ~_sa -> x+
 \end{prs2}
 
@@ -897,13 +904,13 @@ x & _sa -> pr-
 \end{prs2}
 
 \begin{prs2}
-~x & ~pe -> sr+
-x | pe -> sr-
+~x & ~_pe -> sr+
+x | _pe -> sr-
 \end{prs2}
 
 \begin{prs2}
-_pe -> pe-
-~_pe -> pe+
+pe -> _pe-
+~pe -> _pe+
 
 sa -> _sa-
 ~sa -> _sa+
@@ -1026,7 +1033,7 @@ This is just a variation on the precise exceptions circuit.
 
 \begin{hse}
 *[[cr->[sr];sa+;[~sr];ce-;[~cr];sa-;ce+
-  \|sa->sa+;[~sr];sa-
+  \|sr->sa+;[~sr];sa-
  ]]
 \end{hse}
 

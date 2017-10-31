@@ -13,7 +13,7 @@
    height="80.285698"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.4 r9939"
+   inkscape:version="0.48.3.1 r9886"
    sodipodi:docname="serial_protocol_block_diagram.svg">
   <defs
      id="defs4">
@@ -54,7 +54,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.8"
-     inkscape:cx="163.68332"
+     inkscape:cx="105.29046"
      inkscape:cy="108.01303"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -63,10 +63,10 @@
      fit-margin-left="10"
      fit-margin-right="10"
      fit-margin-bottom="10"
-     inkscape:window-width="1600"
-     inkscape:window-height="876"
-     inkscape:window-x="0"
-     inkscape:window-y="174"
+     inkscape:window-width="2560"
+     inkscape:window-height="1576"
+     inkscape:window-x="2560"
+     inkscape:window-y="24"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata7">
@@ -76,7 +76,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -132,40 +132,40 @@
          sodipodi:role="line">Source</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="88.520157"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       x="83.593391"
        y="234.32648"
        id="text4640"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4642"
-         x="88.520157"
+         x="83.593391"
          y="234.32648"
-         style="font-size:10px">yi</tspan></text>
+         style="font-size:10px">ye</tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text4644"
        y="214.32648"
        x="85.10218"
-       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-size:10px"
          y="214.32648"
          x="85.10218"
          id="tspan4646"
-         sodipodi:role="line">yΦ</tspan></text>
+         sodipodi:role="line">yr</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="67.494743"
+       x="55.058235"
        y="254.32648"
        id="text4648"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4650"
-         x="67.494743"
+         x="55.058235"
          y="254.32648"
-         style="font-size:10px">y[0,1]</tspan></text>
+         style="font-size:10px">y[0:N-1]</tspan></text>
     <g
        id="g4688">
       <rect
@@ -197,16 +197,16 @@
          id="text3761"
          y="214.32648"
          x="140.46429"
-         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
          xml:space="preserve"><tspan
            style="font-size:10px"
            y="214.32648"
            x="140.46429"
            id="tspan3763"
-           sodipodi:role="line">xΦ</tspan></text>
+           sodipodi:role="line">xr</tspan></text>
       <text
          xml:space="preserve"
-         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
          x="140.46429"
          y="234.32648"
          id="text3765"
@@ -215,7 +215,7 @@
            id="tspan3767"
            x="140.46429"
            y="234.32648"
-           style="font-size:10px">xo</tspan></text>
+           style="font-size:10px">xe</tspan></text>
       <text
          sodipodi:linespacing="125%"
          id="text3769"
@@ -227,43 +227,43 @@
            y="254.32648"
            x="140.46429"
            id="tspan3771"
-           sodipodi:role="line">x[0,1]</tspan></text>
+           sodipodi:role="line">x[0:N-1]</tspan></text>
       <text
          xml:space="preserve"
-         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-         x="225.48969"
+         style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+         x="220.56293"
          y="234.32648"
          id="text3773"
          sodipodi:linespacing="125%"><tspan
            sodipodi:role="line"
            id="tspan3775"
-           x="225.48969"
+           x="220.56293"
            y="234.32648"
-           style="font-size:10px">yi</tspan></text>
+           style="font-size:10px">ye</tspan></text>
       <text
          sodipodi:linespacing="125%"
          id="text3777"
          y="214.32648"
          x="222.07172"
-         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
          xml:space="preserve"><tspan
            style="font-size:10px"
            y="214.32648"
            x="222.07172"
            id="tspan3779"
-           sodipodi:role="line">yΦ</tspan></text>
+           sodipodi:role="line">yr</tspan></text>
       <text
          xml:space="preserve"
          style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-         x="204.46429"
+         x="192.02777"
          y="254.32648"
          id="text3781"
          sodipodi:linespacing="125%"><tspan
            sodipodi:role="line"
            id="tspan3783"
-           x="204.46429"
+           x="192.02777"
            y="254.32648"
-           style="font-size:10px">y[0,1]</tspan></text>
+           style="font-size:10px">y[0:N-1]</tspan></text>
       <rect
          style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
          id="rect4652"
@@ -294,7 +294,7 @@
            style="font-size:14px;text-align:start;text-anchor:start">Sink</tspan></text>
       <text
          xml:space="preserve"
-         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
          x="343.47443"
          y="214.32648"
          id="text4662"
@@ -303,19 +303,19 @@
            id="tspan4664"
            x="343.47443"
            y="214.32648"
-           style="font-size:10px">xΦ</tspan></text>
+           style="font-size:10px">xr</tspan></text>
       <text
          sodipodi:linespacing="125%"
          id="text4666"
          y="234.32648"
          x="343.47443"
-         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
          xml:space="preserve"><tspan
            style="font-size:10px"
            y="234.32648"
            x="343.47443"
            id="tspan4668"
-           sodipodi:role="line">xo</tspan></text>
+           sodipodi:role="line">xe</tspan></text>
       <text
          xml:space="preserve"
          style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
@@ -327,7 +327,7 @@
            id="tspan4672"
            x="343.47443"
            y="254.32648"
-           style="font-size:10px">x[0,1]</tspan></text>
+           style="font-size:10px">x[0:N-1]</tspan></text>
       <rect
          y="202.54076"
          x="340.15298"

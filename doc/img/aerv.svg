@@ -9,8 +9,8 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="2088.9646"
-   height="934.1217"
+   width="2059.104"
+   height="1054.5933"
    id="svg2"
    version="1.1"
    inkscape:version="0.48.3.1 r9886"
@@ -53,16 +53,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.49497475"
-     inkscape:cx="1756.0348"
-     inkscape:cy="761.14523"
+     inkscape:zoom="0.7"
+     inkscape:cx="966.96538"
+     inkscape:cy="462.99513"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     fit-margin-top="0"
-     fit-margin-left="10"
-     fit-margin-right="10"
-     fit-margin-bottom="0"
+     fit-margin-top="5"
+     fit-margin-left="5"
+     fit-margin-right="5"
+     fit-margin-bottom="5"
      inkscape:window-width="2560"
      inkscape:window-height="1576"
      inkscape:window-x="2560"
@@ -84,7 +84,7 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(672.43708,99.598339)">
+     transform="translate(667.57996,104.59834)">
     <rect
        style="fill:#00ff00;fill-opacity:0.03921569;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:0.3150685;stroke-dasharray:none;stroke-dashoffset:0"
        id="rect5739"
@@ -294,57 +294,6 @@
          x="721.42603"
          id="tspan5419"
          sodipodi:role="line">...</tspan></text>
-    <path
-       sodipodi:nodetypes="cccc"
-       inkscape:connector-curvature="0"
-       id="path5495"
-       d="m -401.93708,834.02336 0,-39.599 207.96449,0 0,39.599"
-       style="fill:#ff00ff;fill-opacity:1;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
-    <text
-       xml:space="preserve"
-       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="-397.78296"
-       y="832.0318"
-       id="text5491"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan5493"
-         x="-397.78296"
-         y="832.0318">DESERIAL</tspan></text>
-    <path
-       style="fill:#00ffff;fill-opacity:1;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m -531.93708,834.02336 0,-39.599 115.96449,0 0,39.599"
-       id="path5503"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cccc" />
-    <text
-       sodipodi:linespacing="125%"
-       id="text5499"
-       y="832.0318"
-       x="-527.78296"
-       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       xml:space="preserve"><tspan
-         y="832.0318"
-         x="-527.78296"
-         id="tspan5501"
-         sodipodi:role="line">SYN2</tspan></text>
-    <path
-       sodipodi:nodetypes="cccc"
-       inkscape:connector-curvature="0"
-       id="path5511"
-       d="m -661.93708,834.02336 0,-39.599 115.96449,0 0,39.599"
-       style="fill:#00ffff;fill-opacity:1;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
-    <text
-       xml:space="preserve"
-       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="-657.78296"
-       y="832.0318"
-       id="text5507"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan5509"
-         x="-657.78296"
-         y="832.0318">SYN2</tspan></text>
     <path
        style="fill:#afafe1;fill-opacity:1;stroke:#000000;stroke-width:1.16116297px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 168.02516,-99.017758 0,69.539368 328.99992,0 0,-69.539368"
@@ -581,57 +530,6 @@
        id="path3129"
        d="m 1268.1418,794.43361 -95.9239,-95.71429"
        style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:url(#Arrow2Lstart);marker-end:none" />
-    <path
-       style="fill:#ff00ff;fill-opacity:1;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 1198.0629,834.02336 0,-39.599 207.9645,0 0,39.599"
-       id="path3131"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cccc" />
-    <text
-       sodipodi:linespacing="125%"
-       id="text3133"
-       y="832.0318"
-       x="1202.217"
-       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       xml:space="preserve"><tspan
-         y="832.0318"
-         x="1202.217"
-         id="tspan3135"
-         sodipodi:role="line">DESERIAL</tspan></text>
-    <path
-       sodipodi:nodetypes="cccc"
-       inkscape:connector-curvature="0"
-       id="path3137"
-       d="m 1068.0629,834.02336 0,-39.599 115.9645,0 0,39.599"
-       style="fill:#00ffff;fill-opacity:1;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
-    <text
-       xml:space="preserve"
-       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="1072.217"
-       y="832.0318"
-       id="text3139"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan3141"
-         x="1072.217"
-         y="832.0318">SYN2</tspan></text>
-    <path
-       style="fill:#00ffff;fill-opacity:1;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 938.06292,834.02336 0,-39.599 115.96448,0 0,39.599"
-       id="path3143"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cccc" />
-    <text
-       sodipodi:linespacing="125%"
-       id="text3145"
-       y="832.0318"
-       x="942.21704"
-       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       xml:space="preserve"><tspan
-         y="832.0318"
-         x="942.21704"
-         id="tspan3147"
-         sodipodi:role="line">SYN2</tspan></text>
     <g
        id="g3140">
       <rect
@@ -720,5 +618,221 @@
            y="674.88599"
            style="font-size:32px">LEAF</tspan></text>
     </g>
+    <g
+       id="g3912"
+       transform="translate(0,-88)">
+      <rect
+         y="884.88049"
+         x="-532.07996"
+         height="35"
+         width="116.07143"
+         id="rect3910"
+         style="fill:#00ffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+      <text
+         xml:space="preserve"
+         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         x="-527.78296"
+         y="916.94104"
+         id="text5499"
+         sodipodi:linespacing="125%"><tspan
+           sodipodi:role="line"
+           id="tspan5501"
+           x="-527.78296"
+           y="916.94104">2SYN</tspan></text>
+    </g>
+    <g
+       id="g3959"
+       transform="translate(0,-78)">
+      <g
+         style="fill:#ff00ff;fill-opacity:1"
+         transform="translate(-1282.0239,625.21282)"
+         id="g6950">
+        <rect
+           ry="0"
+           y="248.95897"
+           x="880.08679"
+           height="42.323139"
+           width="207.96106"
+           id="rect6916"
+           style="fill:#ff00ff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+        <g
+           style="fill:#ff00ff;fill-opacity:1"
+           id="g6918"
+           transform="translate(60,40)" />
+      </g>
+      <text
+         xml:space="preserve"
+         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         x="-397.78296"
+         y="910.0318"
+         id="text3917"
+         sodipodi:linespacing="125%"><tspan
+           sodipodi:role="line"
+           id="tspan3919"
+           x="-397.78296"
+           y="910.0318">DESERIAL</tspan></text>
+    </g>
+    <g
+       transform="translate(-1282.0239,653.21282)"
+       id="g3930">
+      <rect
+         ry="0"
+         y="248.95897"
+         x="880.08679"
+         height="42.323139"
+         width="207.96106"
+         id="rect3932"
+         style="fill:#e1e1e1;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+      <g
+         id="g3934"
+         transform="translate(60,40)" />
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="-387.7222"
+       y="937.89392"
+       id="text3936"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3938"
+         x="-387.7222"
+         y="937.89392">MEMORY</tspan></text>
+    <g
+       transform="translate(-130,-88)"
+       id="g3966">
+      <rect
+         style="fill:#00ffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+         id="rect3968"
+         width="116.07143"
+         height="35"
+         x="-532.07996"
+         y="884.88049" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3970"
+         y="916.94104"
+         x="-527.78296"
+         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         xml:space="preserve"><tspan
+           y="916.94104"
+           x="-527.78296"
+           id="tspan3972"
+           sodipodi:role="line">2SYN</tspan></text>
+    </g>
+    <path
+       sodipodi:nodetypes="cc"
+       inkscape:connector-curvature="0"
+       id="path3979"
+       d="m -301.97419,899.85388 0,-60.35895"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:url(#Arrow2Lstart);marker-end:none" />
+    <g
+       transform="translate(1580,-88)"
+       id="g3981">
+      <rect
+         style="fill:#00ffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+         id="rect3983"
+         width="116.07143"
+         height="35"
+         x="-532.07996"
+         y="884.88049" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3985"
+         y="916.94104"
+         x="-527.78296"
+         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         xml:space="preserve"><tspan
+           y="916.94104"
+           x="-527.78296"
+           id="tspan3987"
+           sodipodi:role="line">2SYN</tspan></text>
+    </g>
+    <g
+       transform="translate(1580,-78)"
+       id="g3989">
+      <g
+         id="g3991"
+         transform="translate(-1282.0239,625.21282)"
+         style="fill:#ff00ff;fill-opacity:1">
+        <rect
+           style="fill:#ff00ff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+           id="rect3993"
+           width="207.96106"
+           height="42.323139"
+           x="880.08679"
+           y="248.95897"
+           ry="0" />
+        <g
+           transform="translate(60,40)"
+           id="g3995"
+           style="fill:#ff00ff;fill-opacity:1" />
+      </g>
+      <text
+         sodipodi:linespacing="125%"
+         id="text3997"
+         y="910.0318"
+         x="-397.78296"
+         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         xml:space="preserve"><tspan
+           y="910.0318"
+           x="-397.78296"
+           id="tspan3999"
+           sodipodi:role="line">DESERIAL</tspan></text>
+    </g>
+    <g
+       id="g4001"
+       transform="translate(297.9761,653.21282)">
+      <rect
+         style="fill:#e1e1e1;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+         id="rect4003"
+         width="207.96106"
+         height="42.323139"
+         x="880.08679"
+         y="248.95897"
+         ry="0" />
+      <g
+         transform="translate(60,40)"
+         id="g4005" />
+    </g>
+    <text
+       sodipodi:linespacing="125%"
+       id="text4007"
+       y="937.89392"
+       x="1192.2778"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       xml:space="preserve"><tspan
+         y="937.89392"
+         x="1192.2778"
+         id="tspan4009"
+         sodipodi:role="line">MEMORY</tspan></text>
+    <g
+       id="g4011"
+       transform="translate(1450,-88)">
+      <rect
+         y="884.88049"
+         x="-532.07996"
+         height="35"
+         width="116.07143"
+         id="rect4013"
+         style="fill:#00ffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+      <text
+         xml:space="preserve"
+         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         x="-527.78296"
+         y="916.94104"
+         id="text4015"
+         sodipodi:linespacing="125%"><tspan
+           sodipodi:role="line"
+           id="tspan4017"
+           x="-527.78296"
+           y="916.94104">2SYN</tspan></text>
+    </g>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:url(#Arrow2Lstart);marker-end:none"
+       d="m 1278.0258,899.85388 0,-60.35895"
+       id="path4019"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
   </g>
 </svg>
