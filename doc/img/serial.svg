@@ -10,7 +10,7 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    sodipodi:docname="serial.svg"
-   inkscape:version="0.48.3.1 r9886"
+   inkscape:version="0.91 r13725"
    version="1.1"
    id="svg2"
    height="452.17984"
@@ -22,15 +22,15 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.3879968"
-     inkscape:cx="380.6702"
-     inkscape:cy="195.75326"
+     inkscape:zoom="1.1939984"
+     inkscape:cx="338.32656"
+     inkscape:cy="254.66022"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="2560"
-     inkscape:window-height="1576"
-     inkscape:window-x="2560"
+     inkscape:window-width="1600"
+     inkscape:window-height="876"
+     inkscape:window-x="0"
      inkscape:window-y="24"
      inkscape:window-maximized="1"
      fit-margin-top="0"
@@ -754,7 +754,7 @@
          sodipodi:role="line">pΦ</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:18px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       style="font-style:normal;font-weight:normal;font-size:18px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        x="169.34889"
        y="378.07672"
        id="text3974"
@@ -763,7 +763,7 @@
          id="tspan3976"
          x="169.34889"
          y="378.07672"
-         style="font-size:12px">po</tspan></text>
+         style="font-size:12px">pe</tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text3978"
@@ -1050,7 +1050,7 @@
          style="font-size:12px">y[0,1]</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:18px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       style="font-style:normal;font-weight:normal;font-size:18px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        x="173.39395"
        y="306.13068"
        id="text9130-6"
@@ -1059,7 +1059,7 @@
          id="tspan9132-8"
          x="173.39395"
          y="306.13068"
-         style="font-size:12px">yi</tspan></text>
+         style="font-size:12px">ye</tspan></text>
     <path
        sodipodi:nodetypes="cc"
        transform="translate(-146.40857,-40.459248)"
@@ -1153,7 +1153,7 @@
          sodipodi:cy="191.34407"
          sodipodi:rx="1.9367697"
          sodipodi:ry="1.9367697"
-         d="m 599.03766,191.34407 c 0,1.06965 -0.86712,1.93677 -1.93677,1.93677 -1.06965,0 -1.93677,-0.86712 -1.93677,-1.93677 0,-1.06965 0.86712,-1.93677 1.93677,-1.93677 1.06965,0 1.93677,0.86712 1.93677,1.93677 z"
+         d="m 599.03766,191.34407 a 1.9367697,1.9367697 0 0 1 -1.93677,1.93677 1.9367697,1.9367697 0 0 1 -1.93677,-1.93677 1.9367697,1.9367697 0 0 1 1.93677,-1.93677 1.9367697,1.9367697 0 0 1 1.93677,1.93677 z"
          transform="translate(-100.04266,-37.370893)" />
     </g>
     <path
