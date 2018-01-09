@@ -2303,7 +2303,7 @@ ye -> xa-
 \subsubsection*{CMOS-implementable PRS}
 
 \begin{prs2}
-~_x0 | ~_x1 -> y\phi+
+~_si -> y\phi+
 _si & ye -> y\phi-
 \end{prs2}
 
@@ -2353,7 +2353,7 @@ _y1 -> y1-
     \begin{tabular}{|r|l|l|}
     \hline
     rule & transistor count & comments \\ \hline
-    $y\_r$ & 10 & \\ \hline
+    $y\_\phi$ & 7 & \\ \hline
     $\_\_s_i$ & 2 & \\ \hline
     $\_s_o$ & 8 & \\ \hline
     $\_\_x[0,1,2,3]$ & 8 & \\ \hline
@@ -2375,7 +2375,7 @@ consider the approximate scaling.
     \hline
     component & transistors/component & components/serializer & transistors/serializer \\ \hline
     NODE & 58 & $M$ & $58M$ \\ \hline
-    SEQ & 66 & 1 & 66 \\ \hline
+    SEQ & 63 & 1 & 63 \\ \hline
     \hline \multicolumn{3}{|r|}{approx. transistors/serializer} & $58M+66$ \\ \hline
     \end{tabular}
 \end{center}
@@ -2388,8 +2388,8 @@ To serialize spike packets, we need 6 NODEs.
     \hline
     component & transistors/component & components/serializer & transistors/serializer \\ \hline
     NODE & 58 & 6 & 348 \\ \hline
-    SEQ & 66 & 1 & 66 \\ \hline
-    \hline \multicolumn{3}{|r|}{total transistors/serializer} & 414 \\ \hline
+    SEQ & 63 & 1 & 63 \\ \hline
+    \hline \multicolumn{3}{|r|}{total transistors/serializer} & 411 \\ \hline
     \end{tabular}
 \end{center}
 
@@ -2401,8 +2401,8 @@ To serialize memory packets, we need 9 NODES.
     \hline
     component & transistors/component & components/serializer & transistors/serializer \\ \hline
     NODE & 58 & 9 & 522 \\ \hline
-    SEQ & 66 & 1 & 66 \\ \hline
-    \hline \multicolumn{3}{|r|}{total transistors/serializer} & 588 \\ \hline
+    SEQ & 63 & 1 & 63 \\ \hline
+    \hline \multicolumn{3}{|r|}{total transistors/serializer} & 585 \\ \hline
     \end{tabular}
 \end{center}
 
