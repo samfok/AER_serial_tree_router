@@ -2,25 +2,32 @@ watchall
 
 set_principal src.yp
 set_principal src.ye
-set_principal src.y
+set_principal src.y.d[0]
+set_principal src.y.d[1]
 set_principal buf[0].yp
 set_principal buf[0].ye
-set_principal buf[0].y
+set_principal buf[0].y.d[0]
+set_principal buf[0].y.d[1]
 set_principal buf[1].yp
 set_principal buf[1].ye
-set_principal buf[1].y
+set_principal buf[1].y.d[0]
+set_principal buf[1].y.d[1]
 set_principal buf[2].yp
 set_principal buf[2].ye
-set_principal buf[2].y
+set_principal buf[2].y.d[0]
+set_principal buf[2].y.d[1]
 set_principal buf[3].yp
 set_principal buf[3].ye
-set_principal buf[3].y
+set_principal buf[3].y.d[0]
+set_principal buf[3].y.d[1]
 set_principal buf[4].yp
 set_principal buf[4].ye
-set_principal buf[4].y
+set_principal buf[4].y.d[0]
+set_principal buf[4].y.d[1]
 set_principal buf[5].yp
 set_principal buf[5].ye
-set_principal buf[5].y
+set_principal buf[5].y.d[0]
+set_principal buf[5].y.d[1]
 
 random_seed 0
 random
