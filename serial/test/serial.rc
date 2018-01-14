@@ -1,9 +1,9 @@
 set_principal buf.xp
-set_principal buf.xo
+set_principal buf.xe
 set_principal buf.x.d[0]
 set_principal buf.x.d[1]
 set_principal buf.yp
-set_principal buf.yi
+set_principal buf.ye
 set_principal buf.y.d[0]
 set_principal buf.y.d[1]
 

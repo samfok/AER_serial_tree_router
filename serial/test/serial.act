@@ -7,8 +7,8 @@ pint N=2;
 ::aer::SINK<N> snk(g,,,);
 
 src.yp = buf.xp;
-src.yi = buf.xo;
+src.ye = buf.xe;
 src.y = buf.x;
 buf.yp = snk.xp;
-buf.yi = snk.xo;
+buf.ye = snk.xe;
 buf.y = snk.x;

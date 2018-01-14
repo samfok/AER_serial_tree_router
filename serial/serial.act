@@ -5,7 +5,7 @@ namespace aer {
 
 export
 template <pint N>
-defproc SOURCE (globals g; bool yi, yp; c1of<N> y) {
+defproc SOURCE (globals g; bool ye, yp; c1of<N> y) {
     bool u, _yp;
     (; n : N :
         spec {
@@ -22,17 +22,17 @@ defproc SOURCE (globals g; bool yi, yp; c1of<N> y) {
 
     prs<g.Vdd, g.GND> {
         ~u -> _yp-
-        yi & u -> _yp+
+        ye & u -> _yp+
 
         ~g.sReset & ~_yp -> yp+
         g.sReset | _yp -> yp-
 
-        yp & yi -> u+
-        g.pReset | ~yp & ~yi -> u-
+        yp & ye -> u+
+        g.pReset | ~yp & ~ye -> u-
 
         (: n : N :
-            u & yi -> y.d[n]+
-            ~yi -> y.d[n]-
+            u & ye -> y.d[n]+
+            ~ye -> y.d[n]-
         )
 
     }
@@ -40,10 +40,10 @@ defproc SOURCE (globals g; bool yi, yp; c1of<N> y) {
 
 export
 template <pint N>
-defproc BUFFER (globals g; bool xp, xo, yi, yp; c1of<N> x, y) {
+defproc BUFFER (globals g; bool xp, xe, ye, yp; c1of<N> x, y) {
     prs<g.Vdd, g.GND> {
         xp => yp+
-        yi => xo+
+        ye => xe+
         (: n : N :
             x.d[n] => y.d[n]+
         )
@@ -52,17 +52,17 @@ defproc BUFFER (globals g; bool xp, xo, yi, yp; c1of<N> x, y) {
 
 export
 template <pint N>
-defproc SINK (globals g; bool xp, xo; c1of<N> x) {
+defproc SINK (globals g; bool xp, xe; c1of<N> x) {
     c1of<N> _x;
-    bool _xo;
+    bool _xe;
     prs<g.Vdd, g.GND> {
         (: n : N :
             x.d[n] => _x.d[n]-
         )
 
-        xp & (& : n : N : _x.d[n]) => _xo-
+        xp & (& : n : N : _x.d[n]) => _xe-
 
-        _xo => xo-
+        _xe => xe-
     }
 }
 

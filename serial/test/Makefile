@@ -21,7 +21,7 @@ sim/%.sim: prs/%.prs %.rc
 
 prs: $(PRS_OBJS)
 
-prs/%.prs: %.act ${ACT_PATH}/aer/serial/%.act
+prs/%.prs: %.act ${ACT_PATH}/aer/serial/serial.act
 	@mkdir -p prs
 	@printf 'compiling %s...\n' $(subst .act,,$(<F))
 	@$(CFLAT) $< > $@ || (rm -f $@; exit 1)
