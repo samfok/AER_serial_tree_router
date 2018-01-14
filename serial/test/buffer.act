@@ -1,0 +1,23 @@
+import "aer/serial/serial.act";
+
+pint N=2;
+pint M=6;
+
+::aer::globals g;
+::aer::SOURCE<N> src(g,,,);
+::aer::BUFFER<N> buf[M];
+::aer::SINK<N> snk(g,,,);
+
+(; m : M : buf[m].g = g;)
+(; m : M-1 :
+    buf[m].yp = buf[m+1].xp;
+    buf[m].ye = buf[m+1].xe;
+    buf[m].y = buf[m+1].x;
+)
+
+src.yp = buf[0].xp;
+src.ye = buf[0].xe;
+src.y = buf[0].x;
+snk.xp = buf[M-1].yp;
+snk.xe = buf[M-1].ye;
+snk.x = buf[M-1].y;

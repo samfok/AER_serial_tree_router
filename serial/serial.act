@@ -22,7 +22,7 @@ defproc SOURCE (globals g; bool ye, yp; c1of<N> y) {
 
     prs<g.Vdd, g.GND> {
         ~u -> _yp-
-        ye & u -> _yp+
+        u & ye -> _yp+
 
         ~g.sReset & ~_yp -> yp+
         g.sReset | _yp -> yp-
@@ -32,7 +32,7 @@ defproc SOURCE (globals g; bool ye, yp; c1of<N> y) {
 
         (: n : N :
             u & ye -> y.d[n]+
-            ~ye -> y.d[n]-
+            ~u | ~ye -> y.d[n]-
         )
 
     }
@@ -46,6 +46,26 @@ defproc BUFFER (globals g; bool xp, xe, ye, yp; c1of<N> x, y) {
         ye => xe+
         (: n : N :
             x.d[n] => y.d[n]+
+        )
+    }
+}
+
+export
+template <pint N>
+defproc BUFFER2 (globals g; bool xp, xe; c1of<N> x; bool ye, yp; c1of<N> y) {
+    bool u;
+    prs<g.Vdd, g.GND> {
+                   xp & ~ye -> u+
+        g.pReset | ~xp & ye -> u-
+
+                          u -> yp+
+        g.pReset | ~u & ~xe -> yp-
+
+        u & (& : n : N : ~y.d[n]) => xe+
+
+        (: n : N :
+              x.d[n] & ye -> y.d[n]+
+            ~x.d[n] & ~ye -> y.d[n]-
         )
     }
 }
