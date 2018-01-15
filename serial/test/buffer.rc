@@ -1,5 +1,8 @@
 watchall
 
+channel eMx1of2 2 src_in
+loop-injectfile src_in buffer.in
+
 set_principal src.yp
 set_principal src.ye
 set_principal src.y.d[0]

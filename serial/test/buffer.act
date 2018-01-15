@@ -1,15 +1,25 @@
 import "aer/serial/serial.act";
+import "aer/interface/ref_interface.act";
 
 pint N=2;
-pint M=6;
+pint M_CHAIN=6;
+pint M_SRC=2;
 
 ::aer::globals g;
-::aer::SOURCE<N> src(g,,,);
-::aer::BUFFER<N> buf[M];
+bool Reset = g.sReset;
+::aer::interface::SERIAL_RING<M_SRC, N> src(g,,,,);
+::aer::BUFFER<N> buf[M_CHAIN];
 ::aer::SINK<N> snk(g,,,);
 
-(; m : M : buf[m].g = g;)
-(; m : M-1 :
+::aer::eMx1of2<M_SRC> src_in;
+src.x.e = src_in.e;
+(; m : M_SRC :
+    src.x.m[m].d = src_in.m[m].d;
+)
+
+
+(; m : M_CHAIN : buf[m].g = g;)
+(; m : M_CHAIN-1 :
     buf[m].yp = buf[m+1].xp;
     buf[m].ye = buf[m+1].xe;
     buf[m].y = buf[m+1].x;
@@ -18,6 +28,6 @@ pint M=6;
 src.yp = buf[0].xp;
 src.ye = buf[0].xe;
 src.y = buf[0].x;
-snk.xp = buf[M-1].yp;
-snk.xe = buf[M-1].ye;
-snk.x = buf[M-1].y;
+snk.xp = buf[M_CHAIN-1].yp;
+snk.xe = buf[M_CHAIN-1].ye;
+snk.x = buf[M_CHAIN-1].y;
