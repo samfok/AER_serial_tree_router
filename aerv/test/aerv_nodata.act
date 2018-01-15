@@ -1,0 +1,15 @@
+// tests AERV_NODATA
+import "aer/aerv/aerv.act";
+import "aer/lib/test.act";
+pint M = 5;
+pint N = 2;
+pint NN = 32; // NN=N^M
+
+aer::globals g;
+aer::SOURCE_random_eMx1ofN<M,N> src(g,);
+aer::passive_handshaker<NN> y(g,,);
+
+aer::interface::SERIAL_RING<M, N> serial(g, src.d,,,);
+aer::receiver::TOP_INT<M, N> top_int(g, serial.yp,, serial.ye,, serial.y,);
+aer::AERV_NODATA<M, N, NN> aerv(g, y.o, y.i,
+    top_int.y_phi, top_int.y_enable, top_int.y_data);
