@@ -53,22 +53,17 @@ defproc BUFFER (globals g; bool xp, xe, ye, yp; c1of<N> x, y) {
 export
 template <pint N>
 defproc BUFFER2 (globals g; bool xp, xe; c1of<N> x; bool ye, yp; c1of<N> y) {
-    bool _xp, u, _yp, __yp, _xe, __xe;
+    bool _xp, _xe, __xe;
     c1of<N> _y, __y;
-    __yp = yp;
     __xe = xe;
     __y = y;
     prs<g.Vdd, g.GND> {
-                          u -> _yp-
-        g.pReset | ~u & ~xe -> _yp+
-        _yp => __yp-
-
-        u & (& : n : N : _y.d[n]) => _xe-
-        _xe => __xe-
-
         xp => _xp-
-                   ~_xp & ~ye -> u+
-        g.pReset | _xp & ye -> u-
+                 ~_xp & ~ye -> yp+
+        g.pReset | _xp & ye -> yp-
+
+        yp & (& : n : N : _y.d[n]) => _xe-
+        _xe => __xe-
 
         (: n : N :
               x.d[n] & ye -> _y.d[n]-

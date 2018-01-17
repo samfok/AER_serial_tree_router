@@ -41,6 +41,7 @@ defproc SOURCE (globals g; bool ye, yp; c1of<N> y) {
 export
 template <pint N>
 defproc BUFFER (globals g; bool xp, xe, ye, yp; c1of<N> x, y) {
+    // no cycle slack buffer
     prs<g.Vdd, g.GND> {
         xp => yp+
         ye => xe+
@@ -53,16 +54,12 @@ defproc BUFFER (globals g; bool xp, xe, ye, yp; c1of<N> x, y) {
 export
 template <pint N>
 defproc BUFFER2 (globals g; bool xp, xe; c1of<N> x; bool ye, yp; c1of<N> y) {
-    bool u;
+    // half cycle slack buffer
     prs<g.Vdd, g.GND> {
-                          u -> yp+
-        g.pReset | ~u & ~xe -> yp-
+                   xp & ~ye -> yp+
+        g.pReset | ~xp & ye -> yp-
 
-        u & (& : n : N : ~y.d[n]) => xe+
-
-                   xp & ~ye -> u+
-        g.pReset | ~xp & ye -> u-
-
+        yp & (& : n : N : ~y.d[n]) => xe+
 
         (: n : N :
               x.d[n] & ye -> y.d[n]+
