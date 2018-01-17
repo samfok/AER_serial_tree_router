@@ -53,28 +53,20 @@ defproc BUFFER (globals g; bool xp, xe, ye, yp; c1of<N> x, y) {
 export
 template <pint N>
 defproc BUFFER2 (globals g; bool xp, xe; c1of<N> x; bool ye, yp; c1of<N> y) {
-    bool _xp, u, _yp, __yp, _xe, __xe;
-    c1of<N> _y, __y;
-    __yp = yp;
-    __xe = xe;
-    __y = y;
+    bool u;
     prs<g.Vdd, g.GND> {
-                          u -> _yp-
-        g.pReset | ~u & ~xe -> _yp+
-        _yp => __yp-
+                          u -> yp+
+        g.pReset | ~u & ~xe -> yp-
 
-        u & (& : n : N : _y.d[n]) => _xe-
-        _xe => __xe-
+        u & (& : n : N : ~y.d[n]) => xe+
 
-        xp => _xp-
-                   ~_xp & ~ye -> u+
-        g.pReset | _xp & ye -> u-
+                   xp & ~ye -> u+
+        g.pReset | ~xp & ye -> u-
+
 
         (: n : N :
-              x.d[n] & ye -> _y.d[n]-
-            ~x.d[n] & ~ye -> _y.d[n]+
-
-            _y.d[n] => __y.d[n]-
+              x.d[n] & ye -> y.d[n]+
+            ~x.d[n] & ~ye -> y.d[n]-
         )
     }
 }
@@ -82,16 +74,8 @@ defproc BUFFER2 (globals g; bool xp, xe; c1of<N> x; bool ye, yp; c1of<N> y) {
 export
 template <pint N>
 defproc SINK (globals g; bool xp, xe; c1of<N> x) {
-    c1of<N> _x;
-    bool _xe;
     prs<g.Vdd, g.GND> {
-        (: n : N :
-            x.d[n] => _x.d[n]-
-        )
-
-        xp & (& : n : N : _x.d[n]) => _xe-
-
-        _xe => xe-
+        xp & (& : n : N : ~x.d[n]) => xe+
     }
 }
 

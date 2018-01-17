@@ -1,0 +1,14 @@
+import "aer/serial/ref_serial.act";
+
+pint N=2;
+::aer::globals g;
+::aer::SOURCE<N> src(g,,,);
+::aer::BUFFER<N> buf(g,,,,,,);
+::aer::SINK<N> snk(g,,,);
+
+src.yp = buf.xp;
+src.ye = buf.xe;
+src.y = buf.x;
+snk.xp = buf.yp;
+snk.xe = buf.ye;
+snk.x = buf.y;

@@ -1,0 +1,43 @@
+set_principal buf.xp
+set_principal buf.xe
+set_principal buf.x.d[0]
+set_principal buf.x.d[1]
+set_principal buf.yp
+set_principal buf.ye
+set_principal buf.y.d[0]
+set_principal buf.y.d[1]
+
+random
+break-on-warn
+
+mode reset
+set g.Vdd 1
+set g.GND 0
+set g.vpsub 1
+set g.vnsub 0
+set g._sReset 0
+set g.sReset 1
+set g._pReset 1
+set g.pReset 0
+
+cycle
+
+set g._pReset 0
+set g.pReset 1
+
+cycle
+
+watchall
+
+mode run
+set g._pReset 1
+set g.pReset 0
+
+cycle
+
+set g._sReset 1
+set g.sReset 0
+
+status X
+
+advance 1000100000
