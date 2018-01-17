@@ -50,7 +50,7 @@ y`\phi & y`e -> u+
 \end{prs2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Buffer}
+\section{Slackless Buffer}
 
 \subsection*{CHP}
 
@@ -91,6 +91,83 @@ x1 -> y1+
 ~x1 -> y1-
 \end{prs2}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Half-Cycle Slack Buffer}
+
+HSE
+
+
+\begin{hse}
+    *[[x`\phi->y`\phi+;x`e+,[y`e]
+      []x`0->y`0+;x`e-;[~y`e&~x`0];y`0-;x`e+;[y`e]
+      []x`1->y`1+;x`e-;[~y`e&~x`1];y`1-;x`e+;[y`e]
+      []~x`\phi->y`\phi-;x`e-;[~y`e]
+     ]]
+\end{hse}
+
+PRS
+
+\begin{prs2}
+    x`\phi & ~y`e -> y`\phi+
+    ~x`\phi & y`e -> y`\phi-
+\end{prs2}
+\begin{prs2}
+    y`\phi & ~y`0 & ~y`1 -> x`e+
+    ~y`\phi | y`0 | y`1 -> x`e-
+\end{prs2}
+\begin{prs2}
+    x`0 & y`e -> y`0+
+    ~x`0 & ~y`e -> y`0-
+
+    x`1 & y`e -> y`1+
+    ~x`1 & ~y`e -> y`1-
+\end{prs2}
+
+CMOS-Implementable PRS
+
+\begin{prs2}
+    ~x`\phi  -> _x`\phi+
+    x`\phi -> _x`\phi-
+
+    ~_x`\phi & ~y`e -> y`\phi+
+    _x`\phi & y`e -> y`\phi-
+\end{prs2}
+\begin{prs2}
+    y`\phi & _y`0 & _y`1 -> _x`e-
+    ~y`\phi | ~_y`0 | ~_y`1 -> _x`e+
+
+    ~_x`e -> __x`e+
+    _x`e -> __x`e-
+\end{prs2}
+\begin{prs2}
+    x`0 & y`e -> _y`0-
+    ~x`0 & ~y`e -> _y`0+
+
+    x`1 & y`e -> _y`1-
+    ~x`1 & ~y`e -> _y`1+
+
+    ~_y`0 -> __y`0+
+    _y`0 -> __y`0-
+
+    ~_y`1 -> __y`1+
+    _y`1 -> __y`1-
+\end{prs2}
+
+4-ary Accounting
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $\_x_\phi$ & 2 & \\ \hline
+    $y_\phi$ & 8 & \\ \hline
+    $\_x_e$ & 10 & \\ \hline
+    $\_\_x_e$ & 2 & \\ \hline
+    $\_y[0,1,2,3]$ & 16 & staticized by $\_\_y[0,1,2,3]$ \\ \hline
+    $\_\_y[0,1,2,3]$ & 16 & staticizes $\_y[0,1,2,3]$ \\ \hline
+    \hline total & 54 & \\ \hline
+    \end{tabular}
+\end{center}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Sink}
 
