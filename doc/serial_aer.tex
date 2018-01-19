@@ -652,7 +652,7 @@ _u1 | _v -> c1e-
     $\_pr$ & 11 & \\ \hline
     $\_\_c[0,1,2,3]$ & 8 & \\ \hline
     $\_u[0,1,2,3]$ & 40 & \\ \hline
-    $\_v$ & 13 & \\ \hline
+    $v$ & 13 & \\ \hline
     $p[0,1,2,3]$ & 16 & \\ \hline
     $c[0,1,2,3]_o$ & 16 & \\ \hline
     \hline total & 208 & \\ \hline
@@ -908,10 +908,10 @@ u -> w1-
 \end{prs2}
 
 \begin{prs2}
-c0 & u & pe & ~c1o -> c0e+
+c0 & u & pe & ~c1e -> c0e+
 ~pe -> c0e-
 
-c1 & u & pe ~c0o -> c1e+
+c1 & u & pe ~c0e -> c1e+
 ~pe -> c1e-
 \end{prs2}
 
@@ -934,7 +934,7 @@ c01 | c11 | w1 -> p1+
     $p_o$ & 19 & \\ \hline
     $w[0,1,2,3]$ & 32 & \\ \hline
     $u$ & 10 & \\ \hline
-    $c[0,1,2,3]_o$ & 44 & \\ \hline
+    $c[0,1,2,3]e$ & 44 & \\ \hline
     $p[0,1,2,3]$ & 40 & \\ \hline
     \hline total & 237 & \\ \hline
     \end{tabular}
@@ -960,26 +960,26 @@ c1 & pe & _u -> _w1-
 
 \begin{prs2}
 (~_w0 | ~_w1) & ~pe -> u+
-_c0o & _c1o & _pr -> u-
+_c0e & _c1e & _pr -> u-
 
 ~u -> _u+
 u -> _u-
 \end{prs2}
 
 \begin{prs2}
-c0 & u & pe & _c1o -> _c0e-
+c0 & u & pe & _c1e -> _c0e-
 ~pe -> _c0e+
 
-c1 & u & pe _c0o -> _c1e-
+c1 & u & pe _c0e -> _c1e-
 ~pe -> _c1e+
 \end{prs2}
 
 \begin{prs2}
-~_c0o -> c0e+
-_c0o -> c0e-
+~_c0e -> c0e+
+_c0e -> c0e-
 
-~_c1o -> c1e+
-_c1o -> c1e-
+~_c1e -> c1e+
+_c1e -> c1e-
 \end{prs2}
 
 \begin{prs2}
@@ -1015,8 +1015,8 @@ We simply present a normal-sense $pe$, $pr$, and $p[0,1]$ interface to the envir
     $\_w[0,1,2,3]$ & 32 & \\ \hline
     $u$ & 10 & staticized by $\_u$ \\ \hline
     $\_u$ & 4 & staticizes $u$ \\ \hline
-    $\_c[0,1,2,3]_o$ & 36 & staticized by $c[0,1,2,3]_o$ \\ \hline
-    $c[0,1,2,3]_o$ & 16 & staticizes $\_c[0,1,2,3]_o$\\ \hline
+    $\_c[0,1,2,3]e$ & 36 & staticized by $c[0,1,2,3]_o$ \\ \hline
+    $c[0,1,2,3]e$ & 16 & staticizes $\_c[0,1,2,3]_o$\\ \hline
     $p[0,1,2,3]$ & 40 & \\ \hline
     $\_p[0,1,2,3]$ & 8 & \\ \hline
     \hline total & 255 & \\ \hline
@@ -1064,16 +1064,16 @@ approximate accounting:
 \subsubsection{CMOS-implementable PRS}
 
 \begin{prs2}
-xr & _xo -> _yr-
-~xr | ~_xo -> _yr+
+x`\phi & _x`e -> _y`\phi-
+~x`\phi | ~_x`e -> _y`\phi+
 
-ye -> _xe-
-~xr & ~ye -> _xe+
+y`e -> _x`e-
+~x`\phi & ~y`e -> _x`e+
 \end{prs2}
 
 \begin{prs2}
-~_xo -> __xe+
-_xo -> __xe-
+~_x`e -> __x`e+
+_x`e -> __x`e-
 \end{prs2}
 
 \noindent
@@ -1083,9 +1083,9 @@ accounting:
     \begin{tabular}{|r|l|l|}
     \hline
     rule & transistor count & comments \\ \hline
-    $yr$ & 4 & \\ \hline
-    $\_x_o$ & 3 & staticized by $\_\_x_o$ \\ \hline
-    $\_\_x_o$ & 4 & staticizes $x_o$ \\ \hline
+    $y_\phi$ & 4 & \\ \hline
+    $\_x_e$ & 3 & staticized by $\_\_x_e$ \\ \hline
+    $\_\_x_e$ & 4 & staticizes $x_e$ \\ \hline
     \hline total & 11 & \\ \hline
     \end{tabular}
 \end{center}
@@ -1510,9 +1510,9 @@ pe -> _pe-
     rule & transistor count & comments \\ \hline
     $\_u[0,1,2,3]$ & 8 & \\ \hline
     $uu$ & 8 & \\ \hline
-    $p_o$ & 12 & \\ \hline
+    $p_e$ & 12 & \\ \hline
     $\_\_v$ & 2 & \\ \hline
-    $\_p[0,1,2,3]$ & 8 \\ \hline
+        $\_p[0,1,2,3]$ & 8 & \\ \hline
     $u[0,1,2,3]$ & 28 & \\ \hline
     $\_v$ & 10 & \\ \hline
     $\_c[0,1,2,3]r$ & 16 & \\ \hline
@@ -1530,9 +1530,9 @@ pe -> _pe-
     rule & transistor count & comments \\ \hline
     $\_u[0,1,2]$ & 6 & \\ \hline
     $uu$ & 6 & \\ \hline
-    $p_o$ & 10 & \\ \hline
+    $p_e$ & 10 & \\ \hline
     $\_\_v$ & 2 & \\ \hline
-    $\_p[0,1,2,3]$ & 8 \\ \hline
+    $\_p[0,1,2,3]$ & 8 & \\ \hline
     $u[0,1,2]$ & 21 & \\ \hline
     $\_v$ & 10 & \\ \hline
     $\_c[0,1,2]r$ & 12 & \\ \hline
@@ -1733,14 +1733,197 @@ accounting:
     $v$ & 9 & \\ \hline
     $c[0,1,2]r$ & 12 & \\ \hline
     $\_c[0,1][0,1][0,1]$ & 40 & staticized by $\_\_c[0,1][0,1][0,1]$ \\ \hline
-    $\_c2[0,1,2,3]$ & 16 & \\
-    $pr$ & 2 & \\
-    $\_c[0,1][0,1][0,1]$ & 32 & staticizes $\_c[0,1][0,1][0,1]$ \\ \hline
+    $\_c2[0,1,2,3]$ & 16 & \\ \hline
+    $pr$ & 2 & \\ \hline
+    $\_\_c[0,1][0,1][0,1]$ & 32 & staticizes $\_c[0,1][0,1][0,1]$ \\ \hline
     $\_\_c2[0,1,2,3]$ & 8 & \\ \hline
     \hline total & 176 & \\ \hline
     \end{tabular}
 \end{center}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{AERV LEAF (2-ARY) \label{sec:AERV_LEAF_2ARY}}
+
+If doing 2-ary, the leaves only service synapses.
+
+\subsubsection*{HSE}
+
+\begin{hse}
+*[[pr->pe+;
+    [p0->u0+;uu+;pe-;[~p0];v+;c0r+;pe+
+    []p1->u1+;uu+;pe-;[~p1];v+;c1r+;pe+
+    ]
+  []p0&c0r->[c00e];c000+;pe-;[~c00e&~p0];c000-;pe+;
+  []p1&c0r->[c00e];c001+;pe-;[~c00e&~p1];c001-;pe+;
+  []p0&c1r->[c10e];c100+;pe-;[~c10e&~p0];c100-;pe+;
+  []p1&c1r->[c10e];c101+;pe-;[~c10e&~p1];c101-;pe+;
+  []~pr&c0r->u0-;(uu-;v-),(c0r-;pe-)
+  []~pr&c1r->u1-;(uu-;v-),(c1r-;pe-)
+ ]]
+\end{hse}
+
+\subsubsection*{PRS}
+
+\begin{prs2}
+u0 | u1 -> uu+
+~u0 & ~u1 -> uu-
+\end{prs2}
+
+\begin{prs2}
+pp & ~uu | c0r & ~c0[0,1] | c1r & ~c1[0,1] -> pe+
+(~pp | uu) & (~c0r | c0[0,1]) & (~c1r | c1[0,1]) -> pe-
+\end{prs2}
+
+\begin{prs2}
+p0 & ~v -> u0+
+~pr -> u0-
+
+p1 & ~v -> u1+
+~pr -> u1-
+\end{prs2}
+
+\begin{prs2}
+uu & ~p0 & ~p1 -> v+
+~uu -> v-
+\end{prs2}
+
+\begin{prs2}
+v & u0 -> c0r+
+~v | ~u0 -> c0r-
+
+v & u1 -> c1r+
+~v | ~u1 -> c1r-
+\end{prs2}
+
+\begin{prs2}
+p0 & c0r & c0e -> c00+
+~p0 & ~c0e -> c00-
+
+p1 & c0r & c0e -> c01+
+~p1 & ~c0e -> c01-
+
+p0 & c1r & c1e -> c10+
+~p0 & ~c1e -> c10-
+
+p1 & c1r & c1e -> c11+
+~p1 & ~c1e -> c11-
+\end{prs2}
+
+\noindent
+approximate accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $uu$ & 4 & \\ \hline
+    $p_e$ & 16 & \\ \hline
+    $u[0,1]$ & 14 & \\ \hline
+    $v$ & 8 & \\ \hline
+    $c[0,1]r$ & 8 & \\ \hline
+    $c[0,1][0,1]$ & 36 & \\ \hline
+    \hline total & 86 & \\ \hline
+    \end{tabular}
+\end{center}
+
+\subsubsection*{CMOS-implementable PRS}
+
+\begin{prs2}
+~__u0 | ~_u1 -> uu+
+_u0 & _u1 -> uu-
+\end{prs2}
+
+\begin{prs2}
+~uu -> _uu+
+uu -> _uu-
+\end{prs2}
+
+\begin{prs2}
+pr & _uu | c0r & _c0[0,1] | c1r & _c1[0,1] -> _pe-
+(~pr | ~_uu) & (~c0r | ~_c0[0,1]) & (~c1r | ~_c1[0,1]) -> _pe+
+\end{prs2}
+
+\begin{prs2}
+~v -> _v+
+v -> _v-
+\end{prs2}
+
+\begin{prs2}
+p0 & _v -> _u0-
+~pr -> _u0+
+
+p1 & _v -> _u1-
+~pr -> _u1+
+\end{prs2}
+
+\begin{prs2}
+~_uu & ~p0 & ~p1 -> v+
+_uu -> v-
+\end{prs2}
+
+\begin{prs2}
+~_v & ~_u0 -> c0r+
+_v | _u0 -> c0r-
+
+~_v & ~_u1 -> c1r+
+_v | _u1 -> c1r-
+\end{prs2}
+
+\begin{prs2}
+p0 & c0r & c0e -> _c00-
+~p0 & ~c0e -> _c00+
+
+p1 & c0r & c0e -> _c01-
+~p1 & ~c0e -> _c01+
+
+p0 & c1r & c1e -> _c10-
+~p0 & ~c1e -> _c10+
+
+p1 & c1r & c1e -> _c11-
+~p1 & ~c1e -> _c11+
+\end{prs2}
+
+% interface inverters
+
+\begin{prs2}
+~_pr -> pr+
+_pr -> pr-
+\end{prs2}
+
+\begin{prs2}
+~_c00 -> __c00+
+ _c00 -> __c00-
+
+~_c01 -> __c01+
+ _c01 -> __c01-
+
+~_c10 -> __c10+
+ _c10 -> __c10-
+
+~_c11 -> __c11+
+ _c11 -> __c11-
+\end{prs2}
+
+\noindent
+accounting:
+
+\begin{center}
+    \begin{tabular}{|r|l|l|}
+    \hline
+    rule & transistor count & comments \\ \hline
+    $uu$ & 4 & \\ \hline
+    $\_uu$ & 2 & \\ \hline
+    $\_p_e$ & 16 & \\ \hline
+    $\_v$ & 2 & \\ \hline
+    $\_u[0,1]$ & 14 & \\ \hline
+    $v$ & 8 & \\ \hline
+    $c[0,1]r$ & 8 & \\ \hline
+    $\_c[0,1][0,1]$ & 20 & staticized by $\_\_c[0,1][0,1]$ \\ \hline
+    $pr$ & 2 & \\ \hline
+    $\_\_c[0,1][0,1]$ & 16 & staticizes $\_c[0,1][0,1]$ \\ \hline
+    \hline total & 92 & \\ \hline
+    \end{tabular}
+\end{center}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{AERV MERGE ACK \label{sec:AERV_MERGE_ACK}}
 
@@ -1750,18 +1933,18 @@ with the acknowledges from the synapses or deserializer.
 \subsubsection*{HSE}
 
 \begin{hse}
-*[[pr&~c0e&~ci1->pe+;
-  []pr&c0e->c+;pe-;[~c0e];c-;pe+
-  []pr&c1e->c+;pe-;[~c1e];c-;pe+
-  []~pr->pe-
+*[[pr&~c0e&~c1e->p`e+;
+  []pr&c0e->c+;p`e-;[~c0e];c-;p`e+
+  []pr&c1e->c+;p`e-;[~c1e];c-;p`e+
+  []~pr->p`e-
  ]]
 \end{hse}
 
 \subsubsection*{PRS}
 
 \begin{prs}
-pr & ~c0e -> pe+
-~pr | c0i -> pe-
+pr & ~c0e -> p`e+
+~pr | c0e -> p`e-
 \end{prs}
 
 \subsubsection*{CMOS-implementable PRS}
@@ -1772,8 +1955,8 @@ pr -> _pr-
 \end{prs2}
 
 \begin{prs2}
-~_pr & ~c0i -> pe+
-_pr | c0i -> pe-
+~_pr & ~c0i -> p`e+
+_pr | c0i -> p`e-
 \end{prs2}
 
 \noindent
@@ -1784,7 +1967,7 @@ accounting:
     \hline
     rule & transistor count & comments \\ \hline
     $\_pr$ & 2 & \\ \hline
-    $\_po$ & 4 & \\ \hline
+    $\_p_e$ & 4 & \\ \hline
     \hline total & 6 & \\ \hline
     \end{tabular}
 \end{center}
@@ -2084,9 +2267,9 @@ y0 | y1 -> vy+
     $y[0,1,2,3]$ & 32 & \\ \hline
     $xa$ & 4 & \\ \hline
     $s$ & 6 & staticized by $s_o$ \\ \hline
-    $s_o$ & 4 & staticizes $s$ \\ \hline
+    $s_o$ & 6 & staticizes $s$ \\ \hline
     $vy$ & 8 & \\ \hline
-    \hline total & 54 & \\ \hline
+    \hline total & 56 & \\ \hline
     \end{tabular}
 \end{center}
 
@@ -2140,14 +2323,14 @@ _y0 & _y1 -> vy-
     \begin{tabular}{|r|l|l|}
     \hline
     rule & transistor count & comments \\ \hline
-    $\_\_s$ & 4 & staticizes $s$ \\ \hline
+    $\_\_s$ & 4 & staticizes $\_s$ \\ \hline
     $y[0,1,2,3]$ & 16 & staticized by $\_y[0,1,2,3]$ \\ \hline
     $\_xa$ & 4 & \\ \hline
-    $\_s$ & 4 & staticized by $\_\_s$ \\ \hline
+    $\_s$ & 6 & staticized by $\_\_s$ \\ \hline
     $\_so$ & 2 & \\ \hline
     $\_y[0,1,2,3]$ & 16 & staticizes $y[0,1,2,3]$ \\ \hline
     $vy$ & 8 & \\ \hline
-    \hline total & 54 & \\ \hline
+    \hline total & 56 & \\ \hline
     \end{tabular}
 \end{center}
 
@@ -2187,7 +2370,7 @@ consider the approximate scaling.
     component & transistors/component & components/deserializer & transistors/deserializer \\ \hline
     OUT a1ofN & 6 & 1 & 6 \\ \hline
     SPLIT & $3M-2$ & 1 & $3M-2$ \\ \hline
-    NODE & 54 & $M$ & $54M$ \\ \hline
+    NODE & 56 & $M$ & $56M$ \\ \hline
     C & 8 & 1 & 8 \\ \hline
     \hline \multicolumn{3}{|r|}{approx. transistors/deserializer} & $57M+12$ \\ \hline
     \end{tabular}
@@ -2202,9 +2385,9 @@ To deserialize the transmitter packets, we need 6 NODEs.
     component & transistors/component & components/deserializer & transistors/deserializer \\ \hline
     OUT a1ofN & 6 & 1 & 6 \\ \hline
     SPLIT & 26 & 1 & 26 \\ \hline
-    NODE & 54 & 6 & 324 \\ \hline
+    NODE & 56 & 6 & 336 \\ \hline
     C & 8 & 1 & 8 \\ \hline
-    \hline \multicolumn{3}{|r|}{total transistors/deserializer} & 364 \\ \hline
+    \hline \multicolumn{3}{|r|}{total transistors/deserializer} & 376 \\ \hline
     \end{tabular}
 \end{center}
 
@@ -2217,9 +2400,9 @@ To deserialize the memory packets, we need 4 NODEs.
     component & transistors/component & components/deserializer & transistors/deserializer \\ \hline
     OUT a1ofN & 6 & 1 & 6 \\ \hline
     SPLIT & 16 & 1 & 16 \\ \hline
-    NODE & 54 & 4 & 216 \\ \hline
+    NODE & 56 & 4 & 224 \\ \hline
     C & 8 & 1 & 8 \\ \hline
-    \hline \multicolumn{3}{|r|}{total transistors/deserializer} & 246 \\ \hline
+    \hline \multicolumn{3}{|r|}{total transistors/deserializer} & 254 \\ \hline
     \end{tabular}
 \end{center}
 
@@ -2638,9 +2821,9 @@ request of another child without waiting for the reset of its children to comple
     \begin{tabular}{|r|l|l|l|l|}
     \hline component & transistors/component & components & transistors & transistors/neuron \\ \hline
     NRN\_BUF & 11 & 4096 & 45,056 & 11.0 \\ \hline
-    LEAF & 211 & 1024 & 216,064 & 52.8 \\ \hline
+    LEAF & 208 & 1024 & 212,992 & 52.0 \\ \hline
     NODE & 255 & 341 & 86,955 & 21.2 \\ \hline
-    \hline \multicolumn{3}{|r|}{total} & 348,075 & 85.0 \\ \hline
+    \hline \multicolumn{3}{|r|}{total} & 348,075 & 84.2 \\ \hline
     \end{tabular}
 \end{center}
 
