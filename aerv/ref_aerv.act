@@ -102,18 +102,18 @@ namespace receiver {
 
     export
     template <pint N>
-    defproc LEAF_NODATA (globals g; bool pp, pe, ce[N], cp[N]; c1of<N> p) {
+    defproc LEAF_NODATA (globals g; bool pp, pe, ca[N], cp[N]; c1of<N> p) {
         // leaf of AERV tree that does not transmit data
         bool u;
         prs<g.Vdd, g.GND> {
-            pp & (& : n : N : ~ce[n]) | u => pe+
+            pp & (& : n : N : ~ca[n]) | u => pe+
 
             (: n : N :
                 p.d[n] -> cp[n]+
                 ~pp -> cp[n]-
             )
 
-            (| : n : N : ce[n] & ~p.d[n]) => u+
+            (| : n : N : ca[n] & ~p.d[n]) => u+
         }
     }
 } // namespace receiver
@@ -195,7 +195,7 @@ defproc AERV (globals g; bool pp, pe; c1of<N> p;
 
 export
 template <pint M, N, NN>
-defproc AERV_NODATA (globals g; bool ye[NN], yp[NN], pp, pe; c1of<N> p) {
+defproc AERV_NODATA (globals g; bool ya[NN], yp[NN], pp, pe; c1of<N> p) {
     // receiver that does not send data to targets
     //     (targets could be synapses or neurons)
     // M depth of AERV tree
@@ -210,7 +210,7 @@ defproc AERV_NODATA (globals g; bool ye[NN], yp[NN], pp, pe; c1of<N> p) {
     (; n : N_LEAF :
         leaf[n].g = g;
         leaf[n].cp = yp[n*N..(n+1)*N-1];
-        leaf[n].ce = ye[n*N..(n+1)*N-1];
+        leaf[n].ca = ya[n*N..(n+1)*N-1];
     )
 
     [ M = 1 ->

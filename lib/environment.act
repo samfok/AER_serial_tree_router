@@ -224,6 +224,7 @@ export
 template <pint N>
 defproc passive_handshaker(globals g; bool i[N], o[N]) {
     // a simple passive handshaker
+    // equivalent to a1of1 channels
     (; n : N :
         prs<g.Vdd, g.GND> {
             i[n]  => o[n]+ // just a wire with delay
