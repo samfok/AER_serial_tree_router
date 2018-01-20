@@ -1968,114 +1968,66 @@ c`{0a} & ~p`0 | c`{1a} & ~p`1 -> u+
     $p_e$ & 12 & \\ \hline
     $c_{[0,1,2,3]\phi}$ & 24 & \\ \hline
     $u$ & 16 & \\ \hline
-    \hline total & 42 & \\ \hline
+    \hline total & 52 & \\ \hline
     \end{tabular}
 \end{center}
 
 \subsubsection*{CMOS-implementable PRS}
 
 \begin{prs2}
-~__u`0 | ~_u`1 | ~_u`2 -> uu+
-_u`0 & _u`1 & _u`2 -> uu-
+    c`{0a} -> _c`{0a}-
+    ~c`{0a} -> _c`{0a}+
+
+    c`{1a} -> _c`{1a}-
+    ~c`{1a} -> _c`{1a}+
 \end{prs2}
 
 \begin{prs2}
-~uu -> _uu+
-uu -> _uu-
+p`\phi & _c`{0a} & _c`{1a} | u -> _p`e+
+(~p`\phi | ~_c`{0a} | ~_c`{1a}) & ~u -> _p`e-
 \end{prs2}
 
 \begin{prs2}
-p`{\phi} & _uu | c`{0\phi} & _c`{0[0,1][0,1]} | c`{1\phi} & _c`{1[0,1][0,1]} | c`{2e} -> _p`e-
-(~p`{\phi} | ~_uu) & (~c`{0\phi} | ~_c`{0[0,1][0,1]}) & (~c`{1\phi} | ~_c`{1[0,1][0,1]}) & ~c`{2e} -> _p`e+
+    _p`e -> __p`e-
+    ~_p`e -> __p`e+
 \end{prs2}
 
 \begin{prs2}
-~v -> _v+
-v -> _v-
+p`0 -> _c`{0\phi}+
+~p`\phi -> _c`{0\phi}-
+
+p`1 -> _c`{1\phi}+
+~p`\phi -> _c`{1\phi}-
+
+_c`{0\phi} -> __c`{0\phi}+
+~_c`{0\phi} -> __c`{0\phi}-
+
+_c`{1\phi} -> __c`{1\phi}+
+~_c`{1\phi} -> __c`{1\phi}-
 \end{prs2}
 
 \begin{prs2}
-p`{[0,1,2]} & _v -> _u{[0,1,2]}-
-~p`\phi -> _u{[0,1,2]}+
-\end{prs2}
-
-\begin{prs2}
-~_uu & ~p`{[0,1,2]} -> v+
-_uu -> v-
-\end{prs2}
-
-\begin{prs2}
-~_v & ~_u`{[0,1,2]} -> c`{[0,1,2]\phi}+
-_v | _u`{[0,1,2]} -> c`{[0,1,2]\phi}-
-\end{prs2}
-
-\begin{prs2}
-p`0 & c`{[0,1]\phi} & c`{[0,1]0e} -> _c`{[0,1]00}-
-~p`0 & ~c`{[0,1]0e} -> _c`{[0,1]00}+
-
-p`1 & c`{[0,1]\phi} & c`{[0,1]0e} -> _c`{[0,1]01}-
-~p`1 & ~c`{[0,1]0e} -> _c`{[0,1]01}+
-
-p`2 & c`{[0,1]\phi} & c`{[0,1]0e} -> _c`{[0,1]10}-
-~p`2 & ~c`{[0,1]0e} -> _c`{[0,1]10}+
-
-p`3 & c`{[0,1]\phi} & c`{[0,1]1e} -> _c`{[0,1]11}-
-~p`3 & ~c`{[0,1]1e} -> _c`{[0,1]11}+
-\end{prs2}
-
-\begin{prs2}
-p`{[0,1,2,3]} & c`{2\phi} -> _c`{2[0,1,2,3]}-
-~p`{[0,1,2,3]} | ~c`{2\phi} -> _c`{2[0,1,2,3]}+
-\end{prs2}
-
-% interface inverters
-
-\begin{prs2}
-~_p`\phi -> p`\phi+
-_p`\phi -> p`\phi-
-\end{prs2}
-
-\begin{prs2}
-~_c`{[0,1]00} -> __c`{[0,1]00}+
-_c`{[0,1]00} -> __c`{[0,1]00}-
-
-~_c`{[0,1]01} -> __c`{[0,1]01}+
-_c`{[0,1]01} -> __c`{[0,1]01}-
-
-~_c`{[0,1]10} -> __c`{[0,1]10}+
-_c`{[0,1]10} -> __c`{[0,1]10}-
-
-~_c`{[0,1]11} -> __c`{[0,1]11}+
-_c`{[0,1]11} -> __c`{[0,1]11}-
-\end{prs2}
-
-\begin{prs2}
-~_c`{2[0,1,2,3]} -> __c`{2[0,1,2,3]}+
-_c`{2[0,1,2,3]} -> __c`{2[0,1,2,3]}-
+~_c`{0a} & ~p`0 | ~_c`{1a} & ~p`1 -> u+
+(_c`{0a} | p`0) & (_c`{1a} | p`1) -> u-
 \end{prs2}
 
 \noindent
-accounting:
+4-ary accounting:
 
 \begin{center}
     \begin{tabular}{|r|l|l|}
     \hline
     rule & transistor count & comments \\ \hline
-    $uu$ & 6 & \\ \hline
-    $\_uu$ & 2 & \\ \hline
-    $\_p_e$ & 26 & \\ \hline
-    $\_v$ & 2 & \\ \hline
-    $\_u_{[0,1,2]}$ & 21 & \\ \hline
-    $v$ & 9 & \\ \hline
-    $c_{[0,1,2]\phi}$ & 12 & \\ \hline
-    $\_c_{[0,1][0,1][0,1]}$ & 40 & staticized by $\_\_c_{[0,1][0,1][0,1]}$ \\ \hline
-    $\_c_{2[0,1,2,3]}$ & 16 & \\ \hline
-    $p_\phi$ & 2 & \\ \hline
-    $\_\_c_{[0,1][0,1][0,1]}$ & 32 & staticizes $\_c_{[0,1][0,1][0,1]}$ \\ \hline
-    $\_\_c_{2[0,1,2,3]}$ & 8 & \\ \hline
-    \hline total & 176 & \\ \hline
+    $\_p_e$ & 12 & \\ \hline
+    $\_\_p_e$ & 2 & \\ \hline
+    $\_c_{[0,1,2,3]\phi}$ & 24 & \\ \hline
+    $u$ & 16 & \\ \hline
+    \hline total & 56 & \\ \hline
     \end{tabular}
 \end{center}
+
+Not counting child interface sense converting inverters since the child can be reconfigured
+to make senses consistent.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{AERV MERGE ACK \label{sec:AERV_MERGE_ACK}}

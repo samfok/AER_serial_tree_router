@@ -271,27 +271,28 @@ namespace receiver {
         // AERV tree LEAF that does not transmit data
         // N clients
     {
-        bool u, _pe, _ca[N], _cp[N];
+        bool u, _pe, __pe, _ca[N], _cp[N], __cp[N];
+        __pe = pe;
+        __cp = cp;
         prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
             (: n : N :
                 ca[n] => _ca[n]-
             )
 
             pp & (& : n : N : _ca[n]) | u => _pe-
+            _pe => __pe-
 
             (: n : N :
                 p.d[n] -> _cp[n]-
                 ~pp -> _cp[n]+
             )
+            (: n : N :
+                _cp[n] => __cp[n]-
+            )
 
             (| : n : N : ~_ca[n] & ~p.d[n]) => u+
         }
         prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-            (: n : N :
-                _cp[n] => cp[n]-
-            )
-
-            _pe => pe-
         }
     }
 
