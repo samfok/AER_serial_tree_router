@@ -111,8 +111,8 @@ namespace interface {
         template <pint N>
         defproc SEQ (globals g; bool si, so, yi, yp; a1of<N> x; c1of<N> y) {
             prs<g.Vdd, g.GND> {
-                ~g.sReset & si -> yp+
-                g.sReset | ~si & yi -> yp-
+                (| : n : N : x.d[n]) -> yp+
+                g.pReset | ~si & yi -> yp-
         
                 si -> so+
                 ~si & ~yi & ~yp -> so-

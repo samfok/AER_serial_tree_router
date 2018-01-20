@@ -316,8 +316,8 @@ namespace interface {
             c1of<N> __y = y;
             [ ~LAYOUT ->
                 prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                    ~g.sReset & ~_si -> yp+
-                    g.sReset | _si & yi -> yp-
+                    (| : n : N : ~_x.d[n]) -> yp+
+                    g.pReset | _si & yi -> yp-
 
                     _si => __si-
 
@@ -343,9 +343,6 @@ namespace interface {
                 }
             [] LAYOUT ->
                 prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
-                    ~g.sReset<27> & ~yi<27> -> xa+
-                    g.sReset<6> | yi<18> -> xa-
-
                     (| : n : N : ~_x.d[n]<15>) -> yp+
                     g.pReset<6> | _si<18> & yi<18> -> yp-
 
@@ -364,6 +361,9 @@ namespace interface {
                         yi<16> & __x.d[n]<16> -> _y.d[n]-
                         ~__x.d[n]<16> -> _y.d[n]+
                     )
+
+                    (| : n : N : ~_y.d[n]<27>) & ~yi<27> -> xa+
+                    g.pReset<6> | yi<18> -> xa-
 
                 }
                 prs<g.Vdd, g.GND | g.vpsub, g.vnsub> {
