@@ -1,0 +1,771 @@
+\ifx\PRS\UNDEFINED\let\PRS=\relax\else\endinput\fi % \input only once
+%
+% prs.tex: Macros for asynchronous vlsi.
+% version: 2.0  release: 28 July 1995
+%
+% copyright (c) 1991, 1995 California Institute of Technology
+% Author: Marcel R. van der Goot
+%
+% USAGE:
+%   See the file prs.doc
+%   You need Midnight/dolines.tex and Midnight/loop.tex to use these macros.
+%
+% Caltech, Pasadena  ---  Marcel van der Goot
+%			  marcel@cs.caltech.edu
+%			    Caltech 256--80
+%			    Pasadena, CA 91125
+%			    USA
+%			    (818) 356-4603
+%
+
+% Update history:
+%
+% version 2.0: Some real improvements of the original.
+%	release 28 July 1995: First version 2.0. Changes w.r.t. version 1.1
+%		include: recognize [] in at-mode; slightly less space before
+%		subscripts in @li@, @ro@; \noiosubscripts; @-@ as robust as
+%		@+@; allow right-alignment of guards in prs; use LaTeX counter
+%		for prs; \beginprs takes argument in TeX; page breaks possible
+%		between groups in prs env; hse* and csp* envs; \defaboveprs;
+%		better portability between macro packages (\prsstyle);
+%		backquote for subscripts; roman numbers in at-mode; page
+%		breaks in hse and csp envs; #; tabs invalid in hse;
+%		internal name changes; some external name changes (he -> hse);
+%		versions for NFSS1 and LaTeX2e. Also, doc was rewritten from
+%		scratch.
+% version 1.1: First distribution as part of CAST.
+%	release 24 July 1995 - 26 Apr 1993: Individual changes no longer
+%		recorded.
+% version 1.0: The original.
+%	release 26 Apr 1993 - 9 Dec 1991:  Individual changes no longer
+%		recorded.
+%       release 9 Dec 1991: The original
+%
+
+%%%%%% CODE: (you don't need to read this to use the macros)
+
+\input Midnight/dolines % change this to the proper filename
+
+\edef\PRS{\the\catcode`\_ }
+\catcode`\_=11 % to make private macros
+
+\newtoks\everyat % like \everymath
+
+%%%%%%%%%% general %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\hexdigit#1% expands #1 (0<=#1<16) to single hex digit; can be used
+   % when a number is needed, in particular for mathcodes.
+   {\ifcase#1 0\or 1\or 2\or 3\or 4\or 5\or 6\or 7\or 8\or 9\or A\or B\or
+              C\or D\or E\or F\fi
+   }
+
+% If for some reason \ttfam has changed (maybe in NFSS?), call \prsdeftt
+% (If \tt does not select tt in mathmode for a package, then redefine
+% \prsdeftt for that package --- see `macro packages' below.)
+\def\prsdeftt
+   {\setbox0=\hbox{$\tt\global\chardef\ttfam=\the\fam$}}
+
+
+% \prs_it is supposed to switch to italic within math mode. Normally,
+% \it works fine, but if it doesn't a macro package can redefine \prs_it.
+% \prs_it is only used in math mode.
+
+% \let\prs_it=\it % actual assignment is below under `defaults'
+
+% The backquote is subscript character in at-mode, because underscores
+% are letters in that mode. It is then easier if backquotes are also
+% subscript characters in mathmode. They cannot be made subscript chars
+% in general, because then you cannot print backquotes anymore; hence
+% we use \everymath and \everydisplay.
+
+\everymath=\expandafter{\the\everymath\catcode`\`=8 }
+\everydisplay=\expandafter{\the\everydisplay\catcode`\`=8 }
+
+
+%%%%%%%%%% at-mode %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% @ ... @ : Text between @ symbols is set as in math mode, but with the
+%	changes described under \setup_at; also, text italic is used
+%	rather than math italic.
+% \useatmode : You may need to say this if the catcode of @ has been changed
+%	(done by some macro packages, e.g., LaTeX).
+% \setup_at : Define various characters and escape sequences with special
+%	meaning in at-mode.
+% \prsleftarrowfill, \prsrightarrowfill: for use in at-mode (unusual).
+
+{% This is a bit tricky: in \setup_at we want to give definitions of the
+ % form  \catcode`*=\active \def*{\prs_i}. However, to write `\def*', * must
+ % be active when lexical scanning is done, i.e., when \setup_at is defined
+ % rather than when it is expanded. So the \catcode`*=\active in the definition
+ % is not sufficient: * must already be active when the definition is read.
+ % Fine, we can do that: just make it active while the def is read. However,
+ % instead of `*', we want to do this for `i', `o', etc.. But if we
+ % make, e.g., `o' active while the definition is read, then the `o' in
+ % `\catcode' is also active: that wouldn't work. The solution, a dirty trick,
+ % is to define \uccode`*=`o, which says that an upper case `*' is an `o'.
+ % Then we say \uppercase{\def*{\prs_o}}: This first tokenizes, which leads
+ % to an active * being read. Then everything is converted to upper case, which
+ % results in an active `o' instead. Then the active `o' is defined. This works
+ % fine because within \uppercase{...} the only thing that can be converted
+ % to upper case is the `*'.
+ % Some symbols, like +, just correspond to some character. Others have
+ % to check what comes next: - for ->, [ for [], i, and o. To do that, you
+ % could make them active. However, instead of making them active, their
+ % mathode is set to "8000. That is better, because it leaves i and o letters.
+ % If, e.g., o is active, you cannot write \arrow; now you can.
+ % Some macros which assume that - prints a dash may no longer work (\relbar
+ % has been redefined so that \longrightarrow still works).
+
+\catcode`\*=\active
+
+\let\+=\relax % because \+ is an `outer' macro (stupid)
+
+\gdef\setup_at
+   {% math symbols that print in a special way (catcode 12 = other)
+    \catcode`\+=12 \mathcode`\+="5222 % + = \uparrow, but class 5 (=closing)
+    \catcode`\-=12 \mathcode`\-="8000 %
+       \uccode`*=`- \uppercase{\let*=\prs_minus}% - = \prs_minus
+    \catcode`\&=12 \mathcode`\&="225E % & = \wedge
+    \catcode`\|=12 \mathcode`\|="225F % | = \vee
+    \catcode`\~=12 \mathcode`\~="23A % ~ = \neg
+    \catcode`\_=12 \mathcode`\_="8000 %
+       \uccode`*=`_ \uppercase{\let*=\_}% _ = \_
+    \catcode`\>=12 % -> = \prsarrow (or \hsearrow)
+    \catcode`\*=12 \mathcode`\*="4\hexdigit\ttfam 2A % * = \tt *
+    \catcode`\[=12 \mathcode`\[="8000 %
+       \uccode`*=`[ \uppercase{\let*=\prs_loop }% [ = \prs_loop
+    \catcode`\]=12 \mathcode`\]="5\hexdigit\ttfam 5D % ] = \tt ]
+    \catcode`\#=12 \mathcode`\#="8000 %
+       \uccode`*=`\# \uppercase{\let*=\prsprobe }% # = \prsprobe
+    % special characters
+    \catcode`\`=8 % ` = subscript character
+    \prs_io_catcode % normally: \mathcode`i="8000 \mathcode`o="8000
+       \uccode`*=`i \uppercase{\let*=\prs_i}% i = \prs_i
+       \uccode`*=`o \uppercase{\let*=\prs_o}% o = \prs_o
+    % escaped characters
+    \mathchardef\+="202B % \+ = +
+    \mathchardef\-="2200 % \- = -
+    \mathchardef\*="220F % \* = \bullet
+    \mathchardef\[="405B % \[ = \rm [
+    \mathchardef\]="505D % \] = \rm ]
+    \mathchardef\|="4\hexdigit\ttfam 7C % \| = \tt |
+    % interaction with other things
+    \let\relbar=\prs_relbar
+    \everymath=\expandafter{\the\everymath\prs_it}%
+    \at_numbers
+    % user hook
+    \the\everyat
+   }
+
+} % to delimit \catcode`\*=\active
+
+% - = \prs_minus, which checks what comes next:
+%    - = \downarrow (but class 5, i.e., closing)
+%    -> = \prs_arrow
+
+\def\prs_minus
+   {\futurelet\next\prs_setminus}
+\def\prs_setminus
+   {\ifx>\next\let\next=\prs_arrow
+    \else\let\next=\relax\mathchar"5223 % like \downarrow, but class 5
+    \fi
+    \next
+   }
+\def\prs_arrow>{\prsarrow} % user can redefine \prsarrow
+
+% [ = \prs_loop, which checks what comes next:
+%    [ = \tt [
+%    [] = \prs_bar
+
+\def\prs_loop
+   {\futurelet\next\prs_setloop}
+\def\prs_setloop
+   {\ifx]\next\let\next=\prs_bar
+    \else\let\next=\relax\mathchar"4\hexdigit\ttfam 5B % \tt [
+    \fi
+    \next
+   }
+\def\prs_bar]{\thick_bar}
+
+\def\thick_bar
+   {\hbox to\fontdimen2\textfont\ttfam{\hss\the\textfont\ttfam [$\!\!$]\hss}%
+   }
+
+% By default, \prsprobe takes an argument and draws a line over it. If
+% you redefine it, it need not take an argument. Note: if you want it
+% to be \#, say \mathchardef\prsprobe=`\# (\let\prsprobe=\# gets you in
+% an infinite loop).
+
+\let\prsprobe=\overline
+
+% \pll is defined as a parallel bar symbol; normally, \| gives you this
+% symbol, but at-mode redefines it. Also, we make it into a relation, to
+% get better spacing.
+
+\def\pll{\delimiter"326B30D }
+
+
+% While in at-mode, the letters i and o behave as if they are active (i.e.,
+% they have mathcode "8000): they are \prs_i and \prs_o, respectively.
+% They check for the next character: if that is not a letter
+% or number, a subscripted i or o is used; otherwise, a normal i or o is used.
+% Note that in "ai_", the i will be subscripted; whether one wants that or
+% not is open to discussion. This interpretation is chosen because the
+% `bubble' program often turns an identifier "ai" into "ai_".
+
+\def\prs_io_sub
+   {\mathcode`i="8000 \mathcode`o="8000 }
+
+% Some people want to switch the automatic subscripting off; personally,
+% I think that looks horrible (you might as well set everything verbatim). - MR
+\def\noiosubscripts
+   {\let\prs_io_catcode=\relax}
+\def\iosubscripts
+   {\let\prs_io_catcode=\prs_io_sub}
+
+\def\prs_i
+   {\futurelet\next\prssub_i}
+\def\prs_o
+   {\futurelet\next\prssub_o}
+
+\def\prssub_i{\prs_sub{\mathchar"7169 }} % real `i' (mathcode != "8000)
+\def\prssub_o{\prs_sub{\mathchar"716F }} % real `o'
+
+% After assigning \next to be equal to the next character, we need to
+% know the charcode of that character. Unfortunately, it is not allowed
+% to write \count255=`\next; in fact, the only way in which it seems
+% possible to get the actual character corresponding to \next is by
+% doing \meaning\next, a rather dirty trick. If you know that \next has
+% catcode 12, then \meaning\next gives "the character 1" if \next is 1.
+
+\def\prs_getcharcode#1 #2 #3\relax% to be used with \meaning
+   {\count255=`#3\relax}
+
+\def\prs_sub#1%
+   {\ifcat a\next #1% followed by a letter
+    \else\ifcat 1\next % followed by an `other' character
+	 \expandafter\prs_getcharcode\meaning\next\relax
+	 \ifnum\count255<`0 \sb{\mit{\mkern1mu#1}}% not a number
+	 \else\ifnum\count255>`9 \sb{\mit{\mkern1mu#1}}% not a number
+	 \else #1% followed by a number
+	 \fi\fi
+    \else\sb{\mit{\mkern1mu#1}}% followed by something else
+    \fi\fi
+   }
+
+% \relbar is redefined to use \- instead of -, otherwise \longrightarrow
+% starts with a down arrow. \rightarrowfill and \leftarrowfill have the
+% same problem, but they are supposed to be used in text rather than
+% math- or at-mode (they start with a $). Rather than redefining them
+% every time when at-mode is entered, \prsrightarrowfill etc. are defined;
+% it is unlikely that they are ever needed.
+
+\def\prs_relbar{\mathrel{\smash\-}}
+
+{\catcode`@=11 % letter
+\gdef\prsrightarrowfill{$\m@th\mathord\-\mkern-7mu%
+  \cleaders\hbox{$\mkern-2mu\mathord\-\mkern-2mu$}\hfill
+  \mkern-7mu\mathord\rightarrow$}
+\gdef\prsleftarrowfill{$\m@th\mathord\leftarrow\mkern-7mu%
+  \cleaders\hbox{$\mkern-2mu\mathord\-\mkern-2mu$}\hfill
+  \mkern-7mu\mathord\-$}
+}
+
+% \numbersrm makes digits of class 0 instead of 7, so that they are not
+% affected by the current math font. \numbersvar undoes this.
+% We use this because in at-mode \it is used, which we don't want
+% to affect the digits. If you say (globally) \numbersrm, you'll have to
+% say \numbersvar if you want to change the digit's font in mathmode
+% (practically the only use for that is when you use oldstyle digits).
+% If you say (globally) \numbersvar, you still get roman numbers in at-mode,
+% because in that case at-mode does a local \numbersrm. This makes at-mode
+% less efficient, but has the advantage of greater portability.
+
+\def\num_specials
+   {\do0\do1\do2\do3\do4\do5\do6\do7\do8\do9}
+
+\def\numbersrm
+   {\def\do##1{\mathcode`##1=`##1}%
+    \let\at_numbers=\relax
+    \num_specials
+   }
+
+\def\numbersvar
+   {\def\do##1{\count255=28672
+               \advance\count255 by`##1
+               \mathcode`##1=\count255
+              }%
+    \let\at_numbers=\numbersrm
+    \num_specials
+   }
+
+% In at-mode, @ changes to mathmode if necessary, and makes the above
+% changes. The next @ terminates at-mode, and mathmode if necessary.
+
+{% to delimit \catcode`@=\active
+\catcode`@=\active
+
+\gdef\useatmode{\catcode`@=\active \let@=\at_open}
+
+\expandafter\gdef\expandafter\dospecials\expandafter{\dospecials\do \@}
+
+\gdef\at_open
+   {\begingroup
+    \setup_at
+    \ifmmode\let@=\at_close
+    \else\let@=\at_mclose$%
+    \fi
+    \prs_it
+   }
+}% to delimit \catcode`@=\active
+
+\let\at_close=\endgroup
+\def\at_mclose{$\endgroup}
+
+
+
+%%%%%%%%%% prs environment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Text in the prs environment is read line by line, one line
+% for each production rule.
+% The production rules are divided in groups separated by empty lines.
+% The rules within a group are aligned on the arrows, which print as normal
+% arrows. The rules are set in at-mode.
+% There are several environments (see also below under `macro packages'):
+%   prs : print one column
+%   prs* : print one column, and number production rules
+%   prs2 : print two columns; columns can only be split between groups
+%   prs2* : print two columns, and number prod. rules
+%
+
+\newbox\prs_box % to collect all the groups
+\newbox\leftprs_box % for two-column (prs2)
+\newbox\rightprs_box % for two-column (prs2)
+\newdimen\prsindent
+\newdimen\prsmiddle
+
+% Production rules are numbered with \prsnr. When the env is called,
+% \prsnr is the number of the first pr minus 1. The counter is reset (to 0)
+% with \resetprsnr at the end of the environment. (E.g., if you don't
+% want to reset it, do \let\resetprsnr=\relax.) \theprs prints the number,
+% \numberprs sets the number with extra space for the production rule.
+% In LaTeX, the normal counter commands, as well as \label, can be used
+% for the `prs' counter.
+
+% Counter \prsnr is defined below, under `macro packages'.
+
+\def\theprs{(\number\prsnr)} % print the number
+
+\def\numberprs{\hbox to2em{\hss\smallrm\theprs\quad}} % as printed in prs env
+
+\def\incrprsnr{\global\advance\prsnr by1 }
+\def\resetprsnr{\global\prsnr=0 }
+
+% Each group is made with \halign, to align at the arrow. The template
+% used is \template_prs. The following templates are predefined.
+% Note that you can bypass the template on a per-guard basis with \hfill.
+
+\def\guardsleft{\let\template_prs=\templ_prs_left}
+\def\guardsright{\let\template_prs=\templ_prs_right}
+\def\guardscenter{\let\template_prs=\templ_prs_center}
+
+\def\templ_prs_left
+   {\strut$##$\hfil&${}\>\prsarrow\>##$\hfil}
+\def\templ_prs_right
+   {\strut\hfil$##$&${}\>\prsarrow\>##$\hfil}
+\def\templ_prs_center
+   {\strut\hfil$##$\hfil&${}\>\prsarrow\>##$\hfil}
+
+% Each group is started by \before_prs and ended with \after_prs.
+% \every_prs is applied to each line. The whole \halign is put in the
+% body of macro \halign_prs. You cannot do the \halign directly (without
+% first putting it in a macro), because \halign starts a new row of
+% the table as soon as it encounters anything else than \omit, \noalign,
+% or the closing brace, regardless of whether it is something that actually
+% contributes horizontal material. Hence, when dolines is used to
+% read the next line and compare it with \endprs (or so), \halign takes
+% the read itself as the start of another row in the table. As a result,
+% the alignment always ends with an extra row without production rules,
+% but with a \strut. This whole problem is avoided by first defining
+% \halign_prs.
+
+% If there is no production rule (i.e., no arrow) no alignment is done
+% and the text is set in an hbox. Hence, the text is set in the normal
+% font and not in at-mode/math-mode. If you switch to mathmode, you'll
+% get at-mode instead.
+
+\def\set_noprs#1->%
+   {\expandafter\def\expandafter\halign_prs\expandafter
+	{\halign_prs\omit\strut\hbox{#1}\span\omit\hfil\cr}
+   }
+
+\def\number_prs
+   {\incrprsnr
+    \numberprs
+   }
+
+% set the part before the arrow.
+\def\set_prs#1->#2\end_pr%
+   {\def\tmp{#2}%
+    \ifx\tmp\empty\set_noprs#1->% no arrow
+    \else\expandafter\def\expandafter\halign_prs\expandafter
+		{\halign_prs\nr_prs#1&}
+	 \set_rightprs#2
+    \fi
+   }
+
+% set the part after the arrow.
+\def\set_rightprs#1->%
+   {\expandafter\def\expandafter\halign_prs\expandafter{\halign_prs#1\cr}
+   }
+
+\def\every_prs#1%
+   {\expandafter\set_prs#1->\end_pr}
+
+% \before_prs_ inserts space between groups, but not before the first group.
+\def\before_prs_{\def\before_prs_{\vskip\baselineskip}}
+
+\def\before_prs
+   {\before_prs_
+    \def\halign_prs
+       {\halign\bgroup\span\template_prs\cr}
+   }
+
+% With 1 column setting, \prsindent is inserted in front of each group.
+% The groups are then set so that page breaks are possible between
+% groups. With 2 columns, that cannot be done, because then you get the same
+% separation between columns. There, the indent is inserted in front
+% of the whole box. This way, everything is in a single box, and no
+% page breaks are possible (that would be hard for two-column anyway).
+% Also, see definition of \beforeprs below (and accompanying comment).
+
+\def\after_prs
+   {\expandafter\def\expandafter\halign_prs\expandafter
+	{\halign_prs\egroup} % matches \halign\bgroup
+    \hbox{\prs_one_indent\vbox{\halign_prs}}
+    \penalty400
+   }
+
+\def\endprs_onecol
+   {\egroup % \setbox\prs_box=\vbox\bgroup
+    \unvbox\prs_box
+    \prs_oldind
+    \resetprsnr
+    \afterprs
+   }
+
+\def\endprs_twocol
+   {\egroup % \setbox\prs_box=\vbox\bgroup
+    {\dimen0=\ht\prs_box
+     \splittopskip=0pt \splitmaxdepth=30cm
+     \vfuzz=30cm \vbadness=10000
+     \Loop\setbox\rightprs_box=\copy\prs_box
+	  \setbox\leftprs_box=\vsplit\rightprs_box to.5\dimen0
+	  \setbox\leftprs_box=\vbox{\unvbox\leftprs_box}%
+	  \ifdim\ht\leftprs_box<\ht\rightprs_box \else \Break1 \fi
+	  \advance\dimen0 by2\baselineskip
+     \Pool
+     \dimen0=\ht\leftprs_box
+     \setbox\rightprs_box=\vbox to\dimen0{\unvbox\rightprs_box \vfill}%
+     \hbox{\kern\prsindent
+	   \box\leftprs_box
+	   \kern\prsmiddle
+	   \box\rightprs_box
+	  }%
+    }%
+    \prs_oldind
+    \resetprsnr
+    \afterprs
+   }
+
+\def\begin_prs#1#2% #1=1/2 for nr columns; #2=0/1 for numbering no/yes
+   {\beforeprs
+    \setbox\prs_box=\vbox\bgroup
+	\setup_at
+	\let\everyline=\every_prs
+	\let\beforelines=\before_prs
+	\let\afterlines=\after_prs
+	\ifnum#1>1
+	     \let\prs_one_indent=\relax
+	     \let\end_prs=\endprs_twocol
+	\else
+	     \def\prs_one_indent{\kern\prsindent}
+	     \let\end_prs=\endprs_onecol
+	\fi
+	\ifnum#2>0
+	     \let\nr_prs=\number_prs
+	\else
+	     \let\nr_prs=\relax
+	\fi
+        \def_end_prs#1#2
+        \begindolines
+   }
+
+% \beginprs calls \call_prs to check whether the next char is a `*', a `2', or
+% something else. In case of a `2', the 2 is read and the next char is checked
+% for a `*'. Note that we must do \setup_at first, so that catcode changes
+% will work correctly. (In particular, `\beginprs ~a->b+' should work; but
+% \setup_at usually changes the catcode of ~ from 13 to 12.)
+
+%%%%%%%%%% hse and csp environments %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Text in the hse and csp environments is set with the original line breaks
+% and spacing (i.e., spaces are not ignored). Don't use tabs.
+% The text is set in at-mode; -> prints \hsearrow instead of \prsarrow; spaces
+% are as wide as in \tt. The csp environment is identical, except includes
+% an implicit \noiosubscripts.
+% There are several environments (see also below under `macro packages'):
+%   hse : normal hse
+%   hse* : number lines
+%   csp : no automatic subscript i and o
+%   csp* : number lines
+%
+
+{\catcode`\*=\active
+
+\gdef\setup_hse
+   {\catcode`\ =12 \mathcode`\ ="8000
+	\uccode`*=`\ \uppercase{\def*{\kern\hse_space}} % ' ' = \kern\hse_space
+    \set_hse_space
+    \catcode9=15 % tab = invalid character
+    \def\prs_arrow>{\hsearrow}
+   }
+} % to delimit \catcode`\*=\active
+
+\newdimen\hse_space
+
+% \set_hse_space sets \hse_space to the proper value. This is done every
+% time you enter an hse or csp env, in case you have changed the size of
+% the tt font.
+\def\set_hse_space
+   {\hse_space=\fontdimen2\textfont\ttfam
+   }
+
+
+% For numbering lines. Counter \hsenr is defined below, under
+% `macro packages.'
+
+\def\thehse{\number\hsenr} % print the number
+
+\def\numberhse{\llap{\smallrm\thehse\quad}} % as printed in hse env
+
+\def\incrhsenr{\global\advance\hsenr by1 }
+\def\resethsenr{\global\hsenr=0 }
+
+\def\number_hse
+   {\incrhsenr
+    \numberhse
+   }
+
+\def\every_hse#1%
+   {\hbox \hselinewd{\hskip\prsindent\nr_hse\strut$\prs_it#1$\hfil}\penalty400}
+
+% You can do:
+%   \def\hselinewd{to\hsize}
+% to make lines wider, thus enabling right alignment
+% By default, lines are set at their natural width.
+\def\hselinewd{}
+
+\def\before_hse
+   {\def\beforelines{\hbox{\strut}}%
+   }
+\let\after_hse=\relax
+
+\def\end_hse
+   {\egroup % \setbox\prs_box=\vtop\bgroup
+    \unvbox\prs_box
+    \prs_oldind
+    \resethsenr
+    \afterhse
+   }   
+
+\def\begin_hse#1#2% #1=0/1 for hse/csp; #2=0/1 for numbering no/yes.
+   {\beforehse
+    \setbox\prs_box=\vtop\bgroup
+	\let\everyline=\every_hse
+	\let\beforelines=\before_hse
+	\let\afterlines=\after_hse
+	\ifnum#1>0
+	     \noiosubscripts
+	\fi
+	\ifnum#2>0
+	     \let\nr_hse=\number_hse
+	\else\let\nr_hse=\relax
+	\fi
+	\setup_at
+	\setup_hse
+	\def_end_hse#1#2
+	\begindolines
+   }
+
+
+%%%%%%%%%% processes %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \defabove and \defleft can be used to put a process name at the beginning
+% of the hse or csp environment.
+
+\newbox\def_cspbox
+
+% \defabove sort of works with hse*: no number is printed, but the number
+% is incremented.
+\def\defabove#1%
+   {$\hfil\egroup\setbox\def_cspbox=\lastbox
+    \hbox \hselinewd\bgroup\strut$\prs_it#1\equiv\prs_oldind
+    \vrule depth1.5\dp\strutbox width0pt
+   }
+
+% \defaboveprs can be used with the prs env (but prs2 will look strange).
+\def\defaboveprs#1%
+   {\kern-\prsindent$\prs_it#1\equiv$\vrule depth1.5\dp\strutbox width0pt}
+
+% We use \prs_oldind to restore the old value of \prsindent. If \prs_oldind
+% is already defined (i.e., not \relax), we do not change it. This is
+% all a bit cumbersome because \defleft is used inside a box, so assignments
+% must be global.
+
+% Use of \defleft is normally followed by a %, to wrap the line.
+
+% \defleft omits the number, like \defabove.
+\def\defleft#1%
+   {$\hfil\egroup\setbox\def_cspbox=\lastbox
+    \hbox \hselinewd\bgroup\strut$\prs_it
+    \setbox\def_cspbox=\hbox{$#1\equiv\>$}%
+    \ifx\prs_oldind\relax
+	\xdef\prs_oldind
+	   {\noexpand\global\noexpand\prsindent=\the\prsindent
+	    \noexpand\global\noexpand\let\noexpand\prs_oldind=\noexpand\relax
+	   }%
+    \fi
+    \global\prsindent=\wd\def_cspbox
+    \copy\def_cspbox
+   }
+
+\let\prs_oldind=\relax
+
+
+%%%%%%%%%% defaults %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% These could possibly be changed by a macro package; see \prsstyle below.
+
+\everyat={}
+\let\prsarrow=\rightarrow
+\let\hsearrow=\longrightarrow
+
+\prsindent=2\parindent
+\prsmiddle=4em
+
+\guardsleft
+
+\iosubscripts
+
+\numbersrm
+
+\let\prs_it=\it
+
+%%%%%%%%%% macro packages %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \prsstyle can be defined to include package specific definitions. If
+% \prsstyle is not defined: if \documentstyle is defined, definitions
+% for LaTeX are included, otherwise, definitions for plain TeX are included.
+% (Note: when \prsstyle is expanded, \catcode`\_=11 (letter).)
+% Of course, most definitions can also be changed after this file is
+% included.
+
+\ifx\prsstyle\UNDEFINED
+     \ifx\documentstyle\UNDEFINED
+          \def\prsstyle{\input prstex}
+     \else\def\prsstyle{\input prslatex}
+     \fi
+\fi
+\prsstyle
+
+%%%%%%%%%% packages: environments
+
+% If \prsstyle is defined, then it must define the following environments.
+%
+% prs:	Define prs, prs*, prs2, and prs2* environments, calling
+%	\begin_prs with arguments 10, 11, 20, and 21, respectively.
+%	You should also define a macro \def_end_prs#1#2, which, when called
+%	with the same arguments, defines \enddolines and \finishdolines
+%	appropriately. \finishdolines must call \end_prs. Also define
+%	\beforeprs and \afterprs.
+%
+% hse:	Define hse and hse* environments, calling
+%	\begin_hse with arguments 00 and 01 respectively.
+%	You should also define a macro \def_end_hse#1#2, which, when called
+%	with the same arguments, defines \enddolines and \finishdolines
+%	appropriately. \finishdolines must call \end_hse. Also define
+%	\beforehse and \afterhse.
+%
+% csp:  Define csp and csp* environments, calling
+%	\begin_hse (!) with arguments 10 and 11 respectively. Otherwise,
+%	the csp environment is identical to the hse environment, e.g.,
+%	macro \def_end_hse is used to define \enddolines and \finishdolines.
+
+%%%%%%%%%% packages: numbering
+
+% For the prs* environment, the value of the counter is
+% printed with \theprs, incremented with \incrprsnr, and reset with
+% \resetprsnr. The counter itself is defined with \newcount\prsnr.
+% You can change this in the file which is included. The \newcount
+% is only done if the included file does not define \prsnr.
+% Likewise for the hse* environment, except the names are
+% \thehse, \incrhsenr, \resethsenr, and \hsenr. The csp* environment
+% uses the same names as the hse* environment.
+%
+
+% Define \prsnr and \hsenr, if necessary.
+
+\ifx\prsnr\UNDEFINED
+     \newcount\prsnr
+\fi
+
+\ifx\hsenr\UNDEFINED
+     \newcount\hsenr
+\fi
+
+%%%%%%%%%% packages: fonts
+
+% \ttfam is used to refer to the math family containing font \tt, so that
+% we can define mathchars refering to that font.
+% You can set it with \prsstyle, but normally the following works just fine.
+
+\ifx\ttfam\UNDEFINED
+    \prsdeftt
+\fi
+
+% We use \smallrm to set the numbers for the prs* and hse* environments.
+% If \smallrm is already defined, we don't do anything; else, if \small
+% is defined, we'll use \small\rm instead; else, we check if the current
+% font is cmr12 or cmr10 at11pt, in which case we use cmr10 at11pt or
+% cmr10, respectively; else, we use cmr9.
+
+% The extra \edefs are needed because \fontname produces characters with
+% catcode 12, whereas \next of course is defined with real letters of
+% catcode 11.
+\def\chfnt#1\endcnfnt% use with \fontname as below
+   {\def\tmp{#1}
+    \edef\tmp{\meaning\tmp}
+    \def\next{cmr10 at 11.0pt}\edef\next{\meaning\next}
+    \ifx\tmp\next \font\smallrm=cmr10
+    \else\def\next{cmr12}\edef\next{\meaning\next}
+         \ifx\tmp\next \font\smallrm=cmr10 at11pt
+         \else\font\smallrm=cmr9
+	 \fi
+    \fi
+   }
+
+\ifx\smallrm\UNDEFINED
+     \ifx\small\UNDEFINED
+	  \expandafter\chfnt\fontname\font\endcnfnt
+     \else\def\smallrm{\small\rm}
+     \fi
+\fi
+
+
+%%%%%%%%%% initialization %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% These should be at the end, after the package-dependent stuff.
+
+\catcode`\_=\PRS
+
+\resetprsnr
+\resethsenr
+\useatmode
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+

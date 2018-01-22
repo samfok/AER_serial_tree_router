@@ -1,0 +1,147 @@
+% prstex.tex:
+%	This file is loaded by prs.tex/prs.sty for use with
+%	latex, latex2e, latex-nfss (=nfss1).
+%	See prs.doc for documentation of the prs maros.
+%
+% copyright (c) 1995 California Institute of Technology
+% Author: Marcel R. van der Goot
+
+% Update history:
+%
+% version 2.0: For use with prs.tex version 2.0
+%	release 26 July 1995: First version of this file (before, it was part
+%		of prs.tex).
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%% prs environment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\let\tmp=\theprs
+\newcounter{prs}
+\def\incrprsnr{\refstepcounter{prs}}
+\let\prsnr=\c@prs
+\let\theprs=\tmp
+
+{\catcode`\*=12 % because the * must be read in at-mode
+
+\gdef\def_end_prs#1#2%
+   {\ifnum#1>1
+	 \ifnum#2>0
+	      \def\enddolines{\end{prs2*}}
+	 \else\def\enddolines{\end{prs2}}
+	 \fi
+    \else\ifnum#2>0
+	      \def\enddolines{\end{prs*}}
+	 \else\def\enddolines{\end{prs}}
+	 \fi
+    \fi
+    \let\finishdolines=\enddolines
+   }
+}
+
+\newenvironment{prs}{\begin_prs10}{\end_prs}
+\newenvironment{prs*}{\begin_prs11}{\end_prs}
+\newenvironment{prs2}{\begin_prs20}{\end_prs}
+\newenvironment{prs2*}{\begin_prs21}{\end_prs}
+
+% The spacing for environments in LaTeX is normally obtained with
+% \trivlist\item[]\leavevmode. We need to pack the result in an extra vbox
+% because in \endprs_onecol there's an \unvbox, which would cause a switch
+% from horizontal to vertical mode, inserting a \par and extra space. You
+% cannot omit the \leavevmode, because LaTeX will complain about a missing
+% item. Note that the extra vbox prevents page breaks.
+
+\def\beforeprs{\trivlist\item[]\leavevmode\vbox\bgroup}
+\def\afterprs{\egroup\endtrivlist}
+
+%%%%%%%%%% hse and csp environments %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\let\tmp=\thehse
+\newcounter{hse}
+\def\incrhsenr{\refstepcounter{hse}}
+\let\hsenr=\c@hse
+\let\thehse=\tmp
+
+{\catcode`\*=12 % because the * must be read in at-mode
+
+\gdef\def_end_hse#1#2%
+   {\ifnum#1>0
+	 \ifnum#2>0
+	      \def\enddolines{\end{csp*}}
+	 \else\def\enddolines{\end{csp}}
+	 \fi
+    \else\ifnum#2>0
+	      \def\enddolines{\end{hse*}}
+	 \else\def\enddolines{\end{hse}}
+	      \he_compat % he environment, for compatibility.
+	 \fi
+    \fi
+    \let\finishdolines=\enddolines
+   }
+}
+
+\let\he_compat=\relax
+
+\newenvironment{hse}{\begin_hse00}{\end_hse}
+\newenvironment{hse*}{\begin_hse01}{\end_hse}
+
+% for compatibility with the old version:
+\newenvironment{he}{\typeout{WARNING: the he environment is now called hse}%
+		    \def\he_compat{\def\enddolines{\end{he}}}%
+		    \begin_hse00}%
+		   {\end_hse}
+
+\let\beforehse=\beforeprs
+\let\afterhse=\afterprs
+
+\newenvironment{csp}{\begin_hse10}{\end_hse}
+\newenvironment{csp*}{\begin_hse11}{\end_hse}
+
+%%%%%%%%%% other %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\makeatother{\useatmode}
+
+
+% In LaTeX2e, \useatmode and \prsdeftt must be done after \begin{document}.
+% Even if they have been done earlier, apparently \begin{document} resets
+% them (in particular, the math families are only assigned when
+% encountered). Luckily, LaTeX2e has a hook for this. We test for LaTeX2e
+% by checking whether \documentclass is defined.
+
+\ifx\documentclass\UNDEFINED
+\else\message{[prs: latex2e]}
+     \AtBeginDocument{\useatmode\prsdeftt}
+\fi
+
+% LaTeX2e uses release 2 of the NFSS. However, there are versions of LaTeX 2.09
+% around which use release 1 of the NFSS. There, \tt doesn't change \fam,
+% so we need to redefine \prsdeftt. We check for nfss1 by checking whether
+% \new@internalmathalphabet is defined.
+
+\ifx\new@internalmathalphabet\UNDEFINED
+\else\message{[prs: latex-nfss1]}
+     \ifx\ttfam\UNDEFINED
+	  \new@mathgroup\ttfam
+	  \new@internalmathalphabet\mathtt\ttfam{cmtt}{m}{n}
+     \fi
+     \ifx\itfam\UNDEFINED
+	  \new@mathgroup\itfam
+	  \new@internalmathalphabet\mathit\itfam{cmr}{m}{it}
+     \fi
+     {\setbox0=\hbox{$\mathit{x}$}}
+     \def\prs_it{\fam=\itfam}
+     \def\prsdeftt{\setbox0=\hbox{$\mathtt{x}$}}
+     \prsdeftt
+\fi
+
+% LaTeX2e defines \oldstylenums{#1} for setting old style digits. We redefine
+% it to include a \numbersvar. For other versions of LaTeX, we first
+% define \oldstylenums. (Note: in nfss1, \mit takes an argument.)
+
+\ifx\oldstylenums\UNDEFINED
+	\def\oldstylenums#1{\ifmmode{\mit{#1}}\else$\mit{#1}$\fi}
+\fi
+\let\_oldstylenums=\oldstylenums
+\def\oldstylenums#1{{\numbersvar\_oldstylenums{#1}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
