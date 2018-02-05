@@ -1,0 +1,44 @@
+vector src_link :1ofN 2 src.d.m[0].n[0] src.d.m[0].n[1]
+vector snk_link0 :1ofN 2 snk.d.m[0].n[0] snk.d.m[0].n[1]
+vector snk_link1 :1ofN 2 snk.d.m[1].n[0] snk.d.m[1].n[1]
+vector snk_link2 :1ofN 2 snk.d.m[2].n[0] snk.d.m[2].n[1]
+vwatch src_link
+vwatch snk_link0
+vwatch snk_link1
+vwatch snk_link2
+
+random
+break-on-warn
+
+
+mode reset
+set g.Vdd 1
+set g.GND 0
+set g.vpsub 1
+set g.vnsub 0
+set g._sReset 0
+set g.sReset 1
+set g._pReset 1
+set g.pReset 0
+
+cycle
+
+set g._pReset 0
+set g.pReset 1
+
+cycle
+
+watchall
+
+mode run
+set g._pReset 1
+set g.pReset 0
+
+cycle
+
+set g._sReset 1
+set g.sReset 0
+
+status X
+
+advance 1000100000

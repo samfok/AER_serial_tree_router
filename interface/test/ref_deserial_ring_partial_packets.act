@@ -1,0 +1,16 @@
+// The deserializer is designed to convert a serial stream into a parallel representation
+// This tests the deserializer when the serial packets are shorter than the parallel packet
+// to see whether the deserializer deadlocks or enters some undefined state
+import "aer/interface/ref_interface.act";
+
+pint M_SRC=1;
+pint M_SNK=3;
+pint N=2;
+
+aer::globals g;
+aer::SOURCE_random_eMx1ofN<M_SRC, N> src(g,);
+aer::SINK_eMx1ofN<M_SNK, N> snk(g,);
+
+aer::interface::SERIAL_RING<M_SRC, N> serial(g, src.d,,,);
+aer::interface::OUT_a1ofN<N> sconverter(g, serial.yp, serial.ye, serial.y,);
+aer::interface::DESERIAL_RING<M_SNK, N, false, true> deserial(g, sconverter.y, snk.d);
