@@ -73,18 +73,18 @@ The channels can carry four symbols:
     \begin{tabular}{r|l}
     \hline
     symbol & meaning \\ \hline
-    $r$ & channel has been requested \\
+    $\phi$ & channel has been requested \\
     0 & channel data is 0 \\
     1 & channel data is 1 \\
-    $\neg r$ & channel no longer requested \\
+    $\neg \phi$ & channel no longer requested \\
     \hline
     \end{tabular}
 \end{center}
 
-A packet of data begins with $r$.
-Following $r$ is a a sequence of 0s and 1s containing the packet data.
+A packet of data begins with $\phi$.
+Following $\phi$ is a a sequence of 0s and 1s containing the packet data.
 There is no limit on the length of the data sequence packet.
-The packet ends with $\neg r$.
+The packet ends with $\neg \phi$.
 
 \subsection{Buffer}
 
@@ -95,27 +95,27 @@ The serial protocol is best understood by considering Serial Buffer.
 
 \begin{lstlisting}[mathescape]
 Repeat {
-    Wait for $r$ from the source.
-    Relay $r$ from source to sink.
-    While (source is not sending $\neg r$)) {
+    Wait for $\phi$ from the source.
+    Relay $\phi$ from source to sink.
+    While (source is not sending $\neg \phi$)) {
         Relay data from source to sink
     }
-    Relay $\neg r$ from source to sink.
+    Relay $\neg \phi$ from source to sink.
 }
 \end{lstlisting}
 
 \subsubsection*{CHP}
 
 \begin{csp}
-*[[#{X=r}->Y!X?
+*[[#{X=\phi}->Y!X?
   []#{X=0}|#{X=1}->Y!X?
-  []#{X=\neg\ r}->Y!X?
+  []#{X=\neg\ \phi}->Y!X?
  ]]
 \end{csp}
 
 \noindent
-In the $\overline{X=r}$ and $\overline{X=\neg r}$ branches,
-the $Y!X?$ communications are 2-phase since $r$ and $\neg r$
+In the $\overline{X=\phi}$ and $\overline{X=\neg \phi}$ branches,
+the $Y!X?$ communications are 2-phase since $\phi$ and $\neg \phi$
 communications occur in pairs (i.e. they alternate). \\
 In the $\overline{X=0}\ \vee \overline{X=1}$ branch,
 the $Y!X?$ communication is 4-phase.
@@ -124,27 +124,27 @@ the $Y!X?$ communication is 4-phase.
 \subsubsection*{HSE}
 
 \begin{hse}
-*[[xr->yr+;[ye];xe+
-  []x0->y0+;[~ye];xe-;[~x0];y0-;[ye];xe+
-  []x1->y1+;[~ye];xe-;[~x1];y1-;[ye];xe+
-  []~xr->yr-;[~ye];xe-
+*[[x`\phi->y`\phi+;[y`e];x`e+
+  []x`0->y`0+;[~y`e];x`e-;[~x`0];y`0-;[y`e];x`e+
+  []x`1->y`1+;[~y`e];x`e-;[~x`1];y`1-;[y`e];x`e+
+  []~x`\phi->y`\phi-;[~y`e];x`e-
  ]]
 \end{hse}
 
 \noindent
-The source sends the $r$ symbol by raising $xr$, and the buffer
-acknowledges with $x_o\uparrow$. \\
-The buffer relays the $r$ to the sink with $yr\uparrow$, and the
-sink acknowledges by raising $y_i$. \\
+The source sends the $\phi$ symbol by raising $x_\phi$, and the buffer
+acknowledges with $x_e\uparrow$. \\
+The buffer relays the $\phi$ to the sink with $y_\phi\uparrow$, and the
+sink acknowledges by raising $y_e$. \\
 Data from the source is relayed to the sink with standard, unpipelined,
 4-phase handshakes. Note that the source is acknowledged with $x_o\downarrow$,
-and that the sink acknowledges the data by lowering $y_i$.
+and that the sink acknowledges the data by lowering $y_e$.
 The second half of the 4-phase handshakes returns the process to the state
 ready to receive data. \\
-The source sends the $\neg r$ symbol by lowering $xr$, and the buffer
-acknowledges with $x_o\downarrow$. \\
-The buffer relays the $\neg r$ to the sink with $yr\downarrow$, and the
-sink acknowledges by lowering $y_i$. \\
+The source sends the $\neg \phi$ symbol by lowering $x_\phi$, and the buffer
+acknowledges with $x_e\downarrow$. \\
+The buffer relays the $\neg \phi$ to the sink with $y_\phi\downarrow$, and the
+sink acknowledges by lowering $y_e$. \\
 
 \noindent
 The buffer's sequencing can be visualized in Figure~\ref{fig:protocol_net}.
@@ -233,10 +233,10 @@ Serial Source outputs random data.
 \subsubsection*{CHP}
 
 \begin{csp}
-*[[~u->Y!r;u+
+*[[~u->Y!\phi;u+
   []u->[true->Y!0
          \|true->Y!1
-         \|true->Y!\neg r;u-
+         \|true->Y!\neg \phi;u-
          ]
  ]]
 \end{csp}
@@ -248,10 +248,10 @@ data generation.
 \subsubsection*{HSE}
 
 \begin{hse}
-*[[~u->yr+;[ye];u+
-  []u->[true->y0+;[~ye];y0-;[ye]
-         \|true->y1+;[~ye];y1-;[ye]
-         \|true->yr-;[~ye];u-
+*[[~u->y`\phi+;[y`e];u+
+  []u->[true->y`0+;[~y`e];y`0-;[y`e]
+         \|true->y`1+;[~y`e];y`1-;[y`e]
+         \|true->y`\phi-;[~y`e];u-
          ]
  ]]
 \end{hse}
@@ -263,19 +263,19 @@ Serial Sink does as sinks do.
 \subsubsection*{CHP}
 
 \begin{csp}
-*[[#{X=r}->X?
+*[[#{X=\phi}->X?
   []#{X=0}|#{X=1}->X?
-  []#{X=\neg r}->X?
+  []#{X=\neg \phi}->X?
  ]]
 \end{csp}
 
 \subsubsection*{HSE}
 
 \begin{hse}
-*[[xr->xe+
-  []x0->xe-;[~x0];xe+
-  []x1->xe-;[~x1];xe+
-  []~xr->xe-
+*[[x`\phi->x`e+
+  []x`0->x`e-;[~x`0];x`e+
+  []x`1->x`e-;[~x`1];x`e+
+  []~x`\phi->x`e-
  ]]
 \end{hse}
 
@@ -311,13 +311,13 @@ branch it came from.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Neuron (NRN) \label{sec:AEXT_NRN}}
 
-From the perspective of the transmitter, neurons simply transmit $r$ to
-emit a spike and $\neg r$ after reset.
+From the perspective of the transmitter, neurons simply transmit $\phi$ to
+emit a spike and $\neg \phi$ after reset.
 
 \subsubsection*{CHP}
 
 \begin{csp}
-*[X!r;X!\neg r]
+*[X!\phi;X!\neg \phi]
 \end{csp}
 
 \subsubsection*{HSE}
@@ -2632,18 +2632,18 @@ y1 -> _y1-
 \subsubsection*{HSE}
 
 \begin{hse}
-*[[si];so+,y\phi+;
+*[[si];so+;[x0|x1];y\phi+
   [~si&ye];y\phi-;[~ye];so-]
 
-*[[x0->y0+;[~ye];xa+;[~x0];y0-;[ye];xa-
-  []x1->y1+;[~ye];xa+;[~x1];y1-;[ye];xa-
+*[[x0&ye->y0+;[~ye];xa+;[~x0];y0-;[ye];xa-
+  []x1&ye->y1+;[~ye];xa+;[~x1];y1-;[ye];xa-
  ]]
 \end{hse}
 
 \subsubsection*{PRS}
 
 \begin{prs2}
-si -> y\phi+
+x0 | x1 -> y\phi+
 ~si & ye -> y\phi-
 \end{prs2}
 
